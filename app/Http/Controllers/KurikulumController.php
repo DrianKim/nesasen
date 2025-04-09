@@ -9,25 +9,25 @@ class KurikulumController extends Controller
     public function data_walas()
     {
         $data = array(
-            'title' => 'Data Guru Wali Kelas',
+            'title' => 'Halaman Daftar Wali Kelas',
             'menu_admin_data_walas' => 'active',
         );
         return view('admin.kurikulum.data_walas', $data);
     }
 
-    public function data_siswa()
+    public function data_murid()
     {
         $data = array(
-            'title' => 'Data Siswa',
-            'menu_admin_data_siswa' => 'active',
+            'title' => 'Halaman Daftar Murid',
+            'menu_admin_data_murid' => 'active',
         );
-        return view('admin.kurikulum.data_siswa', $data);
+        return view('admin.kurikulum.data_murid', $data);
     }
 
     public function data_guru()
     {
         $data = array(
-            'title' => 'Data Guru',
+            'title' => 'Halaman Daftar Guru',
             'menu_admin_data_guru' => 'active',
         );
         return view('admin.kurikulum.data_guru', $data);

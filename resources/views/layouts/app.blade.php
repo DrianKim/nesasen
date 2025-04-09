@@ -102,10 +102,10 @@
             </li>
 
             <!-- Nav Item - Data Siswa -->
-            <li class="nav-item {{ $menu_admin_data_siswa ?? '' }}">
-                <a class="nav-link" href="{{ route('kurikulum_data_siswa') }}">
+            <li class="nav-item {{ $menu_admin_data_murid ?? '' }}">
+                <a class="nav-link" href="{{ route('kurikulum_data_murid') }}">
                     <i class="fas fa-fw fa-graduation-cap"></i>
-                    <span>Data Siswa</span></a>
+                    <span>Data Murid</span></a>
             </li>
 
             <!-- Nav Item - Data Guru -->
@@ -294,7 +294,7 @@
                                     </div>
                                     <div>
                                         <div class="text-gray-500 small">December 12, 2019</div>
-                                        <span class="font-weight-bold">A new monthly report is ready to download!</span>
+                                        <span class="font-weight-bold">Tugas Baru!</span>
                                     </div>
                                 </a>
                                 <a class="dropdown-item d-flex align-items-center" href="#">

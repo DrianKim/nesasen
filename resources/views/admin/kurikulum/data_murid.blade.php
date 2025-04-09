@@ -7,7 +7,7 @@
 
 <div class="mb-4 shadow card">
     <div class="py-3 card-header">
-        <h6 class="m-0 font-weight-bold text-primary">Daftar Guru</h6>
+        <h6 class="m-0 font-weight-bold text-primary">Daftar Murid</h6>
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -18,7 +18,7 @@
                         <th>Nama</th>
                         {{-- <th>Tanggal Lahir</th> --}}
                         <th>No Hp</th>
-                        <th>Nip</th>
+                        <th>Nisn</th>
                         <th>Jenis Kelamin</th>
                         {{-- <th>Alamat</th> --}}
                         {{-- <th>Foto</th> --}}
@@ -30,7 +30,7 @@
                 <tbody>
                     <tr>
                         <td class="text-center">1</td>
-                        <td>Enza Guru</td>
+                        <td>Muhammad Enza Suryadarmaji</td>
                         {{-- <td>01-01-2000</td> --}}
                         <td class="text-center">082121212121</td>
                         <td class="text-center">0087887788</td>
