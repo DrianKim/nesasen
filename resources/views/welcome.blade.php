@@ -155,7 +155,7 @@
                 <i class="flex-shrink-0 bi bi-geo-alt"></i>
                 <div>
                 <h3>Address</h3>
-                <p>Gang Rawabadak</p>
+                <p>Jl. Arief Rahman Hakim No.35, Karanganyar, Kec. Subang, Kabupaten Subang, Jawa Barat 41211</p>
                 </div>
             </div><!-- End Info Item -->
 
@@ -163,7 +163,7 @@
                 <i class="flex-shrink-0 bi bi-telephone"></i>
                 <div>
                 <h3>Call Us</h3>
-                <p>+62 877-2040-5130</p>
+                <p>0260411410</p>
                 </div>
             </div><!-- End Info Item -->
 
@@ -171,11 +171,11 @@
                 <i class="flex-shrink-0 bi bi-envelope"></i>
                 <div>
                 <h3>Email Us</h3>
-                <p>dd69@gmail.com</p>
+                <p>densyanto@gmail.com</p>
                 </div>
             </div><!-- End Info Item -->
 
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d253497.1393726255!2d107.47834459527094!3d-6.903421164625082!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e6398252477f%3A0x146a1f93d3e815b2!2sBandung%2C%20Kota%20Bandung%2C%20Jawa%20Barat!5e0!3m2!1sid!2sid!4v1742263986780!5m2!1sid!2sid" frameborder="0" style="border:0; width: 100%; height: 270px;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3963.7285140400804!2d107.75731297499314!3d-6.555916893437204!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e693c81014f0375%3A0x92c68964fc492d33!2sSMK%20Negeri%201%20Subang!5e0!3m2!1sid!2sid!4v1744180801592!5m2!1sid!2sid" frameborder="0" style="border:0; width: 100%; height: 270px;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
         </div>
 

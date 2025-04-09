@@ -31,7 +31,7 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
                     {{-- <i class="fas fa-laugh-wink"></i> --}}
                 <div class="mx-3 sidebar-brand-text">SMKN 1 Subang</div>
             </a>
@@ -45,8 +45,8 @@
             </div>
 
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item">
-                <a class="nav-link" href="index.html">
+            <li class="nav-item {{ $menuDashboard ?? '' }}">
+                <a class="nav-link" href="{{ route('dashboard') }}">
                     <i class="fas fa-fw fa-house-user"></i>
                     <span>Dashboard</span>
                 </a>
@@ -54,7 +54,7 @@
 
             <!-- Nav Item - Profil -->
             <li class="nav-item">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="#">
                     <i class="fas fa-fw fa-user"></i>
                     <span>Profil</span>
                 </a>
@@ -102,29 +102,29 @@
             </li>
 
             <!-- Nav Item - Data Siswa -->
-            <li class="nav-item">
-                <a class="nav-link" href="charts.html">
+            <li class="nav-item {{ $menu_admin_data_siswa ?? '' }}">
+                <a class="nav-link" href="{{ route('kurikulum_data_siswa') }}">
                     <i class="fas fa-fw fa-graduation-cap"></i>
                     <span>Data Siswa</span></a>
             </li>
 
             <!-- Nav Item - Data Guru -->
-            <li class="nav-item">
-                <a class="nav-link" href="tables.html">
+            <li class="nav-item {{ $menu_admin_data_guru ?? '' }}">
+                <a class="nav-link" href="{{ route('kurikulum_data_guru') }}">
                     <i class="fas fa-fw fa-users"></i>
                     <span>Data Guru</span></a>
             </li>
 
             <!-- Nav Item - Data Guru -->
-            <li class="nav-item">
-                <a class="nav-link" href="tables.html">
+            <li class="nav-item {{ $menu_admin_data_walas ?? '' }}">
+                <a class="nav-link" href="{{ route('kurikulum_data_walas') }}">
                     <i class="fas fa-fw fa-users"></i>
                     <span>Data Wali Kelas</span></a>
             </li>
 
             <!-- Nav Item - Pengumuman -->
             <li class="nav-item">
-                <a class="nav-link" href="tables.html">
+                <a class="nav-link" href="#">
                     <i class="fas fa-fw fa-clipboard"></i>
                     <span>Pengumuman (Opsional)</span></a>
             </li>
@@ -139,21 +139,21 @@
 
             <!-- Nav Item - Absensi Siswa -->
             <li class="nav-item">
-                <a class="nav-link" href="charts.html">
+                <a class="nav-link" href="#">
                     <i class="fas fa-fw fa-list"></i>
                     <span>Absensi Siswa</span></a>
             </li>
 
             <!-- Nav Item - Rekap Presensi -->
             <li class="nav-item">
-                <a class="nav-link" href="tables.html">
+                <a class="nav-link" href="#">
                     <i class="fas fa-fw fa-file"></i>
                     <span>Rekap Presensi</span></a>
             </li>
 
             <!-- Nav Item - Pengumuman -->
             <li class="nav-item">
-                <a class="nav-link" href="tables.html">
+                <a class="nav-link" href="#">
                     <i class="fas fa-fw fa-clipboard"></i>
                     <span>Catatan Wali Kelas (Opsional)</span></a>
             </li>
@@ -168,14 +168,14 @@
 
             <!-- Nav Item - Jadwal Mengajar -->
             <li class="nav-item">
-                <a class="nav-link" href="charts.html">
+                <a class="nav-link" href="#">
                     <i class="fas fa-fw fa-list"></i>
                     <span>Jadwal Mengajar</span></a>
             </li>
 
             <!-- Nav Item - Rekap Presensi -->
             <li class="nav-item">
-                <a class="nav-link" href="tables.html">
+                <a class="nav-link" href="#">
                     <i class="fas fa-fw fa-file"></i>
                     <span>Rekap Presensi</span></a>
             </li>
@@ -190,21 +190,21 @@
 
             <!-- Nav Item - Data Siswa -->
             <li class="nav-item">
-                <a class="nav-link" href="charts.html">
+                <a class="nav-link" href="#">
                     <i class="fas fa-fw fa-marker"></i>
                     <span>Tugas</span></a>
             </li>
 
             <!-- Nav Item - Data Guru -->
             <li class="nav-item">
-                <a class="nav-link" href="tables.html">
+                <a class="nav-link" href="#">
                     <i class="fas fa-fw fa-chalkboard"></i>
                     <span>Absensi</span></a>
             </li>
 
             <!-- Nav Item - Pengumuman -->
             <li class="nav-item">
-                <a class="nav-link" href="tables.html">
+                <a class="nav-link" href="#">
                     <i class="fas fa-fw fa-clipboard"></i>
                     <span>Catatan (Opsional)</span></a>
             </li>
@@ -232,7 +232,7 @@
                     </button>
 
                     <!-- Topbar Search -->
-                    <form
+                    {{-- <form
                         class="my-2 mr-auto d-none d-sm-inline-block form-inline ml-md-3 my-md-0 mw-100 navbar-search">
                         <div class="input-group">
                             <input type="text" class="border-0 form-control bg-light small" placeholder="Search for..."
@@ -243,7 +243,7 @@
                                 </button>
                             </div>
                         </div>
-                    </form>
+                    </form> --}}
 
                     <!-- Topbar Navbar -->
                     <ul class="ml-auto navbar-nav">
