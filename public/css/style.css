@@ -1,0 +1,5 @@
+import "@fontsource/lexend/400.css"; // Specify weight
+
+body {
+    font-family: "Lexend";
+}
