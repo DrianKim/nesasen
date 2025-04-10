@@ -11,16 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
+        Schema::create('murid', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_role');
-            $table->string('deskripsi')->nullable();
+            $table->foreignid('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignid('kelas_id')->constrained('kelas')->onDelete('cascade');
+            $table->string('nis')->unique();
             $table->timestamps();
         });
-
-    //     Schema::table('users', function (Blueprint $table) {
-    //         $table->foreignId('role_id')->after('email')->nullable()->constrained('roles')->onDelete('set null');
-    //     });
     }
 
     /**
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('roles');
+        Schema::dropIfExists('murid');
     }
 };

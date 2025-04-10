@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('walikelas', function (Blueprint $table) {
+        Schema::create('mata_pelajaran', function (Blueprint $table) {
             $table->id();
-            $table->foreignid('users_id')->constrained()->onDelete('cascade');
-            $table->foreignid('kelas_id')->constrained()->onDelete('cascade');
+            $table->string('nama_mapel');
+            $table->string('kode_mapel')->unique();
             $table->timestamps();
         });
+
     }
 
     /**
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('walikelas');
+        Schema::dropIfExists('mata_pelajaran');
     }
 };

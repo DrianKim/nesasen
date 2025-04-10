@@ -11,16 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
+        Schema::create('jurusan', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_role');
-            $table->string('deskripsi')->nullable();
+            $table->string('nama_jurusan');
+            $table->string('kode_jurusan')->unique();
             $table->timestamps();
         });
-
-    //     Schema::table('users', function (Blueprint $table) {
-    //         $table->foreignId('role_id')->after('email')->nullable()->constrained('roles')->onDelete('set null');
-    //     });
     }
 
     /**
@@ -28,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('roles');
+        Schema::dropIfExists('jurusan');
     }
 };

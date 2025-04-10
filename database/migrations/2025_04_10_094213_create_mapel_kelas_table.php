@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('absens', function (Blueprint $table) {
+        Schema::create('mapel_kelas', function (Blueprint $table) {
             $table->id();
-            $table->foreignid('user_id')->constrained()->onDelete('cascade');
-            $table->foreignid('mapel_id')->constrained()->onDelete('cascade');
-            $table->date('tanggal');
-            $table->enum('status', ['Hadir', 'Izin', 'Sakit', 'Alfa']);
+            $table->foreignid('mapel_id')->constrained('mata_pelajaran')->onDelete('cascade');
+            $table->foreignid('kelas_id')->constrained('kelas')->onDelete('cascade');
+            $table->foreignid('guru_id')->constrained('guru_mapel')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('absens');
+        Schema::dropIfExists('mapel_kelas');
     }
 };
