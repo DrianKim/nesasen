@@ -3,7 +3,17 @@
 @section('content')
 
 <!-- Page Heading -->
-<h1 class="mb-4 text-gray-800 h3">{{ $title }} </h1>
+<h1 class="mb-4 text-gray-800 h3">{{ $title }}
+    @if(auth()->user()->role_id === 1)
+                                Admin
+    @elseif(auth()->user()->role_id === 2)
+                                Wali Kelas
+    @elseif(auth()->user()->role_id === 3)
+                                Guru
+    @elseif(auth()->user()->role_id === 4)
+                                Murid
+    @endif
+</h1>
 
 <!-- Content Row -->
 <div class="row">
@@ -14,9 +24,9 @@
                 <div class="row no-gutters align-items-center">
                     <div class="mr-2 col">
                         <h4 class="mb-1 font-weight-bold text-primary">SMKN 1 Subang</h4>
-                        <p class="mb-1"><i class="text-gray-500 fas fa-map-marker-alt fa-sm fa-fw"></i>Jl. Arief Rahman Hakim No.35, Pasirkareumbi, Kec. Subang, Kabupaten Subang, Jawa Barat 41211</p>
-                        <p class="mb-1"><i class="text-gray-500 fas fa-phone fa-sm fa-fw"></i>(0260) 411975</p>
-                        <p class="mb-0"><i class="text-gray-500 fas fa-envelope fa-sm fa-fw"></i>info@smkn1subang.sch.id</p>
+                        <p class="mb-1"><i class="text-gray-500 fas fa-map-marker-alt fa-sm fa-fw"></i> Jl. Arief Rahman Hakim No.35, Pasirkareumbi, Kec. Subang, Kabupaten Subang, Jawa Barat 41211</p>
+                        <p class="mb-1"><i class="text-gray-500 fas fa-phone fa-sm fa-fw"></i> (0260) 411975</p>
+                        <p class="mb-0"><i class="text-gray-500 fas fa-envelope fa-sm fa-fw"></i> info@smkn1subang.sch.id</p>
                     </div>
                 </div>
             </div>
@@ -24,7 +34,7 @@
     </div>
 
     <!-- Dinamis sesuai role pengguna -->
-    {{-- @if(auth()->user()->role == 'admin') --}}
+    @if(auth()->user()->role_id === 1 || 2 || 3)
     <!-- Admin Stats Cards -->
     <div class="mb-4 col-xl-6 col-md-6">
         <div class="row">
@@ -54,7 +64,7 @@
                             <div class="mr-2 col">
                                 <div class="mb-1 text-xs font-weight-bold text-info text-uppercase">
                                     Total Guru</div>
-                                <div class="mb-0 text-gray-800 h5 font-weight-bold">45</div>
+                                <div class="mb-0 text-gray-800 h5 font-weight-bold">95</div>
                             </div>
                             <div class="col-auto">
                                 <i class="text-gray-300 fas fa-chalkboard-teacher fa-2x"></i>
@@ -72,7 +82,7 @@
                             <div class="mr-2 col">
                                 <div class="mb-1 text-xs font-weight-bold text-warning text-uppercase">
                                     Total Wali Kelas</div>
-                                <div class="mb-0 text-gray-800 h5 font-weight-bold">25</div>
+                                <div class="mb-0 text-gray-800 h5 font-weight-bold">28</div>
                             </div>
                             <div class="col-auto">
                                 <i class="text-gray-300 fas fa-users fa-2x"></i>
@@ -83,7 +93,7 @@
             </div>
         </div>
     </div>
-    {{-- @elseif(auth()->user()->role == 'teacher') --}}
+    @elseif(auth()->user()->role_id === 3)
     <!-- Guru/Walas Stats Cards -->
     <div class="mb-4 col-xl-6 col-md-6">
         <div class="row">
@@ -105,7 +115,7 @@
                 </div>
             </div>
 
-            {{-- @if(auth()->user()->is_homeroom_teacher) --}}
+            @if(auth()->user()->role_id === 2)
             <!-- Wali Kelas Card -->
             <div class="mb-4 col-xl-6 col-md-6">
                 <div class="py-2 shadow card border-left-info h-100">
@@ -123,10 +133,10 @@
                     </div>
                 </div>
             </div>
-            {{-- @endif --}}
+            @endif
         </div>
     </div>
-    {{-- @elseif(auth()->user()->role == 'student') --}}
+    @elseif(auth()->user()->role_id === 4)
     <!-- Siswa Assignments Card -->
     <div class="mb-4 col-xl-6 col-md-6">
         <div class="py-2 shadow card border-left-warning h-100">
@@ -174,24 +184,35 @@
             </div>
         </div>
     </div>
-    {{-- @endif --}}
+    @endif
 </div>
 
 <!-- Content Row -->
 <div class="row">
     <!-- Statistik Absensi Chart -->
-    <div class="mb-4 col-xl-6 col-md-6">
-        <div class="mb-4 shadow card">
-            <div class="flex-row py-3 card-header d-flex align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Statistik Absensi Murid</h6>
+    <div class="p-6 bg-white shadow-md rounded-xl">
+        <h2 class="mb-4 text-xl font-semibold text-center">Statistik Kehadiran</h2>
+        <div class="flex flex-row items-center justify-between gap-6">
+            <!-- Rata-Rata Hadir -->
+            <div class="flex-1 min-w-0 text-center">
+                <h3 class="mb-2 font-medium">Hadir</h3>
+                <canvas id="chartHadir" class="mx-auto max-w-[150px]"></canvas>
             </div>
-            <div class="card-body">
-                <div class="chart-area">
-                    <canvas id="attendanceChart"></canvas>
-                </div>
+
+            <!-- Rata-Rata Izin -->
+            <div class="flex-1 min-w-0 text-center">
+                <h3 class="mb-2 font-medium">Izin</h3>
+                <canvas id="chartIzin" class="mx-auto max-w-[150px]"></canvas>
+            </div>
+
+            <!-- Rata-Rata Alfa -->
+            <div class="flex-1 min-w-0 text-center">
+                <h3 class="mb-2 font-medium">Alfa</h3>
+                <canvas id="chartAlfa" class="mx-auto max-w-[150px]"></canvas>
             </div>
         </div>
     </div>
+
 
     <!-- Pengumuman Card -->
     <div class="mb-4 col-xl-6 col-md-6">
@@ -362,4 +383,32 @@ var myLineChart = new Chart(ctx, {
     }
 });
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const configPie = (label, color) => ({
+        type: 'doughnut',
+        data: {
+            labels: [label, 'Lainnya'],
+            datasets: [{
+                data: [70, 30], // ini bisa kamu sesuaikan
+                backgroundColor: [color, '#e5e7eb'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            cutout: '70%',
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false },
+            }
+        }
+    });
+
+    new Chart(document.getElementById('chartHadir'), configPie('Hadir', '#10b981'));
+    new Chart(document.getElementById('chartIzin'), configPie('Izin', '#f59e0b'));
+    new Chart(document.getElementById('chartAlfa'), configPie('Alfa', '#ef4444'));
+</script>
+
+
 @endsection

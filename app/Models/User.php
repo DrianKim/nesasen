@@ -26,8 +26,13 @@ class User extends Authenticatable
         'jenis_kelamin',
         'alamat',
         'foto_profil',
-        'role_id',
+        'role_id'
     ];
+
+    public function usernanme()
+    {
+        return 'username';
+    }
 
     /**
      * The attributes that should be hidden for serialization.

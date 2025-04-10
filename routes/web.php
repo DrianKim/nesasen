@@ -14,6 +14,7 @@ Route::get('dashboard',[DashboardController::class,'index'])->name('dashboard');
 
 Route::get('login',[AuthController::class,'index'])->name('login');
 Route::post('login',[AuthController::class,'loginProses'])->name('loginProses');
+Route::get('logout',[AuthController::class,'logout'])->name('logout');
 
 Route::get('murid',[KurikulumController::class,'data_murid'])->name('kurikulum_data_murid');
 Route::get('data_guru',[KurikulumController::class,'data_guru'])->name('kurikulum_data_guru');

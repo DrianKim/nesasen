@@ -16,25 +16,26 @@ class AuthController extends Controller
     {
         // dd($request);
         $request->validate([
-            'email' => 'required|email',
+            'username' => 'required',
             'password' => 'required|min:3',
         ], [
-            'email.required' => 'Email wajib diisi',
+            'username.required' => 'Username wajib diisi',
             'password.required' => 'Password wajib diisi',
             'password.min' => 'Password minimal 3 karakter',
         ]);
 
         $data = array(
-            'email' => $request->email,
+            'username' => $request->username,
             'password' => $request->password,
         );
 
         if (Auth::attempt($data)) {
+            // dd(Auth::user());
             return redirect()->route('dashboard')
-                                    ->with('success', 'Anda Berhasil Login');
+                ->with('success', 'Anda Berhasil Login');
         } else {
             return redirect()->back()
-                            ->with('error', 'Email atau Password salah');
+                ->with('error', 'Username atau Password Salah');
         }
 
     }
