@@ -36,7 +36,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'username' => 'murid',
-                'nama' => 'Siswa/i Sekolah',
+                'nama' => 'Siswa/i',
                 'password' => Hash::make('murid'),
                 'role_id' => 4,
             ],
