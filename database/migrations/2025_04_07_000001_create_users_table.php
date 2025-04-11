@@ -17,10 +17,6 @@ return new class extends Migration
             $table->string('password');
             $table->string('nama');
             $table->string('email')->unique()->nullable();
-            $table->string('no_hp')->nullable();
-            $table->enum('jenis_kelamin', ['Laki-laki', 'Perempuan'])->nullable();
-            $table->text('alamat')->nullable();
-            $table->string('foto_profil')->nullable();
             $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
             $table->rememberToken();
             $table->timestamps();

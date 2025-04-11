@@ -41,21 +41,21 @@
 
 <!-- Nav Item - Data Siswa -->
 <li class="nav-item {{ $menu_admin_data_murid ?? '' }}">
-    <a class="nav-link" href="{{ route('kurikulum_data_murid') }}">
+    <a class="nav-link" href="{{ route('admin_murid') }}">
         <i class="fas fa-fw fa-graduation-cap"></i>
         <span>Data Murid</span></a>
 </li>
 
 <!-- Nav Item - Data Guru -->
 <li class="nav-item {{ $menu_admin_data_guru ?? '' }}">
-    <a class="nav-link" href="{{ route('kurikulum_data_guru') }}">
+    <a class="nav-link" href="{{ route('admin_guru') }}">
         <i class="fas fa-fw fa-chalkboard-teacher"></i>
         <span>Data Guru</span></a>
 </li>
 
 <!-- Nav Item - Data Guru -->
 <li class="nav-item {{ $menu_admin_data_walas ?? '' }}">
-    <a class="nav-link" href="{{ route('kurikulum_data_walas') }}">
+    <a class="nav-link" href="{{ route('admin_walas') }}">
         <i class="fas fa-fw fa-chalkboard-teacher"></i>
         <span>Data Wali Kelas</span></a>
 </li>

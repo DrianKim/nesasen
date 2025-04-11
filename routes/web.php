@@ -25,6 +25,6 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
     Route::get('admin_murid', [KurikulumController::class, 'data_murid'])->name('admin_murid');
     Route::get('admin_murid_create', [KurikulumController::class, 'create_murid'])->name('admin_murid_create');
 
-    Route::get('admin_guru', [KurikulumController::class, 'data_guru'])->name('kurikulum_data_guru');
-    Route::get('admin_walas', [KurikulumController::class, 'data_walas'])->name('kurikulum_data_walas');
+    Route::get('admin_guru', [KurikulumController::class, 'data_guru'])->name('admin_guru');
+    Route::get('admin_walas', [KurikulumController::class, 'data_walas'])->name('admin_walas');
 });

@@ -54,121 +54,32 @@
                                 <th width="30%">Nama Lengkap</th>
                                 <th width="15%">Kelas</th>
                                 <th width="15%">Jenis Kelamin</th>
-                                <th width="15%">NISN</th>
+                                <th width="15%">NIS</th>
                                 <th width="20%">Aksi</th>
                             </tr>
                         </thead>
+
                         <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>Muhammad Enza Suryadarmaji</td>
-                                <td>X IPA 1</td>
-                                <td>
-                                    <span class="gender-badge male-badge">
-                                        <i class="fas fa-mars"></i> Laki-laki
-                                    </span>
-                                </td>
-                                <td>0087887788</td>
-                                <td>
-                                    <a href="#" class="action-btn btn-info">
-                                        <i class="fas fa-eye"></i> Detail
-                                    </a>
-                                    <a href="#" class="action-btn btn-edit">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                    <a href="#" class="action-btn btn-delete">
+                            @foreach ($murid as $item)
+                            <tr class="text-center">
+                                <td class="text-center">{{ $loop->iteration }}</td>
+                                <td class="p-2 border">{{ $item->user->nama }}</td>
+                                <td class="p-2 border">{{ $item->kelas->tingkat }}</td>
+                                <td class="p-2 border">{{ $item->jenis_kelamin }}</td>
+                                <td class="p-2 border">{{ $item->nis }}</td>
+                                <td class="p-2 border">
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm"">
                                         <i class="fas fa-trash"></i>
-                                    </a>
+                                    </button>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>Aisyah Putri Ramadhani</td>
-                                <td>XI IPS 2</td>
-                                <td>
-                                    <span class="gender-badge female-badge">
-                                        <i class="fas fa-venus"></i> Perempuan
-                                    </span>
-                                </td>
-                                <td>0099887766</td>
-                                <td>
-                                    <a href="#" class="action-btn btn-info">
-                                        <i class="fas fa-eye"></i> Detail
-                                    </a>
-                                    <a href="#" class="action-btn btn-edit">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                    <a href="#" class="action-btn btn-delete">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>Budi Santoso</td>
-                                <td>X IPA 2</td>
-                                <td>
-                                    <span class="gender-badge male-badge">
-                                        <i class="fas fa-mars"></i> Laki-laki
-                                    </span>
-                                </td>
-                                <td>0087654321</td>
-                                <td>
-                                    <a href="#" class="action-btn btn-info">
-                                        <i class="fas fa-eye"></i> Detail
-                                    </a>
-                                    <a href="#" class="action-btn btn-edit">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                    <a href="#" class="action-btn btn-delete">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>4</td>
-                                <td>Diana Permata Sari</td>
-                                <td>XII Bahasa 1</td>
-                                <td>
-                                    <span class="gender-badge female-badge">
-                                        <i class="fas fa-venus"></i> Perempuan
-                                    </span>
-                                </td>
-                                <td>0088776655</td>
-                                <td>
-                                    <a href="#" class="action-btn btn-info">
-                                        <i class="fas fa-eye"></i> Detail
-                                    </a>
-                                    <a href="#" class="action-btn btn-edit">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                    <a href="#" class="action-btn btn-delete">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>5</td>
-                                <td>Faisal Rahman</td>
-                                <td>XI IPA 3</td>
-                                <td>
-                                    <span class="gender-badge male-badge">
-                                        <i class="fas fa-mars"></i> Laki-laki
-                                    </span>
-                                </td>
-                                <td>0099112233</td>
-                                <td>
-                                    <a href="#" class="action-btn btn-info">
-                                        <i class="fas fa-eye"></i> Detail
-                                    </a>
-                                    <a href="#" class="action-btn btn-edit">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                    <a href="#" class="action-btn btn-delete">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>

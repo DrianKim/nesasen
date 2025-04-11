@@ -22,10 +22,6 @@ class User extends Authenticatable
         'password',
         'nama',
         'email',
-        'no_hp',
-        'jenis_kelamin',
-        'alamat',
-        'foto_profil',
         'role_id'
     ];
 
@@ -34,6 +30,10 @@ class User extends Authenticatable
         return 'username';
     }
 
+    public function murid()
+    {
+        return $this->hasOne(Murid::class, 'user_id');
+    }
 
     public function role()
     {

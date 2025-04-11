@@ -12,8 +12,8 @@ class Role extends Model
     'deskripsi'
 ];
 
-    // public function users()
-    // {
-    //     return $this->hasMany(User::class);
-    // }
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
 }
