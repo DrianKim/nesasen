@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>M-Kelas | Login</title>
+    <title>Login - Manajemen Kelas</title>
 
     <!-- Custom fonts for this template-->
     <link href="{{ asset('sbadmin2/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
@@ -20,74 +20,91 @@
     <!-- Custom styles for this template-->
     <link href="{{ asset('sbadmin2/css/sb-admin-2.min.css') }}" rel="stylesheet">
 
-</head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
 
-<body class="bg-gradient-primary">
+<body>
+    <div class="container" id="container">
 
-    <div class="container">
+        <!-- SIGN UP -->
+        <div class="form-container sign-up">
+            <form method="POST" action="{{ route('registerProses') }}">
+                @csrf
+                <h1>Sign Up</h1>
 
-        <!-- Outer Row -->
-        <div class="row justify-content-center">
+                <span>Silakan daftar dengan mengisi form berikut</span>
 
-            <div class="col-xl-10 col-lg-12 col-md-9">
+                <input type="text" name="name" placeholder="Nama Lengkap" value="{{ old('name') }}" required />
+                @if ($errors->register->has('name'))
+                    <span style="color:red;">{{ $errors->register->first('name') }}</span>
+                @endif
 
-                <div class="my-5 border-0 shadow-lg card o-hidden">
-                    <div class="p-0 card-body">
-                        <!-- Nested Row within Card Body -->
-                        <div class="row">
-                            <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
-                            <div class="col-lg-6">
-                                <div class="p-5">
-                                    <div class="text-center">
-                                        <h1 class="mb-4 text-gray-900 h4">Selamat Datang!</h1>
-                                    </div>
-                                    <form class="user" method="post" action="{{ route('loginProses') }}">
-                                        @csrf
-                                        <div class="form-group">
-                                            <input type="text" class="form-control form-control-user @error('username') is-invalid @enderror" id="username" name="username" value="{{ old('username') }}" placeholder="Masukkan Username">
-                                            @error('username')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
-                                            @enderror
-                                        </div>
-                                        <div class="form-group">
-                                            <input type="password" class="form-control form-control-user @error('password') is-invalid @enderror" id="password" name="password" placeholder="Masukkan Password">
-                                            @error('password')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
-                                            @enderror
-                                        </div>
-                                        <div class="form-group">
-                                            <div class="custom-control custom-checkbox small">
-                                                <input type="checkbox" class="custom-control-input" id="customCheck" name="remember">
-                                                <label class="custom-control-label" for="customCheck">Remember
-                                                    Me</label>
-                                            </div>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary btn-user btn-block">
-                                            Login
-                                        </button>
-                                        <hr>
-                                    </form>
-                                        <div class="text-center">
-                                            <a class="small" href="{{ route('welcome') }}">Kembali Ke Beranda?</a>
-                                        </div>
-                                        {{-- <div class="text-center">
-                                            <a class="small" href="register.html">Create an Account!</a>
-                                        </div> --}}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <input type="text" name="username" placeholder="Username" value="{{ old('username') }}" required />
+                @if ($errors->register->has('username'))
+                    <span style="color:red;">{{ $errors->register->first('username') }}</span>
+                @endif
+
+                <input type="email" name="email" placeholder="Email" value="{{ old('email') }}" required />
+                @if ($errors->register->has('email'))
+                    <span style="color:red;">{{ $errors->register->first('email') }}</span>
+                @endif
+
+                <input type="password" name="password" placeholder="Password" required />
+                @if ($errors->register->has('password'))
+                    <span style="color:red;">{{ $errors->register->first('password') }}</span>
+                @endif
+
+                <input type="password" name="password_confirmation" placeholder="Konfirmasi Password" required />
+
+                <button type="submit">Sign Up</button>
+                <div class="text-center">
+                    <a class="small" href="{{ route('welcome') }}">Kembali Ke Beranda?</a>
                 </div>
-
-            </div>
-
+            </form>
         </div>
 
+        <!-- SIGN IN -->
+        <div class="form-container sign-in">
+            <form method="POST" action="{{ route('loginProses') }}">
+                @csrf
+                <h1>Sign In</h1>
+                <span>Masuk dengan username dan password</span>
+
+                <input type="text" name="username" placeholder="Username" value="{{ old('username') }}" required />
+                @error('username')
+                    <span style="color:red;">{{ $message }}</span>
+                @enderror
+
+                <input type="password" name="password" placeholder="Password" required />
+                @error('password')
+                    <span style="color:red;">{{ $message }}</span>
+                @enderror
+
+                <button type="submit">Sign In</button>
+                <div class="text-center">
+                    <a class="small" href="{{ route('welcome') }}">Kembali Ke Beranda?</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- TOGGLE PANEL -->
+        <div class="toggle-container">
+            <div class="toggle">
+                <div class="toggle-panel toggle-left">
+                    <h1>Selamat Datang Kembali!</h1>
+                    <p>Untuk melanjutkan, silakan masuk ke akun yang sudah ada</p>
+                    <button class="hidden" id="login">Sign In</button>
+                </div>
+                <div class="toggle-panel toggle-right">
+                    <h1>Halo, Teman!</h1>
+                    <p>Daftarkan dirimu untuk mendapatkan akses ke semua fitur yang ada</p>
+                    <button class="hidden" id="register">Sign Up</button>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script src="{{ asset('assets/js/script.js') }}"></script>
 
     <!-- Bootstrap core JavaScript-->
     <script src="{{ asset('sbadmin2/vendor/jquery/jquery.min.js') }}"></script>
@@ -104,7 +121,7 @@
         <script>
             Swal.fire({
                 icon: 'success',
-                title: 'Berhasil',
+                title: 'Sukses',
                 text: '{{ session('success') }}',
             });
         </script>

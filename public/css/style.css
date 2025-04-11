@@ -1,5 +1,316 @@
 import "@fontsource/lexend/400.css"; // Specify weight
 
+:root {
+--primary: #4361ee;
+--primary-light: #ebefff;
+--secondary: #6c757d;
+--success: #2ecc71;
+--info: #3498db;
+--warning: #f39c12;
+--danger: #e74c3c;
+--light: #f8f9fa;
+--dark: #343a40;
+--white: #ffffff;
+--border: #e9ecef;
+--radius: 8px;
+}
+
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
 body {
-    font-family: "Lexend";
+background-color: #f5f7fb;
+color: #333;
+line-height: 1.6;
+}
+
+.container {
+max-width: 1200px;
+margin: 2rem auto;
+padding: 0 1rem;
+}
+
+.card {
+background-color: var(--white);
+border-radius: var(--radius);
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+overflow: hidden;
+}
+
+.card-header {
+padding: 1.5rem;
+background-color: var(--white);
+border-bottom: 1px solid var(--border);
+display: flex;
+justify-content: space-between;
+align-items: center;
+flex-wrap: wrap;
+gap: 1rem;
+}
+
+.card-title {
+font-size: 1.25rem;
+font-weight: 600;
+color: var(--primary);
+margin: 0;
+display: flex;
+align-items: center;
+gap: 0.5rem;
+}
+
+.card-title i {
+font-size: 1.2rem;
+}
+
+.filter-form {
+display: flex;
+gap: 0.75rem;
+align-items: center;
+flex-wrap: wrap;
+}
+
+.form-group {
+position: relative;
+}
+
+.form-select, .form-control {
+padding: 0.5rem 1rem;
+border-radius: var(--radius);
+border: 1px solid var(--border);
+font-size: 0.9rem;
+min-width: 180px;
+background-color: var(--white);
+transition: all 0.2s ease;
+}
+
+.form-select:focus, .form-control:focus {
+outline: none;
+border-color: var(--primary);
+box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+}
+
+.btn {
+padding: 0.5rem 1.25rem;
+border-radius: var(--radius);
+border: none;
+font-size: 0.9rem;
+font-weight: 500;
+cursor: pointer;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 0.5rem;
+transition: all 0.2s ease;
+}
+
+.btn-primary {
+background-color: var(--primary);
+color: var(--white);
+}
+
+.btn-primary:hover {
+background-color: #3450dd;
+transform: translateY(-1px);
+}
+
+.btn-primary:active {
+transform: translateY(0);
+}
+
+.btn-outline {
+background-color: transparent;
+color: var(--primary);
+border: 1px solid var(--primary);
+}
+
+.btn-outline:hover {
+background-color: var(--primary-light);
+}
+
+.btn-sm {
+padding: 0.35rem 0.75rem;
+font-size: 0.8rem;
+}
+
+.card-body {
+padding: 1.5rem;
+}
+
+.search-box {
+margin-bottom: 1.5rem;
+position: relative;
+}
+
+.search-input {
+width: 100%;
+padding: 0.75rem 1rem 0.75rem 2.75rem;
+border-radius: var(--radius);
+border: 1px solid var(--border);
+font-size: 0.9rem;
+transition: all 0.2s ease;
+}
+
+.search-input:focus {
+outline: none;
+border-color: var(--primary);
+box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+}
+
+.search-icon {
+position: absolute;
+left: 1rem;
+top: 50%;
+transform: translateY(-50%);
+color: var(--secondary);
+}
+
+.table-container {
+overflow-x: auto;
+border-radius: var(--radius);
+border: 1px solid var(--border);
+}
+
+table {
+width: 100%;
+border-collapse: collapse;
+white-space: nowrap;
+}
+
+table th, table td {
+padding: 1rem;
+text-align: left;
+border-bottom: 1px solid var(--border);
+}
+
+table th {
+background-color: #f8fafd;
+font-weight: 600;
+color: #4a5568;
+font-size: 0.9rem;
+}
+
+table tr:last-child td {
+border-bottom: none;
+}
+
+table tr:hover {
+background-color: #f8fafd;
+}
+
+.gender-badge {
+padding: 0.35rem 0.75rem;
+border-radius: 20px;
+font-size: 0.75rem;
+font-weight: 500;
+display: inline-block;
+}
+
+.male-badge {
+background-color: #ebf5ff;
+color: #3498db;
+}
+
+.female-badge {
+background-color: #feeaf3;
+color: #e84393;
+}
+
+.action-btn {
+padding: 0.35rem 0.75rem;
+border-radius: var(--radius);
+font-size: 0.8rem;
+text-decoration: none;
+display: inline-flex;
+align-items: center;
+gap: 0.3rem;
+transition: all 0.2s ease;
+}
+
+.btn-info {
+background-color: #e3f2fd;
+color: #2196f3;
+}
+
+.btn-info:hover {
+background-color: #bbdefb;
+}
+
+.btn-edit {
+background-color: #fff8e1;
+color: #ffc107;
+}
+
+.btn-edit:hover {
+background-color: #ffecb3;
+}
+
+.btn-delete {
+background-color: #ffebee;
+color: #f44336;
+}
+
+.btn-delete:hover {
+background-color: #ffcdd2;
+}
+
+.pagination {
+display: flex;
+justify-content: flex-end;
+margin-top: 1.5rem;
+gap: 0.5rem;
+}
+
+.page-item {
+display: inline-flex;
+}
+
+.page-link {
+padding: 0.5rem 0.75rem;
+border-radius: var(--radius);
+background-color: var(--white);
+border: 1px solid var(--border);
+color: var(--dark);
+text-decoration: none;
+transition: all 0.2s ease;
+}
+
+.page-link:hover {
+background-color: var(--primary-light);
+color: var(--primary);
+}
+
+.page-item.active .page-link {
+background-color: var(--primary);
+color: var(--white);
+border-color: var(--primary);
+}
+
+.page-info {
+margin-top: 1.5rem;
+font-size: 0.9rem;
+color: var(--secondary);
+}
+
+@media (max-width: 768px) {
+.card-header {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.filter-form {
+    flex-direction: column;
+    width: 100%;
+}
+
+.form-select, .form-control {
+    width: 100%;
+}
+
+.btn-filter {
+    width: 100%;
+}
 }

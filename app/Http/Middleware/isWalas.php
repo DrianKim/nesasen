@@ -16,11 +16,10 @@ class isAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()->role_id === 1) {
+        if (Auth::check() && Auth::user()->role_id === 2) {
             return $next($request);
         }
 
-        // return redirect()->route('dashboard')->with('error', 'Kamu gak punya akses ke halaman ini');
         abort(404);
     }
 }

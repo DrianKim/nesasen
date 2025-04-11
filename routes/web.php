@@ -10,12 +10,21 @@ Route::get('/', function () {
 })->name('welcome');
 
 // Dashboard
-Route::get('dashboard',[DashboardController::class,'index'])->name('dashboard');
+Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-Route::get('login',[AuthController::class,'index'])->name('login');
-Route::post('login',[AuthController::class,'loginProses'])->name('loginProses');
-Route::get('logout',[AuthController::class,'logout'])->name('logout');
+// Login
+Route::get('login', [AuthController::class, 'index'])->name('login');
+Route::post('login', [AuthController::class, 'loginProses'])->name('loginProses');
+Route::get('logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('murid',[KurikulumController::class,'data_murid'])->name('kurikulum_data_murid');
-Route::get('data_guru',[KurikulumController::class,'data_guru'])->name('kurikulum_data_guru');
-Route::get('data_walas',[KurikulumController::class,'data_walas'])->name('kurikulum_data_walas');
+// Register
+Route::post('register', [AuthController::class, 'registerProses'])->name('registerProses');
+
+Route::middleware(['auth', 'isAdmin'])->group(function () {
+    // murid
+    Route::get('admin_murid', [KurikulumController::class, 'data_murid'])->name('admin_murid');
+    Route::get('admin_murid_create', [KurikulumController::class, 'create_murid'])->name('admin_murid_create');
+
+    Route::get('admin_guru', [KurikulumController::class, 'data_guru'])->name('kurikulum_data_guru');
+    Route::get('admin_walas', [KurikulumController::class, 'data_walas'])->name('kurikulum_data_walas');
+});

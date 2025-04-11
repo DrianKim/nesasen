@@ -12,7 +12,7 @@ class KurikulumController extends Controller
             'title' => 'Halaman Daftar Wali Kelas',
             'menu_admin_data_walas' => 'active',
         );
-        return view('admin.kurikulum.data_walas', $data);
+        return view('admin.kurikulum.walas.index', $data);
     }
 
     public function data_murid()
@@ -21,7 +21,7 @@ class KurikulumController extends Controller
             'title' => 'Halaman Daftar Murid',
             'menu_admin_data_murid' => 'active',
         );
-        return view('admin.kurikulum.data_murid', $data);
+        return view('admin.kurikulum.murid.index', $data);
     }
 
     public function data_guru()
@@ -30,6 +30,6 @@ class KurikulumController extends Controller
             'title' => 'Halaman Daftar Guru',
             'menu_admin_data_guru' => 'active',
         );
-        return view('admin.kurikulum.data_guru', $data);
+        return view('admin.kurikulum.guru.index', $data);
     }
 }

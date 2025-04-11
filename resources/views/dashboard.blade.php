@@ -143,7 +143,7 @@
                                 </div>
                                 <div class="mb-2">
                                     <div class="font-weight-bold">Proyek Website - Final</div>
-                                    <div class="small"><span class="text-gray-600">Guru: Bapak Rudi</span> - <span class="text-danger">Due: 20 Apr 2025</span></div>
+                                    <div class="small"><span class="text-gray-600">Guru: Bapak Rusdi</span> - <span class="text-danger">Due: 20 Apr 2025</span></div>
                                 </div>
                             </div>
                         </div>
@@ -157,7 +157,6 @@
     @endif
 
 </div>
-
 <!-- Pengumuman -->
 <div class="row">
     <div class="mb-4 col-xl-6 col-md-6">
