@@ -10,27 +10,34 @@
 
 <body>
   <div class="container" id="container">
-    <!-- Sign Up (REGISTER) -->
+
+    <!-- SIGN UP -->
     <div class="form-container sign-up">
-      <form method="POST" action="{{ route('register') }}">
+      <form method="POST" action="{{ route('registerProses') }}">
         @csrf
         <h1>Sign Up</h1>
-        <div class="social-icons">
-          <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
-          <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
-          <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
-          <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
-        </div>
-        <span>atau gunakan email untuk daftar</span>
 
-        <input type="text" name="name" placeholder="Username" value="{{ old('name') }}" required />
-        @error('name') <span style="color:red;">{{ $message }}</span> @enderror
+        <span>Silakan daftar dengan mengisi form berikut</span>
+
+        <input type="text" name="name" placeholder="Nama Lengkap" value="{{ old('name') }}" required />
+        @if ($errors->register->has('name'))
+          <span style="color:red;">{{ $errors->register->first('name') }}</span>
+        @endif
+
+        <input type="text" name="username" placeholder="Username" value="{{ old('username') }}" required />
+        @if ($errors->register->has('username'))
+          <span style="color:red;">{{ $errors->register->first('username') }}</span>
+        @endif
 
         <input type="email" name="email" placeholder="Email" value="{{ old('email') }}" required />
-        @error('email') <span style="color:red;">{{ $message }}</span> @enderror
+        @if ($errors->register->has('email'))
+          <span style="color:red;">{{ $errors->register->first('email') }}</span>
+        @endif
 
         <input type="password" name="password" placeholder="Password" required />
-        @error('password') <span style="color:red;">{{ $message }}</span> @enderror
+        @if ($errors->register->has('password'))
+          <span style="color:red;">{{ $errors->register->first('password') }}</span>
+        @endif
 
         <input type="password" name="password_confirmation" placeholder="Konfirmasi Password" required />
 
@@ -38,31 +45,24 @@
       </form>
     </div>
 
-    <!-- Sign In (LOGIN) -->
+    <!-- SIGN IN -->
     <div class="form-container sign-in">
-      <form method="POST" action="{{ route('login') }}">
+      <form method="POST" action="{{ route('loginProses') }}">
         @csrf
         <h1>Sign In</h1>
-        <div class="social-icons">
-          <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
-          <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
-          <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
-          <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
-        </div>
-        <span>Masuk dengan email & password</span>
+        <span>Masuk dengan username dan password</span>
 
-        <input type="email" name="email" placeholder="Email" value="{{ old('email') }}" required />
-        @error('email') <span style="color:red;">{{ $message }}</span> @enderror
+        <input type="text" name="username" placeholder="Username" value="{{ old('username') }}" required />
+        @error('username') <span style="color:red;">{{ $message }}</span> @enderror
 
         <input type="password" name="password" placeholder="Password" required />
         @error('password') <span style="color:red;">{{ $message }}</span> @enderror
 
-        <a href="#">Lupa password?</a>
         <button type="submit">Sign In</button>
       </form>
     </div>
 
-    <!-- Panel toggle -->
+    <!-- TOGGLE PANEL -->
     <div class="toggle-container">
       <div class="toggle">
         <div class="toggle-panel toggle-left">
