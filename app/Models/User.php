@@ -30,15 +30,27 @@ class User extends Authenticatable
         return 'username';
     }
 
-    public function murid()
-    {
-        return $this->hasOne(Murid::class, 'user_id');
-    }
-
     public function role()
     {
         return $this->belongsTo(Role::class);
     }
+
+    public function murid()
+    {
+        return $this->belongsTo(Murid::class);
+    }
+
+    public function walas()
+    {
+        return $this->hasOne(walas::class);
+    }
+
+    public function guru()
+    {
+        return $this->belongsTo(Guru::class);
+    }
+
+
 
     /**
      * The attributes that should be hidden for serialization.

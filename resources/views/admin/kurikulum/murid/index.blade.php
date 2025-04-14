@@ -3,21 +3,27 @@
 @section('content')
     <!-- Page Heading -->
     <div class="mb-4 d-flex justify-content-between align-items-center">
-        <h1 class="m-0 h4 fw-bold">{{ $title }}</h1>
-        <button class="px-3 rounded btn btn-primary">
+        <h1 class="m-0 h4 fw-bold">
+            <i class="fas fa-user-graduate">
+            </i>
+            {{ $title }}
+        </h1>
+        {{-- <button class="px-3 rounded btn btn-primary">
             <i class="fas fa-plus me-2"></i>Tambah Murid
-        </button>
+        </button> --}}
     </div>
 
     <div class="container">
         <div class="card">
             <div class="card-header">
-                <h2 class="card-title">
-                    <i class="fas fa-user-graduate"></i>
-                    Daftar Murid
-                </h2>
+                <div class="mb-1 mr-2">
+                    <a href="{{ route('admin_murid_create') }}" class="btn btn-primary btn-sm">
+                        <i class="mr-2 fas fa-plus"></i>
+                        Tambah Murid
+                    </a>
+                </div>
                 <div class="filter-form">
-                    <div class="form-group">
+                    {{-- <div class="form-group">
                         <select class="form-select">
                             <option value="">Semua Jurusan</option>
                             <option value="1">IPA</option>
@@ -32,8 +38,8 @@
                             <option value="2">XI IPS 2</option>
                             <option value="3">XII Bahasa 3</option>
                         </select>
-                    </div>
-                    <button type="button" class="btn btn-primary btn-filter">
+                    </div> --}}
+                    <button type="button" class="btn btn-primary btn-filter btn-sm">
                         <i class="fas fa-filter"></i>
                         Terapkan Filter
                     </button>
@@ -50,7 +56,7 @@
                     <table>
                         <thead>
                             <tr>
-                                <th width="5%">#</th>
+                                <th width="5%">No</th>
                                 <th width="30%">Nama Lengkap</th>
                                 <th width="15%">Kelas</th>
                                 <th width="15%">Jenis Kelamin</th>
@@ -63,8 +69,8 @@
                             @foreach ($murid as $item)
                             <tr class="text-center">
                                 <td class="text-center">{{ $loop->iteration }}</td>
-                                <td class="p-2 border">{{ $item->user->nama }}</td>
-                                <td class="p-2 border">{{ $item->kelas->tingkat }}</td>
+                                <td class="p-2 border">{{ $item->user->murid->nama }}</td>
+                                <td class="p-2 border">{{ $item->kelas->tingkat. ' '. $item->kelas->jurusan->kode_jurusan. ' '. $item->kelas->no_kelas }}</td>
                                 <td class="p-2 border">{{ $item->jenis_kelamin }}</td>
                                 <td class="p-2 border">{{ $item->nis }}</td>
                                 <td class="p-2 border">
@@ -79,7 +85,7 @@
                                     </button>
                                 </td>
                             </tr>
-                            @endforeach
+                        @endforeach
                         </tbody>
                     </table>
                 </div>

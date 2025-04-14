@@ -16,11 +16,23 @@ class   Kelas extends Model
 
     public function jurusan()
     {
-        return $this->belongsTo(Jurusan::class, 'jurusan_id');
+        return $this->belongsTo(Jurusan::class);
     }
 
     public function murid()
     {
-        return $this->hasMany(Murid::class, 'kelas_id');
+        return $this->hasMany(Murid::class);
     }
+
+    public function mapelKelas()
+    {
+        return $this->hasMany(MapelKelas::class);
+    }
+
+    public function walas()
+    {
+        return $this->hasMany(walas::class);
+    }
+
+
 }
