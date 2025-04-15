@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('jurusan_id')->constrained('jurusan')->onDelete('cascade');
             $table->string('tingkat');
-            $table->integer('no_kelas');
+            $table->integer('no_kelas')->nullable();
             $table->integer('tahun_ajaran')->nullable();
             $table->timestamps();
         });

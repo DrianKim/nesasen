@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('guru', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
-            $table->string('nip')->unique();
+            $table->string('nip')->unique()->nullable();
             $table->date('tanggal_lahir')->nullable();
             $table->string('no_hp')->nullable();
             $table->string('email')->unique()->nullable();

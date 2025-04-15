@@ -17,7 +17,7 @@
         <div class="card">
             <div class="card-header">
                 <div class="mb-1 mr-2">
-                    <a href="{{ route('admin_murid_create') }}" class="btn btn-primary btn-sm">
+                    <a href="#" class="btn btn-primary btn-sm">
                         <i class="mr-2 fas fa-plus"></i>
                         Tambah Murid
                     </a>

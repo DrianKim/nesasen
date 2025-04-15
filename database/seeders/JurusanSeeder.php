@@ -15,6 +15,10 @@ class JurusanSeeder extends Seeder
     {
         DB::table('jurusan')->insert([
             [
+                'nama_jurusan' => '-',
+                'kode_jurusan' => '-',
+            ],
+            [
                 'nama_jurusan' => 'Rekayasa Perangkat Lunak',
                 'kode_jurusan' => 'RPL',
             ],

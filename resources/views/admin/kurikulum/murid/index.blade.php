@@ -17,7 +17,7 @@
         <div class="card">
             <div class="card-header">
                 <div class="mb-1 mr-2">
-                    <a href="{{ route('admin_murid_create') }}" class="btn btn-primary btn-sm">
+                    <a href="{{ route('admin_murid.create') }}" class="btn btn-primary btn-sm">
                         <i class="mr-2 fas fa-plus"></i>
                         Tambah Murid
                     </a>
@@ -69,10 +69,10 @@
                             @foreach ($murid as $item)
                             <tr class="text-center">
                                 <td class="text-center">{{ $loop->iteration }}</td>
-                                <td class="p-2 border">{{ $item->user->murid->nama }}</td>
-                                <td class="p-2 border">{{ $item->kelas->tingkat. ' '. $item->kelas->jurusan->kode_jurusan. ' '. $item->kelas->no_kelas }}</td>
-                                <td class="p-2 border">{{ $item->jenis_kelamin }}</td>
-                                <td class="p-2 border">{{ $item->nis }}</td>
+                                <td class="p-2 border">{{ $item->user->murid->nama ?? '-' }}</td>
+                                <td class="p-2 border">{{ $item->kelas->tingkat. ' '. $item->kelas->jurusan->kode_jurusan. ' '. $item->kelas->no_kelas ?? '' }}</td>
+                                <td class="p-2 border">{{ $item->jenis_kelamin ?? '-' }}</td>
+                                <td class="p-2 border">{{ $item->nis ?? '-'}}</td>
                                 <td class="p-2 border">
                                     <button class="btn btn-primary btn-sm">
                                         <i class="fas fa-eye"></i>
@@ -80,7 +80,7 @@
                                     <button class="btn btn-warning btn-sm">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-danger btn-sm"">
+                                    <button class="btn btn-danger btn-sm">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </td>

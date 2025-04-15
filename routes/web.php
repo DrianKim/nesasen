@@ -15,10 +15,15 @@ Route::middleware(['isLogin'])->group(function () {
 
     Route::middleware(['auth', 'isAdmin'])->group(function () {
         // murid
-        Route::get('admin_murid', [KurikulumController::class, 'data_murid'])->name('admin_murid');
-        Route::get('admin_murid_create', [KurikulumController::class, 'create_murid'])->name('admin_murid_create');
+        Route::get('admin/murid', [KurikulumController::class, 'data_murid'])->name('admin_murid');
+        Route::get('admin/murid/create', [KurikulumController::class, 'create_murid'])->name('admin_murid.create');
+        Route::post('admin/murid/store', [KurikulumController::class, 'store_murid'])->name('admin_murid.store');
 
+        // guru
         Route::get('admin_guru', [KurikulumController::class, 'data_guru'])->name('admin_guru');
+        Route::get('admin/guru/create', [KurikulumController::class, 'create_guru'])->name('admin_guru.create');
+        Route::post('admin/guru/store', [KurikulumController::class, 'store_guru'])->name('admin_guru.store');
+
         Route::get('admin_walas'    , [KurikulumController::class, 'data_walas'])->name('admin_walas');
     });
 });

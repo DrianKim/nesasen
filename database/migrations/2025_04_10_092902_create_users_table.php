@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('username')->unique();
             $table->string('name_admin')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->unsignedBigInteger('murid_id')->nullable();
             $table->unsignedBigInteger('guru_id')->nullable();
             $table->foreign('murid_id')->references('id')->on('murid')->onDelete('set null');

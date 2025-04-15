@@ -22,7 +22,7 @@
             </div>
 
             <div class="card-body">
-                <form action="{{ route('admin_murid.store') }}" method="POST">
+                <form action="{{ route('admin_guru.store') }}" method="POST">
                     @csrf
 
                     {{-- nama --}}

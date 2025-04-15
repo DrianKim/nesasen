@@ -16,7 +16,7 @@ class MuridSeeder extends Seeder
         DB::table('murid')->insert([
             [
                 'nama' => 'Dede Sukmadik',
-                'kelas_id' => 1,
+                'kelas_id' => 2,
                 'nis' => '123456',
                 'tanggal_lahir' => '2005-01-01',
                 'no_hp' => '08123456789',
@@ -26,7 +26,7 @@ class MuridSeeder extends Seeder
             ],
             [
                 'nama' => 'Siti Nurjanah',
-                'kelas_id' => 2,
+                'kelas_id' => 3,
                 'nis' => '123457',
                 'tanggal_lahir' => '2005-03-12',
                 'no_hp' => '089612345678',
@@ -36,7 +36,7 @@ class MuridSeeder extends Seeder
             ],
             [
                 'nama' => 'Bambang Pamungkas',
-                'kelas_id' => 1,
+                'kelas_id' => 2,
                 'nis' => '123458',
                 'tanggal_lahir' => '2005-05-22',
                 'no_hp' => '081289990000',
@@ -46,7 +46,7 @@ class MuridSeeder extends Seeder
             ],
             [
                 'nama' => 'Ayu Lestari',
-                'kelas_id' => 3,
+                'kelas_id' => 4,
                 'nis' => '123459',
                 'tanggal_lahir' => '2005-07-10',
                 'no_hp' => '082112341234',
@@ -56,7 +56,7 @@ class MuridSeeder extends Seeder
             ],
             [
                 'nama' => 'Rizky Maulana',
-                'kelas_id' => 2,
+                'kelas_id' => 3,
                 'nis' => '123460',
                 'tanggal_lahir' => '2005-09-30',
                 'no_hp' => '087812345678',
@@ -66,7 +66,7 @@ class MuridSeeder extends Seeder
             ],
             [
                 'nama' => 'Nadia Zahra',
-                'kelas_id' => 1,
+                'kelas_id' => 2,
                 'nis' => '123461',
                 'tanggal_lahir' => '2005-02-14',
                 'no_hp' => '085612345678',
@@ -75,8 +75,8 @@ class MuridSeeder extends Seeder
                 'alamat' => 'Jl. Sakura No. 4',
             ],
             [
-                'nama' => 'Agus Salim',
-                'kelas_id' => 3,
+                'nama' => 'Wili Salim',
+                'kelas_id' => 4,
                 'nis' => '123462',
                 'tanggal_lahir' => '2005-06-06',
                 'no_hp' => '081345678900',
@@ -86,7 +86,7 @@ class MuridSeeder extends Seeder
             ],
             [
                 'nama' => 'Putri Andini',
-                'kelas_id' => 2,
+                'kelas_id' => 3,
                 'nis' => '123463',
                 'tanggal_lahir' => '2005-11-11',
                 'no_hp' => '088812345678',
@@ -96,7 +96,7 @@ class MuridSeeder extends Seeder
             ],
             [
                 'nama' => 'Dani Pratama',
-                'kelas_id' => 1,
+                'kelas_id' => 2,
                 'nis' => '123464',
                 'tanggal_lahir' => '2005-04-18',
                 'no_hp' => '083812345678',
@@ -106,7 +106,7 @@ class MuridSeeder extends Seeder
             ],
             [
                 'nama' => 'Melati Anjani',
-                'kelas_id' => 3,
+                'kelas_id' => 4,
                 'nis' => '123465',
                 'tanggal_lahir' => '2005-08-25',
                 'no_hp' => '082134567890',

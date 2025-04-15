@@ -19,7 +19,7 @@ class isAdmin
         if (Auth::check() && Auth::user()->role_id === 1) {
             return $next($request);
         }
-
+        return redirect()->route('login')->with('error', 'Silahkan Login Terlebih Dahulu!');
         // return redirect()->route('dashboard')->with('error', 'Kamu gak punya akses ke halaman ini');
         abort(404);
     }

@@ -16,16 +16,21 @@ class KelasSeeder extends Seeder
         DB::table('kelas')->insert([
             [
                 'jurusan_id' => 1,
-                'tingkat' => ('X'),
-                'no_kelas' => 1,
+                'tingkat' => (''),
+                'no_kelas' => null,
             ],
             [
                 'jurusan_id' => 2,
                 'tingkat' => ('X'),
-                'no_kelas' => 2,
+                'no_kelas' => 1,
             ],
             [
                 'jurusan_id' => 3,
+                'tingkat' => ('X'),
+                'no_kelas' => 2,
+            ],
+            [
+                'jurusan_id' => 4,
                 'tingkat' => ('X'),
                 'no_kelas' => 3,
             ],

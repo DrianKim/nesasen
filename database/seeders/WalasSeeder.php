@@ -15,13 +15,13 @@ class WalasSeeder extends Seeder
     {
         DB::table('walas')->insert([
             'user_id' => 1,
-            'kelas_id' => 1,
-        ],[
-            'user_id' => 2,
             'kelas_id' => 2,
         ],[
-            'user_id' => 3,
+            'user_id' => 2,
             'kelas_id' => 3,
+        ],[
+            'user_id' => 3,
+            'kelas_id' => 4,
         ]);
     }
 }
