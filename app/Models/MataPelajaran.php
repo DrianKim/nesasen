@@ -12,19 +12,19 @@ class MataPelajaran extends Model
         'kode_mapel',
     ];
 
-    public function mapelKelas()
+    public function tb_mapel_kelas()
     {
-        return $this->hasMany(MapelKelas::class, 'mapel_id');
+        return $this->hasMany(MapelKelas::class, ' mapel_id');
     }
-    
+
     public function guru()
     {
-        return $this->belongsTo(Guru::class, 'guru_id');
+        return $this->belongsTo(Guru::class);
     }
 
     public function walas()
     {
-        return $this->belongsTo(walas::class, 'guru_id');
+        return $this->belongsTo(walas::class);
     }
 
 }

@@ -314,3 +314,15 @@ color: var(--secondary);
     width: 100%;
 }
 }
+
+.watermark-bottom-left {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    z-index: 9999;
+    font-size: 14px;
+    color: #6c757d; /* warna abu elegan, bisa diganti */
+}
+.text-bold {
+    font-weight: bold;
+}

@@ -30,7 +30,7 @@ UserSeeder extends Seeder
         $userList = [
             ['username' => 'dede murid', 'password' => Hash::make('dede123'), 'murid_id' => 1, 'role_id' => 4],
             ['username' => 'siti murid', 'password' => Hash::make('siti123'), 'murid_id' => 2, 'role_id' => 4],
-            ['username' => 'bambang murid', 'password' => Hash::make('bambang123'), 'murid_id' => 3, 'role_id' => 4],
+            ['username' => 'bambang murid', 'p  assword' => Hash::make('bambang123'), 'murid_id' => 3, 'role_id' => 4],
             ['username' => 'ayu murid', 'password' => Hash::make('ayu123'), 'murid_id' => 4, 'role_id' => 4],
             ['username' => 'rizky murid', 'password' => Hash::make('rizky123'), 'murid_id' => 5, 'role_id' => 4],
             ['username' => 'nadia murid', 'password' => Hash::make('nadia123'), 'murid_id' => 6, 'role_id' => 4],

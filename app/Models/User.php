@@ -20,7 +20,7 @@ class User extends Authenticatable
     protected $fillable = [
         'username',
         'password',
-        'nama',
+        'nama_admin',
         'email',
         'role_id'
     ];
@@ -29,6 +29,7 @@ class User extends Authenticatable
     {
         return 'username';
     }
+
 
     public function role()
     {
@@ -42,15 +43,13 @@ class User extends Authenticatable
 
     public function walas()
     {
-        return $this->hasOne(walas::class);
+        return $this->belongsTo(walas::class);
     }
 
     public function guru()
     {
-        return $this->belongsTo(Guru::class);
+        return $this->belongsTo(Guru::class, 'guru_id');
     }
-
-
 
     /**
      * The attributes that should be hidden for serialization.

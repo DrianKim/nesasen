@@ -22,23 +22,28 @@
             </div>
 
             <div class="card-body">
-                <div class="row">
-                    <div class="col-6">
-                        <label class="form-label">
-                            <input type="text" name="nama" id="">
-                        </label>
+                <form action="#">
+                    @csrf
+
+                    {{-- nama --}}
+                    <div class="mb-2 row">
+                        <div class="mb-2 col-xl-6">
+                            <label class="form-label">
+                                <span class="text-danger">*</span>
+                                Nama :</label>
+                            <input type="text" name="nama" class="form-control
+                            @error('nama') is-invalid @enderror" value="{{ old('nama') }}">
+                            <small class="text-danger">
+                                @error('nama')
+                                    {{ $message }}
+                                @enderror
+                            </small>
+                        </div>
+
+                            </label>
+                        </div>
                     </div>
-                </div>
-
-                <div class="table-container">
-                    <table>
-                        <thead>
-                        </thead>
-
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
+                </form>
 
             </div>
         </div>

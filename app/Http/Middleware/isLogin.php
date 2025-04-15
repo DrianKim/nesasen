@@ -16,10 +16,10 @@ class isLogin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check()) {
-            return redirect()->route('dashboard')
-                                    ->with('success', 'Anda Sudah Login!');
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Silahkan Login Terlebih Dahulu!');
         }
-            return $next($request);
+
+        return $next($request);
     }
 }

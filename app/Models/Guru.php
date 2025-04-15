@@ -22,16 +22,19 @@ class Guru extends Model
     {
         return $this->hasOne(User::class);
     }
+
     public function walas()
     {
-        return $this->hasMany(walas::class);
-    }
-    public function kelas()
-    {
-        return $this->hasMany(Kelas::class, 'guru_id');
+        return $this->hasOne(Walas::class);
     }
 
-    public function MapelKelas()
+    public function kelas()
+    {
+        return $this->hasMany(Kelas::class);
+    }
+
+
+    public function mapel_kelas()
     {
         return $this->hasOne(MapelKelas::class);
     }

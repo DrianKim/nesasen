@@ -29,7 +29,10 @@ class DatabaseSeeder extends Seeder
             KelasSeeder::class,
             MuridSeeder::class,
             GuruSeeder::class,
+            MataPelajaranSeeder::class,
+            MapelKelasSeeder::class,
             UserSeeder::class,
+            WalasSeeder::class,
         ]);
 
     }

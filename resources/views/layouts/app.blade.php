@@ -231,8 +231,10 @@
             <!-- Footer -->
             <footer class="bg-white sticky-footer">
                 <div class="container my-auto">
-                    <div class="my-auto text-center copyright">
-                        <span>Copyright &copy; Your Website 2020</span>
+                    <div class="my-auto copyright">
+                        <b class="text-gray-700">Made with
+                            <i class="font-bold text-danger fas fa-heart"></i> by</b>
+                            <a href="#"><strong><b>P</b></strong></a>
                     </div>
                 </div>
             </footer>

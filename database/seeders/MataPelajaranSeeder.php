@@ -6,14 +6,14 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
-class mapelPelajaranSeeder extends Seeder
+class MataPelajaranSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        DB::table('mapel_pelajaran')->insert([
+        DB::table('mata_pelajaran')->insert([
             [
                 'nama_mapel' => 'Matematika',
                 'kode_mapel' => 'Mtk',

@@ -60,31 +60,34 @@
                                 <th width="30%">Nama Lengkap</th>
                                 <th width="20%">Mapel</th>
                                 <th width="15%">Jenis Kelamin</th>
-                                <th width="15%">NIS</th>
+                                <th width="15%">NIP</th>
                                 <th width="20%">Aksi</th>
                             </tr>
                         </thead>
 
                         <tbody>
                             @foreach ($guru as $item)
-                            <tr class="text-center">
-                                <td class="text-center">{{ $loop->iteration }}</td>
-                                <td class="p-2 border">{{ $item->user->guru->nama }}</td>
-                                <td class="p-2 border">{{ $item->mapelKelas-> }}</td>
-                                <td class="p-2 border">Laki-laki</td>
-                                <td class="p-2 border">123456</td>
-                                <td class="p-2 border">
-                                    <button class="btn btn-primary btn-sm">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm"">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                                {{-- @dd($item) --}}
+                                <tr class="text-center">
+                                    <td class="text-center">{{ $loop->iteration }}</td>
+                                    <td class="p-2 border">{{ $item->user->guru->nama }}</td>
+                                    <td class="p-2 border">
+                                        {{ $item->mapel_kelas->mata_pelajaran->kode_mapel ?? '-' }}
+                                    </td>
+                                    <td class="p-2 border">{{ $item->jenis_kelamin }}</td>
+                                    <td class="p-2 border">{{ $item->nip }}</td>
+                                    <td class="p-2 border">
+                                        <button class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-warning btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm"">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>

@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('password');
             $table->unsignedBigInteger('murid_id')->nullable();
             $table->unsignedBigInteger('guru_id')->nullable();
+            $table->foreign('murid_id')->references('id')->on('murid')->onDelete('set null');
+            $table->foreign('guru_id')->references('id')->on('guru')->onDelete('set null');
             // $table->string('email')->unique()->nullable();
             $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
             $table->rememberToken();

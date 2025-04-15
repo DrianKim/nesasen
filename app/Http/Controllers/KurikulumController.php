@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Guru;
 use App\Models\User;
 use App\Models\Murid;
+use App\Models\walas;
 use Illuminate\Http\Request;
 
 class KurikulumController extends Controller
@@ -14,7 +15,7 @@ class KurikulumController extends Controller
         $data = array(
             'title' => 'Halaman Daftar Wali Kelas',
             'menu_admin_data_walas' => 'active',
-            'user' => User::get()->where('role_id', 3),
+            'walas' => Walas::with('guru')->get(),
         );
         return view('admin.kurikulum.walas.index', $data);
     }
@@ -43,7 +44,7 @@ class KurikulumController extends Controller
         $data = array(
             'title' => 'Halaman Daftar Guru',
             'menu_admin_data_guru' => 'active',
-            'guru' => Guru::with('user', 'mapelKelas.mataPelajaran')->get(),
+            'guru' => Guru::with('user', 'mapel_kelas.mata_pelajaran')->get(),
         );
         return view('admin.kurikulum.guru.index', $data);
     }
