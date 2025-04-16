@@ -109,7 +109,8 @@ class KurikulumController extends Controller
             'password' => null,
         ]);
 
-        return redirect()->route('admin_murid')->with('success', 'Murid berhasil ditambahkan');
+        return redirect()->route('admin_murid')->with('success', 'Murid berhasil ditambahkan
+        dengan username: '. ("$username"));
     }
 
     private function generateUsernameFromName($namaLengkap)

@@ -29,14 +29,8 @@
                 </a>
             </div>
 
-            <p class="mt-3 text-muted">Butuh bantuan? <a href="#" class="text-decoration-none">Hubungi Tim
-                    Support</a></p>
+            <p class="mt-3 text-muted">Butuh bantuan? <a href="#" class="text-decoration-none">Hubungi Admin</a></p>
         </div>
-
-        <!-- Footer -->
-        {{-- <div class="bottom-0 p-3 text-center position-absolute start-0 end-0">
-                            <p class="mb-0 small text-muted">© 2025 Nama Perusahaan Anda | Semua Hak Dilindungi</p>
-                        </div> --}}
     </div>
     @php $title = '404 - Halaman Tidak Ditemukan'; @endphp
 @endsection
