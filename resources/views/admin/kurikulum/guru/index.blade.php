@@ -77,13 +77,13 @@
                                     <td class="p-2 border">{{ $item->jenis_kelamin }}</td>
                                     <td class="p-2 border">{{ $item->nip }}</td>
                                     <td class="p-2 border">
-                                        <button class="btn btn-primary btn-sm">
+                                        <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalGuruShow{{ $item->id }}">
                                             <i class="fas fa-eye"></i>
                                         </button>
-                                        <button class="btn btn-warning btn-sm">
+                                        <a href="{{ route('admin_guru.edit', $item->id) }}" class="btn btn-sm btn-warning">
                                             <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-danger btn-sm"">
+                                        </a>
+                                        <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalGuruDestroy{{ $item->id }}">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </td>

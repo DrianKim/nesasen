@@ -67,25 +67,28 @@
 
                         <tbody>
                             @foreach ($murid as $item)
-                            <tr class="text-center">
-                                <td class="text-center">{{ $loop->iteration }}</td>
-                                <td class="p-2 border">{{ $item->user->murid->nama ?? '-' }}</td>
-                                <td class="p-2 border">{{ $item->kelas->tingkat. ' '. $item->kelas->jurusan->kode_jurusan. ' '. $item->kelas->no_kelas ?? '' }}</td>
-                                <td class="p-2 border">{{ $item->jenis_kelamin ?? '-' }}</td>
-                                <td class="p-2 border">{{ $item->nis ?? '-'}}</td>
-                                <td class="p-2 border">
-                                    <button class="btn btn-primary btn-sm">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        @endforeach
+                                <tr class="text-center">
+                                    <td class="text-center">{{ $loop->iteration }}</td>
+                                    <td class="p-2 border">{{ $item->user->murid->nama ?? '-' }}</td>
+                                    <td class="p-2 border">
+                                        {{ $item->kelas->tingkat . ' ' . $item->kelas->jurusan->kode_jurusan . ' ' . $item->kelas->no_kelas ?? '' }}
+                                    </td>
+                                    <td class="p-2 border">{{ $item->jenis_kelamin ?? '-' }}</td>
+                                    <td class="p-2 border">{{ $item->nis ?? '-' }}</td>
+                                    <td class="p-2 border">
+                                        <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modalMuridShow{{ $item->id }}">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <a href="{{ route('admin_murid.edit', $item->id) }}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#modalMuridDestroy{{ $item->id }}">
+                                                <i class="fas fa-trash"></i>
+                                        </button>
+                                        @include('admin.kurikulum.murid.modal')
+                                    </td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>

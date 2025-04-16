@@ -22,7 +22,7 @@ class Murid extends Model
 
     public function user()
     {
-        return $this->hasOne(User::class);
+        return $this->hasOne(User::class, 'murid_id');
     }
     public function kelas()
     {

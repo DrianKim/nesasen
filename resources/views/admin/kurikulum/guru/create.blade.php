@@ -14,7 +14,7 @@
         <div class="card">
             <div class="card-header">
                 <div class="mb-1 mr-2">
-                    <a href="{{ route('admin_murid') }}" class="btn btn-success btn-sm">
+                    <a href="{{ route('admin_guru.index') }}" class="btn btn-success btn-sm">
                         <i class="mr-2 fas fa-arrow-left"></i>
                         Kembali
                     </a>
