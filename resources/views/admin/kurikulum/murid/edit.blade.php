@@ -149,11 +149,13 @@
                         </div>
                     </div>
 
-                    <!-- User Account Section -->
+                    {{-- akun user --}}
                     <div class="border-0 card bg-light rounded-3">
                         <div class="text-white card-header bg-primary">
                             <h5 class="mb-0"><i class="fas fa-lock me-2"></i> Akun User</h5>
                         </div>
+
+                        {{-- username --}}
                         <div class="p-3 card-body">
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -168,6 +170,8 @@
                                         <div class="small text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
+
+                                {{-- password --}}
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Password <small class="text-muted">(Kosongkan jika
                                             tidak ingin diubah)</small></label>
@@ -184,7 +188,7 @@
                         </div>
                     </div>
 
-                    <!-- Submit Button -->
+                    {{-- simpan --}}
                     <div class="gap-2 mt-4 d-grid d-md-flex justify-content-md-end">
                         <button type="submit" class="px-4 btn btn-primary">
                             <i class="fas fa-save me-2"></i>Simpan Perubahan

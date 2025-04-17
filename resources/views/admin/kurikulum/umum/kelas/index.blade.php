@@ -17,9 +17,9 @@
         <div class="card">
             <div class="card-header">
                 <div class="mb-1 mr-2">
-                    <a href="{{ route('admin_murid.create') }}" class="btn btn-primary btn-sm">
+                    <a href="{{ route('admin_umum_kelas.create') }}" class="btn btn-primary btn-sm">
                         <i class="mr-2 fas fa-plus"></i>
-                        Tambah Mata Pelajaran
+                        Tambah Kelas
                     </a>
                 </div>
                 <div class="filter-form">
@@ -49,36 +49,37 @@
             <div class="card-body">
                 <div class="search-box">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="search-input" placeholder="Cari berdasarkan nama mapel atau kode mapel...">
+                    <input type="text" class="search-input" placeholder="Cari berdasarkan jurusan atau kelas...">
                 </div>
 
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th width="5%">No</th>
-                                <th width="15%">Mata Pelajaran</th>
-                                <th width="15%">Kode Mapel</th>
-                                <th width="20%">Aksi</th>
+                                <th width="1%">No</th>
+                                <th width="20%">Kelas</th>
+                                <th width="20%">Nama Jurusan</th>
+                                <th width="2%">Aksi</th>
                             </tr>
                         </thead>
 
                         <tbody>
-                            @foreach ($mapel as $item)
+                            @foreach ($kelas as $item)
                             <tr class="text-center">
                                 <td class="text-center">{{ $loop->iteration }}</td>
-                                <td class="p-2 border">{{ $item->nama_mapel }}</td>
-                                <td class="p-2 border">{{ $item->kode_mapel }}</td>
-                                <td class="p-2 border">
-                                    <button class="btn btn-primary btn-sm">
+                                <td class="p-2 border">{{ $item->tingkat. ' '. $item->jurusan->kode_jurusan. ' '. $item->no_kelas ?? '' }}</td>
+                                <td class="p-2 border">{{ $item->jurusan->nama_jurusan ?? '' }}</td>
+                                <td class="p-2 text-center border">
+                                    {{-- <button class="btn btn-primary btn-sm">
                                         <i class="fas fa-eye"></i>
-                                    </button>
+                                    </button> --}}
                                     <button class="btn btn-warning btn-sm">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-danger btn-sm">
+                                    <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalKelasDestroy{{ $item->id }}">
                                         <i class="fas fa-trash"></i>
                                     </button>
+                                    @include('admin.kurikulum.umum.kelas.modal')
                                 </td>
                             </tr>
                         @endforeach

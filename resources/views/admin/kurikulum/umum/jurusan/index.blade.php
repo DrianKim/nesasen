@@ -17,9 +17,9 @@
         <div class="card">
             <div class="card-header">
                 <div class="mb-1 mr-2">
-                    <a href="{{ route('admin_murid.create') }}" class="btn btn-primary btn-sm">
+                    <a href="{{ route('admin_umum_jurusan.create') }}" class="btn btn-primary btn-sm">
                         <i class="mr-2 fas fa-plus"></i>
-                        Tambah Kelas
+                        Tambah Jurusan
                     </a>
                 </div>
                 <div class="filter-form">
@@ -49,34 +49,37 @@
             <div class="card-body">
                 <div class="search-box">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="search-input" placeholder="Cari berdasarkan jurusan atau kelas...">
+                    <input type="text" class="search-input" placeholder="Cari berdasarkan nama jurusan atau kode jurusan...">
                 </div>
 
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th width="5%">No</th>
-                                <th width="15%">Kelas</th>
-                                <th width="20%">Aksi</th>
+                                <th width="2%">No</th>
+                                <th width="20%">Nama Jurusan</th>
+                                <th width="15%">Kode Jurusan</th>
+                                <th width="5%">Aksi</th>
                             </tr>
                         </thead>
 
                         <tbody>
-                            @foreach ($kelas as $item)
+                            @foreach ($jurusan as $item)
                             <tr class="text-center">
                                 <td class="text-center">{{ $loop->iteration }}</td>
-                                <td class="p-2 border">{{ $item->tingkat. ' '. $item->jurusan->kode_jurusan. ' '. $item->no_kelas ?? '' }}</td>
-                                <td class="p-2 border">
-                                    <button class="btn btn-primary btn-sm">
+                                <td class="p-2 border">{{ $item->nama_jurusan ?? '' }}</td>
+                                <td class="p-2 border">{{ $item->kode_jurusan ?? '' }}</td>
+                                <td class="p-2 text-center border">
+                                    {{-- <button class="btn btn-primary btn-sm">
                                         <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm">
+                                    </button> --}}
+                                    <a href="{{ route('admin_umum_jurusan.edit', $item->id) }}" class="btn btn-sm btn-warning">
                                         <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm">
+                                    </a>
+                                    <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalJurusanDestroy{{ $item->id }}">
                                         <i class="fas fa-trash"></i>
                                     </button>
+                                    @include('admin.kurikulum.umum.jurusan.modal')
                                 </td>
                             </tr>
                         @endforeach

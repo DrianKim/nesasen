@@ -2,7 +2,6 @@
 
 @section('content')
     <div class="container py-4">
-        <!-- Header with Back Button -->
         <div class="mb-4 d-flex justify-content-between align-items-center">
             <h1 class="h3 fw-bold text-primary">
                 <i class="fas fa-user-edit me-2"></i> {{ $title }}
@@ -12,13 +11,12 @@
             </a>
         </div>
 
-        <!-- Form Card -->
         <div class="border-0 rounded-lg shadow-sm card">
             <div class="p-4 card-body">
                 <form action="{{ route('admin_guru.update', $guru->id) }}" method="POST">
                     @csrf
 
-                    <!-- Student Data Section -->
+                    {{-- data guru --}}
                     <div class="mb-4 border-0 card bg-light rounded-3">
                         <div class="text-white card-header bg-primary">
                             <h5><i class="fas fa-user-chalkboard me-2"></i> Data Guru</h5>
@@ -132,11 +130,13 @@
                         </div>
                     </div>
 
-                    <!-- User Account Section -->
+                    {{-- akun user --}}
                     <div class="border-0 card bg-light rounded-3">
                         <div class="text-white card-header bg-primary">
                             <h5 class="mb-0"><i class="fas fa-lock me-2"></i> Akun User</h5>
                         </div>
+
+                        {{-- username --}}
                         <div class="p-3 card-body">
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -151,6 +151,8 @@
                                         <div class="small text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
+
+                                {{-- password --}}
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Password <small class="text-muted">(Kosongkan jika
                                             tidak ingin diubah)</small></label>

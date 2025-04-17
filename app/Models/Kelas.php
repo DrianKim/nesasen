@@ -8,8 +8,8 @@ class Kelas extends Model
 {
     protected $table = 'kelas';
     protected $fillable = [
-        'jurusan_id',
         'tingkat',
+        'jurusan_id',
         'no_kelas',
         'tahun_ajaran',
     ];

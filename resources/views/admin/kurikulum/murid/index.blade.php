@@ -61,7 +61,7 @@
                                 <th width="15%">Kelas</th>
                                 <th width="15%">Jenis Kelamin</th>
                                 <th width="15%">NIS</th>
-                                <th width="20%">Aksi</th>
+                                <th width="10%">Aksi</th>
                             </tr>
                         </thead>
 
@@ -75,7 +75,7 @@
                                     </td>
                                     <td class="p-2 border">{{ $item->jenis_kelamin ?? '-' }}</td>
                                     <td class="p-2 border">{{ $item->nis ?? '-' }}</td>
-                                    <td class="p-2 border">
+                                    <td class="p-2 text-center border">
                                         <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modalMuridShow{{ $item->id }}">
                                             <i class="fas fa-eye"></i>
                                         </button>

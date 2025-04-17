@@ -23,7 +23,7 @@
 </li> --}}
 
 <!-- Nav Item - Data Umum -->
-<li class="nav-item">
+<li class="nav-item {{ $menu_admin_umum_kelas ?? $menu_admin_umum_mapel ?? $menu_admin_umum_jurusan ?? '' }}">
     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true"
         aria-controls="collapseTwo">
         <i class="fas fa-fw fa-layer-group"></i>
@@ -31,8 +31,9 @@
     </a>
     <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
         <div class="py-2 rounded collapse-inner">
+            <a class="text-white collapse-item" href="{{ route('admin_umum_jurusan.index') }}">Jurusan</a>
             <a class="text-white collapse-item" href="{{ route('admin_umum_kelas.index') }}">Kelas</a>
-            <a class="text-white collapse-item" href="{{ route('admin_umum_mataPelajaran.index') }}">Mata Pelajaran</a>
+            <a class="text-white collapse-item" href="{{ route('admin_umum_mapel.index') }}">Mata Pelajaran</a>
             {{-- <a class="text-white collapse-item" href="#">Semester</a>
             <a class="text-white collapse-item" href="#">Tahun Ajaran</a> --}}
         </div>
