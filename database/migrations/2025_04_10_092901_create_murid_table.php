@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('murid', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
-            $table->foreignid('kelas_id')->constrained('kelas')->onDelete('cascade')->nullable();
+            $table->foreignid('kelas_id')->nullable()->constrained('kelas')->onDelete('cascade');
             $table->string('nis')->unique()->nullable();
             $table->date('tanggal_lahir')->nullable();
             $table->string('no_hp')->nullable();

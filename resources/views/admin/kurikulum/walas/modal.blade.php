@@ -1,5 +1,5 @@
 <!-- Modal Show -->
-<div class="modal fade" id="modalMuridShow{{ $item->id }}" tabindex="-1" role="dialog"
+<div class="modal fade" id="modalWalasShow{{ $item->id }}" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -17,7 +17,7 @@
                         Nama Lengkap
                     </div>
                     <div class="col-6">
-                        : {{ $item->nama ?? '-' }}
+                        : {{ $item->user->guru->nama ?? '-' }}
                     </div>
                 </div>
                 <div class="row">
@@ -25,28 +25,20 @@
                         Username
                     </div>
                     <div class="col-6">
-                        : {{ $item->user->username ?? '-' }}
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-6">
-                        Kelas
-                    </div>
-                    <div class="col-6">
                         :
                         <span>
-                            {{ $item->kelas ? $item->kelas->tingkat . ' ' . $item->kelas->jurusan->kode_jurusan . ' ' . $item->kelas->no_kelas : '-' }}
+                            {{ $item->user->username ?? '' }}
                         </span>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-6">
-                        Nis
+                        Nip
                     </div>
                     <div class="col-6">
                         :
                         <span>
-                            {{ $item->nis ?? '-' }}
+                            {{ $item->user->guru->nip ?? '-' }}
                         </span>
                     </div>
                 </div>
@@ -57,7 +49,7 @@
                     <div class="col-6">
                         :
                         <span>
-                            {{ $item->tanggal_lahir ?? '-' }}
+                            {{ $item->user->guru->tanggal_lahir ?? '-' }}
                         </span>
                     </div>
                 </div>
@@ -68,7 +60,7 @@
                     <div class="col-6">
                         :
                         <span>
-                            {{ $item->jenis_kelamin ?? '-' }}
+                            {{ $item->user->guru->jenis_kelamin ?? '-' }}
                         </span>
                     </div>
                 </div>
@@ -79,7 +71,7 @@
                     <div class="col-6">
                         :
                         <span>
-                            {{ $item->no_hp ?? '-' }}
+                            {{ $item->user->guru->no_hp ?? '-' }}
                         </span>
                     </div>
                 </div>
@@ -90,7 +82,7 @@
                     <div class="col-6">
                         :
                         <span>
-                            {{ $item->email ?? '-' }}
+                            {{ $item->user->guru->email ?? '-' }}
                         </span>
                     </div>
                 </div>
@@ -101,7 +93,7 @@
                     <div class="col-6">
                         :
                         <span>
-                            {{ $item->alamat ?? '-' }}
+                            {{ $item->user->guru->alamat ?? '-' }}
                         </span>
                     </div>
                 </div>
@@ -112,7 +104,7 @@
 </div>
 
 <!-- Modal Delete -->
-<div class="modal fade" id="modalMuridDestroy{{ $item->id }}" tabindex="-1" role="dialog"
+<div class="modal fade" id="modalWalasDestroy{{ $item->id }}" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -130,17 +122,28 @@
                         Nama Lengkap
                     </div>
                     <div class="col-6">
-                        : {{ $item->nama ?? '-' }}
+                        : {{ $item->user->guru->nama ?? '-' }}
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-6">
-                        Kelas
+                        Mapel
                     </div>
                     <div class="col-6">
                         :
                         <span>
-                            {{ $item->kelas ? $item->kelas->tingkat . ' ' . $item->kelas->jurusan->kode_jurusan . ' ' . $item->kelas->no_kelas : '-' }}
+                            {{ $item->user->guru->mapel_kelas->mata_pelajaran->kode_mapel ?? '' }}
+                        </span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        Kelas Yang Diampu
+                    </div>
+                    <div class="col-6">
+                        :
+                        <span>
+                            {{ $item->kelas->tingkat . ' ' . $item->kelas->jurusan->kode_jurusan . ' ' . $item->kelas->no_kelas ?? '-' }}
                         </span>
                     </div>
                 </div>
@@ -151,18 +154,18 @@
                     <div class="col-6">
                         :
                         <span>
-                            {{ $item->jenis_kelamin ?? '-' }}
+                            {{ $item->user->guru->jenis_kelamin ?? '-' }}
                         </span>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-6">
-                        Nis
+                        Nip
                     </div>
                     <div class="col-6">
                         :
                         <span>
-                            {{ $item->nis ?? '-' }}
+                            {{ $item->user->guru->nip ?? '-' }}
                         </span>
                     </div>
                 </div>
@@ -174,7 +177,7 @@
                     <i class="fas fa-times"></i>
                     Tutup
                 </button>
-                <form action="{{ route('admin_murid.destroy', $item->id) }}" method="POST">
+                <form action="{{ route('admin_guru.destroy', $item->id) }}" method="POST">
                     @csrf
                     @method('delete')
                     <button type="submit" class="btn btn-danger btn-sm">

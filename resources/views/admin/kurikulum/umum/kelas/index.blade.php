@@ -58,8 +58,11 @@
                             <tr>
                                 <th width="1%">No</th>
                                 <th width="20%">Kelas</th>
-                                <th width="20%">Nama Jurusan</th>
-                                <th width="2%">Aksi</th>
+                                <th width="20%">Guru Yang Mengampu</th>
+                                <th width="20%">Total Murid</th>
+                                <th class="text-center" width="2%">
+                                    <i class="fas fa-cog"></i>
+                                </th>
                             </tr>
                         </thead>
 
@@ -68,7 +71,8 @@
                             <tr class="text-center">
                                 <td class="text-center">{{ $loop->iteration }}</td>
                                 <td class="p-2 border">{{ $item->tingkat. ' '. $item->jurusan->kode_jurusan. ' '. $item->no_kelas ?? '' }}</td>
-                                <td class="p-2 border">{{ $item->jurusan->nama_jurusan ?? '' }}</td>
+                                <td class="p-2 border">{{ $item->walas->user->guru->nama ?? '-' }}</td>
+                                <td class="p-2 border">{{ $item->murid_count ?? 0}} Murid</td>
                                 <td class="p-2 text-center border">
                                     {{-- <button class="btn btn-primary btn-sm">
                                         <i class="fas fa-eye"></i>

@@ -1,6 +1,6 @@
 @include('layouts.header')
 
-<body id="page-top">
+<body id="page-top" class="@if(session('dark_mode', false)) dark-mode @endif">
 
     <!-- Page Wrapper -->
     <div id="wrapper">
@@ -14,52 +14,74 @@
             <div id="content">
 
                 <!-- Topbar -->
-                <nav class="mb-4 bg-white shadow navbar navbar-expand navbar-light topbar static-top">
+                <nav class="mb-2 shadow navbar navbar-expand navbar-light topbar static-top" id="main-topbar">
 
                     <!-- Sidebar Toggle (Topbar) -->
                     <button id="sidebarToggleTop" class="mr-3 btn btn-link d-md-none rounded-circle">
                         <i class="fa fa-bars"></i>
                     </button>
 
-                    <!-- Topbar Search -->
-                    {{-- <form
-                        class="my-2 mr-auto d-none d-sm-inline-block form-inline ml-md-3 my-md-0 mw-100 navbar-search">
-                        <div class="input-group">
-                            <input type="text" class="border-0 form-control bg-light small" placeholder="Search for..."
-                                aria-label="Search" aria-describedby="basic-addon2">
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" type="button">
-                                    <i class="fas fa-search fa-sm"></i>
-                                </button>
+                    <!-- Global Search -->
+                    <div class="mr-auto d-none d-sm-inline-block form-inline ml-md-3 my-md-0 mw-100">
+                        <div class="input-group global-search">
+                            <div class="input-group-prepend">
+                                <span class="bg-transparent border-0 input-group-text">
+                                    <i class="fas fa-search fa-sm text-primary"></i>
+                                </span>
                             </div>
+                            <input type="text" class="bg-transparent border-0 form-control global-search-input"
+                                   placeholder="Search for anything..." aria-label="Search">
                         </div>
-                    </form> --}}
+                    </div>
+
+                    <!-- Quick Actions -->
+                    {{-- <div class="mx-2 nav-item dropdown no-arrow d-none d-sm-block">
+                        <a class="nav-link dropdown-toggle" href="#" id="quickActionsDropdown" role="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-bolt fa-fw text-primary"></i>
+                            <span class="ml-1 d-none d-lg-inline small">Quick Actions</span>
+                        </a>
+                        <div class="shadow dropdown-menu dropdown-menu-right animated--grow-in"
+                            aria-labelledby="quickActionsDropdown">
+                            <h6 class="dropdown-header">
+                                Quick Actions
+                            </h6>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="mr-3 text-primary">
+                                    <i class="fas fa-plus-circle fa-sm"></i>
+                                </div>
+                                <span>New Task</span>
+                            </a>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="mr-3 text-success">
+                                    <i class="fas fa-calendar-plus fa-sm"></i>
+                                </div>
+                                <span>Schedule Meeting</span>
+                            </a>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="mr-3 text-info">
+                                    <i class="fas fa-file-alt fa-sm"></i>
+                                </div>
+                                <span>Create Report</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="mr-3 text-warning">
+                                    <i class="fas fa-cog fa-sm"></i>
+                                </div>
+                                <span>Settings</span>
+                            </a>
+                        </div>
+                    </div> --}}
 
                     <!-- Topbar Navbar -->
                     <ul class="ml-auto navbar-nav">
 
-                        <!-- Nav Item - Search Dropdown (Visible Only XS) -->
-                        <li class="nav-item dropdown no-arrow d-sm-none">
-                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-search fa-fw"></i>
+                        <!-- Dark Mode Toggle -->
+                        <li class="mx-1 nav-item dropdown no-arrow">
+                            <a class="nav-link" href="#" id="darkModeToggle" role="button">
+                                <i class="fas fa-moon fa-fw"></i>
                             </a>
-                            <!-- Dropdown - Messages -->
-                            <div class="p-3 shadow dropdown-menu dropdown-menu-right animated--grow-in"
-                                aria-labelledby="searchDropdown">
-                                <form class="mr-auto form-inline w-100 navbar-search">
-                                    <div class="input-group">
-                                        <input type="text" class="border-0 form-control bg-light small"
-                                            placeholder="Search for..." aria-label="Search"
-                                            aria-describedby="basic-addon2">
-                                        <div class="input-group-append">
-                                            <button class="btn btn-primary" type="button">
-                                                <i class="fas fa-search fa-sm"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
                         </li>
 
                         <!-- Nav Item - Alerts -->
@@ -68,13 +90,13 @@
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-bell fa-fw"></i>
                                 <!-- Counter - Alerts -->
-                                <span class="badge badge-danger badge-counter">3+</span>
+                                <span class="badge badge-primary badge-counter">3</span>
                             </a>
                             <!-- Dropdown - Alerts -->
                             <div class="shadow dropdown-list dropdown-menu dropdown-menu-right animated--grow-in"
                                 aria-labelledby="alertsDropdown">
                                 <h6 class="dropdown-header">
-                                    Alerts Center
+                                    Notification Center
                                 </h6>
                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                     <div class="mr-3">
@@ -83,19 +105,19 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <div class="text-gray-500 small">December 12, 2019</div>
-                                        <span class="font-weight-bold">Tugas Baru!</span>
+                                        <div class="text-gray-500 small">Today</div>
+                                        <span class="font-weight-bold">New assignment has been added</span>
                                     </div>
                                 </a>
                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                     <div class="mr-3">
                                         <div class="icon-circle bg-success">
-                                            <i class="text-white fas fa-donate"></i>
+                                            <i class="text-white fas fa-check"></i>
                                         </div>
                                     </div>
                                     <div>
-                                        <div class="text-gray-500 small">December 7, 2019</div>
-                                        $290.29 has been deposited into your account!
+                                        <div class="text-gray-500 small">Yesterday</div>
+                                        <span>Your submission was graded</span>
                                     </div>
                                 </a>
                                 <a class="dropdown-item d-flex align-items-center" href="#">
@@ -105,11 +127,11 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <div class="text-gray-500 small">December 2, 2019</div>
-                                        Spending Alert: We've noticed unusually high spending for your account.
+                                        <div class="text-gray-500 small">April 18, 2025</div>
+                                        <span>Assignment deadline approaching</span>
                                     </div>
                                 </a>
-                                <a class="text-center text-gray-500 dropdown-item small" href="#">Show All Alerts</a>
+                                <a class="text-center text-primary small dropdown-item" href="#">Show All Notifications</a>
                             </div>
                         </li>
 
@@ -119,7 +141,7 @@
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-envelope fa-fw"></i>
                                 <!-- Counter - Messages -->
-                                <span class="badge badge-danger badge-counter">7</span>
+                                <span class="badge badge-primary badge-counter">4</span>
                             </a>
                             <!-- Dropdown - Messages -->
                             <div class="shadow dropdown-list dropdown-menu dropdown-menu-right animated--grow-in"
@@ -129,53 +151,38 @@
                                 </h6>
                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                     <div class="mr-3 dropdown-list-image">
-                                        <img class="rounded-circle" src="img/undraw_profile_1.svg"
-                                            alt="...">
+                                        <img class="rounded-circle" src="{{ asset('images/avatars/avatar1.jpg') }}"
+                                            alt="User Avatar">
                                         <div class="status-indicator bg-success"></div>
                                     </div>
                                     <div class="font-weight-bold">
-                                        <div class="text-truncate">Hi there! I am wondering if you can help me with a
-                                            problem I've been having.</div>
-                                        <div class="text-gray-500 small">Emily Fowler · 58m</div>
+                                        <div class="text-truncate">Hi there! Do you have time for the upcoming meeting?</div>
+                                        <div class="text-gray-500 small">Bu Siti · Just now</div>
                                     </div>
                                 </a>
                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                     <div class="mr-3 dropdown-list-image">
-                                        <img class="rounded-circle" src="img/undraw_profile_2.svg"
-                                            alt="...">
+                                        <img class="rounded-circle" src="{{ asset('images/avatars/avatar2.jpg') }}"
+                                            alt="User Avatar">
                                         <div class="status-indicator"></div>
                                     </div>
                                     <div>
-                                        <div class="text-truncate">I have the photos that you ordered last month, how
-                                            would you like them sent to you?</div>
-                                        <div class="text-gray-500 small">Jae Chun · 1d</div>
+                                        <div class="text-truncate">I've sent you the assignment details, please check</div>
+                                        <div class="text-gray-500 small">Pak Ahmad · 1h</div>
                                     </div>
                                 </a>
                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                     <div class="mr-3 dropdown-list-image">
-                                        <img class="rounded-circle" src="img/undraw_profile_3.svg"
-                                            alt="...">
+                                        <img class="rounded-circle" src="{{ asset('images/avatars/avatar3.jpg') }}"
+                                            alt="User Avatar">
                                         <div class="status-indicator bg-warning"></div>
                                     </div>
                                     <div>
-                                        <div class="text-truncate">Last month's report looks great, I am very happy with
-                                            the progress so far, keep up the good work!</div>
-                                        <div class="text-gray-500 small">Morgan Alvarez · 2d</div>
+                                        <div class="text-truncate">Your project submission looks great! Just one minor change needed.</div>
+                                        <div class="text-gray-500 small">Pak Rahmat · 2h</div>
                                     </div>
                                 </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3 dropdown-list-image">
-                                        <img class="rounded-circle" src="https://source.unsplash.com/Mv9hjnEUHR4/60x60"
-                                            alt="...">
-                                        <div class="status-indicator bg-success"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Am I a good boy? The reason I ask is because someone
-                                            told me that people say this to all dogs, even if they aren't good...</div>
-                                        <div class="text-gray-500 small">Chicken the Dog · 2w</div>
-                                    </div>
-                                </a>
-                                <a class="text-center text-gray-500 dropdown-item small" href="#">Read More Messages</a>
+                                <a class="text-center text-primary small dropdown-item" href="#">Read More Messages</a>
                             </div>
                         </li>
 
@@ -185,28 +192,28 @@
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 text-gray-600 d-none d-lg-inline small">{{ auth()->user()->name_admin ?? auth()->user()->murid->nama ?? auth()->user()->guru->nama }}</span>
+                                <span class="mr-2 d-none d-lg-inline small">{{ auth()->user()->name_admin ?? auth()->user()->murid->nama ?? auth()->user()->guru->nama }}</span>
                                 <img class="img-profile rounded-circle"
-                                    src="{{ asset('sbadmin2/img/undraw_profile.svg') }}">
+                                    src="{{ asset('images/avatars/profile-' . auth()->id() % 5 . '.jpg') }}">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="shadow dropdown-menu dropdown-menu-right animated--grow-in"
                                 aria-labelledby="userDropdown">
                                 <a class="dropdown-item" href="#">
-                                    <i class="mr-2 text-gray-400 fas fa-user fa-sm fa-fw"></i>
-                                    Profile
+                                    <i class="mr-2 text-gray-500 fas fa-user fa-sm fa-fw"></i>
+                                    My Profile
                                 </a>
                                 <a class="dropdown-item" href="#">
-                                    <i class="mr-2 text-gray-400 fas fa-cogs fa-sm fa-fw"></i>
+                                    <i class="mr-2 text-gray-500 fas fa-cogs fa-sm fa-fw"></i>
                                     Settings
                                 </a>
                                 <a class="dropdown-item" href="#">
-                                    <i class="mr-2 text-gray-400 fas fa-list fa-sm fa-fw"></i>
+                                    <i class="mr-2 text-gray-500 fas fa-list fa-sm fa-fw"></i>
                                     Activity Log
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="{{ route('logout') }}" >
-                                    <i class="mr-2 text-gray-400 fas fa-sign-out-alt fa-sm fa-fw"></i>
+                                <a class="dropdown-item" href="{{ route('logout') }}">
+                                    <i class="mr-2 text-gray-500 fas fa-sign-out-alt fa-sm fa-fw"></i>
                                     Logout
                                 </a>
                             </div>
@@ -220,6 +227,24 @@
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
 
+                    <!-- Page heading and quick status -->
+                    <div class="mb-4 d-flex align-items-center justify-content-between">
+                        {{-- <h1 class="mb-0 text-gray-800 h3">{{ $pageTitle ?? $title }}</h1> --}}
+
+                        <!-- Status indicators -->
+                        @if(isset($showStatus) && $showStatus)
+                        <div class="d-flex status-indicators">
+                            <div class="mx-2 text-xs">
+                                <span class="mx-1 badge badge-primary">Semester: {{ $currentSemester ?? '2' }}</span>
+                                <span class="mx-1 badge badge-success">Tahun Ajaran: {{ $currentYear ?? '2024/2025' }}</span>
+                                @if(auth()->user()->role_id == 4)
+                                <span class="mx-1 badge badge-info">Kelas: {{ auth()->user()->murid->kelas->nama_kelas ?? '-' }}</span>
+                                @endif
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+
                     @yield('content')
 
                 </div>
@@ -229,12 +254,12 @@
             <!-- End of Main Content -->
 
             <!-- Footer -->
-            <footer class="bg-white sticky-footer">
+            <footer class="sticky-footer">
                 <div class="container my-auto">
-                    <div class="my-auto copyright">
-                        <b class="text-gray-700">Made with
-                            <i class="font-bold text-danger fas fa-heart"></i> by</b>
-                            <a href="#"><strong><b>P</b></strong></a>
+                    <div class="my-auto text-center copyright">
+                        <span class="text-gray-600">© {{ date('Y') }} SMKN 1 Subang</span>
+                        <span class="mx-2">·</span>
+                        <span class="text-gray-600">Made with <i class="text-danger fas fa-heart"></i> by <a href="#" class="font-weight-bold">P</a></span>
                     </div>
                 </div>
             </footer>
@@ -251,25 +276,39 @@
         <i class="fas fa-angle-up"></i>
     </a>
 
-    <!-- Logout Modal-->
-    {{-- <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
+    <!-- Todo List Modal -->
+    <div class="modal fade" id="todoModal" tabindex="-1" role="dialog" aria-labelledby="todoModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <h5 class="modal-title" id="todoModalLabel">Task Manager</h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
-                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-body">
+                    <div class="mb-3 todo-input-container">
+                        <div class="input-group">
+                            <input type="text" id="newTodoInput" class="form-control" placeholder="Add a new task...">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" id="addTodoBtn">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="todo-list-container">
+                        <ul class="list-group todo-list" id="todoList">
+                            <!-- Tasks will be loaded here -->
+                        </ul>
+                    </div>
+                </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="login.html">Logout</a>
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Close</button>
+                    <button class="btn btn-danger" id="clearCompletedBtn">Clear Completed</button>
                 </div>
             </div>
         </div>
-    </div> --}}
+    </div>
 
 @include('layouts.footer')
-

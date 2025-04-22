@@ -61,7 +61,9 @@
                                 <th width="20%">Mapel</th>
                                 <th width="15%">Jenis Kelamin</th>
                                 <th width="15%">NIP</th>
-                                <th width="10%">Aksi</th>
+                                <th class="text-center" width="2%">
+                                    <i class="fas fa-cog"></i>
+                                </th>
                             </tr>
                         </thead>
 

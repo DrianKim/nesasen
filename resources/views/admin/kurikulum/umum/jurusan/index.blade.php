@@ -59,7 +59,9 @@
                                 <th width="2%">No</th>
                                 <th width="20%">Nama Jurusan</th>
                                 <th width="15%">Kode Jurusan</th>
-                                <th width="5%">Aksi</th>
+                                <th class="text-center" width="2%">
+                                    <i class="fas fa-cog"></i>
+                                </th>
                             </tr>
                         </thead>
 

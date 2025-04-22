@@ -6,55 +6,59 @@
             <h1 class="h3 fw-bold text-primary">
                 <i class="fas fa-user-edit me-2"></i> {{ $title }}
             </h1>
-            <a href="{{ route('admin_murid.index') }}" class="btn btn-outline-primary">
+            <a href="{{ route('admin_walas.index') }}" class="btn btn-outline-primary">
                 <i class="fas fa-arrow-left me-1"></i> Kembali
             </a>
         </div>
 
         <div class="border-0 rounded-lg shadow-sm card">
             <div class="p-4 card-body">
-                <form action="{{ route('admin_murid.store') }}" method="POST">
+                <form action="{{ route('admin_walas.store') }}" method="POST">
                     @csrf
 
-                    {{-- data murid --}}
+                    {{-- data walas --}}
                     <div class="mb-4 border-0 card bg-light rounded-3">
                         <div class="text-white card-header bg-primary">
-                            <h5><i class="fas fa-user me-2"></i> Masukkan Nama Lengkap Murid</h5>
+                            <h5><i class="fas fa-user me-2"></i> Masukkan Nama Lengkap Guru Walas</h5>
                         </div>
                         <div class="p-3 card-body">
                             <div class="row g-3">
 
                                 {{-- nama --}}
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Nama Lengkap <small class="text-muted">*Note: Username
-                                            Akan Otomatis Dibuat Berdasarkan Nama Lengkap</small></label>
+                                    <label class="form-label fw-bold">Wali Kelas
+                                        <small class="text-muted">*Note: Pilih guru yang akan dijadikan wali kelas</small>
+                                    </label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                        <input type="text" name="nama"
+                                        <select name="guru_id" class="form-control @error('guru_id') is-invalid @enderror" required>
+                                            <option disabled selected>-- Pilih Guru --</option>
+                                            @foreach ($guruList as $guru)
+                                                <option value="{{ $guru->id }}">{{ $guru->nama }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    @error('guru_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                {{-- <div class="col-md-6">
+                                    <label class="form-label fw-bold">Nama Lengkap <small class="text-muted">*Note:
+                                            Silahkan Pilih Nama Guru Yang Tersedia</small></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                        <input list="guru_id" name="nama"
                                             class="form-control @error('nama') is-invalid @enderror">
+                                        <datalist id='guru_id'>
+                                            @foreach ($guruList as $guru)
+                                            <option value="{{ $guru->id }}">{{ $guru->nama }}</option>
+                                            @endforeach
+                                        </datalist>
                                     </div>
                                     @error('nama')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                </div>
-
-                                {{-- kelas --}}
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">Kelas</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                        <input list="kelas_id" name="kelas_id"
-                                            class="form-control @error('kelas_id') is-invalid @enderror">
-                                        <datalist id='kelas_id'>
-                                            @foreach ($kelasList as $kelas)
-                                            <option value="{{ $kelas->id }}">{{ $kelas->tingkat . ' ' . $kelas->jurusan->kode_jurusan . ' ' . $kelas->no_kelas }}</option>
-                                            @endforeach
-                                        </datalist>
-                                    </div>
-                                    @error('kelas_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
                     </div>

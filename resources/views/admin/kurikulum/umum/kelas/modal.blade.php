@@ -22,12 +22,20 @@
                 </div>
                 <div class="row">
                     <div class="col-6">
-                        Jurusan
+                        Guru Yang Mengampu
+                    </div>
+                    <div class="col-6">
+                        : {{ $item->walas->user->guru->nama ?? '' }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        Total Murid
                     </div>
                     <div class="col-6">
                         :
                         <span>
-                            {{ $item->jurusan->nama_jurusan ?? '' }}
+                            {{ $item->murid_count ?? 0 }} Murid
                         </span>
                     </div>
                 </div>

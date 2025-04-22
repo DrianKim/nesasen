@@ -12,6 +12,7 @@ use App\Models\walas;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\MataPelajaran;
+use Database\Seeders\GuruSeeder;
 use Illuminate\Support\Facades\Hash;
 use Psy\CodeCleaner\FunctionContextPass;
 
@@ -27,6 +28,22 @@ class KurikulumController extends Controller
             'walas' => Walas::with('guru')->get(),
         );
         return view('admin.kurikulum.walas.index', $data);
+    }
+
+    public function create_walas()
+    {
+        $data = array (
+            'title' => 'Halaman Tambah Wali Kelas',
+            'menu_admin_data_walas' => 'active',
+            'walas' => Walas::with('guru')->get(),
+            'guruList' => Guru::all(),
+        );
+        return view('admin.kurikulum.walas.create', $data);
+    }
+
+    public function store_walas()
+    {
+
     }
 
     // guru
@@ -148,6 +165,7 @@ class KurikulumController extends Controller
         $data = array(
             'title' => 'Halaman Tambah Murid',
             'menu_admin_data_murid' => 'active',
+            'kelasList' => Kelas::all(),
         );
         return view('admin.kurikulum.murid.create', $data);
     }
@@ -160,7 +178,7 @@ class KurikulumController extends Controller
 
         $murid = Murid::create([
             'nama' => $request->nama,
-            'kelas_id' => 1,
+            'kelas_id' => $request->kelas_id,
         ]);
 
         $username = $this->generateUsernameFromName($request->nama);
@@ -339,7 +357,7 @@ class KurikulumController extends Controller
         $data = array(
             'title' => 'Halaman Daftar Kelas',
             'menu_admin_umum_kelas' => 'active',
-            'kelas' => Kelas::get(),
+            'kelas' => Kelas::withcount('murid')->with('jurusan')->get(),
         );
         return view('admin.kurikulum.umum.kelas.index', $data);
     }
@@ -350,6 +368,7 @@ class KurikulumController extends Controller
             'title' => 'Halaman Tambah Kelas',
             'menu_admin_umum_kelas' => 'active',
             'jurusanList' => Jurusan::all(),
+            'guruList' => Guru::all(),
         );
         return view('admin.kurikulum.umum.kelas.create', $data);
     }
@@ -360,12 +379,18 @@ class KurikulumController extends Controller
             'tingkat' => 'required|in:X,XI,XII',
             'jurusan_id' => 'required|exists:jurusan,id',
             'no_kelas' => 'required',
+            'user_id' => 'required|exists:guru,id',
+        ]);
+
+        $walas = Walas::create([
+            'user_id' => $request->user_id
         ]);
 
         Kelas::create([
             'tingkat' => $request->tingkat,
             'jurusan_id' => $request->jurusan_id,
             'no_kelas' => $request->no_kelas,
+            'walas_id' => $walas->id,
         ]);
 
         return redirect()->route('admin_umum_kelas.index')->with('success', 'Kelas Berhasil Ditambahkan');

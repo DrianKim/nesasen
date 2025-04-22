@@ -41,6 +41,25 @@
                                     @enderror
                                 </div>
 
+                                {{-- guru --}}
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Wali Kelas
+                                        <small class="text-muted">*Note: Pilih guru yang akan dijadikan wali kelas</small>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                        <select name="guru_id" class="form-control @error('guru_id') is-invalid @enderror" required>
+                                            <option disabled selected>-- Pilih Guru --</option>
+                                            @foreach ($guruList as $guru)
+                                                <option value="{{ $guru->id }}">{{ $guru->nama }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    @error('guru_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
                                 {{-- jurusan --}}
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Jurusan</label>

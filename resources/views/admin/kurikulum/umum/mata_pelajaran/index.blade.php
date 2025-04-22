@@ -59,7 +59,9 @@
                                 <th width="5%">No</th>
                                 <th width="20%">Mata Pelajaran</th>
                                 <th width="20%">Kode Mapel</th>
-                                <th width="3%">Aksi</th>
+                                <th class="text-center" width="2%">
+                                    <i class="fas fa-cog"></i>
+                                </th>
                             </tr>
                         </thead>
 
@@ -70,9 +72,6 @@
                                 <td class="p-2 border">{{ $item->nama_mapel }}</td>
                                 <td class="p-2 border">{{ $item->kode_mapel }}</td>
                                 <td class="p-2 text-center border">
-                                    <button class="btn btn-primary btn-sm">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
                                     <button class="btn btn-warning btn-sm">
                                         <i class="fas fa-edit"></i>
                                     </button>

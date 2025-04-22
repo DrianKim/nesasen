@@ -61,7 +61,9 @@
                                 <th width="15%">Kelas</th>
                                 <th width="15%">Jenis Kelamin</th>
                                 <th width="15%">NIS</th>
-                                <th width="10%">Aksi</th>
+                                <th class="text-center" width="2%">
+                                    <i class="fas fa-cog"></i>
+                                </th>
                             </tr>
                         </thead>
 
@@ -71,7 +73,7 @@
                                     <td class="text-center">{{ $loop->iteration }}</td>
                                     <td class="p-2 border">{{ $item->user->murid->nama ?? '-' }}</td>
                                     <td class="p-2 border">
-                                        {{ $item->kelas->tingkat . ' ' . $item->kelas->jurusan->kode_jurusan . ' ' . $item->kelas->no_kelas ?? '' }}
+                                        {{ $item->kelas ? $item->kelas->tingkat . ' ' . $item->kelas->jurusan->kode_jurusan . ' ' . $item->kelas->no_kelas : '-' }}
                                     </td>
                                     <td class="p-2 border">{{ $item->jenis_kelamin ?? '-' }}</td>
                                     <td class="p-2 border">{{ $item->nis ?? '-' }}</td>

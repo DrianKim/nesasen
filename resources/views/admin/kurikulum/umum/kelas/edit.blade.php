@@ -7,7 +7,7 @@
             <h1 class="h3 fw-bold text-primary">
                 <i class="fas fa-user-edit me-2"></i> {{ $title }}
             </h1>
-            <a href="{{ route('admin_umum_jurusan.index') }}" class="btn btn-outline-primary">
+            <a href="{{ route('admin_umum_kelas.index') }}" class="btn btn-outline-primary">
                 <i class="fas fa-arrow-left me-1"></i> Kembali
             </a>
         </div>
@@ -15,7 +15,7 @@
         <!-- Form Card -->
         <div class="border-0 rounded-lg shadow-sm card">
             <div class="p-4 card-body">
-                <form action="{{ route('admin_umum_jurusan.update', $jurusan->id) }}" method="POST">
+                <form action="{{ route('admin_umum_kelas.update', $kelas->id) }}" method="POST">
                     @csrf
 
                     <!-- Student Data Section -->
@@ -26,30 +26,30 @@
                         <div class="p-3 card-body">
                             <div class="row g-3">
 
-                                {{-- nama jurusan --}}
+                                {{-- nama kelas --}}
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Nama Jurusan</label>
+                                    <label class="form-label fw-bold">Kelas</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-chalkboard"></i></span>
-                                        <input type="text" name="nama_jurusan"
-                                            class="form-control @error('kode_jurusan') is-invalid @enderror"
-                                            value="{{ $jurusan->nama_jurusan }}">
+                                        <input type="text" name="nama_kelas"
+                                            class="form-control @error('kode_kelas') is-invalid @enderror"
+                                            value="{{ $kelas->nama_kelas }}">
                                     </div>
-                                    @error('nama_jurusan')
+                                    @error('nama_kelas')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                                {{-- kode jurusan --}}
+                                {{-- guru yang mengampu --}}
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Kode Jurusan</label>
+                                    <label class="form-label fw-bold">Guru Yang Mengampu</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-chalkboard"></i></span>
-                                        <input type="text" name="kode_jurusan"
-                                            class="form-control @error('kode_jurusan') is-invalid @enderror"
-                                            value="{{ $jurusan->kode_jurusan }}">
+                                        <input type="text" name="kode_kelas"
+                                            class="form-control @error('kode_kelas') is-invalid @enderror"
+                                            value="{{ $kelas->kode_kelas }}">
                                     </div>
-                                    @error('kode_jurusan')
+                                    @error('kode_kelas')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
