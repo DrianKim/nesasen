@@ -21,7 +21,7 @@
                     <!-- Student Data Section -->
                     <div class="mb-4 border-0 card bg-light rounded-3">
                         <div class="text-white card-header bg-primary">
-                            <h5><i class="fas fa-chalkboard me-2"></i> Edit Jurusan</h5>
+                            <h5><i class="fas fa-chalkboard me-2"></i> Edit Kelas</h5>
                         </div>
                         <div class="p-3 card-body">
                             <div class="row g-3">
@@ -31,9 +31,14 @@
                                     <label class="form-label fw-bold">Kelas</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-chalkboard"></i></span>
+                                        {{-- <select name="nama_kelas" class="form-control">
+                                            <option disabled value="{{ $kelas->id }}">
+                                                {{ $kelas->tingkat . ' ' . $kelas->jurusan->nama_jurusan . ' ' . $kelas->no_kelas }}
+                                            </option>
+                                        </select> --}}
                                         <input type="text" name="nama_kelas"
-                                            class="form-control @error('kode_kelas') is-invalid @enderror"
-                                            value="{{ $kelas->nama_kelas }}">
+                                            class="form-control @error('kode_kelas') is-invalid @enderror" disabled
+                                            value="{{ $kelas->tingkat . ' ' . $kelas->jurusan->kode_jurusan . ' ' . $kelas->no_kelas }}">
                                     </div>
                                     @error('nama_kelas')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -42,23 +47,31 @@
 
                                 {{-- guru yang mengampu --}}
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Guru Yang Mengampu</label>
+                                    <label class="form-label fw-bold">Wali Kelas</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-chalkboard"></i></span>
-                                        <input type="text" name="kode_kelas"
-                                            class="form-control @error('kode_kelas') is-invalid @enderror"
-                                            value="{{ $kelas->kode_kelas }}">
+                                        <select name="guru_id" class="form-control">
+                                            <option disabled selected value="">--- Pilih Wali Kelas ---</option>
+                                            @foreach ($guruList as $item)
+                                                <option value="{{ $item->guru->id }}" {{ $selectedWalas == $item->guru->id ? 'selected' : '' }}>
+                                                    {{ $item->guru->nama }}
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                     @error('kode_kelas')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                    {{-- simpan --}}
-                    <div class="gap-2 mt-4 d-grid d-md-flex justify-content-md-end">
-                        <button type="submit" class="px-4 btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Simpan Perubahan
-                        </button>
+                                {{-- simpan --}}
+                                <div class="gap-2 mt-4 d-grid d-md-flex justify-content-md-end">
+                                    <button type="submit" class="px-4 btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>Simpan Perubahan
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>

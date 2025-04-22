@@ -77,9 +77,9 @@
                                     {{-- <button class="btn btn-primary btn-sm">
                                         <i class="fas fa-eye"></i>
                                     </button> --}}
-                                    <button class="btn btn-warning btn-sm">
+                                    <a href="{{ route('admin_umum_kelas.edit', $item->id)}}" class="btn btn-sm btn-warning">
                                         <i class="fas fa-edit"></i>
-                                    </button>
+                                    </a>
                                     <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalKelasDestroy{{ $item->id }}">
                                         <i class="fas fa-trash"></i>
                                     </button>

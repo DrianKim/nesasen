@@ -22,6 +22,7 @@ class WalasSeeder extends Seeder
         ],[
             'user_id' => 14,
             'kelas_id' => 4,
-        ]);
+        ]
+    );
     }
 }

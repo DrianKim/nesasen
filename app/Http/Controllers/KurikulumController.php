@@ -24,7 +24,8 @@ class KurikulumController extends Controller
     {
         $data = array(
             'title' => 'Halaman Daftar Wali Kelas',
-            'menu_admin_data_walas' => 'active',
+            'menuPengguna' => 'active',
+            // 'menu_admin_data_walas' => 'active',
             'walas' => Walas::with('guru')->get(),
         );
         return view('admin.kurikulum.walas.index', $data);
@@ -32,26 +33,25 @@ class KurikulumController extends Controller
 
     public function create_walas()
     {
-        $data = array (
+        $data = array(
             'title' => 'Halaman Tambah Wali Kelas',
-            'menu_admin_data_walas' => 'active',
+            'menuPengguna' => 'active',
+            // 'menu_admin_data_walas' => 'active',
             'walas' => Walas::with('guru')->get(),
             'guruList' => Guru::all(),
         );
         return view('admin.kurikulum.walas.create', $data);
     }
 
-    public function store_walas()
-    {
-
-    }
+    public function store_walas() {}
 
     // guru
     public function data_guru()
     {
         $data = array(
             'title' => 'Halaman Daftar Guru',
-            'menu_admin_data_guru' => 'active',
+            'menuPengguna' => 'active',
+            // 'menu_admin_data_guru' => 'active',
             'guru' => Guru::with('user', 'mapel_kelas.mata_pelajaran')->get(),
         );
         return view('admin.kurikulum.guru.index', $data);
@@ -61,7 +61,8 @@ class KurikulumController extends Controller
     {
         $data = array(
             'title' => 'Halaman Tambah Guru',
-            'menu_admin_data_guru' => 'active',
+            'menuPengguna' => 'active',
+            // 'menu_admin_data_guru' => 'active',
         );
         return view('admin.kurikulum.guru.create', $data);
     }
@@ -94,7 +95,8 @@ class KurikulumController extends Controller
     {
         $data = array(
             'title' => 'Halaman Edit Guru',
-            'menu_admin_data_guru' => 'active',
+            'menuPengguna' => 'active',
+            // 'menu_admin_data_guru' => 'active',
             'guru' => Guru::with('user')->findOrFail($id),
             'kelasList' => Kelas::all(),
         );
@@ -154,7 +156,8 @@ class KurikulumController extends Controller
     {
         $data = array(
             'title' => 'Halaman Daftar Murid',
-            'menu_admin_data_murid' => 'active',
+            'menuPengguna' => 'active',
+            // 'menu_admin_data_murid' => 'active',
             'murid' => Murid::with('user', 'kelas.jurusan')->get(),
         );
         return view('admin.kurikulum.murid.index', $data);
@@ -164,7 +167,8 @@ class KurikulumController extends Controller
     {
         $data = array(
             'title' => 'Halaman Tambah Murid',
-            'menu_admin_data_murid' => 'active',
+            'menuPengguna' => 'active',
+            // 'menu_admin_data_murid' => 'active',
             'kelasList' => Kelas::all(),
         );
         return view('admin.kurikulum.murid.create', $data);
@@ -198,7 +202,8 @@ class KurikulumController extends Controller
     {
         $data = array(
             'title' => 'Halaman Edit Murid',
-            'menu_admin_data_murid' => 'active',
+            'menuPengguna' => 'active',
+            // 'menu_admin_data_murid' => 'active',
             'murid' => Murid::with('user', 'kelas.jurusan')->findOrFail($id),
             'kelasList' => Kelas::all(),
         );
@@ -281,7 +286,8 @@ class KurikulumController extends Controller
     {
         $data = array(
             'title' => 'Halaman Daftar Jurusan',
-            'menu_admin_umum_jurusan' => 'active',
+            'menuKurikulum' => 'active',
+            // 'menu_admin_umum_jurusan' => 'active',
             'jurusan' => Jurusan::get(),
         );
         return view('admin.kurikulum.umum.jurusan.index', $data);
@@ -291,7 +297,8 @@ class KurikulumController extends Controller
     {
         $data = array(
             'title' => 'Halaman Tambah Jurusan',
-            'menu_admin_umum_jurusan' => 'active',
+            'menuKurikulum' => 'active',
+            // 'menu_admin_umum_jurusan' => 'active',
         );
         return view('admin.kurikulum.umum.jurusan.create', $data);
     }
@@ -315,7 +322,8 @@ class KurikulumController extends Controller
     {
         $data = array(
             'title' => 'Halaman Edit Jurusan',
-            'menu_admin_umum_jurusan' => 'active',
+            'menuKurikulum' => 'active',
+            // 'menu_admin_umum_jurusan' => 'active',
             'jurusan' => Jurusan::findOrFail($id),
         );
         return view('admin.kurikulum.umum.jurusan.edit', $data);
@@ -356,7 +364,8 @@ class KurikulumController extends Controller
     {
         $data = array(
             'title' => 'Halaman Daftar Kelas',
-            'menu_admin_umum_kelas' => 'active',
+            'menuKurikulum' => 'active',
+            // 'menu_admin_umum_kelas' => 'active',
             'kelas' => Kelas::withcount('murid')->with('jurusan')->get(),
         );
         return view('admin.kurikulum.umum.kelas.index', $data);
@@ -366,7 +375,8 @@ class KurikulumController extends Controller
     {
         $data = array(
             'title' => 'Halaman Tambah Kelas',
-            'menu_admin_umum_kelas' => 'active',
+            'menuKurikulum' => 'active',
+            // 'menu_admin_umum_kelas' => 'active',
             'jurusanList' => Jurusan::all(),
             'guruList' => Guru::all(),
         );
@@ -379,18 +389,18 @@ class KurikulumController extends Controller
             'tingkat' => 'required|in:X,XI,XII',
             'jurusan_id' => 'required|exists:jurusan,id',
             'no_kelas' => 'required',
-            'user_id' => 'required|exists:guru,id',
+            'guru_id' => 'required|exists:users,id',
         ]);
 
-        $walas = Walas::create([
-            'user_id' => $request->user_id
-        ]);
-
-        Kelas::create([
+        $kelas = Kelas::create([
             'tingkat' => $request->tingkat,
             'jurusan_id' => $request->jurusan_id,
             'no_kelas' => $request->no_kelas,
-            'walas_id' => $walas->id,
+        ]);
+
+        Walas::create([
+            'user_id' => $request->guru_id,
+            'kelas_id' => $kelas->id,
         ]);
 
         return redirect()->route('admin_umum_kelas.index')->with('success', 'Kelas Berhasil Ditambahkan');
@@ -398,24 +408,43 @@ class KurikulumController extends Controller
 
     public function edit_kelas($id)
     {
+        $kelas = Kelas::findOrFail($id);
+
         $data = array(
             'title' => 'Halaman Edit Kelas',
-            'menu_admin_umum_mapel' => 'active',
-            'mapel' => Kelas::findOrFail($id),
+            'menuKurikulum' => 'active',
+            'kelas' => $kelas,
+            'jurusanList' => Jurusan::all(),
+            'guruList' => User::where('role_id', 3)->get(),
+            'selectedWalas' => Walas::where('kelas_id', $id)->value('user_id'),
         );
-        return view('admin.kurikulum.umum.mapel.edit', $data);
+
+        return view('admin.kurikulum.umum.kelas.edit', $data);
     }
 
     public function update_kelas(Request $request, $id)
     {
-        $mapel = Kelas::findorfail($id);
+        $request->validate([
+            'tingkat' => 'required|i:X,XI,XII',
+            'jurusan_id' => 'required|exists:jurusan,id',
+            'no_kelas' => 'required|in:1,2,3,4',
+            'guru_id' => 'required|exists:users,id',
+        ]);
 
-        $mapel->update(array_filter([
-            'nama_mapel' => $request->nama_mapel,
-            'kode_mapel' => $request->kode_mapel,
-        ]));
+        $kelas = Kelas::findorfail($id);
 
-        return redirect()->route('admin_umum_jurusan.index')->with('success', 'Mapel Berhasil Diedit');
+        $kelas->update([
+            'tingkat' => $request->tingkat,
+            'jurusan_id' => $request->jurusan_id,
+            'no_kelas' => $request->no_kelas,
+        ]);
+
+        Walas::updateorcreate(
+            ['kelas_id' => $id],
+            ['user_id' => $request->user_id],
+        );
+
+        return redirect()->route('admin_umum_kelas.index')->with('success', 'Kelas Berhasil Diedit');
 
         // $user->save();
         // $request->validate([
@@ -433,7 +462,7 @@ class KurikulumController extends Controller
 
         $kelas->delete();
 
-        return redirect()->route('admin_umum_kelas.index')->with('success', 'Jurusan Berhasil Dihapus');
+        return redirect()->route('admin_umum_kelas.index')->with('success', 'Kelas Berhasil Dihapus');
     }
 
     // umum mapel
@@ -441,7 +470,8 @@ class KurikulumController extends Controller
     {
         $data = array(
             'title' => 'Halaman Daftar Mapel',
-            'menu_admin_umum_mapel' => 'active',
+            'menuKurikulum' => 'active',
+            // 'menu_admin_umum_mapel' => 'active',
             'mapel' => MataPelajaran::get(),
         );
         return view('admin.kurikulum.umum.mata_pelajaran.index', $data);
@@ -451,7 +481,8 @@ class KurikulumController extends Controller
     {
         $data = array(
             'title' => 'Halaman Tambah Mapel',
-            'menu_admin_umum_mapel' => 'active',
+            'menuKurikulum' => 'active',
+            // 'menu_admin_umum_mapel' => 'active',
         );
         return view('admin.kurikulum.umum.mata_pelajaran.create', $data);
     }
