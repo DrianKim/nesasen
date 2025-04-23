@@ -415,7 +415,7 @@ class KurikulumController extends Controller
             'menuKurikulum' => 'active',
             'kelas' => $kelas,
             'jurusanList' => Jurusan::all(),
-            'guruList' => User::where('role_id', 3)->get(),
+            'guruList' => User::where('role_id', 3)->with('guru')->get(),
             'selectedWalas' => Walas::where('kelas_id', $id)->value('user_id'),
         );
 
@@ -424,14 +424,20 @@ class KurikulumController extends Controller
 
     public function update_kelas(Request $request, $id)
     {
+        // dd($request->all());
         $request->validate([
-            'tingkat' => 'required|i:X,XI,XII',
+            'tingkat' => 'required|in:X,XI,XII',
             'jurusan_id' => 'required|exists:jurusan,id',
             'no_kelas' => 'required|in:1,2,3,4',
             'guru_id' => 'required|exists:users,id',
-        ]);
+        ],
+        // [
+        //     'guru_id.required' => 'Guru Tidak Boleh Kosong',
+        //     'guru_id.exists' => 'Nama Guru Tidak Tersedia'
+        // ]
+        );
 
-        $kelas = Kelas::findorfail($id);
+        $kelas = Kelas::findOrFail($id);
 
         $kelas->update([
             'tingkat' => $request->tingkat,
@@ -439,21 +445,16 @@ class KurikulumController extends Controller
             'no_kelas' => $request->no_kelas,
         ]);
 
-        Walas::updateorcreate(
+        $walas = Walas::updateOrCreate(
             ['kelas_id' => $id],
-            ['user_id' => $request->user_id],
+            ['user_id' => $request->guru_id],
         );
 
-        return redirect()->route('admin_umum_kelas.index')->with('success', 'Kelas Berhasil Diedit');
-
-        // $user->save();
-        // $request->validate([
-        //     'username' => 'nullable|min:3',
-        //     'password' => 'nullable|min:5',
-        // ], [
-        //     'username.min' => 'Minimal 3 Karakter',
-        //     'password.min' => 'Minimal 5 Karakter',
-        // ]);
+        if ($kelas && $walas) {
+            return redirect()->route('admin_umum_kelas.index')->with('success', 'Kelas Berhasil Diedit');
+        } else {
+            return back()->with('error', 'Gagal Menyimpan Data');
+        }
     }
 
     public function destroy_kelas($id)
@@ -500,6 +501,24 @@ class KurikulumController extends Controller
         ]);
 
         return redirect()->route('admin_umum_mapel.index')->with('success', 'Mata Pelajaran berhasil ditambahkan');
+    }
+
+    public function edit_mapel($id)
+    {
+
+        $data = array(
+            'title' => 'Halaman Daftar Mapel',
+            'menuKurikulum' => 'active',
+            'mapel' => MapelKelas::findorfail($id),
+            // 'mapel' => $mapel,
+            // 'menu_admin_umum_mapel' => 'active',
+        );
+        return view('admin.kurikulum.umum.mata_pelajaran.edit', $data);
+    }
+
+    public function update_mapel()
+    {
+
     }
 }
 // public function umum_semester()

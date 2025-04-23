@@ -1,6 +1,6 @@
 @include('layouts.header')
 
-<body id="page-top" class="@if(session('dark_mode', false)) dark-mode @endif">
+<body id="page-top" class="@if (session('dark_mode', false)) dark-mode @endif">
 
     <!-- Page Wrapper -->
     <div id="wrapper">
@@ -30,7 +30,7 @@
                                 </span>
                             </div>
                             <input type="text" class="bg-transparent border-0 form-control global-search-input"
-                                   placeholder="Search for anything..." aria-label="Search">
+                                placeholder="Search for anything..." aria-label="Search">
                         </div>
                     </div>
 
@@ -131,7 +131,8 @@
                                         <span>Assignment deadline approaching</span>
                                     </div>
                                 </a>
-                                <a class="text-center text-primary small dropdown-item" href="#">Show All Notifications</a>
+                                <a class="text-center text-primary small dropdown-item" href="#">Show All
+                                    Notifications</a>
                             </div>
                         </li>
 
@@ -151,38 +152,42 @@
                                 </h6>
                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                     <div class="mr-3 dropdown-list-image">
-                                        <img class="rounded-circle" src="{{ asset('images/avatars/avatar1.jpg') }}"
+                                        <img class="rounded-circle" src="{{ asset('sbadmin2\img\undraw_profile_3.svg') }}"
                                             alt="User Avatar">
                                         <div class="status-indicator bg-success"></div>
                                     </div>
                                     <div class="font-weight-bold">
-                                        <div class="text-truncate">Hi there! Do you have time for the upcoming meeting?</div>
+                                        <div class="text-truncate">Hi there! Do you have time for the upcoming meeting?
+                                        </div>
                                         <div class="text-gray-500 small">Bu Siti · Just now</div>
                                     </div>
                                 </a>
                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                     <div class="mr-3 dropdown-list-image">
-                                        <img class="rounded-circle" src="{{ asset('images/avatars/avatar2.jpg') }}"
+                                        <img class="rounded-circle" src="{{ asset('sbadmin2\img\undraw_profile_2.svg') }}"
                                             alt="User Avatar">
                                         <div class="status-indicator"></div>
                                     </div>
                                     <div>
-                                        <div class="text-truncate">I've sent you the assignment details, please check</div>
+                                        <div class="text-truncate">I've sent you the assignment details, please check
+                                        </div>
                                         <div class="text-gray-500 small">Pak Ahmad · 1h</div>
                                     </div>
                                 </a>
                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                     <div class="mr-3 dropdown-list-image">
-                                        <img class="rounded-circle" src="{{ asset('images/avatars/avatar3.jpg') }}"
+                                        <img class="rounded-circle" src="{{ asset('sbadmin2\img\undraw_profile.svg') }}"
                                             alt="User Avatar">
                                         <div class="status-indicator bg-warning"></div>
                                     </div>
                                     <div>
-                                        <div class="text-truncate">Your project submission looks great! Just one minor change needed.</div>
+                                        <div class="text-truncate">Your project submission looks great! Just one minor
+                                            change needed.</div>
                                         <div class="text-gray-500 small">Pak Rahmat · 2h</div>
                                     </div>
                                 </a>
-                                <a class="text-center text-primary small dropdown-item" href="#">Read More Messages</a>
+                                <a class="text-center text-primary small dropdown-item" href="#">Read More
+                                    Messages</a>
                             </div>
                         </li>
 
@@ -192,25 +197,26 @@
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline small">{{ auth()->user()->name_admin ?? auth()->user()->murid->nama ?? auth()->user()->guru->nama }}</span>
+                                <span
+                                    class="mr-2 d-none d-lg-inline small">{{ auth()->user()->name_admin ?? (auth()->user()->murid->nama ?? auth()->user()->guru->nama) }}</span>
                                 <img class="img-profile rounded-circle"
                                     src="{{ asset('images/avatars/profile-' . auth()->id() % 5 . '.jpg') }}">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="shadow dropdown-menu dropdown-menu-right animated--grow-in"
                                 aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
+                                <a class="dropdown-item" href="{{ route('profil.index') }}">
                                     <i class="mr-2 text-gray-500 fas fa-user fa-sm fa-fw"></i>
-                                    My Profile
+                                    Profil Saya
                                 </a>
-                                <a class="dropdown-item" href="#">
+                                {{-- <a class="dropdown-item" href="#">
                                     <i class="mr-2 text-gray-500 fas fa-cogs fa-sm fa-fw"></i>
                                     Settings
                                 </a>
                                 <a class="dropdown-item" href="#">
                                     <i class="mr-2 text-gray-500 fas fa-list fa-sm fa-fw"></i>
-                                    Activity Log
-                                </a>
+                                    Histori
+                                </a> --}}
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="{{ route('logout') }}">
                                     <i class="mr-2 text-gray-500 fas fa-sign-out-alt fa-sm fa-fw"></i>
@@ -232,16 +238,19 @@
                         {{-- <h1 class="mb-0 text-gray-800 h3">{{ $pageTitle ?? $title }}</h1> --}}
 
                         <!-- Status indicators -->
-                        @if(isset($showStatus) && $showStatus)
-                        <div class="d-flex status-indicators">
-                            <div class="mx-2 text-xs">
-                                <span class="mx-1 badge badge-primary">Semester: {{ $currentSemester ?? '2' }}</span>
-                                <span class="mx-1 badge badge-success">Tahun Ajaran: {{ $currentYear ?? '2024/2025' }}</span>
-                                @if(auth()->user()->role_id == 4)
-                                <span class="mx-1 badge badge-info">Kelas: {{ auth()->user()->murid->kelas->nama_kelas ?? '-' }}</span>
-                                @endif
+                        @if (isset($showStatus) && $showStatus)
+                            <div class="d-flex status-indicators">
+                                <div class="mx-2 text-xs">
+                                    <span class="mx-1 badge badge-primary">Semester:
+                                        {{ $currentSemester ?? '2' }}</span>
+                                    <span class="mx-1 badge badge-success">Tahun Ajaran:
+                                        {{ $currentYear ?? '2024/2025' }}</span>
+                                    @if (auth()->user()->role_id == 4)
+                                        <span class="mx-1 badge badge-info">Kelas:
+                                            {{ auth()->user()->murid->kelas->nama_kelas ?? '-' }}</span>
+                                    @endif
+                                </div>
                             </div>
-                        </div>
                         @endif
                     </div>
 
@@ -259,7 +268,8 @@
                     <div class="my-auto text-center copyright">
                         <span class="text-gray-600">© {{ date('Y') }} SMKN 1 Subang</span>
                         <span class="mx-2">·</span>
-                        <span class="text-gray-600">Made with <i class="text-danger fas fa-heart"></i> by <a href="#" class="font-weight-bold">P</a></span>
+                        <span class="text-gray-600">Made with <i class="text-danger fas fa-heart"></i> by <a
+                                href="#" class="font-weight-bold">P</a></span>
                     </div>
                 </div>
             </footer>
@@ -277,7 +287,8 @@
     </a>
 
     <!-- Todo List Modal -->
-    <div class="modal fade" id="todoModal" tabindex="-1" role="dialog" aria-labelledby="todoModalLabel" aria-hidden="true">
+    <div class="modal fade" id="todoModal" tabindex="-1" role="dialog" aria-labelledby="todoModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -289,7 +300,8 @@
                 <div class="modal-body">
                     <div class="mb-3 todo-input-container">
                         <div class="input-group">
-                            <input type="text" id="newTodoInput" class="form-control" placeholder="Add a new task...">
+                            <input type="text" id="newTodoInput" class="form-control"
+                                placeholder="Add a new task...">
                             <div class="input-group-append">
                                 <button class="btn btn-primary" id="addTodoBtn">
                                     <i class="fas fa-plus"></i>
@@ -311,4 +323,4 @@
         </div>
     </div>
 
-@include('layouts.footer')
+    @include('layouts.footer')

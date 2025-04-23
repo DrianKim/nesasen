@@ -16,14 +16,14 @@ class isAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()->role_id === 1) {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Silahkan Login Terlebih Dahulu');
+        }
+
+        if (Auth::user()->role_id == 1) {
             return $next($request);
         }
 
-        if (Auth::check()) {
-            abort(404);
-        }
-
-        return redirect()->route('login')->with('error', 'Silahkan Login Terlebih Dahulu!');
+        abort(404);
     }
 }

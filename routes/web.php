@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KurikulumController;
 
@@ -12,6 +13,11 @@ Route::get('/', function () {
 Route::middleware(['isLogin'])->group(function () {
     // Dashboard
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // profil
+    Route::get('profil', [ProfilController::class, 'index'])->name('profil.index');
+    Route::get('profil/edit', [ProfilController::class, 'index'])->name('profil.edit');
+    Route::post('profil/update', [ProfilController::class, 'update'])->name('profil.update');
 
     Route::middleware(['auth', 'isAdmin'])->group(function () {
         // murid

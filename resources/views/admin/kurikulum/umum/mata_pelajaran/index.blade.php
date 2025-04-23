@@ -72,12 +72,13 @@
                                 <td class="p-2 border">{{ $item->nama_mapel }}</td>
                                 <td class="p-2 border">{{ $item->kode_mapel }}</td>
                                 <td class="p-2 text-center border">
-                                    <button class="btn btn-warning btn-sm">
+                                    <a href="{{ route('admin_umum_mapel.edit', $item->id) }}" class="btn btn-sm btn-warning">
                                         <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm">
+                                    </a>
+                                    <button class="btn btn-danger btn-sm" data-toggle="modal"  data-target="#modalMapelDestroy{{ $item->id }}">
                                         <i class="fas fa-trash"></i>
                                     </button>
+                                    @include('admin.kurikulum.umum.mata_pelajaran.modal')
                                 </td>
                             </tr>
                         @endforeach

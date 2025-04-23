@@ -1,5 +1,5 @@
 <!-- Modal Delete -->
-<div class="modal fade" id="modalJurusanDestroy{{ $item->id }}" tabindex="-1" role="dialog"
+<div class="modal fade" id="modalMapelDestroy{{ $item->id }}" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -14,20 +14,20 @@
 
                 <div class="row">
                     <div class="col-6">
-                        Nama Jurusan
+                        Nama Mapel
                     </div>
                     <div class="col-6">
-                        : {{ $item->nama_jurusan ?? '-' }}
+                        : {{ $item->nama_mapel ?? '-' }}
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-6">
-                        Kode Jurusan
+                        Kode Mapel
                     </div>
                     <div class="col-6">
                         :
                         <span>
-                            {{ $item->kode_jurusan ?? '' }}
+                            {{ $item->kode_mapel ?? '' }}
                         </span>
                     </div>
                 </div>

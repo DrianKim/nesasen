@@ -49,18 +49,21 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Wali Kelas</label>
                                     <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-chalkboard"></i></span>
-                                        <select name="guru_id" class="form-control">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-chalkboard-teacher"></i>
+                                        </span>
+                                        <select name="guru_id" class="form-control" required>
                                             <option disabled selected value="">--- Pilih Wali Kelas ---</option>
-                                            @foreach ($guruList as $item)
-                                                <option value="{{ $item->guru->id }}" {{ $selectedWalas == $item->guru->id ? 'selected' : '' }}>
-                                                    {{ $item->guru->nama }}
+                                            @foreach ($guruList as $guru)
+                                                <option value="{{ $guru->id }}"
+                                                    {{ $selectedWalas == $guru->id ? 'selected' : '' }}>
+                                                    {{ $guru->guru->nama ?? $guru->username }}
                                                 </option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    @error('kode_kelas')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @error('guru_id')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </div>
 

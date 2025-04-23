@@ -28,8 +28,8 @@
     </div>
 
     <!-- Nav Item - Profil -->
-    <li class="nav-item">
-        <a class="py-2 nav-link" href="#">
+    <li class="nav-item {{ $menuProfil ?? '' }}">
+        <a class="py-2 nav-link" href="{{ route('profil.index') }}">
             <i class="fas fa-fw fa-user-circle"></i>
             <span>Profil Saya</span>
         </a>
