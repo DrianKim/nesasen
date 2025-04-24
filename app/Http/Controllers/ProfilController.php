@@ -13,12 +13,12 @@ class ProfilController extends Controller
     {
         $user = User::find(Auth::id());
 
-        if ($user->role_id == 4) { 
-            $profil = $user->murid; 
-        } elseif ($user->role_id == 3 || $user->role_id == 2) { 
-            $profil = $user->guru; 
+        if ($user->role_id == 4) {
+            $profil = $user->murid;
+        } elseif ($user->role_id == 3 || $user->role_id == 2) {
+            $profil = $user->guru;
         } else {
-            $profil = null; 
+            $profil = null;
         }
 
         $data = array(
@@ -51,20 +51,26 @@ class ProfilController extends Controller
         $profil = $user->role_id == 4 ? $user->murid : $user->guru;
 
         $request->validate([
-            'nama' => 'required|string',
-            'tanggal_lahir' => 'required|date',
-            'no_hp' => 'required|string',
             'email' => 'required|email|unique:users,email,' . $user->id,
+            'no_hp' => 'required|string',
+            'nis' => 'required|string',
+            'nip' => 'required|string',
+            'password' => 'nullable',
+            'tanggal_lahir' => 'required|date',
             'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
             'alamat' => 'required|string',
             'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $profil->nama = $request->nama;
-        $profil->tanggal_lahir = $request->tanggal_lahir;
+        $profil->email = $request->email;
         $profil->no_hp = $request->no_hp;
+        $profil->nis = $request->nis;
+        $profil->nip = $request->nip;
+        $profil->password = $request->password;
+        $profil->tanggal_lahir = $request->tanggal_lahir;
         $profil->jenis_kelamin = $request->jenis_kelamin;
         $profil->alamat = $request->alamat;
+        $profil->foto_profil = $request->foto_profil;
 
         if ($request->hasFile('foto_profil')) {
             $file = $request->file('foto_profil');
