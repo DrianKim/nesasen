@@ -35,7 +35,7 @@
                         </div>
                     </div>
                 </div>
-                @else ($profil->user->role_id == 2 || $profil->user->role_id == 3)
+                @else
                 <div class="mb-3 col-md-6">
                     <div class="mb-3 d-flex align-items-center">
                         <div class="p-2 bg-white shadow-sm rounded-circle me-3">

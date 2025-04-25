@@ -32,11 +32,13 @@
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-chalkboard"></i></span>
                                         <input type="text" name="nama_jurusan"
-                                            class="form-control @error('kode_jurusan') is-invalid @enderror"
+                                            class="form-control @error('nama_jurusan') is-invalid @enderror"
                                             value="{{ $jurusan->nama_jurusan }}">
                                     </div>
                                     @error('nama_jurusan')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <small class="text-danger">
+                                            {{ $message }}
+                                        </small>
                                     @enderror
                                 </div>
 
@@ -50,16 +52,18 @@
                                             value="{{ $jurusan->kode_jurusan }}">
                                     </div>
                                     @error('kode_jurusan')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <small class="text-danger">
+                                            {{ $message }}
+                                        </small>
                                     @enderror
                                 </div>
 
-                    {{-- simpan --}}
-                    <div class="gap-2 mt-4 d-grid d-md-flex justify-content-md-end">
-                        <button type="submit" class="px-4 btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Simpan Perubahan
-                        </button>
-                    </div>
+                                {{-- simpan --}}
+                                <div class="gap-2 mt-4 d-grid d-md-flex justify-content-md-end">
+                                    <button type="submit" class="px-4 btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>Simpan Perubahan
+                                    </button>
+                                </div>
                 </form>
             </div>
         </div>

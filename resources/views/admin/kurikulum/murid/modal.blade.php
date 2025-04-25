@@ -41,7 +41,7 @@
                 </div>
                 <div class="row">
                     <div class="col-6">
-                        Nis
+                        NIS
                     </div>
                     <div class="col-6">
                         :

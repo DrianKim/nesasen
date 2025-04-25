@@ -35,7 +35,9 @@
                                             value="{{ $mapel->nama_mapel }}">
                                     </div>
                                     @error('nama_mapel')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <small class="text-danger">
+                                            {{ $message }}
+                                        </small>
                                     @enderror
                                 </div>
 
@@ -49,9 +51,14 @@
                                             value="{{ $mapel->kode_mapel }}">
                                     </div>
                                     @error('kode_mapel')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <small class="text-danger">
+                                            {{ $message }}
+                                        </small>
                                     @enderror
                                 </div>
+                            </div>
+                        </div>
+                    </div>
 
                     {{-- simpan --}}
                     <div class="gap-2 mt-4 d-grid d-md-flex justify-content-md-end">

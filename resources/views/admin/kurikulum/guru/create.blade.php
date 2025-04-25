@@ -34,7 +34,9 @@
                                             class="form-control @error('nama') is-invalid @enderror">
                                     </div>
                                     @error('nama')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <small class="text-danger">
+                                            {{ $message }}
+                                        </small>
                                     @enderror
                                 </div>
                             </div>

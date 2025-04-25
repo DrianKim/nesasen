@@ -33,7 +33,9 @@
                                             class="form-control @error('nama_jurusan') is-invalid @enderror">
                                     </div>
                                     @error('nama_jurusan')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <small class="text-danger">
+                                            {{ $message }}
+                                        </small>
                                     @enderror
                                 </div>
 
@@ -46,7 +48,9 @@
                                             class="form-control @error('kode_jurusan') is-invalid @enderror">
                                     </div>
                                     @error('kode_jurusan')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <small class="text-danger">
+                                            {{ $message }}
+                                        </small>
                                     @enderror
                                 </div>
                             </div>

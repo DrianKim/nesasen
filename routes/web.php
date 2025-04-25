@@ -10,6 +10,14 @@ Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
+// Login
+Route::get('login', [AuthController::class, 'index'])->name('login');
+Route::post('login', [AuthController::class, 'loginProses'])->name('loginProses');
+Route::get('logout', [AuthController::class, 'logout'])->name('logout');
+
+// Register
+Route::post('register', [AuthController::class, 'registerProses'])->name('registerProses');
+
 Route::middleware(['isLogin'])->group(function () {
     // Dashboard
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -77,11 +85,3 @@ Route::middleware(['isLogin'])->group(function () {
         Route::get('admin/walas', [KurikulumController::class, 'data_walas'])->name('admin_walas.index');
     });
 });
-
-// Login
-Route::get('login', [AuthController::class, 'index'])->name('login');
-Route::post('login', [AuthController::class, 'loginProses'])->name('loginProses');
-Route::get('logout', [AuthController::class, 'logout'])->name('logout');
-
-// Register
-Route::post('register', [AuthController::class, 'registerProses'])->name('registerProses');

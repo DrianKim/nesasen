@@ -21,18 +21,18 @@ class KelasSeeder extends Seeder
             ],
             [
                 'tingkat' => ('X'),
-                'jurusan_id' => 2,
+                'jurusan_id' => 4,
                 'no_kelas' => 1,
             ],
             [
                 'tingkat' => ('X'),
                 'jurusan_id' => 3,
-                'no_kelas' => 2,
+                'no_kelas' => 1,
             ],
             [
                 'tingkat' => ('X'),
-                'jurusan_id' => 4,
-                'no_kelas' => 3,
+                'jurusan_id' => 2,
+                'no_kelas' => 1,
             ],
         ]);
     }

@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use PharIo\Manifest\RequiresElement;
+use Illuminate\Support\Facades\Hash;
 
 class ProfilController extends Controller
 {
@@ -47,43 +48,76 @@ class ProfilController extends Controller
 
     public function update(Request $request)
     {
-        $user = User::find(Auth::id());
+        $user = Auth::user();
         $profil = $user->role_id == 4 ? $user->murid : $user->guru;
 
-        $request->validate([
-            'email' => 'required|email|unique:users,email,' . $user->id,
+        $validationRules = [
+            'email' => 'required|email',
             'no_hp' => 'required|string',
-            'nis' => 'required|string',
-            'nip' => 'required|string',
-            'password' => 'nullable',
             'tanggal_lahir' => 'required|date',
             'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
             'alamat' => 'required|string',
             'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
+        ];
+
+        if ($request->filled('current_password')) {
+            $validationRules['current_password'] = 'required|current_password';
+            $validationRules['new_password'] = 'required|min:8|confirmed';
+        }
+
+        if ($user->role_id == 4) {
+            $validationRules['nis'] = 'required|string';
+        } else {
+            $validationRules['nip'] = 'required|string';
+        }
+
+        $request->validate($validationRules);
+
+        if ($request->filled('new_password') && $request->filled('current_password')) {
+            if (Hash::check($request->new_password, $user->password)) {
+                return back()->withErrors(['new_password' => 'Password baru tidak boleh sama dengan password lama'])->withInput();
+            }
+        }
 
         $profil->email = $request->email;
         $profil->no_hp = $request->no_hp;
-        $profil->nis = $request->nis;
-        $profil->nip = $request->nip;
-        $profil->password = $request->password;
         $profil->tanggal_lahir = $request->tanggal_lahir;
         $profil->jenis_kelamin = $request->jenis_kelamin;
         $profil->alamat = $request->alamat;
-        $profil->foto_profil = $request->foto_profil;
+
+        if ($user->role_id == 4) {
+            $profil->nis = $request->nis;
+        } else {
+            $profil->nip = $request->nip;
+        }
 
         if ($request->hasFile('foto_profil')) {
+            if ($profil->foto_profil && file_exists(public_path('image/profil/' . $profil->foto_profil))) {
+                unlink(public_path('image/profil/' . $profil->foto_profil));
+            }
+
             $file = $request->file('foto_profil');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('foto_profil'), $filename);
+
+            if (!file_exists(public_path('image/profil'))) {
+                mkdir(public_path('image/profil'), 0775, true);
+            }
+
+            $file->move(public_path('image/profil'), $filename);
             $profil->foto_profil = $filename;
         }
 
         $profil->save();
 
-        $user->email = $request->email;
-        $user->save();
+        if ($request->filled('new_password')) {
+            DB::table('users')->where('id', $user->id)->update(['password' => Hash::make($request->new_password)
+                ]);
+        }
 
-        return redirect()->route('profil')->with('success', 'Profil Berhasil Diupdate');
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Foto profil berhasil diperbarui']);
+        }
+
+        return redirect()->route('profil.index')->with('success', 'Profil Berhasil Diupdate');
     }
 }

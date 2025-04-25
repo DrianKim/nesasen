@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container py-4">
-        <!-- Header with Back Button -->
+        <!-- Header -->
         <div class="mb-4 d-flex justify-content-between align-items-center">
             <h1 class="h3 fw-bold text-primary">
                 <i class="fas fa-user-edit me-2"></i> {{ $title }}
@@ -18,7 +18,6 @@
                 <form action="{{ route('admin_umum_kelas.update', $kelas->id) }}" method="POST">
                     @csrf
 
-                    <!-- Student Data Section -->
                     <div class="mb-4 border-0 card bg-light rounded-3">
                         <div class="text-white card-header bg-primary">
                             <h5><i class="fas fa-chalkboard me-2"></i> Edit Kelas</h5>
@@ -26,32 +25,21 @@
                         <div class="p-3 card-body">
                             <div class="row g-3">
 
-                                {{-- nama kelas --}}
+                                {{-- Nama Kelas --}}
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Kelas</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-chalkboard"></i></span>
-                                        {{-- <select name="nama_kelas" class="form-control">
-                                            <option disabled value="{{ $kelas->id }}">
-                                                {{ $kelas->tingkat . ' ' . $kelas->jurusan->nama_jurusan . ' ' . $kelas->no_kelas }}
-                                            </option>
-                                        </select> --}}
-                                        <input type="text" name="nama_kelas"
-                                            class="form-control @error('kode_kelas') is-invalid @enderror" disabled
+                                        <input type="text" name="nama_kelas" class="form-control" disabled
                                             value="{{ $kelas->tingkat . ' ' . $kelas->jurusan->kode_jurusan . ' ' . $kelas->no_kelas }}">
                                     </div>
-                                    @error('nama_kelas')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
                                 </div>
 
-                                {{-- guru yang mengampu --}}
+                                {{-- Wali Kelas --}}
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Wali Kelas</label>
                                     <div class="input-group">
-                                        <span class="input-group-text">
-                                            <i class="fas fa-chalkboard-teacher"></i>
-                                        </span>
+                                        <span class="input-group-text"><i class="fas fa-chalkboard-teacher"></i></span>
                                         <select name="guru_id" class="form-control" required>
                                             <option disabled selected value="">--- Pilih Wali Kelas ---</option>
                                             @foreach ($guruList as $guru)
@@ -62,17 +50,15 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    @error('guru_id')
-                                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                                    @enderror
                                 </div>
 
-                                {{-- simpan --}}
+                                {{-- Simpan --}}
                                 <div class="gap-2 mt-4 d-grid d-md-flex justify-content-md-end">
                                     <button type="submit" class="px-4 btn btn-primary">
                                         <i class="fas fa-save me-2"></i>Simpan Perubahan
                                     </button>
                                 </div>
+
                             </div>
                         </div>
                     </div>

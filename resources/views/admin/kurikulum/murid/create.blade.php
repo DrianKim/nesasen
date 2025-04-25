@@ -34,7 +34,9 @@
                                             class="form-control @error('nama') is-invalid @enderror">
                                     </div>
                                     @error('nama')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <small class="text-danger">
+                                            {{ $message }}
+                                        </small>
                                     @enderror
                                 </div>
 
@@ -42,17 +44,26 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Kelas</label>
                                     <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                        <input list="kelas_id" name="kelas_id"
-                                            class="form-control @error('kelas_id') is-invalid @enderror">
-                                        <datalist id='kelas_id'>
+                                        <span class="input-group-text"><i class="fas fa-chalkboard"></i></span>
+                                        {{-- <input list="kelas_id" > --}}
+                                        <select name="kelas_id" class="form-control @error('kelas_id') is-invalid @enderror">
+                                            <option disabled value="">---Pilih Kelas---</option>
+                                            @foreach ($kelasList as $kelas)
+                                                <option value="{{ $kelas->id }}">
+                                                    {{ $kelas->tingkat . ' ' . $kelas->jurusan->kode_jurusan . ' ' . $kelas->no_kelas }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        {{-- <datalist id='kelas_id'>
                                             @foreach ($kelasList as $kelas)
                                             <option value="{{ $kelas->id }}">{{ $kelas->tingkat . ' ' . $kelas->jurusan->kode_jurusan . ' ' . $kelas->no_kelas }}</option>
                                             @endforeach
-                                        </datalist>
+                                        </datalist> --}}
                                     </div>
                                     @error('kelas_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <small class="text-danger">
+                                            {{ $message }}
+                                        </small>
                                     @enderror
                                 </div>
                             </div>

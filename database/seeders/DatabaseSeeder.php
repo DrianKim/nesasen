@@ -32,7 +32,7 @@ class DatabaseSeeder extends Seeder
             MataPelajaranSeeder::class,
             MapelKelasSeeder::class,
             UserSeeder::class,
-            WalasSeeder::class,
+            // WalasSeeder::class,
         ]);
 
     }

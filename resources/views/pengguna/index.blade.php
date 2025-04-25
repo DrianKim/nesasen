@@ -9,12 +9,24 @@
                     <div class="mb-4 row align-items-center">
                         <div class="col-auto">
                             <div class="position-relative">
-                                <img src="{{ $profil->foto_profil . asset('sbadmin2\img\undraw_profile.svg') }}"
+                                {{-- foto profil --}}
+                                <img src="{{ $profil->foto_profil ? asset('foto_profil/' . $profil->foto_profil) : asset('sbadmin2/img/undraw_profile.svg') }}"
                                     alt="Foto Profil" class="shadow-sm rounded-circle"
                                     style="width: 100px; height: 100px; object-fit: cover; border: 3px solid #f8f9fa;">
+
+                                {{-- upload foto_profil --}}
+                                <label for="upload-foto-profil"
+                                    class="bottom-0 mb-1 cursor-pointer position-absolute end-0 me-1">
+                                    <div class="text-white d-flex align-items-center justify-content-center bg-primary rounded-circle"
+                                        style="width: 30px; height: 30px; cursor: pointer;">
+                                        <i class="fas fa-camera"></i>
+                                    </div>
+                                    <input type="file" id="upload-foto-profil" style="display: none;"
+                                        accept="image/jpeg,image/png,image/jpg">
+                                </label>
                             </div>
                         </div>
-                        <div class="col">
+                        <div class="ml-2 col">
                             <h4 class="mb-1 fw-bold">{{ $profil->nama }}</h4>
                             <span class="mb-2 badge bg-light text-secondary">{{ $profil->user->role->deskripsi }}</span>
                         </div>
@@ -64,3 +76,52 @@
         </div>
     </div>
 @endsection
+<script>
+    @if ($profil)
+    document.getElementById('upload-foto-profil').addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const formData = new FormData();
+            formData.append('foto_profil', this.files[0]);
+            formData.append('_token', '{{ csrf_token() }}');
+
+            formData.append('email', '{{ $profil->email ?? '-' }}');
+            formData.append('no_hp', '{{ $profil->no_hp ?? '-' }}');
+            formData.append('tanggal_lahir', '{{ $profil->tanggal_lahir ?? '-' }}');
+            formData.append('jenis_kelamin', '{{ $profil->jenis_kelamin ?? '-' }}');
+            formData.append('alamat', '{{ $profil->alamat ?? '-' }}');
+
+            @if ($profil->user->role_id == 4)
+                formData.append('nis', '{{ $profil->nis ?? '-' }}');
+            @else
+                formData.append('nip', '{{ $profil->nip ?? '-' }}');
+            @endif
+
+            // Tampilkan loading
+            const loadingOverlay = document.createElement('div');
+            loadingOverlay.className =
+                'position-absolute top-0 start-0 d-flex align-items-center justify-content-center bg-dark bg-opacity-50 rounded-circle';
+            loadingOverlay.style.width = '100px';
+            loadingOverlay.style.height = '100px';
+            loadingOverlay.innerHTML = '<div class="text-white spinner-border" role="status"></div>';
+            this.parentElement.parentElement.appendChild(loadingOverlay);
+
+            // Kirim request untuk update foto
+            fetch('{{ route('profil.update') }}', {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Gagal mengupload foto');
+            }).then(data => {
+                // Refresh halaman setelah berhasil
+                window.location.reload();
+            }).catch(error => {
+                alert('Gagal mengupload foto: ' + error.message);
+                loadingOverlay.remove();
+            });
+        }
+    });
+    @endif
+</script>

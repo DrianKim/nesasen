@@ -152,14 +152,44 @@
                                     @enderror
                                 </div>
 
-                                {{-- password --}}
+                                {{-- password lama --}}
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Password <small class="text-muted">(Kosongkan jika
+                                    <label class="form-label fw-bold">Password Lama <small class="text-muted">(Kosongkan
+                                            jika
                                             tidak ingin diubah)</small></label>
                                     <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
                                         <input type="password" name="password"
-                                            class="form-control @error('password') is-invalid @enderror">
+                                            class="form-control @error('password') is-invalid @enderror"
+                                            placeholder="Masukkan Password Lama">
+                                    </div>
+                                    @error('password')
+                                        <div class="small text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                {{-- password baru --}}
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Password Baru</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                        <input type="password" name="new_password"
+                                            class="form-control @error('password') is-invalid @enderror"
+                                            placeholder="Password Baru">
+                                    </div>
+                                    @error('password')
+                                        <div class="small text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                {{-- password baru konfirmasi --}}
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Konfirmasi Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                        <input type="password" name="new_password_confirmation"
+                                            class="form-control @error('password') is-invalid @enderror"
+                                            placeholder="Ulangi Password Baru">
                                     </div>
                                     @error('password')
                                         <div class="small text-danger">{{ $message }}</div>

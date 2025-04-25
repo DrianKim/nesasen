@@ -33,7 +33,9 @@
                                             class="form-control @error('nama_mapel') is-invalid @enderror">
                                     </div>
                                     @error('nama_mapel')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <small class="text-danger">
+                                            {{ $message }}
+                                        </small>
                                     @enderror
                                 </div>
 
@@ -43,10 +45,12 @@
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-chalkboard"></i></span>
                                         <input type="text" name="kode_mapel"
-                                            class="form-control @error('nama_mapelkode_mapel') is-invalid @enderror">
+                                            class="form-control @error('kode_mapel') is-invalid @enderror">
                                     </div>
                                     @error('kode_mapel')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <small class="text-danger">
+                                            {{ $message }}
+                                        </small>
                                     @enderror
                                 </div>
                             </div>
