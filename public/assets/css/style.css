@@ -8,12 +8,10 @@
 }
 
 body {
-    background-color: #c9d6ff;
     background: linear-gradient(to right, #e2e2e2, #c9d6ff);
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
     height: 100vh;
 }
 
@@ -28,22 +26,39 @@ body {
     min-height: 480px;
 }
 
-.container p {
-    font-size: 14px;
-    line-height: 20px;
-    letter-spacing: 0.3px;
-    margin: 20px 0;
+/* === FORM === */
+.form-container {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    transition: all 0.6s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 40px;
+    width: 50%;
 }
 
-.container span {
-    font-size: 12px;
+.form-container form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.container a {
-    color: #333;
+.container input,
+.container select,
+.container textarea {
+    background-color: #eee;
+    border: none;
+    margin: 8px 0;
+    padding: 10px 15px;
     font-size: 13px;
-    text-decoration: none;
-    margin: 15px 0 10px;
+    border-radius: 8px;
+    width: 100%;
+    outline: none;
+    resize: none;
 }
 
 .container button {
@@ -65,59 +80,31 @@ body {
     border-color: #fff;
 }
 
-.container form {
-    background-color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    padding: 0 40px;
-    height: 100%;
-}
-
-.container input {
-    background-color: #eee;
-    border: none;
-    margin: 8px 0;
-    padding: 10px 15px;
-    font-size: 13px;
-    border-radius: 8px;
-    width: 100%;
-    outline: none;
-}
-
-.form-container {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    transition: all 0.6s ease-in-out;
-}
-
+/* === SIGN IN === */
 .sign-in {
     left: 0;
-    width: 50%;
     z-index: 2;
+}
+
+/* === SIGN UP === */
+.sign-up {
+    left: 0;
+    opacity: 0;
+    z-index: 1;
 }
 
 .container.active .sign-in {
     transform: translateX(100%);
 }
 
-.sign-up {
-    left: 0;
-    width: 50%;
-    opacity: 0;
-    z-index: 1;
-}
-
 .container.active .sign-up {
     transform: translateX(100%);
     opacity: 1;
     z-index: 5;
-    animation: move 0.6s;
+    animation: show 0.6s;
 }
 
-@keyframes move {
+@keyframes show {
     0%,
     49.99% {
         opacity: 0;
@@ -130,21 +117,58 @@ body {
     }
 }
 
-.social-icons {
-    margin: 20px 0;
-}
-
-.social-icons a {
-    border: 1px solid #ccc;
-    border-radius: 20%;
-    display: inline-flex;
-    justify-content: center;
+/* WRAPPER form sign up step 1 & 2 biar sejajar & gak numpuk */
+.signup-wrapper {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    margin: 0 3px;
-    width: 40px;
-    height: 40px;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
 }
 
+/* === Form Card Styling Biar Nutup Yang Di Bawah === */
+.signup-step {
+    background-color: #ffffff; /* Putih solid buat nutup di bawah */
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08); /* Sedikit bayangan biar elegan */
+    border-radius: 15px;
+    padding: 20px;
+    max-width: 400px;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 100%);
+    opacity: 0;
+    z-index: 2; /* Z-index lebih tinggi dari sign-in form */
+    transition: all 0.4s ease;
+}
+
+/* Saat Aktif */
+.signup-step.active {
+    transform: translate(-50%, 0%);
+    opacity: 1;
+    z-index: 5;
+}
+
+/* Kalo responsif, step jadi vertical & relative */
+@media (max-width: 768px) {
+    .signup-step {
+        position: relative;
+        transform: none !important;
+        opacity: 1 !important;
+        z-index: auto !important;
+        box-shadow: none;
+        padding: 10px;
+        max-width: 100%;
+    }
+
+    .signup-wrapper {
+        padding: 10px;
+    }
+}
+
+/* === TOGGLE PANEL === */
 .toggle-container {
     position: absolute;
     top: 0;
@@ -163,16 +187,14 @@ body {
 }
 
 .toggle {
-    background-color: #512da8;
-    height: 100%;
     background: linear-gradient(to right, #5c6bc0, #512da8);
-    color: #fff;
-    position: relative;
-    left: -100%;
     height: 100%;
     width: 200%;
-    transform: translateX(0);
+    position: relative;
+    left: -100%;
     transition: all 0.6s ease-in-out;
+    color: #fff;
+    display: flex;
 }
 
 .container.active .toggle {
@@ -206,15 +228,114 @@ body {
     right: 0;
     transform: translateX(0);
 }
+
+.container.active .toggle-right {
+    transform: translateX(200%);
+}
+
+#dynamicToggleText h1,
+#dynamicToggleText p {
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+#dynamicToggleText button {
+    margin-top: 10px;
+}
+
+/* === TEXT CENTER & HOVER === */
 .text-center {
     text-align: center;
     margin-top: 10px;
 }
+
 .text-center a:hover {
     color: #512da8;
     text-decoration: underline;
 }
 
-.container.active .toggle-right {
-    transform: translateX(200%);
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .container {
+        width: 90%;
+    }
+
+    .form-container {
+        width: 100%;
+        padding: 20px;
+        position: relative;
+    }
+
+    .toggle-container {
+        display: none;
+    }
+
+    .signup-step {
+        position: relative;
+        transform: none !important;
+        opacity: 1 !important;
+        z-index: auto !important;
+    }
 }
+
+/* Biar form Sign In & Sign Up gak nabrak */
+.sign-in form,
+.sign-up form {
+    margin-top: 20px;
+}
+
+/* Untuk form lanjutan (signupStep2) */
+#signupStep2 {
+    width: 95%;
+    max-width: 95%;
+    padding: 10px 20px;
+}
+
+/* Tambahin jarak antar input */
+#signupStep2 input,
+#signupStep2 select,
+#signupStep2 textarea {
+    margin: 6px 0;
+}
+
+/* Biar tombol "Lanjutkan Pendaftaran" gak nempel */
+#signupStep2 button[type="submit"] {
+    margin-top: 20px;
+}
+
+/* Responsive tweak */
+@media (max-width: 768px) {
+    #signupStep2 {
+        width: 100%;
+        padding: 10px;
+    }
+}
+
+#signupStep1 {
+    background-color: #ffffff;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    border-radius: 15px;
+    padding: 30px 25px;
+    max-width: 400px;
+    width: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    opacity: 0;
+    transition: all 0.4s ease;
+}
+
+#signupStep1.active {
+    opacity: 1;
+    z-index: 10;
+}
+
+.container.active .sign-in {
+    transform: translateX(100%);
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* === Responsive Mobile 768 === */
