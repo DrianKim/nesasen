@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\WalasController;
 use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KurikulumController;
@@ -26,6 +27,15 @@ Route::middleware(['isLogin'])->group(function () {
     Route::get('profil', [ProfilController::class, 'index'])->name('profil.index');
     Route::get('profil/edit', [ProfilController::class, 'index'])->name('profil.edit');
     Route::post('profil/update', [ProfilController::class, 'update'])->name('profil.update');
+
+    // data kelas
+    Route::get('data_kelas', [WalasController::class, 'data_kelas_index'])->name('data_kelas.index');
+
+    // rekap presensi
+    Route::get('rekap_presensi', [WalasController::class, 'rekap_presensi_index'])->name('rekap_presensi.index');
+    
+    Route::middleware(['auth', 'isWalas'])->group(function (){
+    });
 
     Route::middleware(['auth', 'isAdmin'])->group(function () {
         // murid
