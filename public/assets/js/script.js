@@ -3,44 +3,68 @@ document.addEventListener("DOMContentLoaded", function () {
     const registerBtn = document.getElementById("register");
     const loginBtn = document.getElementById("login");
     const checkBtn = document.getElementById("checkUsernameBtn");
-
     const usernameCheck = document.getElementById("usernameCheck");
     const usernameStatus = document.getElementById("usernameStatus");
     const confirmedUsername = document.getElementById("confirmedUsername");
     const roleText = document.getElementById("roleText");
     const roleInput = document.getElementById("roleHidden");
-    const nisnipInput = document.getElementById("nisnipInput");
     const dateInput = document.querySelector('input[name="tanggal_lahir"]');
-
     const step1 = document.getElementById("signupStep1");
     const step2 = document.getElementById("signupStep2");
     const toggleText = document.getElementById("dynamicToggleText");
-
-    // Sign Up
+    const mobileSwitchBtn = document.getElementById("mobileSwitchBtn");
+    const signIn = document.querySelector(".sign-in");
+    const signUp = document.querySelector(".sign-up");
+    let isSignIn = true;
+    if (dateInput) {
+        const today = new Date();
+        const minAge = 10;
+        const maxDate = new Date(
+            today.getFullYear() - minAge,
+            today.getMonth(),
+            today.getDate()
+        );
+        dateInput.max = maxDate.toISOString().split("T")[0];
+    }
     registerBtn?.addEventListener("click", () => {
         container.classList.add("active");
         updateToggleToLogin();
     });
-
-    dateInput.max = new Date().toISOString().split("T")[0]; // supaya gak bisa pilih tanggal di masa depan
-
-    // Sign In
     loginBtn?.addEventListener("click", () => {
         container.classList.remove("active");
         resetToggleDefault();
     });
-
+    if (window.innerWidth <= 768) {
+        updateMobileState();
+        mobileSwitchBtn?.addEventListener("click", () => {
+            isSignIn = !isSignIn;
+            updateMobileState();
+        });
+    }
+    function updateMobileState() {
+        if (isSignIn) {
+            signIn.classList.add("active-mobile");
+            signUp.classList.remove("active-mobile");
+            step1.classList.add("active");
+            step2.classList.remove("active");
+            mobileSwitchBtn.textContent = "Sign Up";
+        } else {
+            signUp.classList.add("active-mobile");
+            signIn.classList.remove("active-mobile");
+            step1.classList.add("active");
+            step2.classList.remove("active");
+            mobileSwitchBtn.textContent = "Sign In";
+        }
+    }
     checkBtn?.addEventListener("click", () => {
         const username = usernameCheck.value.trim();
         if (!username) {
-            usernameStatus.textContent = "Harap Masukkan Username.";
+            usernameStatus.textContent = "Harap masukkan username.";
             usernameStatus.style.color = "red";
             return;
         }
-
         usernameStatus.textContent = "⏳ Mengecek username...";
         usernameStatus.style.color = "#333";
-
         fetch("/cek-username", {
             method: "POST",
             headers: {
@@ -58,13 +82,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     confirmedUsername.value = data.username;
                     roleInput.value = data.role;
                     roleText.textContent = `Login sebagai: ${data.deskripsi}`;
-                    nisnipInput.name = data.role === "murid" ? "nis" : "nip";
-                    nisnipInput.placeholder =
-                        data.role === "murid" ? "NIS" : "NIP";
-
                     step1.classList.remove("active");
                     step2.classList.add("active");
-
                     updateToggleToBack();
                     usernameStatus.textContent = "✅ Username tersedia.";
                     usernameStatus.style.color = "green";
@@ -74,19 +93,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             })
             .catch((err) => {
-                console.error("❌ Error:", err);
+                console.error("❌ Fetch error:", err);
                 usernameStatus.textContent =
                     "❌ Terjadi kesalahan. Cek console.";
                 usernameStatus.style.color = "red";
             });
     });
-
     function updateToggleToBack() {
-        toggleText.innerHTML = `
-            <h1>Inputan Salah?</h1>
-            <p>Klik tombol di bawah untuk cek username lagi.</p>
-            <button class="hidden" id="backToStep1">Cek Ulang Username</button>
-        `;
+        toggleText.innerHTML = `<h1>Inputan Salah?</h1><p>Klik tombol di bawah untuk cek username lagi.</p><button class="hidden" id="backToStep1">Cek Ulang Username</button>`;
         setTimeout(() => {
             const backBtn = document.getElementById("backToStep1");
             backBtn?.addEventListener("click", () => {
@@ -98,13 +112,8 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }, 100);
     }
-
     function updateToggleToLogin() {
-        toggleText.innerHTML = `
-            <h1>Sudah punya akun?</h1>
-            <p>Klik tombol di bawah untuk kembali login.</p>
-            <button class="hidden" id="loginToggleInside">Sign In</button>
-        `;
+        toggleText.innerHTML = `<h1>Sudah punya akun?</h1><p>Klik tombol di bawah untuk kembali login.</p><button class="hidden" id="loginToggleInside">Sign In</button>`;
         setTimeout(() => {
             const loginToggleBtn = document.getElementById("loginToggleInside");
             loginToggleBtn?.addEventListener("click", () => {
@@ -113,13 +122,8 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }, 100);
     }
-
     function resetToggleDefault() {
-        toggleText.innerHTML = `
-            <h1>Belum Punya Akun?</h1>
-            <p>Gunakan username dari admin untuk daftar</p>
-            <button class="hidden" id="register">Sign Up</button>
-        `;
+        toggleText.innerHTML = `<h1>Belum Punya Akun?</h1><p>Gunakan username dari admin untuk daftar</p><button class="hidden" id="register">Sign Up</button>`;
         setTimeout(() => {
             const registerToggleBtn = document.getElementById("register");
             registerToggleBtn?.addEventListener("click", () => {
