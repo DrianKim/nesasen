@@ -12,7 +12,7 @@
             <i class="fas fa-plus me-2"></i>Tambah Murid
         </button> --}}
     </div>
-
+    ~
     <div class="container">
         <div class="card">
             <div class="card-header">
@@ -21,6 +21,20 @@
                         <i class="mr-2 fas fa-plus"></i>
                         Tambah Guru
                     </a>
+                </div>
+                <div class="mb-1 mr-2">
+                    <form action="{{ route('guru.import') }}" method="POST" enctype="multipart/form-data"
+                        id="importMuridForm">
+                        @csrf
+                        <input type="file" name="file" id="fileInput" accept=".xlsx,.xls" style="display: none;"
+                            onchange="document.getElementById('importMuridForm').submit();">
+
+                        <button type="button" class="btn btn-success btn-sm"
+                            onclick="document.getElementById('fileInput').click();">
+                            <i class="mr-2 fas fa-file-excel"></i>
+                            Import Murid
+                        </button>
+                    </form>
                 </div>
                 <div class="filter-form">
                     {{-- <div class="form-group">
@@ -79,13 +93,15 @@
                                     <td class="p-2 border">{{ $item->jenis_kelamin }}</td>
                                     <td class="p-2 border">{{ $item->nip }}</td>
                                     <td class="p-2 text-center border">
-                                        <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalGuruShow{{ $item->id }}">
+                                        <button class="btn btn-primary btn-sm" data-toggle="modal"
+                                            data-target="#modalGuruShow{{ $item->id }}">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         <a href="{{ route('admin_guru.edit', $item->id) }}" class="btn btn-sm btn-warning">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalGuruDestroy{{ $item->id }}">
+                                        <button class="btn btn-danger btn-sm" data-toggle="modal"
+                                            data-target="#modalGuruDestroy{{ $item->id }}">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                         @include('admin.kurikulum.guru.modal')

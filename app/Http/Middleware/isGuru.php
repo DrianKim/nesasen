@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class isAdmin
+class isGuru
 {
     /**
      * Handle an incoming request.
@@ -16,7 +16,7 @@ class isAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()->role_id === 3) {
+        if (Auth::check() && Auth::user()->role_id === 3 && Auth::user()->role_id === 2) {
             return $next($request);
         }
 

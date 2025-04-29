@@ -2,10 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MuridController;
 use App\Http\Controllers\WalasController;
 use App\Http\Controllers\ProfilController;
+use App\Http\Controllers\PengajarController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KurikulumController;
+use Maatwebsite\Excel\Facades\Excel;
 
 Route::get('/', function () {
     return view('welcome');
@@ -33,7 +36,14 @@ Route::middleware(['isLogin'])->group(function () {
 
     // rekap presensi
     Route::get('rekap_presensi', [WalasController::class, 'rekap_presensi_index'])->name('rekap_presensi.index');
-    
+
+    Route::get('jadwal_mengajar', [PengajarController::class, 'index_jadwal_mengajar'])->name('jadwal_mengajar.index');
+
+    Route::get('jadwal_pelajaran', [MuridController::class, 'index_jadwal_pelajaran'])->name('jadwal_pelajaran.index');
+
+    Route::middleware(['auth', 'isGuru'])->group(function () {
+    });
+
     Route::middleware(['auth', 'isWalas'])->group(function (){
     });
 
@@ -93,5 +103,9 @@ Route::middleware(['isLogin'])->group(function () {
         // Route::resource('semester', controller: KurikulumController::class);
 
         Route::get('admin/walas', [KurikulumController::class, 'data_walas'])->name('admin_walas.index');
+
+        // Excel
+        Route::post('/murid/import', [KurikulumController::class, 'import_murid'])->name('murid.import');
+        Route::post('/guru/import', [KurikulumController::class, 'import_guru'])->name('guru.import');
     });
 });

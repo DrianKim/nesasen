@@ -102,9 +102,6 @@
                     <a class="collapse-item" href="{{ route('admin_guru.index') }}">
                         <i class="fas fa-fw fa-angle-right"></i> Guru
                     </a>
-                    <a class="collapse-item" href="{{ route('admin_walas.index') }}">
-                        <i class="fas fa-fw fa-angle-right"></i> Wali Kelas
-                    </a>
                     <a class="collapse-item" href="{{ route('admin_murid.index') }}">
                         <i class="fas fa-fw fa-angle-right"></i> Murid
                     </a>
@@ -150,7 +147,7 @@
             </a>
             <div id="collapseAkademik" class="collapse" data-parent="#accordionSidebar">
                 <div class="py-2 bg-white rounded collapse-inner">
-                    <a class="collapse-item" href="#">
+                    <a class="collapse-item" href="{{ route('jadwal_mengajar.index') }}">
                         <i class="fas fa-calendar-alt fa-sm me-1"></i> Jadwal Mengajar
                     </a>
                     <a class="collapse-item" href="#">
@@ -185,10 +182,9 @@
             </div>
         </li>
 
-
         <!-- Wali Kelas -->
         @if (auth()->user()->role_id == 2)
-        
+
         <!-- Divider -->
         <hr class="sidebar-divider d-none d-md-block">
 
@@ -205,10 +201,10 @@
             <div id="collapseWalas" class="collapse" data-parent="#accordionSidebar">
                 <div class="py-2 bg-white rounded collapse-inner">
                     <a class="collapse-item" href="{{ route('data_kelas.index') }}">
-                        <i class="fas fa-calendar-alt fa-sm me-1"></i> Data Kelas Saya
+                        <i class="fas fa-circle fa-sm me-1"></i> Data Kelas
                     </a>
                     <a class="collapse-item" href="{{ route('rekap_presensi.index') }}">
-                        <i class="fas fa-pen fa-sm me-1"></i> Rekap Presensi Kelas
+                        <i class="fas fa-pen fa-sm me-1"></i> Rekap Presensi
                     </a>
                     {{-- <a class="collapse-item" href="#">
                         <i class="fas fa-user-check fa-sm me-1"></i> Presensi Siswa
@@ -236,7 +232,7 @@
             <div id="collapseAkademikSiswa" class="collapse" aria-labelledby="headingAkademikSiswa"
                 data-parent="#accordionSidebar">
                 <div class="py-2 bg-white rounded collapse-inner">
-                    <a class="collapse-item" href="#">
+                    <a class="collapse-item" href="{{ route('jadwal_pelajaran.index') }}">
                         <i class="fas fa-fw fa-angle-right"></i> Jadwal Pelajaran
                     </a>
                     <a class="collapse-item" href="#">

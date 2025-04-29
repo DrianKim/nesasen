@@ -22,6 +22,21 @@
                         Tambah Murid
                     </a>
                 </div>
+                <div class="mb-1 mr-2">
+                    <form action="{{ route('murid.import') }}" method="POST" enctype="multipart/form-data"
+                        id="importMuridForm">
+                        @csrf
+                        <input type="file" name="file" id="fileInput" accept=".xlsx,.xls" style="display: none;"
+                            onchange="document.getElementById('importMuridForm').submit();">
+
+                        <button type="button" class="btn btn-success btn-sm"
+                            onclick="document.getElementById('fileInput').click();">
+                            <i class="mr-2 fas fa-file-excel"></i>
+                            Import Murid
+                        </button>
+                    </form>
+                </div>
+
                 <div class="filter-form">
                     {{-- <div class="form-group">
                         <select class="form-select">
@@ -78,14 +93,16 @@
                                     <td class="p-2 border">{{ $item->jenis_kelamin ?? '-' }}</td>
                                     <td class="p-2 border">{{ $item->nis ?? '-' }}</td>
                                     <td class="p-2 text-center border">
-                                        <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modalMuridShow{{ $item->id }}">
+                                        <button class="btn btn-sm btn-primary" data-toggle="modal"
+                                            data-target="#modalMuridShow{{ $item->id }}">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         <a href="{{ route('admin_murid.edit', $item->id) }}" class="btn btn-sm btn-warning">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#modalMuridDestroy{{ $item->id }}">
-                                                <i class="fas fa-trash"></i>
+                                        <button class="btn btn-sm btn-danger" data-toggle="modal"
+                                            data-target="#modalMuridDestroy{{ $item->id }}">
+                                            <i class="fas fa-trash"></i>
                                         </button>
                                         @include('admin.kurikulum.murid.modal')
                                     </td>

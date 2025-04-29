@@ -31,4 +31,9 @@ class MapelKelas extends Model
     {
         return $this->belongsTo(walas::class);
     }
+
+    public function jadwal()
+    {
+        return $this->hasMany(Jadwal::class);
+    }
 }

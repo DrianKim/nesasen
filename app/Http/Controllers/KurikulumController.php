@@ -10,11 +10,13 @@ use App\Models\walas;
 use App\Models\Jurusan;
 use App\Models\MapelKelas;
 use Illuminate\Support\Str;
+use App\Imports\MuridImport;
 use Illuminate\Http\Request;
 use App\Models\MataPelajaran;
 use Database\Seeders\GuruSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
 use Psy\CodeCleaner\FunctionContextPass;
 
 class KurikulumController extends Controller
@@ -53,7 +55,7 @@ class KurikulumController extends Controller
             'title' => 'Halaman Daftar Guru',
             'menuPengguna' => 'active',
             // 'menu_admin_data_guru' => 'active',
-            'guru' => Guru::with('user', 'mapel_kelas.mata_pelajaran')->get(),
+            'guru' => Guru::with('user', 'mapel_kelas.mata_pelajaran')->orderby('nama', 'asc')->get(),
         );
         return view('admin.kurikulum.guru.index', $data);
     }
@@ -159,6 +161,36 @@ class KurikulumController extends Controller
         return redirect()->route('admin_guru.index')->with('success', 'Data Guru Berhasil Dihapus');
     }
 
+    public function import_guru(Request $request)
+    {
+        $file = $request->file('file');
+        $data = Excel::toArray([], $file);
+        $rows = array_slice($data[0], 1);
+        $imported = 0;
+
+        foreach ($rows as $row) {
+            $nama = $row[0];
+            if (!empty($nama)) {
+                $username = $this->generateUsernameFromName($nama);
+
+                $guru = Guru::create([
+                    'nama' => $nama,
+                ]);
+
+                User::create([
+                    'username' => $username,
+                    'password' => null,
+                    'guru_id' => $guru->id,
+                    'role_id' => 3,
+                ]);
+
+                $imported++;
+            }
+        }
+
+        return back()->with('success', 'Import guru berhasil! Total: $imported guru.');
+    }
+
     // murid
     public function data_murid()
     {
@@ -166,7 +198,7 @@ class KurikulumController extends Controller
             'title' => 'Halaman Daftar Murid',
             'menuPengguna' => 'active',
             // 'menu_admin_data_murid' => 'active',
-            'murid' => Murid::with('user', 'kelas.jurusan')->get(),
+            'murid' => Murid::with('user', 'kelas.jurusan')->orderby('nama', 'asc')->get(),
         );
         return view('admin.kurikulum.murid.index', $data);
     }
@@ -271,6 +303,38 @@ class KurikulumController extends Controller
         return redirect()->route('admin_murid.index')->with('success', 'Data Murid Berhasil Dihapus');
     }
 
+    public function import_murid(Request $request)
+    {
+        $file = $request->file('file');
+        $data = Excel::toArray([], $file);
+        $rows = array_slice($data[0], 1);
+        $imported = 0;
+
+        // dd($data);
+        foreach ($rows as $row) {
+            $nama = $row[0];
+            if (!empty($nama)) {
+                $username = $this->generateUsernameFromName($nama);
+
+                $murid = Murid::create([
+                    'nama' => $nama,
+                    'kelas_id' => null,
+                ]);
+
+                User::create([
+                    'username' => $username,
+                    'password' => null,
+                    'murid_id' => $murid->id,
+                    'role_id' => 4,
+                ]);
+
+                $imported++;
+            }
+        }
+
+        return back()->with('success', "Import murid berhasil! Total $imported murid.");
+    }
+
     private function generateUsernameFromName($namaLengkap)
     {
         $parts = explode(' ', strtolower($namaLengkap));
@@ -300,7 +364,7 @@ class KurikulumController extends Controller
             'title' => 'Halaman Daftar Jurusan',
             'menuKurikulum' => 'active',
             // 'menu_admin_umum_jurusan' => 'active',
-            'jurusan' => Jurusan::get(),
+            'jurusan' => Jurusan::orderby('nama_jurusan', 'asc')->get(),
         );
         return view('admin.kurikulum.umum.jurusan.index', $data);
     }
@@ -389,7 +453,12 @@ class KurikulumController extends Controller
             'title' => 'Halaman Daftar Kelas',
             'menuKurikulum' => 'active',
             // 'menu_admin_umum_kelas' => 'active',
-            'kelas' => Kelas::withcount('murid')->with(['jurusan', 'walas.user.guru'])->get(),
+            'kelas' => Kelas::withcount('murid')->with(['jurusan', 'walas.user.guru'])
+                ->join('jurusan', 'kelas.jurusan_id', '=', 'jurusan.id')
+                ->orderby('tingkat', 'asc')
+                ->orderby('jurusan.nama_jurusan', 'asc')
+                ->orderby('no_kelas', 'asc')
+                ->select('kelas.*')->get(),
         );
         return view('admin.kurikulum.umum.kelas.index', $data);
     }
@@ -478,7 +547,7 @@ class KurikulumController extends Controller
         //         $userLama->save();
         //     }
         // }
-        
+
         DB::transaction(function () use ($request, $id) {
             $kelas = Kelas::findOrFail($id);
 
@@ -528,7 +597,7 @@ class KurikulumController extends Controller
             'title' => 'Halaman Daftar Mapel',
             'menuKurikulum' => 'active',
             // 'menu_admin_umum_mapel' => 'active',
-            'mapel' => MataPelajaran::get(),
+            'mapel' => MataPelajaran::orderby('nama_mapel', 'asc')->get(),
         );
         return view('admin.kurikulum.umum.mata_pelajaran.index', $data);
     }

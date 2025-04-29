@@ -13,7 +13,7 @@
             <div class="text-left modal-body">
 
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-3">
                         Nama Lengkap
                     </div>
                     <div class="col-6">
@@ -21,7 +21,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-3">
                         Username
                     </div>
                     <div class="col-6">
@@ -29,7 +29,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-3">
                         Kelas
                     </div>
                     <div class="col-6">
@@ -40,7 +40,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-3">
                         NIS
                     </div>
                     <div class="col-6">
@@ -51,7 +51,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-3">
                         Tanggal Lahir
                     </div>
                     <div class="col-6">
@@ -62,7 +62,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-3">
                         Jenis Kelamin
                     </div>
                     <div class="col-6">
@@ -73,7 +73,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-3">
                         No HP
                     </div>
                     <div class="col-6">
@@ -84,7 +84,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-3">
                         Email
                     </div>
                     <div class="col-6">
@@ -95,7 +95,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-3">
                         Alamat
                     </div>
                     <div class="col-6">

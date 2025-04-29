@@ -13,21 +13,21 @@ class MataPelajaranSeeder extends Seeder
      */
     public function run(): void
     {
-//         No.	Nama Mata Pelajaran
-// 1	Bahasa Indonesia
-// 2	Bahasa Inggris
-// 3	Informatika
-// 4	Matematika Wajib
-// 5	Pendidikan Agama dan Budi Pekerti
-// 6	Pendidikan Jasmani, Olahraga, dan Kesehatan (PJOK)
-// 7	Pendidikan Pancasila dan Kewarganegaraan (PPKn)
-// 8	Projek Penguatan Profil Pelajar Pancasila (P5)
-// 9	Sejarah Indonesia
-// 10	Seni Budaya
+        //         No.	Nama Mata Pelajaran
+        // 1	Bahasa Indonesia
+        // 2	Bahasa Inggris
+        // 3	Informatika
+        // 4	Matematika Wajib
+        // 5	Pendidikan Agama dan Budi Pekerti
+        // 6	Pendidikan Jasmani, Olahraga, dan Kesehatan (PJOK)
+        // 7	Pendidikan Pancasila dan Kewarganegaraan (PPKn)
+        // 8	Projek Penguatan Profil Pelajar Pancasila (P5)
+        // 9	Sejarah Indonesia
+        // 10	Seni Budaya
         DB::table('mata_pelajaran')->insert([
             [
                 'nama_mapel' => 'Bahasa Indonesia',
-                'kode_mapel' => 'B. Indo',
+                'kode_mapel' => 'B. Indonesia',
             ],
             [
                 'nama_mapel' => 'Bahasa Inggris',
