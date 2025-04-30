@@ -9,51 +9,50 @@
             {{ $title }}
         </h1> --}}
         {{-- <button class="px-3 rounded btn btn-primary">
-            <i class="fas fa-plus me-2"></i>Tambah Siswa
+            <i class="fas fa-plus me-2"></i>Tambah Murid
         </button> --}}
     </div>
 
     <div class="container">
         <div class="card">
             <div class="card-header">
-                <div class="mb-1 mr-2">
-                    <a href="{{ route('admin_siswa.create') }}" class="btn btn-primary btn-sm">
+                {{-- <div class="mb-1 mr-2">
+                    <a href="#" class="btn btn-primary btn-sm">
                         <i class="mr-2 fas fa-plus"></i>
-                        Tambah Siswa
+                        Tambah Guru
                     </a>
                 </div>
                 <div class="mb-1 mr-2">
-                    <form action="{{ route('siswa.import') }}" method="POST" enctype="multipart/form-data"
-                        id="importSiswaForm">
+                    <form action="{{ route('guru.import') }}" method="POST" enctype="multipart/form-data"
+                        id="importMuridForm">
                         @csrf
                         <input type="file" name="file" id="fileInput" accept=".xlsx,.xls" style="display: none;"
-                            onchange="document.getElementById('importSiswaForm').submit();">
+                            onchange="document.getElementById('importMuridForm').submit();">
 
                         <button type="button" class="btn btn-success btn-sm"
                             onclick="document.getElementById('fileInput').click();">
                             <i class="mr-2 fas fa-file-excel"></i>
-                            Import Siswa
+                            Import Murid
                         </button>
                     </form>
-                </div>
-
+                </div> --}}
                 <div class="filter-form">
+                    {{-- <div class="form-group">
+                        <select class="form-select">
+                            <option value="">Semua Jurusan</option>
+                            <option value="1">IPA</option>
+                            <option value="2">IPS</option>
+                            <option value="3">Bahasa</option>
+                        </select>
+                    </div>
                     <div class="form-group">
                         <select class="form-select">
-                            <option disabled value="">Semua Kelas</option>
+                            <option value="">Semua Kelas</option>
                             <option value="1">X IPA 1</option>
                             <option value="2">XI IPS 2</option>
                             <option value="3">XII Bahasa 3</option>
                         </select>
-                    </div>
-                    <div class="form-group">
-                        <select class="form-select">
-                            <option disabled value="">Tahun Ajaran</option>
-                            <option value="1">2023/2024</option>
-                            <option value="2">2024/2025</option>
-                            <option value="3">2025/2026</option>
-                        </select>
-                    </div>
+                    </div> --}}
                     <button type="button" class="btn btn-primary btn-filter btn-sm">
                         <i class="fas fa-filter"></i>
                         Terapkan Filter
@@ -71,43 +70,41 @@
                     <table>
                         <thead>
                             <tr>
-                                <th width="5%">No</th>
-                                <th width="30%">Nama Lengkap</th>
-                                <th width="15%">Kelas</th>
-                                <th width="15%">Jenis Kelamin</th>
-                                <th width="15%">NIS</th>
-                                <th class="text-center" width="2%">
+                                <th>Tanggal</th>
+                                <th>Siswa</th>
+                                <th>Kelas</th>
+                                <th>Jenis Izin</th>
+                                <th>Keterangan</th>
+                                <th>Lampiran</th>
+                                <th>Status</th>
+                                <th class="text-center">
                                     <i class="fas fa-cog"></i>
                                 </th>
                             </tr>
                         </thead>
 
                         <tbody>
-                            @foreach ($siswa as $item)
+                                {{-- @dd($item) --}}
                                 <tr class="text-center">
-                                    <td class="text-center">{{ $loop->iteration }}</td>
-                                    <td class="p-2 border">{{ $item->user->siswa->nama ?? '-' }}</td>
-                                    <td class="p-2 border">
-                                        {{ $item->kelas ? $item->kelas->tingkat . ' ' . $item->kelas->jurusan->kode_jurusan . ' ' . $item->kelas->no_kelas : '-' }}
-                                    </td>
-                                    <td class="p-2 border">{{ $item->jenis_kelamin ?? '-' }}</td>
-                                    <td class="p-2 border">{{ $item->nis ?? '-' }}</td>
+                                    <td class="p-2 border">01/07/2025</td>
+                                    <td class="p-2 border">Enza Sikamalakama</td>
+                                    <td class="p-2 border">XI RPL 1</td>
+                                    <td class="p-2 border">Sakit</td>
+                                    <td class="p-2 border">Kulit Berubah Menjadi Hitam</td>
+                                    <td class="p-2 border">-</td>
+                                    <td class="p-2 border">-</td>
                                     <td class="p-2 text-center border">
-                                        <button class="btn btn-sm btn-primary" data-toggle="modal"
-                                            data-target="#modalSiswaShow{{ $item->id }}">
+                                        <button class="btn btn-primary btn-sm">
                                             <i class="fas fa-eye"></i>
                                         </button>
-                                        <a href="{{ route('admin_siswa.edit', $item->id) }}" class="btn btn-sm btn-warning">
+                                        <a href="#" class="btn btn-sm btn-warning">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button class="btn btn-sm btn-danger" data-toggle="modal"
-                                            data-target="#modalSiswaDestroy{{ $item->id }}">
+                                        <button class="btn btn-danger btn-sm">
                                             <i class="fas fa-trash"></i>
                                         </button>
-                                        @include('admin.siswa.modal')
                                     </td>
                                 </tr>
-                            @endforeach
                         </tbody>
                     </table>
                 </div>

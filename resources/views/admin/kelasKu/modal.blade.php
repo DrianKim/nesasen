@@ -1,10 +1,10 @@
 <!-- Modal Delete -->
-<div class="modal fade" id="modalMapelDestroy{{ $item->id }}" tabindex="-1" role="dialog"
+<div class="modal fade" id="modalKelasDestroy{{ $item->id }}" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="text-white modal-header bg-danger">
-                <h5 class="modal-title" id="exampleModalLongTitle">Hapus Mapel Ini?</h5>
+                <h5 class="modal-title" id="exampleModalLongTitle">Hapus Kelas Ini?</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true" class="text-white">&times;</span>
                 </button>
@@ -14,20 +14,28 @@
 
                 <div class="row">
                     <div class="col-6">
-                        Nama Mapel
+                        Kelas
                     </div>
                     <div class="col-6">
-                        : {{ $item->nama_mapel ?? '-' }}
+                        : {{ $item->tingkat. ' '. $item->jurusan->kode_jurusan. ' '. $item->no_kelas ?? '' }}
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-6">
-                        Kode Mapel
+                        Guru Yang Mengampu
+                    </div>
+                    <div class="col-6">
+                        : {{ $item->walas->user->guru->nama ?? '' }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        Total Murid
                     </div>
                     <div class="col-6">
                         :
                         <span>
-                            {{ $item->kode_mapel ?? '' }}
+                            {{ $item->murid_count ?? 0 }} Murid
                         </span>
                     </div>
                 </div>
@@ -39,7 +47,7 @@
                     <i class="fas fa-times"></i>
                     Tutup
                 </button>
-                <form action="{{ route('admin_umum_mapel.destroy', $item->id) }}" method="POST">
+                <form action="{{ route('admin_kelas.destroy', $item->id) }}" method="POST">
                     @csrf
                     @method('delete')
                     <button type="submit" class="btn btn-danger btn-sm">

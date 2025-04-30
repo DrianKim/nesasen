@@ -3,11 +3,11 @@
 @section('content')
     <!-- Page Heading -->
     <div class="mb-4 d-flex justify-content-between align-items-center">
-        <h1 class="m-0 h4 fw-bold">
+        {{-- <h1 class="m-0 h4 fw-bold">
             <i class="fas fa-chalkboard">
             </i>
             {{ $title }}
-        </h1>
+        </h1> --}}
         {{-- <button class="px-3 rounded btn btn-primary">
             <i class="fas fa-plus me-2"></i>Tambah Siswa
         </button> --}}
@@ -17,28 +17,20 @@
         <div class="card">
             <div class="card-header">
                 <div class="mb-1 mr-2">
-                    <a href="{{ route('admin_umum_kelas.create') }}" class="btn btn-primary btn-sm">
+                    <a href="{{ route('admin_kelas.create') }}" class="btn btn-primary btn-sm">
                         <i class="mr-2 fas fa-plus"></i>
                         Tambah Kelas
                     </a>
                 </div>
                 <div class="filter-form">
-                    {{-- <div class="form-group">
-                        <select class="form-select">
-                            <option value="">Semua Jurusan</option>
-                            <option value="1">IPA</option>
-                            <option value="2">IPS</option>
-                            <option value="3">Bahasa</option>
-                        </select>
-                    </div>
                     <div class="form-group">
                         <select class="form-select">
-                            <option value="">Semua Kelas</option>
-                            <option value="1">X IPA 1</option>
-                            <option value="2">XI IPS 2</option>
-                            <option value="3">XII Bahasa 3</option>
+                            <option disabled value="">Kelas</option>
+                            <option value="1">-</option>
+                            <option value="2">-</option>
+                            <option value="3">-</option>
                         </select>
-                    </div> --}}
+                    </div>
                     <button type="button" class="btn btn-primary btn-filter btn-sm">
                         <i class="fas fa-filter"></i>
                         Terapkan Filter
@@ -57,9 +49,9 @@
                         <thead>
                             <tr>
                                 <th width="1%">No</th>
-                                <th width="15%">Kelas</th>
-                                <th width="20%">Wali Kelas</th>
-                                <th width="20%">Total Siswa</th>
+                                <th width="15%">KelasKu</th>
+                                <th width="20%">Kelas</th>
+                                <th width="20%">Guru</th>
                                 <th class="text-center" width="2%">
                                     <i class="fas fa-cog"></i>
                                 </th>
@@ -67,23 +59,23 @@
                         </thead>
 
                         <tbody>
-                            @foreach ($kelas as $item)
+                            @foreach ($kelasKu as $item)
                             <tr class="text-center">
                                 <td class="text-center">{{ $loop->iteration }}</td>
-                                <td class="p-2 border">{{ $item->tingkat. ' '. $item->jurusan->kode_jurusan. ' '. $item->no_kelas ?? '' }}</td>
-                                <td class="p-2 border">{{ $item->walas->user->guru->nama ?? '-' }}</td>
-                                <td class="p-2 border">{{ $item->murid_count ?? 0}} Siswa</td>
+                                <td class="p-2 border">{{ $item->mata_pelajaran->nama_mapel ?? '' }}</td>
+                                <td class="p-2 border">{{ $item->kelas->tingkat. ' '. $item->kelas->jurusan->kode_jurusan. ' '. $item->kelas->no_kelas ?? '' }}</td>
+                                <td class="p-2 border">{{ $item->guru->nama ?? '-' }}</td>
                                 <td class="p-2 text-center border">
                                     {{-- <button class="btn btn-primary btn-sm">
                                         <i class="fas fa-eye"></i>
                                     </button> --}}
-                                    <a href="{{ route('admin_umum_kelas.edit', $item->id)}}" class="btn btn-sm btn-warning">
+                                    <a href="{{ route('admin_kelas.edit', $item->id)}}" class="btn btn-sm btn-warning">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalKelasDestroy{{ $item->id }}">
                                         <i class="fas fa-trash"></i>
                                     </button>
-                                    @include('admin.umum.kelas.modal')
+                                    {{-- @include('admin.kelas.modal') --}}
                                 </td>
                             </tr>
                         @endforeach

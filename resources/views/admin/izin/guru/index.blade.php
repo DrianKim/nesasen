@@ -3,11 +3,11 @@
 @section('content')
     <!-- Page Heading -->
     <div class="mb-4 d-flex justify-content-between align-items-center">
-        <h1 class="m-0 h4 fw-bold">
-            <i class="fas fa-chalkboard">
+        {{-- <h1 class="m-0 h4 fw-bold">
+            <i class="fas fa-user-graduate">
             </i>
             {{ $title }}
-        </h1>
+        </h1> --}}
         {{-- <button class="px-3 rounded btn btn-primary">
             <i class="fas fa-plus me-2"></i>Tambah Murid
         </button> --}}
@@ -16,12 +16,26 @@
     <div class="container">
         <div class="card">
             <div class="card-header">
-                <div class="mb-1 mr-2">
-                    <a href="{{ route('admin_umum_jurusan.create') }}" class="btn btn-primary btn-sm">
+                {{-- <div class="mb-1 mr-2">
+                    <a href="#" class="btn btn-primary btn-sm">
                         <i class="mr-2 fas fa-plus"></i>
-                        Tambah Jurusan
+                        Tambah Guru
                     </a>
                 </div>
+                <div class="mb-1 mr-2">
+                    <form action="{{ route('guru.import') }}" method="POST" enctype="multipart/form-data"
+                        id="importMuridForm">
+                        @csrf
+                        <input type="file" name="file" id="fileInput" accept=".xlsx,.xls" style="display: none;"
+                            onchange="document.getElementById('importMuridForm').submit();">
+
+                        <button type="button" class="btn btn-success btn-sm"
+                            onclick="document.getElementById('fileInput').click();">
+                            <i class="mr-2 fas fa-file-excel"></i>
+                            Import Murid
+                        </button>
+                    </form>
+                </div> --}}
                 <div class="filter-form">
                     {{-- <div class="form-group">
                         <select class="form-select">
@@ -49,42 +63,46 @@
             <div class="card-body">
                 <div class="search-box">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="search-input" placeholder="Cari berdasarkan nama jurusan atau kode jurusan...">
+                    <input type="text" class="search-input" placeholder="Cari berdasarkan nama atau NISN...">
                 </div>
 
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th width="2%">No</th>
-                                <th width="20%">Nama Jurusan</th>
-                                <th width="15%">Kode Jurusan</th>
-                                <th class="text-center" width="2%">
+                                <th>Tanggal</th>
+                                <th>Guru</th>
+                                <th>Jenis Izin</th>
+                                <th>Keterangan</th>
+                                <th>Lampiran</th>
+                                <th>Status</th>
+                                <th class="text-center">
                                     <i class="fas fa-cog"></i>
                                 </th>
                             </tr>
                         </thead>
 
                         <tbody>
-                            @foreach ($jurusan as $item)
-                            <tr class="text-center">
-                                <td class="text-center">{{ $loop->iteration }}</td>
-                                <td class="p-2 border">{{ $item->nama_jurusan ?? '' }}</td>
-                                <td class="p-2 border">{{ $item->kode_jurusan ?? '' }}</td>
-                                <td class="p-2 text-center border">
-                                    {{-- <button class="btn btn-primary btn-sm">
-                                        <i class="fas fa-eye"></i>
-                                    </button> --}}
-                                    <a href="{{ route('admin_umum_jurusan.edit', $item->id) }}" class="btn btn-sm btn-warning">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalJurusanDestroy{{ $item->id }}">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                    @include('admin.umum.jurusan.modal')
-                                </td>
-                            </tr>
-                        @endforeach
+                                {{-- @dd($item) --}}
+                                <tr class="text-center">
+                                    <td class="p-2 border">01/07/2025</td>
+                                    <td class="p-2 border">Dede Cibaduyut</td>
+                                    <td class="p-2 border">Sakit</td>
+                                    <td class="p-2 border">Kulit Berubah Menjadi Hitam</td>
+                                    <td class="p-2 border">-</td>
+                                    <td class="p-2 border">-</td>
+                                    <td class="p-2 text-center border">
+                                        <button class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <a href="#" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
                         </tbody>
                     </table>
                 </div>

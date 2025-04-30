@@ -4,7 +4,7 @@
     <!-- Page Heading -->
     <div class="mb-4 d-flex justify-content-between align-items-center">
         {{-- <h1 class="m-0 h4 fw-bold">
-            <i class="fas fa-user-graduate">
+            <i class="fas fa-chalkboard">
             </i>
             {{ $title }}
         </h1> --}}
@@ -16,26 +16,12 @@
     <div class="container">
         <div class="card">
             <div class="card-header">
-                <div class="mb-1 mr-2">
-                    <a href="{{ route('admin_guru.create') }}" class="btn btn-primary btn-sm">
+                {{-- <div class="mb-1 mr-2">
+                    <a href="{{ route('admin_mapel.create') }}" class="btn btn-primary btn-sm">
                         <i class="mr-2 fas fa-plus"></i>
-                        Tambah Guru
+                        Tambah Mapel
                     </a>
-                </div>
-                <div class="mb-1 mr-2">
-                    <form action="{{ route('guru.import') }}" method="POST" enctype="multipart/form-data"
-                        id="importMuridForm">
-                        @csrf
-                        <input type="file" name="file" id="fileInput" accept=".xlsx,.xls" style="display: none;"
-                            onchange="document.getElementById('importMuridForm').submit();">
-
-                        <button type="button" class="btn btn-success btn-sm"
-                            onclick="document.getElementById('fileInput').click();">
-                            <i class="mr-2 fas fa-file-excel"></i>
-                            Import Murid
-                        </button>
-                    </form>
-                </div>
+                </div> --}}
                 <div class="filter-form">
                     {{-- <div class="form-group">
                         <select class="form-select">
@@ -63,17 +49,20 @@
             <div class="card-body">
                 <div class="search-box">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="search-input" placeholder="Cari berdasarkan nama atau NISN...">
+                    <input type="text" class="search-input" placeholder="Cari berdasarkan nama mapel atau kode mapel...">
                 </div>
 
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th width="15%">NIP</th>
-                                <th width="30%">Nama Lengkap</th>
-                                <th width="15%">Jenis Kelamin</th>
-                                <th width="15%">No. HP</th>
+                                <th width="15%">Tanggal</th>
+                                <th width="15%">Absen Masuk</th>
+                                <th width="15%">Absen Keluar</th>
+                                <th width="15%">Hadir</th>
+                                <th width="15%">Absen</th>
+                                <th width="15%">Izin</th>
+                                <th width="15%">Sakit</th>
                                 <th class="text-center" width="2%">
                                     <i class="fas fa-cog"></i>
                                 </th>
@@ -81,29 +70,24 @@
                         </thead>
 
                         <tbody>
-                            @foreach ($guru as $item)
-                                {{-- @dd($item) --}}
                                 <tr class="text-center">
-                                    <td class="p-2 border">{{ $item->nip }}</td>
-                                    <td class="p-2 border">{{ $item->user->guru->nama }}</td>
-                                    <td class="p-2 border">{{ $item->jenis_kelamin }}</td>
-                                    <td class="p-2 border">{{ $item->no_hp }}</td>
+                                    <td class="p-2 border">1/07/2025</td>
+                                    <td class="p-2 border">08:00</td>
+                                    <td class="p-2 border">15:00</td>
+                                    <td class="p-2 border">0</td>
+                                    <td class="p-2 border">0</td>
+                                    <td class="p-2 border">0</td>
+                                    <td class="p-2 border">0</td>
                                     <td class="p-2 text-center border">
-                                        <button class="btn btn-primary btn-sm" data-toggle="modal"
-                                            data-target="#modalGuruShow{{ $item->id }}">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <a href="{{ route('admin_guru.edit', $item->id) }}" class="btn btn-sm btn-warning">
+                                        <a href="#"
+                                            class="btn btn-sm btn-warning">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                            data-target="#modalGuruDestroy{{ $item->id }}">
+                                        <button class="btn btn-danger btn-sm" >
                                             <i class="fas fa-trash"></i>
                                         </button>
-                                        @include('admin.guru.modal')
                                     </td>
                                 </tr>
-                            @endforeach
                         </tbody>
                     </table>
                 </div>

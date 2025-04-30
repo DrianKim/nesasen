@@ -7,7 +7,7 @@
             <h1 class="h3 fw-bold text-primary">
                 <i class="fas fa-user-edit me-2"></i> {{ $title }}
             </h1>
-            <a href="{{ route('admin_umum_mapel.index') }}" class="btn btn-outline-primary">
+            <a href="{{ route('admin_mapel.index') }}" class="btn btn-outline-primary">
                 <i class="fas fa-arrow-left me-1"></i> Kembali
             </a>
         </div>
@@ -15,7 +15,7 @@
         <!-- Form Card -->
         <div class="border-0 rounded-lg shadow-sm card">
             <div class="p-4 card-body">
-                <form action="{{ route('admin_umum_mapel.update', $mapel->id) }}" method="POST">
+                <form action="{{ route('admin_mapel.update', $mapel->id) }}" method="POST">
                     @csrf
 
                     <div class="mb-4 border-0 card bg-light rounded-3">

@@ -3,11 +3,11 @@
 @section('content')
     <!-- Page Heading -->
     <div class="mb-4 d-flex justify-content-between align-items-center">
-        <h1 class="m-0 h4 fw-bold">
+        {{-- <h1 class="m-0 h4 fw-bold">
             <i class="fas fa-chalkboard">
             </i>
             {{ $title }}
-        </h1>
+        </h1> --}}
         {{-- <button class="px-3 rounded btn btn-primary">
             <i class="fas fa-plus me-2"></i>Tambah Murid
         </button> --}}
@@ -17,7 +17,7 @@
         <div class="card">
             <div class="card-header">
                 <div class="mb-1 mr-2">
-                    <a href="{{ route('admin_umum_mapel.create') }}" class="btn btn-primary btn-sm">
+                    <a href="{{ route('admin_mapel.create') }}" class="btn btn-primary btn-sm">
                         <i class="mr-2 fas fa-plus"></i>
                         Tambah Mapel
                     </a>
@@ -72,7 +72,7 @@
                                     <td class="p-2 border">{{ $item->nama_mapel }}</td>
                                     <td class="p-2 border">{{ $item->kode_mapel }}</td>
                                     <td class="p-2 text-center border">
-                                        <a href="{{ route('admin_umum_mapel.edit', $item->id) }}"
+                                        <a href="{{ route('admin_mapel.edit', $item->id) }}"
                                             class="btn btn-sm btn-warning">
                                             <i class="fas fa-edit"></i>
                                         </a>
@@ -80,7 +80,7 @@
                                             data-target="#modalMapelDestroy{{ $item->id }}">
                                             <i class="fas fa-trash"></i>
                                         </button>
-                                        @include('admin.umum.mata_pelajaran.modal')
+                                        @include('admin.mata_pelajaran.modal')
                                     </td>
                                 </tr>
                             @endforeach

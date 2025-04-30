@@ -57,10 +57,10 @@
             </a>
             <div id="collapseKelas" class="collapse" aria-labelledby="headingKelas" data-parent="#accordionSidebar">
                 <div class="py-2 bg-white rounded collapse-inner">
-                    <a class="collapse-item" href="{{ route('admin_umum_kelas.index') }}">
+                    <a class="collapse-item" href="{{ route('admin_kelas.index') }}">
                         <i class="fas fa-fw fa-angle-right"></i> Seluruh Kelas
                     </a>
-                    <a class="collapse-item" href="#">
+                    <a class="collapse-item" href="{{ route('admin_kelasKu.index') }}">
                         <i class="fas fa-fw fa-angle-right"></i> KelasKu
                     </a>
                 </div>
@@ -104,13 +104,13 @@
             <div id="collapsePelajaranJadwal" class="collapse" aria-labelledby="headingPelajaranJadwal"
                 data-parent="#accordionSidebar">
                 <div class="py-2 bg-white rounded collapse-inner">
-                    <a class="collapse-item" href="#">
-                        <i class="fas fa-fw fa-angle-right"></i> Jadwal Mengajar
+                    <a class="collapse-item" href="{{ route('admin_jadwal_pelajaran.index') }}">
+                        <i class="fas fa-fw fa-angle-right"></i> Jadwal Pelajaran
                     </a>
-                    <a class="collapse-item" href="{{ route('admin_umum_jurusan.index') }}">
+                    <a class="collapse-item" href="{{ route('admin_jurusan.index') }}">
                         <i class="fas fa-fw fa-angle-right"></i> Daftar Jurusan
                     </a>
-                    <a class="collapse-item" href="{{ route('admin_umum_mapel.index') }}">
+                    <a class="collapse-item" href="{{ route('admin_mapel.index') }}">
                         <i class="fas fa-fw fa-angle-right"></i> Daftar Mapel
                     </a>
                 </div>
@@ -127,13 +127,13 @@
             <div id="collapsePresensi" class="collapse" aria-labelledby="headingPresensi"
                 data-parent="#accordionSidebar">
                 <div class="py-2 bg-white rounded collapse-inner">
-                    <a class="collapse-item" href="#">
+                    <a class="collapse-item" href="{{ route('admin_presensi_siswa.index') }}">
                         <i class="fas fa-fw fa-angle-right"></i> Presensi Siswa
                     </a>
-                    <a class="collapse-item" href="#">
+                    <a class="collapse-item" href="{{ route('admin_presensi_guru.index') }}">
                         <i class="fas fa-fw fa-angle-right"></i> Presensi Guru
                     </a>
-                    <a class="collapse-item" href="#">
+                    <a class="collapse-item" href="{{ route('admin_presensi_per_mapel.index') }}">
                         <i class="fas fa-fw fa-angle-right"></i> Presensi Per-Mapel
                     </a>
                 </div>
@@ -150,10 +150,10 @@
             <div id="collapsePerizinan" class="collapse" aria-labelledby="headingPerizinan"
                 data-parent="#accordionSidebar">
                 <div class="py-2 bg-white rounded collapse-inner">
-                    <a class="collapse-item" href="#">
+                    <a class="collapse-item" href="{{ route('admin_izin_siswa.index') }}">
                         <i class="fas fa-fw fa-angle-right"></i> Izin Siswa
                     </a>
-                    <a class="collapse-item" href="#">
+                    <a class="collapse-item" href="{{ route('admin_izin_guru.index') }}">
                         <i class="fas fa-fw fa-angle-right"></i> Izin Guru
                     </a>
                 </div>

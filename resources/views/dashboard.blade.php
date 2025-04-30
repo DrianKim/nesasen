@@ -3,7 +3,8 @@
 @section('content')
 
 <!-- Page Heading -->
-<h1 class="mb-4 text-gray-800 h3">{{ $title }}
+{{-- <h1 class="mb-4 text-gray-800 h3">
+    {{ $title }}
     @if(auth()->user()->role_id === 1)
         Admin
     @elseif(auth()->user()->role_id === 2)
@@ -13,7 +14,7 @@
     @elseif(auth()->user()->role_id === 4)
         Murid
     @endif
-</h1>
+</h1> --}}
 
 <!-- Content Row -->
 <div class="row">
