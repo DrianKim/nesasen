@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Murid extends Model
+class Siswa extends Model
 {
-    protected $table = 'murid';
+    protected $table = 'siswa';
 
     protected $fillable = [
         'nama',
@@ -22,7 +22,7 @@ class Murid extends Model
 
     public function user()
     {
-        return $this->hasOne(User::class, 'murid_id');
+        return $this->hasOne(User::class, 'siswa_id');
     }
     public function kelas()
     {

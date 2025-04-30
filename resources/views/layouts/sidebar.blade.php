@@ -15,25 +15,12 @@
     <li class="nav-item {{ $menuDashboard ?? '' }}">
         <a class="py-2 nav-link" href="{{ route('dashboard') }}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Dashboard</span>
+            <span>Beranda</span>
         </a>
     </li>
 
     <!-- Divider -->
     <hr class="sidebar-divider">
-
-    <!-- Heading -->
-    <div class="sidebar-heading">
-        Area Pengguna
-    </div>
-
-    <!-- Nav Item - Profil -->
-    <li class="nav-item {{ $menuProfil ?? '' }}">
-        <a class="py-2 nav-link" href="{{ route('profil.index') }}">
-            <i class="fas fa-fw fa-user-circle"></i>
-            <span>Profil Saya</span>
-        </a>
-    </li>
 
     <!-- Nav Item - Notifikasi -->
     {{-- <li class="nav-item">
@@ -53,82 +40,163 @@
         </a>
     </li> --}}
 
-    <!-- Divider -->
-    <hr class="sidebar-divider">
 
     <!-- ADMIN MENU -->
     @if (auth()->user()->role_id == 1)
         <!-- Heading -->
         <div class="sidebar-heading">
-            Manajemen Admin
+            Menu
         </div>
 
-        <!-- Nav Item - Kurikulum Collapse Menu -->
-        <li class="nav-item {{ $menuKurikulum ?? '' }}">
-            <a class="py-2 nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseKurikulum"
-                aria-expanded="false" aria-controls="collapseKurikulum">
+        {{-- kelas --}}
+        <li class="nav-item {{ $menu ?? '' }}">
+            <a class="py-2 nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseKelas"
+                aria-expanded="false" aria-controls="collapseKelas">
                 <i class="fas fa-fw fa-book"></i>
-                <span>Kurikulum</span>
+                <span>Daftar Kelas</span>
             </a>
-            <div id="collapseKurikulum" class="collapse" aria-labelledby="headingKurikulum"
+            <div id="collapseKelas" class="collapse" aria-labelledby="headingKelas" data-parent="#accordionSidebar">
+                <div class="py-2 bg-white rounded collapse-inner">
+                    <a class="collapse-item" href="{{ route('admin_umum_kelas.index') }}">
+                        <i class="fas fa-fw fa-angle-right"></i> Seluruh Kelas
+                    </a>
+                    <a class="collapse-item" href="#">
+                        <i class="fas fa-fw fa-angle-right"></i> KelasKu
+                    </a>
+                </div>
+            </div>
+        </li>
+
+        {{-- data siswa --}}
+        <li class="nav-item {{ $menu ?? '' }}">
+            <a class="py-2 nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSiswa"
+                aria-expanded="false" aria-controls="collapseSiswa">
+                <i class="fas fa-fw fa-users"></i>
+                <span>Data Siswa</span>
+            </a>
+            <div id="collapseSiswa" class="collapse" aria-labelledby="headingSiswa" data-parent="#accordionSidebar">
+                <div class="py-2 bg-white rounded collapse-inner">
+                    <a class="collapse-item" href="{{ route('admin_siswa.index') }}">
+                        <i class="fas fa-fw fa-angle-right"></i> Semua siswa
+                    </a>
+                    <a class="collapse-item" href="#">
+                        <i class="fas fa-fw fa-angle-right"></i> Siswa Lulus (Opsional)
+                    </a>
+                </div>
+            </div>
+        </li>
+
+        {{-- guru --}}
+        <li class="nav-item {{ $menu ?? '' }}#">
+            <a class="py-2 nav-link" href="{{ route('admin_guru.index') }}">
+                <i class="fas fa-fw fa-chalkboard-teacher"></i>
+                <span>Data Guru</span>
+            </a>
+        </li>
+
+        {{-- pelajaran & jadwal --}}
+        <li class="nav-item {{ $menu ?? '' }}">
+            <a class="py-2 nav-link collapsed" href="#" data-toggle="collapse"
+                data-target="#collapsePelajaranJadwal" aria-expanded="false" aria-controls="collapsePelajaranJadwal">
+                <i class="fas fa-fw fa-book"></i>
+                <span>Pelajaran & Jadwal</span>
+            </a>
+            <div id="collapsePelajaranJadwal" class="collapse" aria-labelledby="headingPelajaranJadwal"
                 data-parent="#accordionSidebar">
                 <div class="py-2 bg-white rounded collapse-inner">
-                    <a class="collapse-item" href="{{ route('admin_umum_jurusan.index') }}">
-                        <i class="fas fa-fw fa-angle-right"></i> Jurusan
+                    <a class="collapse-item" href="#">
+                        <i class="fas fa-fw fa-angle-right"></i> Jadwal Mengajar
                     </a>
-                    <a class="collapse-item" href="{{ route('admin_umum_kelas.index') }}">
-                        <i class="fas fa-fw fa-angle-right"></i> Kelas
+                    <a class="collapse-item" href="{{ route('admin_umum_jurusan.index') }}">
+                        <i class="fas fa-fw fa-angle-right"></i> Daftar Jurusan
                     </a>
                     <a class="collapse-item" href="{{ route('admin_umum_mapel.index') }}">
-                        <i class="fas fa-fw fa-angle-right"></i> Mata Pelajaran
+                        <i class="fas fa-fw fa-angle-right"></i> Daftar Mapel
                     </a>
                 </div>
             </div>
         </li>
 
-        <!-- Nav Item - Pengguna Collapse Menu -->
-        <li class="nav-item {{ $menuPengguna ?? '' }}">
-            <a class="py-2 nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePengguna"
-                aria-expanded="false" aria-controls="collapsePengguna">
-                <i class="fas fa-fw fa-users"></i>
-                <span>Pengguna</span>
+        {{-- kehadiran --}}
+        <li class="nav-item {{ $menu ?? '' }}">
+            <a class="py-2 nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePresensi"
+                aria-expanded="false" aria-controls="collapsePresensi">
+                <i class="fas fa-fw fa-calendar-check"></i>
+                <span>Presensi</span>
             </a>
-            <div id="collapsePengguna" class="collapse" aria-labelledby="headingPengguna"
+            <div id="collapsePresensi" class="collapse" aria-labelledby="headingPresensi"
                 data-parent="#accordionSidebar">
                 <div class="py-2 bg-white rounded collapse-inner">
-                    {{-- <a class="collapse-item" href="#">
-                    <i class="fas fa-fw fa-angle-right"></i> Admin
-                </a> --}}
-                    <a class="collapse-item" href="{{ route('admin_guru.index') }}">
-                        <i class="fas fa-fw fa-angle-right"></i> Guru
+                    <a class="collapse-item" href="#">
+                        <i class="fas fa-fw fa-angle-right"></i> Presensi Siswa
                     </a>
-                    <a class="collapse-item" href="{{ route('admin_murid.index') }}">
-                        <i class="fas fa-fw fa-angle-right"></i> Murid
+                    <a class="collapse-item" href="#">
+                        <i class="fas fa-fw fa-angle-right"></i> Presensi Guru
+                    </a>
+                    <a class="collapse-item" href="#">
+                        <i class="fas fa-fw fa-angle-right"></i> Presensi Per-Mapel
                     </a>
                 </div>
             </div>
         </li>
 
-        <!-- Nav Item - Laporan -->
-        <li class="nav-item">
-            <a class="py-2 nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLaporan"
-                aria-expanded="false" aria-controls="collapseLaporan">
-                <i class="fas fa-fw fa-chart-bar"></i>
-                <span>Laporan</span>
+        {{-- perizinan --}}
+        <li class="nav-item {{ $menu ?? '' }}">
+            <a class="py-2 nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePerizinan"
+                aria-expanded="false" aria-controls="collapsePerizinan">
+                <i class="fas fa-fw fa-envelope-open-text"></i>
+                <span>Perizinan</span>
             </a>
-            <div id="collapseLaporan" class="collapse" aria-labelledby="headingLaporan" data-parent="#accordionSidebar">
+            <div id="collapsePerizinan" class="collapse" aria-labelledby="headingPerizinan"
+                data-parent="#accordionSidebar">
                 <div class="py-2 bg-white rounded collapse-inner">
                     <a class="collapse-item" href="#">
-                        <i class="fas fa-fw fa-angle-right"></i> Akademik
+                        <i class="fas fa-fw fa-angle-right"></i> Izin Siswa
                     </a>
                     <a class="collapse-item" href="#">
-                        <i class="fas fa-fw fa-angle-right"></i> Presensi
-                    </a>
-                    <a class="collapse-item" href="#">
-                        <i class="fas fa-fw fa-angle-right"></i> Nilai
+                        <i class="fas fa-fw fa-angle-right"></i> Izin Guru
                     </a>
                 </div>
             </div>
+        </li>
+
+        {{-- penilaian siswa --}}
+        <li class="nav-item {{ $menu ?? '' }}">
+            <a class="py-2 nav-link collapsed" href="#" data-toggle="collapse"
+                data-target="#collapsePenilaianSiswa" aria-expanded="false" aria-controls="collapsePenilaianSiswa">
+                <i class="fas fa-fw fa-clipboard-list"></i>
+                <span>Penilaian Siswa</span>
+            </a>
+            <div id="collapsePenilaianSiswa" class="collapse" aria-labelledby="headingPenilaianSiswa"
+                data-parent="#accordionSidebar">
+                <div class="py-2 bg-white rounded collapse-inner">
+                    <a class="collapse-item" href="#">
+                        <i class="fas fa-fw fa-angle-right"></i> Nilai Tugas
+                    </a>
+                    <a class="collapse-item" href="#">
+                        <i class="fas fa-fw fa-angle-right"></i> Nilai Akhir Semester
+                    </a>
+                    <a class="collapse-item" href="#">
+                        <i class="fas fa-fw fa-angle-right"></i> Rata-rata Nilai Kelas
+                    </a>
+                </div>
+            </div>
+        </li>
+
+        {{-- rapor --}}
+        <li class="nav-item {{ $menu ?? '' }}#">
+            <a class="py-2 nav-link" href="#">
+                <i class="fas fa-fw fa-clipboard-list"></i>
+                <span>Rapor Siswa</span>
+            </a>
+        </li>
+
+        {{-- tahun ajaran --}}
+        <li class="nav-item {{ $menu ?? '' }}#">
+            <a class="py-2 nav-link" href="#">
+                <i class="fas fa-fw fa-calendar-alt"></i>
+                <span>Tahun Ajaran</span>
+            </a>
         </li>
     @endif
 
@@ -137,6 +205,14 @@
         <div class="sidebar-heading">
             Area Pengajar
         </div>
+
+        <!-- Nav Item - Profil -->
+        <li class="nav-item {{ $menuProfil ?? '' }}">
+            <a class="py-2 nav-link" href="{{ route('profil.index') }}">
+                <i class="fas fa-fw fa-user-circle"></i>
+                <span>Profil Saya</span>
+            </a>
+        </li>
 
         <!-- Akademik -->
         <li class="nav-item">
@@ -184,34 +260,33 @@
 
         <!-- Wali Kelas -->
         @if (auth()->user()->role_id == 2)
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
 
-        <!-- Divider -->
-        <hr class="sidebar-divider d-none d-md-block">
-
-        <div class="sidebar-heading">
-            Wali Kelas
-        </div>
-        <!-- Walas -->
-        <li class="nav-item {{ $menuWalas ?? '' }}">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseWalas"
-                aria-expanded="false" aria-controls="collapseWalas">
-                <i class="fas fa-fw fa-graduation-cap"></i>
-                <span>Kelas X RPL 1</span>
-            </a>
-            <div id="collapseWalas" class="collapse" data-parent="#accordionSidebar">
-                <div class="py-2 bg-white rounded collapse-inner">
-                    <a class="collapse-item" href="{{ route('data_kelas.index') }}">
-                        <i class="fas fa-circle fa-sm me-1"></i> Data Kelas
-                    </a>
-                    <a class="collapse-item" href="{{ route('rekap_presensi.index') }}">
-                        <i class="fas fa-pen fa-sm me-1"></i> Rekap Presensi
-                    </a>
-                    {{-- <a class="collapse-item" href="#">
+            <div class="sidebar-heading">
+                Wali Kelas
+            </div>
+            <!-- Walas -->
+            <li class="nav-item {{ $menuWalas ?? '' }}">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseWalas"
+                    aria-expanded="false" aria-controls="collapseWalas">
+                    <i class="fas fa-fw fa-graduation-cap"></i>
+                    <span>Kelas X RPL 1</span>
+                </a>
+                <div id="collapseWalas" class="collapse" data-parent="#accordionSidebar">
+                    <div class="py-2 bg-white rounded collapse-inner">
+                        <a class="collapse-item" href="{{ route('data_kelas.index') }}">
+                            <i class="fas fa-circle fa-sm me-1"></i> Data Kelas
+                        </a>
+                        <a class="collapse-item" href="{{ route('rekap_presensi.index') }}">
+                            <i class="fas fa-pen fa-sm me-1"></i> Rekap Presensi
+                        </a>
+                        {{-- <a class="collapse-item" href="#">
                         <i class="fas fa-user-check fa-sm me-1"></i> Presensi Siswa
                     </a> --}}
+                    </div>
                 </div>
-            </div>
-        </li>
+            </li>
         @endif
     @endif
 
@@ -221,6 +296,14 @@
         <div class="sidebar-heading">
             Area Siswa
         </div>
+
+        <!-- Nav Item - Profil -->
+        <li class="nav-item {{ $menuProfil ?? '' }}">
+            <a class="py-2 nav-link" href="{{ route('profil.index') }}">
+                <i class="fas fa-fw fa-user-circle"></i>
+                <span>Profil Saya</span>
+            </a>
+        </li>
 
         <!-- Nav Item - Akademik Siswa -->
         <li class="nav-item">
@@ -268,6 +351,7 @@
             </div>
         </li>
     @endif
+
 
     <!-- Divider -->
     <hr class="sidebar-divider d-none d-md-block">

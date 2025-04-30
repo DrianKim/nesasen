@@ -4,7 +4,7 @@
     <!-- Page Heading -->
     <div class="mb-4 d-flex justify-content-between align-items-center">
         <h1 class="m-0 h4 fw-bold">
-            <i class="fas fa-user-graduate">
+            <i class="fas fa-chalkboard">
             </i>
             {{ $title }}
         </h1>
@@ -12,29 +12,15 @@
             <i class="fas fa-plus me-2"></i>Tambah Murid
         </button> --}}
     </div>
-    ~
+
     <div class="container">
         <div class="card">
             <div class="card-header">
                 <div class="mb-1 mr-2">
-                    <a href="{{ route('admin_guru.create') }}" class="btn btn-primary btn-sm">
+                    <a href="{{ route('admin_umum_mapel.create') }}" class="btn btn-primary btn-sm">
                         <i class="mr-2 fas fa-plus"></i>
-                        Tambah Guru
+                        Tambah Mapel
                     </a>
-                </div>
-                <div class="mb-1 mr-2">
-                    <form action="{{ route('guru.import') }}" method="POST" enctype="multipart/form-data"
-                        id="importMuridForm">
-                        @csrf
-                        <input type="file" name="file" id="fileInput" accept=".xlsx,.xls" style="display: none;"
-                            onchange="document.getElementById('importMuridForm').submit();">
-
-                        <button type="button" class="btn btn-success btn-sm"
-                            onclick="document.getElementById('fileInput').click();">
-                            <i class="mr-2 fas fa-file-excel"></i>
-                            Import Murid
-                        </button>
-                    </form>
                 </div>
                 <div class="filter-form">
                     {{-- <div class="form-group">
@@ -63,7 +49,7 @@
             <div class="card-body">
                 <div class="search-box">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="search-input" placeholder="Cari berdasarkan nama atau NISN...">
+                    <input type="text" class="search-input" placeholder="Cari berdasarkan nama mapel atau kode mapel...">
                 </div>
 
                 <div class="table-container">
@@ -71,10 +57,8 @@
                         <thead>
                             <tr>
                                 <th width="5%">No</th>
-                                <th width="30%">Nama Lengkap</th>
-                                <th width="20%">Mapel</th>
-                                <th width="15%">Jenis Kelamin</th>
-                                <th width="15%">NIP</th>
+                                <th width="20%">Mata Pelajaran</th>
+                                <th width="20%">Kode Mapel</th>
                                 <th class="text-center" width="2%">
                                     <i class="fas fa-cog"></i>
                                 </th>
@@ -82,29 +66,21 @@
                         </thead>
 
                         <tbody>
-                            @foreach ($guru as $item)
-                                {{-- @dd($item) --}}
+                            @foreach ($mapel as $item)
                                 <tr class="text-center">
                                     <td class="text-center">{{ $loop->iteration }}</td>
-                                    <td class="p-2 border">{{ $item->user->guru->nama }}</td>
-                                    <td class="p-2 border">
-                                        {{ $item->mapel_kelas->mata_pelajaran->kode_mapel ?? '-' }}
-                                    </td>
-                                    <td class="p-2 border">{{ $item->jenis_kelamin }}</td>
-                                    <td class="p-2 border">{{ $item->nip }}</td>
+                                    <td class="p-2 border">{{ $item->nama_mapel }}</td>
+                                    <td class="p-2 border">{{ $item->kode_mapel }}</td>
                                     <td class="p-2 text-center border">
-                                        <button class="btn btn-primary btn-sm" data-toggle="modal"
-                                            data-target="#modalGuruShow{{ $item->id }}">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <a href="{{ route('admin_guru.edit', $item->id) }}" class="btn btn-sm btn-warning">
+                                        <a href="{{ route('admin_umum_mapel.edit', $item->id) }}"
+                                            class="btn btn-sm btn-warning">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                            data-target="#modalGuruDestroy{{ $item->id }}">
+                                            data-target="#modalMapelDestroy{{ $item->id }}">
                                             <i class="fas fa-trash"></i>
                                         </button>
-                                        @include('admin.kurikulum.guru.modal')
+                                        @include('admin.umum.mata_pelajaran.modal')
                                     </td>
                                 </tr>
                             @endforeach

@@ -37,9 +37,9 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
-    public function murid()
+    public function siswa()
     {
-        return $this->belongsTo(Murid::class);
+        return $this->belongsTo(Siswa::class);
     }
 
     public function walas()

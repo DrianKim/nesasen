@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('pengumpulan_tugas', function (Blueprint $table) {
             $table->id();
             $table->foreignid('tugas_id')->constrained('tugas')->onDelete('cascade');
-            $table->foreignid('murid_id')->constrained('murid')->onDelete('cascade');
+            $table->foreignid('siswa_id')->constrained('siswa')->onDelete('cascade');
             $table->enum('status', ['Sudah Dikerjakan', 'Belum Dikerjakan'])->default('Belum Dikerjakan');
             $table->text('keterangan')->nullable();
             $table->date('waktu_pengumpulan')->nullable();

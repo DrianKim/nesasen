@@ -81,7 +81,7 @@
                                     <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalJurusanDestroy{{ $item->id }}">
                                         <i class="fas fa-trash"></i>
                                     </button>
-                                    @include('admin.kurikulum.umum.jurusan.modal')
+                                    @include('admin.umum.jurusan.modal')
                                 </td>
                             </tr>
                         @endforeach

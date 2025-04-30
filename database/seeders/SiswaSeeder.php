@@ -6,14 +6,14 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
-class MuridSeeder extends Seeder
+class SiswaSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        DB::table('murid')->insert([
+        DB::table('siswa')->insert([
             [
                 'nama' => 'Dede Sukmadik',
                 'kelas_id' => 2,

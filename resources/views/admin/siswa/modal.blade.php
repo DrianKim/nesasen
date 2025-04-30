@@ -1,5 +1,5 @@
 <!-- Modal Show -->
-<div class="modal fade" id="modalMuridShow{{ $item->id }}" tabindex="-1" role="dialog"
+<div class="modal fade" id="modalSiswaShow{{ $item->id }}" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -112,7 +112,7 @@
 </div>
 
 <!-- Modal Delete -->
-<div class="modal fade" id="modalMuridDestroy{{ $item->id }}" tabindex="-1" role="dialog"
+<div class="modal fade" id="modalSiswaDestroy{{ $item->id }}" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -174,7 +174,7 @@
                     <i class="fas fa-times"></i>
                     Tutup
                 </button>
-                <form action="{{ route('admin_murid.destroy', $item->id) }}" method="POST">
+                <form action="{{ route('admin_siswa.destroy', $item->id) }}" method="POST">
                     @csrf
                     @method('delete')
                     <button type="submit" class="btn btn-danger btn-sm">

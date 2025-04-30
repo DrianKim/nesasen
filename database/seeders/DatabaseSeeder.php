@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             JurusanSeeder::class,
             KelasSeeder::class,
-            MuridSeeder::class,
+            SiswaSeeder::class,
             GuruSeeder::class,
             MataPelajaranSeeder::class,
             MapelKelasSeeder::class,

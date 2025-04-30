@@ -4,23 +4,7 @@
 <!-- Heading -->
 <div class="sidebar-heading">
     Menu Admin
-</div>
-
-<!-- Nav Item - Pages Collapse Menu -->
-{{-- <li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
-        aria-expanded="true" aria-controls="collapseTwo">
-        <i class="fas fa-fw fa-cog"></i>
-        <span>Components</span>
-    </a>
-    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-        <div class="py-2 bg-white rounded collapse-inner">
-            <h6 class="collapse-header">Custom Components:</h6>
-            <a class="collapse-item" href="buttons.html">Buttons</a>
-            <a class="collapse-item" href="cards.html">Cards</a>
-        </div>
-    </div>
-</li> --}}
+</div>  
 
 <!-- Nav Item - Data Umum -->
 <li class="nav-item {{ $menu_admin_umum_kelas ?? $menu_admin_umum_mapel ?? $menu_admin_umum_jurusan ?? '' }}">

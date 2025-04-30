@@ -19,9 +19,9 @@ class Kelas extends Model
         return $this->belongsTo(Jurusan::class);
     }
 
-    public function murid()
+    public function siswa()
     {
-        return $this->hasMany(Murid::class);
+        return $this->hasMany(Siswa::class);
     }
 
     public function mapelKelas()

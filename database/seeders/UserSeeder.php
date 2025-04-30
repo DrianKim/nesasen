@@ -28,16 +28,16 @@ UserSeeder extends Seeder
         );
 
         $userList = [
-            ['username' => 'dede murid', 'password' => Hash::make('dede123'), 'murid_id' => 1, 'role_id' => 4],
-            ['username' => 'siti murid', 'password' => Hash::make('siti123'), 'murid_id' => 2, 'role_id' => 4],
-            ['username' => 'bambang murid', 'password' => Hash::make('bambang123'), 'murid_id' => 3, 'role_id' => 4],
-            ['username' => 'ayu murid', 'password' => Hash::make('ayu123'), 'murid_id' => 4, 'role_id' => 4],
-            ['username' => 'rizky murid', 'password' => Hash::make('rizky123'), 'murid_id' => 5, 'role_id' => 4],
-            ['username' => 'nadia murid', 'password' => Hash::make('nadia123'), 'murid_id' => 6, 'role_id' => 4],
-            ['username' => 'agus murid', 'password' => Hash::make('agus123'), 'murid_id' => 7, 'role_id' => 4],
-            ['username' => 'putri murid', 'password' => Hash::make('putri123'), 'murid_id' => 8, 'role_id' => 4],
-            ['username' => 'dani murid', 'password' => Hash::make('dani123'), 'murid_id' => 9, 'role_id' => 4],
-            ['username' => 'melati murid', 'password' => Hash::make('melati123'), 'murid_id' => 10, 'role_id' => 4],
+            ['username' => 'dede siswa', 'password' => Hash::make('dede123'), 'siswa_id' => 1, 'role_id' => 4],
+            ['username' => 'siti siswa', 'password' => Hash::make('siti123'), 'siswa_id' => 2, 'role_id' => 4],
+            ['username' => 'bambang siswa', 'password' => Hash::make('bambang123'), 'siswa_id' => 3, 'role_id' => 4],
+            ['username' => 'ayu siswa', 'password' => Hash::make('ayu123'), 'siswa_id' => 4, 'role_id' => 4],
+            ['username' => 'rizky siswa', 'password' => Hash::make('rizky123'), 'siswa_id' => 5, 'role_id' => 4],
+            ['username' => 'nadia siswa', 'password' => Hash::make('nadia123'), 'siswa_id' => 6, 'role_id' => 4],
+            ['username' => 'agus siswa', 'password' => Hash::make('agus123'), 'siswa_id' => 7, 'role_id' => 4],
+            ['username' => 'putri siswa', 'password' => Hash::make('putri123'), 'siswa_id' => 8, 'role_id' => 4],
+            ['username' => 'dani siswa', 'password' => Hash::make('dani123'), 'siswa_id' => 9, 'role_id' => 4],
+            ['username' => 'melati siswa', 'password' => Hash::make('melati123'), 'siswa_id' => 10, 'role_id' => 4],
         ];
 
         $guruList = [

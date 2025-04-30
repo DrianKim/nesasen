@@ -18,8 +18,8 @@ class Jurusan extends Model
         return $this->hasMany(Kelas::class, 'jurusan_id');
     }
 
-    public function murid()
+    public function siswa()
     {
-        return $this->hasMany(Murid::class, 'kelas_id');
+        return $this->hasMany(Siswa::class, 'kelas_id');
     }
 }
