@@ -66,6 +66,7 @@ Route::middleware(['isLogin'])->group(function () {
         Route::get('admin/siswa/edit/{id}', [AdminController::class, 'edit_siswa'])->name('admin_siswa.edit');
         Route::post('admin/siswa/update/{id}', [AdminController::class, 'update_siswa'])->name('admin_siswa.update');
         Route::delete('admin/siswa/destroy/{id}', [AdminController::class, 'destroy_siswa'])->name('admin_siswa.destroy');
+        Route::post('admin/siswa/bulk_action', [AdminController::class, 'bulkAction_siswa'])->name('admin_siswa.bulk_action');
 
         // guru
         Route::get('admin/guru', [AdminController::class, 'index_guru'])->name('admin_guru.index');

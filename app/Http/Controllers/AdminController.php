@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Svg\Tag\Rect;
 use App\Models\Guru;
 use App\Models\User;
 use App\Models\Kelas;
@@ -17,6 +18,7 @@ use Database\Seeders\GuruSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Container\Attributes\Log;
 use Psy\CodeCleaner\FunctionContextPass;
 
 class AdminController extends Controller
@@ -215,8 +217,9 @@ class AdminController extends Controller
     }
 
     // umum kelasKu
-    public function index_kelasKu()
+    public function index_kelasKu(Request $request)
     {
+
         $data = array(
             'title' => 'Halaman Daftar Kelas',
             'menuAdmin' => 'active',
@@ -231,16 +234,89 @@ class AdminController extends Controller
     }
 
     // siswa
-    public function index_siswa()
+    protected function mapSortColumn($label)
     {
-        $data = array(
-            'title' => 'Halaman Daftar Siswa',
-            'menuPengguna' => 'active',
-            // 'menu_admin_index_siswa' => 'active',
-            'siswa' => Siswa::with('user', 'kelas.jurusan')->orderby('nama', 'asc')->get(),
-        );
+        return match ($label) {
+            'NIS' => 'nis',
+            'Nama Siswa' => 'nama',
+            'No. HP' => 'no_hp',
+            'Kelas' => 'kelas_id',
+            'default' => 'id',
+        };
+    }
+
+    public function index_siswa(Request $request)
+    {
+        // Get filter parameters
+        $kelasId = $request->input('kelas');
+        $tahunAjaran = $request->input('tahun_ajaran');
+        $search = $request->input('search');
+        $perPage = $request->input('perPage', 10);
+        $sortBy = $request->input('sort_by');
+        $sortDirection = $request->input('sort_direction', 'asc');
+
+        // Start query builder
+        $query = Siswa::with(['user.siswa', 'kelas.jurusan']);
+
+        // Apply filters
+        if ($kelasId) {
+            $query->where('kelas_id', $kelasId);
+        }
+
+        if ($tahunAjaran) {
+            $query->whereHas('kelas', function ($q) use ($tahunAjaran) {
+                $q->where('tahun_ajaran', $tahunAjaran);
+            });
+        }
+
+        // Filter pencarian jika ada
+        if ($search) {
+            $searchTerm = strtolower(trim($search));
+
+            $query->whereHas('user.siswa', function ($q) use ($searchTerm) {
+                // Pembersihan karakter non-printable atau spasi ekstra
+                $q->whereRaw('LOWER(REPLACE(nama, " ", "")) LIKE ?', ['%' . $searchTerm . '%']);
+            })->orWhere(function ($q) use ($searchTerm) {
+                $q->orWhere('nis', 'like', "%{$searchTerm}%")
+                    ->orWhere('no_hp', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        // Apply sorting if provided
+        if ($sortBy) {
+            // Map frontend column names to database columns
+            $columnMap = [
+                // 'NISN' => 'nisn',
+                'NIS' => 'nis',
+                'Nama Siswa' => 'nama',
+                'No. HP' => 'no_hp',
+                'Kelas' => 'kelas_id'
+            ];
+
+            if (isset($columnMap[$sortBy])) {
+                $query->orderBy($columnMap[$sortBy], $sortDirection);
+            }
+        } else {
+            $query->orderBy('nama', 'asc'); // Default sorting
+        }
+
+        // Pagination
+        $siswa = $query->paginate($perPage)->withQueryString();
+
+        // Filter kelas dan tahun ajaran
+        $kelasFilter = Kelas::with('jurusan')->orderBy('tingkat')->orderBy('jurusan_id')->orderBy('no_kelas')->get();
+        $tahunAjaranFilter = Kelas::select('tahun_ajaran')->distinct()->pluck('tahun_ajaran');
+
+        $data = [
+            'title' => 'Halaman Data Siswa',
+            'siswa' => $siswa,
+            'kelasFilter' => $kelasFilter,
+            'tahunAjaranFilter' => $tahunAjaranFilter,
+        ];
+
         return view('admin.siswa.index', $data);
     }
+
 
     public function create_siswa()
     {
@@ -340,6 +416,26 @@ class AdminController extends Controller
         $siswa->delete();
 
         return redirect()->route('admin_siswa.index')->with('success', 'Data Siswa Berhasil Dihapus');
+    }
+
+    public function bulkAction_siswa(Request $request)
+    {
+        $ids = $request->input('ids');
+        if (!$ids) {
+            return redirect()->back()->with('error', 'Tidak Ada Data Yang Dipilih!');
+        }
+
+        foreach ($ids as $id) {
+            $siswa = Siswa::with('user')->find($id);
+
+            if ($siswa) {
+                if ($siswa->user) {
+                    $siswa->user->delete();
+                }
+
+                $siswa->delete();
+            }
+        }
     }
 
     public function import_siswa(Request $request)
@@ -702,7 +798,7 @@ class AdminController extends Controller
     // presensi siswa
     public function index_presensi_siswa()
     {
-        $data = array (
+        $data = array(
             'title' => 'Presensi Siswa',
         );
         return view('admin.presensi.siswa.index', $data);
@@ -711,7 +807,7 @@ class AdminController extends Controller
     // presensi siswa
     public function index_presensi_guru()
     {
-        $data = array (
+        $data = array(
             'title' => 'Presensi Guru',
         );
         return view('admin.presensi.guru.index', $data);
@@ -720,7 +816,7 @@ class AdminController extends Controller
     // presensi siswa
     public function index_presensi_per_mapel()
     {
-        $data = array (
+        $data = array(
             'title' => 'Presensi Per-Mapel',
         );
         return view('admin.presensi.per_mapel.index', $data);
@@ -729,7 +825,7 @@ class AdminController extends Controller
     // izin siswa
     public function index_izin_siswa()
     {
-        $data = array (
+        $data = array(
             'title' => 'Izin Siswa',
         );
         return view('admin.izin.siswa.index', $data);
@@ -738,7 +834,7 @@ class AdminController extends Controller
     // izin guru
     public function index_izin_guru()
     {
-        $data = array (
+        $data = array(
             'title' => 'Izin Guru',
         );
         return view('admin.izin.guru.index', $data);

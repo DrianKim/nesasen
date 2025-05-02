@@ -22,7 +22,7 @@ class Siswa extends Model
 
     public function user()
     {
-        return $this->hasOne(User::class, 'siswa_id');
+        return $this->hasOne(User::class);
     }
     public function kelas()
     {
