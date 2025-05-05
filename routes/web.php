@@ -45,11 +45,13 @@ Route::middleware(['isLogin'])->group(function () {
     Route::middleware(['auth', 'isAdmin'])->group(function () {
         // umum kelas
         Route::get('admin/kelas', [AdminController::class, 'index_kelas'])->name('admin_kelas.index');
+        Route::get('admin/kelas/filter', [AdminController::class, 'index_kelas'])->name('admin_kelas.filter');
         Route::get('admin/kelas/create', [AdminController::class, 'create_kelas'])->name('admin_kelas.create');
         Route::post('admin/kelas/store', [AdminController::class, 'store_kelas'])->name('admin_kelas.store');
         Route::get('admin/kelas/edit/{id}', [AdminController::class, 'edit_kelas'])->name('admin_kelas.edit');
         Route::post('admin/kelas/update/{id}', [AdminController::class, 'update_kelas'])->name('admin_kelas.update');
         Route::delete('admin/kelas/destroy/{id}', [AdminController::class, 'destroy_kelas'])->name('admin_kelas.destroy');
+        Route::post('admin/kelas/bulk_action', [AdminController::class, 'bulkAction_kelas'])->name('admin_kelas.bulk_action');
 
         // umum kelasKu
         Route::get('admin/kelasKu', [AdminController::class, 'index_kelasKu'])->name('admin_kelasKu.index');
@@ -61,6 +63,7 @@ Route::middleware(['isLogin'])->group(function () {
 
         // siswa
         Route::get('admin/siswa', [AdminController::class, 'index_siswa'])->name('admin_siswa.index');
+        Route::get('admin/siswa/filter', [AdminController::class, 'index_siswa'])->name('admin_siswa.filter');
         Route::get('admin/siswa/create', [AdminController::class, 'create_siswa'])->name('admin_siswa.create');
         Route::post('admin/siswa/store', [AdminController::class, 'store_siswa'])->name('admin_siswa.store');
         Route::get('admin/siswa/edit/{id}', [AdminController::class, 'edit_siswa'])->name('admin_siswa.edit');
@@ -75,6 +78,7 @@ Route::middleware(['isLogin'])->group(function () {
         Route::get('admin/guru/edit/{id}', [AdminController::class, 'edit_guru'])->name('admin_guru.edit');
         Route::post('admin/guru/update/{id}', [AdminController::class, 'update_guru'])->name('admin_guru.update');
         Route::delete('admin/guru/destroy/{id}', [AdminController::class, 'destroy_guru'])->name('admin_guru.destroy');
+        Route::post('admin/guru/bulk_action', [AdminController::class, 'bulkAction_guru'])->name('admin_guru.bulk_action');
 
         Route::get('admin/jadwal_pelajaran', [AdminController::class, 'index_jadwal_pelajaran'])->name('admin_jadwal_pelajaran.index');
 

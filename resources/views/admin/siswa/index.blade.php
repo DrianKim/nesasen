@@ -4,11 +4,6 @@
     <div class="p-0 container-fluid">
         <!-- Main content container -->
         <div class="skul-container">
-            <!-- Page Header -->
-            <div class="page-header">
-                <h1>Kelola Data Siswa di Sekolahmu</h1>
-            </div>
-
             <!-- Student List Section -->
             <div class="content-section">
                 <div class="section-header">
@@ -38,12 +33,13 @@
 
                 <!-- Filter Section -->
                 <div class="filter-section">
-                    <form action="{{ route('admin_siswa.index') }}" method="GET" id="siswaFilterForm">
+                    <form id="siswaFilterForm">
+                        @csrf
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label for="kelas">Kelas:</label>
-                                    <select class="form-select" id="kelas" name="kelas" onchange="submitFilter()">
+                                    <select class="form-select" id="kelas" name="kelas">
                                         <option value="">Semua Kelas</option>
                                         @foreach ($kelasFilter as $kelas)
                                             <option value="{{ $kelas->id }}"
@@ -58,8 +54,7 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label for="tahun_ajaran">Tahun Ajaran:</label>
-                                    <select class="form-select" id="tahun_ajaran" name="tahun_ajaran"
-                                        onchange="submitFilter()">
+                                    <select class="form-select" id="tahun_ajaran" name="tahun_ajaran">
                                         @foreach ($tahunAjaranFilter as $tahun)
                                             <option value="{{ $tahun }}"
                                                 {{ request('tahun_ajaran') == $tahun ? 'selected' : '' }}>
@@ -69,22 +64,10 @@
                                     </select>
                                 </div>
                             </div>
-                            {{-- <div class="col-md-3">
-                                <div class="form-group">
-                                    <label for="status">Status:</label>
-                                    <select class="form-select" id="status" name="status" onchange="submitFilter()">
-                                        <option value="">Semua</option>
-                                        <option value="aktif" {{ request('status') == 'aktif' ? 'selected' : '' }}>Aktif
-                                        </option>
-                                        <option value="non-aktif" {{ request('status') == 'non-aktif' ? 'selected' : '' }}>
-                                            Non-aktif</option>
-                                    </select>
-                                </div>
-                            </div> --}}
                             <div class="col-md-2">
                                 <div class="form-group">
-                                    <l abel for="perPage">Tampilkan:</l>
-                                    <select class="form-select" id="perPage" name="perPage" onchange="submitFilter()">
+                                    <label for="perPage">Tampilkan:</label>
+                                    <select class="form-select" id="perPage" name="perPage">
                                         <option value="10" {{ request('perPage', 10) == 10 ? 'selected' : '' }}>10
                                         </option>
                                         <option value="25" {{ request('perPage') == 25 ? 'selected' : '' }}>25</option>
@@ -94,17 +77,34 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-1 d-flex align-items-end">
+                            <div class="col-md-4">
                                 <div class="form-group search-box">
-                                    <input type="text" class="form-control" name="search" id="searchInput"
-                                        placeholder="Cari siswa..." value="{{ request('search') }}">
-                                    <button type="submit" class="search-button">
-                                        <i class="fas fa-search"></i>
-                                    </button>
+                                    <label for="searchInput">Cari:</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" name="search" id="searchInput"
+                                            placeholder="Cari siswa..." value="{{ request('search') }}">
+                                        <button type="button" class="btn btn-primary" id="resetFilter">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <!-- Hidden fields for sorting -->
+                        <input type="hidden" name="sort_by" id="sort_by" value="{{ request('sort_by') }}">
+                        <input type="hidden" name="sort_direction" id="sort_direction"
+                            value="{{ request('sort_direction', 'asc') }}">
+                        <input type="hidden" name="page" id="current_page" value="{{ request('page', 1) }}">
                     </form>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div id="loading-indicator" style="display:none;">
+                    <div class="my-3 d-flex justify-content-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Table Section -->
@@ -115,125 +115,28 @@
 
                         <div class="bulk-actions">
                             <div class="bulk-buttons">
-                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="bulkAction('delete')">
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                    onclick="bulkAction('delete')">
                                     <i class="fas fa-trash-alt"></i> Hapus
                                 </button>
                             </div>
                         </div>
 
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th width="3%">
-                                        <input type="checkbox" onclick="toggleAll(this)">
-                                    </th>
-                                    <th width="10%">NISN <i class="fas fa-sort"></i></th>
-                                    <th width="10%">NIS <i class="fas fa-sort"></i></th>
-                                    <th width="30%">Nama Siswa <i class="fas fa-sort"></i></th>
-                                    <th width="15%">No. HP <i class="fas fa-sort"></i></th>
-                                    <th width="15%">Kelas <i class="fas fa-sort"></i></th>
-                                    <th class="text-center" width="12%">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($siswa as $item)
-                                    <tr>
-                                        <td>
-                                            <input type="checkbox" name="selected_students[]"
-                                                value="{{ $item->id }}">
-                                        </td>
-                                        <td>{{ $item->nisn ?? '-' }}</td>
-                                        <td>{{ $item->nis ?? '-' }}</td>
-                                        <td>{{ $item->nama ?? '-' }}</td>
-                                        <td>{{ $item->no_hp ?? '-' }}</td>
-                                        <td>{{ $item->kelas ? $item->kelas->tingkat . ' ' . $item->kelas->jurusan->kode_jurusan . ' ' . $item->kelas->no_kelas : '-' }}
-                                        </td>
-                                        <td class="text-center">
-                                            <div class="action-buttons">
-                                                <button type="button" class="btn btn-sm btn-outline-primary"
-                                                    data-toggle="modal" data-target="#modalSiswaShow{{ $item->id }}">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-outline-danger"
-                                                    data-toggle="modal"
-                                                    data-target="#modalSiswaDestroy{{ $item->id }}">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                            @include('admin.siswa.modal')
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="py-4 text-center">
-                                            <div class="empty-state">
-                                                <img src="{{ asset('assets/images/empty-data.svg') }}" alt="No Data"
-                                                    width="120">
-                                                <p>Tidak ada data siswa yang ditemukan</p>
-                                                <a href="{{ route('admin_siswa.create') }}"
-                                                    class="btn btn-primary btn-sm">
-                                                    <i class="mr-1 fas fa-plus"></i> Tambah Siswa
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                        <div id="table-container">
+                            <!-- Konten tabel akan diisi dengan AJAX -->
+                            @include('admin.siswa.partials.table')
+                            <div class="mt-2 d-flex justify-content-end">
+                                {{-- {{ $siswa->links() }}   --}}
+                            </div>
+                        </div>
                     </form>
                 </div>
 
                 <!-- Pagination Section -->
-                <div class="pagination-section">
-                    <div class="pagination-info">
-                        @if ($siswa->total() > 0)
-                            Menampilkan {{ $siswa->firstItem() }}-{{ $siswa->lastItem() }} dari {{ $siswa->total() }}
-                            data
-                        @else
-                            Tidak ada data
-                        @endif
-                    </div>
+                <div class="pagination-section" id="pagination-container">
+                    <!-- Pagination akan diisi dengan AJAX -->
+                    @include('admin.siswa.partials.pagination')
 
-                    @if ($siswa->hasPages())
-                        <div class="pagination">
-                            {{-- Previous Page Link --}}
-                            @if ($siswa->onFirstPage())
-                                <div class="page-item disabled">
-                                    <span class="page-link">
-                                        <i class="fas fa-chevron-left"></i>
-                                    </span>
-                                </div>
-                            @else
-                                <div class="page-item">
-                                    <a class="page-link" href="{{ $siswa->previousPageUrl() }}" aria-label="Previous">
-                                        <i class="fas fa-chevron-left"></i>
-                                    </a>
-                                </div>
-                            @endif
-
-                            {{-- Pagination Elements --}}
-                            @foreach ($siswa->getUrlRange(max(1, $siswa->currentPage() - 2), min($siswa->lastPage(), $siswa->currentPage() + 2)) as $page => $url)
-                                <div class="page-item {{ $page == $siswa->currentPage() ? 'active' : '' }}">
-                                    <a class="page-link" href="{{ $url }}">{{ $page }}</a>
-                                </div>
-                            @endforeach
-
-                            {{-- Next Page Link --}}
-                            @if ($siswa->hasMorePages())
-                                <div class="page-item">
-                                    <a class="page-link" href="{{ $siswa->nextPageUrl() }}" aria-label="Next">
-                                        <i class="fas fa-chevron-right"></i>
-                                    </a>
-                                </div>
-                            @else
-                                <div class="page-item disabled">
-                                    <span class="page-link">
-                                        <i class="fas fa-chevron-right"></i>
-                                    </span>
-                                </div>
-                            @endif
-                        </div>
-                    @endif
                 </div>
             </div>
         </div>
@@ -241,97 +144,171 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Handle sortable columns
-            const tableHeaders = document.querySelectorAll('th');
-            tableHeaders.forEach(header => {
-                if (header.querySelector('i.fas.fa-sort')) {
-                    header.addEventListener('click', function() {
-                        const columnName = this.textContent.trim().replace(/[\s\n]+$/, '');
-                        let currentSort = this.getAttribute('data-sort') || '';
-                        let newSort = 'asc';
+            // Variables
+            const filterForm = document.getElementById('siswaFilterForm');
+            const tableContainer = document.getElementById('table-container');
+            const paginationContainer = document.getElementById('pagination-container');
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const searchInput = document.getElementById('searchInput');
+            const resetButton = document.getElementById('resetFilter');
+            const filters = ['kelas', 'tahun_ajaran', 'perPage'];
 
-                        // Toggle sort direction
-                        if (currentSort === 'asc') {
-                            newSort = 'desc';
-                            this.classList.remove('sorted-asc');
-                            this.classList.add('sorted-desc');
-                        } else {
-                            this.classList.remove('sorted-desc');
-                            this.classList.add('sorted-asc');
-                        }
+            let searchTimer;
+            let currentRequest = null;
 
-                        // Reset other headers
-                        tableHeaders.forEach(h => {
-                            if (h !== this) {
-                                h.classList.remove('sorted-asc', 'sorted-desc');
-                                h.setAttribute('data-sort', '');
-                            }
-                        });
+            // Function to load data via AJAX
+            function loadData() {
+                // Show loading indicator
+                loadingIndicator.style.display = 'block';
 
-                        this.setAttribute('data-sort', newSort);
+                // If there's a pending request, abort it
+                if (currentRequest) {
+                    currentRequest.abort();
+                }
 
-                        // Update form and submit
-                        const form = document.getElementById('siswaFilterForm');
-                        let sortInput = form.querySelector('input[name="sort_by"]');
-                        if (!sortInput) {
-                            sortInput = document.createElement('input');
-                            sortInput.type = 'hidden';
-                            sortInput.name = 'sort_by';
-                            form.appendChild(sortInput);
-                        }
-                        sortInput.value = columnName;
+                // Get form data
+                const formData = new FormData(filterForm);
 
-                        let directionInput = form.querySelector('input[name="sort_direction"]');
-                        if (!directionInput) {
-                            directionInput = document.createElement('input');
-                            directionInput.type = 'hidden';
-                            directionInput.name = 'sort_direction';
-                            form.appendChild(directionInput);
-                        }
-                        directionInput.value = newSort;
+                // Create AJAX request
+                currentRequest = new XMLHttpRequest();
+                currentRequest.open('GET', '{{ route('admin_siswa.filter') }}?' + new URLSearchParams(formData)
+                    .toString(), true);
+                currentRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
-                        form.submit();
+                currentRequest.onload = function() {
+                    if (this.status >= 200 && this.status < 400) {
+                        // Success response
+                        const response = JSON.parse(this.response);
+                        tableContainer.innerHTML = response.table;
+                        paginationContainer.innerHTML = response.pagination;
+
+                        // Rebind sorting events
+                        bindSortingEvents();
+                        // Rebind pagination events
+                        bindPaginationEvents();
+
+                        // Update URL without reloading the page
+                        updateURL(formData);
+                    } else {
+                        // Error response
+                        console.error('Request failed');
+                    }
+
+                    // Hide loading indicator
+                    loadingIndicator.style.display = 'none';
+                    currentRequest = null;
+                };
+
+                currentRequest.onerror = function() {
+                    console.error('Connection error');
+                    loadingIndicator.style.display = 'none';
+                    currentRequest = null;
+                };
+
+                currentRequest.send();
+            }
+
+            // Function to update URL with current filters
+            function updateURL(formData) {
+                if (history.pushState) {
+                    const searchParams = new URLSearchParams(formData);
+                    const newURL = window.location.protocol + '//' + window.location.host +
+                        window.location.pathname + '?' + searchParams.toString();
+                    window.history.pushState({
+                        path: newURL
+                    }, '', newURL);
+                }
+            }
+
+            // Bind events to filter elements
+            filters.forEach(filter => {
+                const element = document.getElementById(filter);
+                if (element) {
+                    element.addEventListener('change', function() {
+                        // Reset to page 1 when changing filters
+                        document.getElementById('current_page').value = 1;
+                        loadData();
                     });
                 }
             });
 
-            // Show active sort state on load
-            const urlParams = new URLSearchParams(window.location.search);
-            const sortBy = urlParams.get('sort_by');
-            const sortDir = urlParams.get('sort_direction');
-
-            if (sortBy && sortDir) {
-                tableHeaders.forEach(header => {
-                    const headerText = header.textContent.trim().replace(/[\s\n]+$/, '');
-                    if (headerText === sortBy) {
-                        header.classList.add(sortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
-                        header.setAttribute('data-sort', sortDir);
-                    }
-                });
-            }
-
-            // Handle search with debounce
-            const searchInput = document.getElementById('searchInput');
-            let searchTimeout;
-
+            // Handle search input with debounce
             if (searchInput) {
                 searchInput.addEventListener('input', function() {
-                    clearTimeout(searchTimeout);
-                    searchTimeout = setTimeout(() => {
-                        document.getElementById('siswaFilterForm').submit();
+                    clearTimeout(searchTimer);
+                    searchTimer = setTimeout(() => {
+                        // Reset to page 1 when searching
+                        document.getElementById('current_page').value = 1;
+                        loadData();
                     }, 500); // 500ms debounce
                 });
             }
+
+            // Handle reset button
+            if (resetButton) {
+                resetButton.addEventListener('click', function() {
+                    // Reset all form fields
+                    filterForm.reset();
+                    // Reset hidden fields
+                    document.getElementById('sort_by').value = '';
+                    document.getElementById('sort_direction').value = 'asc';
+                    document.getElementById('current_page').value = 1;
+                    // Load data
+                    loadData();
+                });
+            }
+
+            // Function to bind sorting events
+            function bindSortingEvents() {
+                const sortableHeaders = document.querySelectorAll('.sortable');
+                sortableHeaders.forEach(header => {
+                    header.addEventListener('click', function() {
+                        const column = this.getAttribute('data-column');
+                        const sortBy = document.getElementById('sort_by');
+                        const sortDirection = document.getElementById('sort_direction');
+
+                        // Toggle sort direction if clicking the same column
+                        if (sortBy.value === column) {
+                            sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+                        } else {
+                            // Default to ascending for new column
+                            sortBy.value = column;
+                            sortDirection.value = 'asc';
+                        }
+
+                        // Load data with new sorting
+                        loadData();
+                    });
+                });
+            }
+
+            // Function to bind pagination events
+            function bindPaginationEvents() {
+                const paginationLinks = document.querySelectorAll('.pagination .page-link[data-page]');
+                paginationLinks.forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const page = this.getAttribute('data-page');
+                        document.getElementById('current_page').value = page;
+                        loadData();
+
+                        // Scroll to top of table
+                        window.scrollTo({
+                            top: document.querySelector('.content-section').offsetTop,
+                            behavior: 'smooth'
+                        });
+                    });
+                });
+            }
+
+            // Initial binding
+            bindSortingEvents();
+            bindPaginationEvents();
         });
 
-        // Submit filter form
-        function submitFilter() {
-            document.getElementById('siswaFilterForm').submit();
-        }
-
-        // Handle bulk actions
+        // Bulk actions function (tetap sama)
         function bulkAction(action) {
-            const checkedBoxes = document.querySelectorAll('input[name="selected_students[]"]:checked');
+            const checkedBoxes = document.querySelectorAll('input[name="selected_murids []"]:checked');
             if (checkedBoxes.length === 0) {
                 alert('Silahkan pilih siswa terlebih dahulu');
                 return;
@@ -345,9 +322,9 @@
             document.getElementById('bulk_form').submit();
         }
 
-        // Toggle all checkboxes
+        // Toggle all checkboxes (tetap sama)
         function toggleAll(source) {
-            const checkboxes = document.querySelectorAll('input[name="selected_students[]"]');
+            const checkboxes = document.querySelectorAll('input[name="selected_murids   []"]');
             checkboxes.forEach(checkbox => {
                 checkbox.checked = source.checked;
             });

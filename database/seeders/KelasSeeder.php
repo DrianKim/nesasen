@@ -16,12 +16,12 @@ class KelasSeeder extends Seeder
         DB::table('kelas')->insert([
             [
                 'tingkat' => ('X'),
-                'jurusan_id' => 5,
+                'jurusan_id' => 1,
                 'no_kelas' => 1,
             ],
             [
                 'tingkat' => ('X'),
-                'jurusan_id' => 4,
+                'jurusan_id' => 2,
                 'no_kelas' => 1,
             ],
             [
@@ -31,7 +31,137 @@ class KelasSeeder extends Seeder
             ],
             [
                 'tingkat' => ('X'),
+                'jurusan_id' => 4,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('X'),
+                'jurusan_id' => 5,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('X'),
+                'jurusan_id' => 6,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('X'),
+                'jurusan_id' => 7,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('X'),
+                'jurusan_id' => 8,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('X'),
+                'jurusan_id' => 9,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('X'),
+                'jurusan_id' => 10,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('XI'),
+                'jurusan_id' => 1,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('XI'),
                 'jurusan_id' => 2,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('XI'),
+                'jurusan_id' => 3,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('XI'),
+                'jurusan_id' => 4,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('XI'),
+                'jurusan_id' => 5,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('XI'),
+                'jurusan_id' => 6,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('XI'),
+                'jurusan_id' => 7,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('XI'),
+                'jurusan_id' => 8,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('XI'),
+                'jurusan_id' => 9,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('XI'),
+                'jurusan_id' => 10,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('XII'),
+                'jurusan_id' => 1,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('XII'),
+                'jurusan_id' => 2,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('XII'),
+                'jurusan_id' => 3,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('XII'),
+                'jurusan_id' => 4,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('XII'),
+                'jurusan_id' => 5,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('XII'),
+                'jurusan_id' => 6,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('XII'),
+                'jurusan_id' => 7,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('XII'),
+                'jurusan_id' => 8,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('XII'),
+                'jurusan_id' => 9,
+                'no_kelas' => 1,
+            ],
+            [
+                'tingkat' => ('XII'),
+                'jurusan_id' => 10,
                 'no_kelas' => 1,
             ],
         ]);

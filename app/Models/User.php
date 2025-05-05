@@ -52,6 +52,11 @@ class User extends Authenticatable
         return $this->belongsTo(Guru::class, 'guru_id');
     }
 
+    public function kelas()
+    {
+        return $this->hasOne(Kelas::class);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

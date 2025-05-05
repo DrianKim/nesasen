@@ -21,6 +21,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Container\Attributes\Log;
 use Psy\CodeCleaner\FunctionContextPass;
 
+use function PHPUnit\Framework\returnSelf;
+
 class AdminController extends Controller
 {
 
@@ -73,21 +75,90 @@ class AdminController extends Controller
     }
 
     // umum kelas
-    public function index_kelas()
+    public function index_kelas(Request $request)
     {
-        $data = array(
+        $kelasId = $request->input('kelas');
+        $tahunAjaran = $request->input('tahun_ajaran');
+        $search = $request->input('search');
+        $perPage = $request->input('perPage', 10);
+        $sortBy = $request->input('sort_by');
+        $sortDirection = $request->input('sort_direction', 'asc');
+
+        $query = Kelas::with(['jurusan', 'walas.user.guru', 'siswa']);
+
+        if ($kelasId) {
+            $query->where('id', $kelasId);
+        }
+
+        if ($tahunAjaran) {
+            $query->where('tahun_ajaran', $tahunAjaran);
+        }
+
+        if ($search) {
+            $searchTerm = strtolower(trim($search));
+            $query->where(function ($q) use ($searchTerm) {
+                $q->whereRaw('LOWER(tingkat) LIKE ?', ["%{$searchTerm}%"])
+                    ->orWhereRaw('LOWER(no_kelas) LIKE ?', ["%{$searchTerm}%"])
+                    ->orWhereHas('jurusan', function ($q2) use ($searchTerm) {
+                        $q2->whereRaw('LOWER(nama_jurusan) LIKE ?', ["%{$searchTerm}%"])
+                            ->orWhereRaw('LOWER(kode_jurusan) LIKE ?', ["%{$searchTerm}%"]);
+                    })
+                    ->orWhereHas('walas.user', function ($q3) use ($searchTerm) {
+                        $q3->whereRaw('LOWER(nama) LIKE ?', ["%{$searchTerm}%"]);
+                    });
+            });
+        }
+
+        if ($sortBy) {
+            switch ($sortBy) {
+                case 'Nama Kelas':
+                    $query->orderByRaw("tingkat $sortDirection")
+                        ->orderByRaw("no_kelas $sortDirection")
+                        ->join('jurusan', 'kelas.jurusan_id', '=', 'jurusan.id')
+                        ->orderBy('jurusan.nama_jurusan', $sortDirection);
+                    break;
+
+                case 'Wali Kelas':
+                    $query->join('walas', 'kelas.id', '=', 'walas.kelas_id')
+                        ->join('users', 'walas.user_id', '=', 'users.id')
+                        ->join('guru', 'users.id', '=', 'guru.user_id')
+                        ->orderBy("guru.nama", $sortDirection)
+                        ->select('kelas.*');
+                    break;
+
+                case 'Jumlah Siswa':
+                    $query->withCount('siswa')->orderBy('siswa_count', $sortDirection);
+                    break;
+
+                default:
+                    $query->orderBy('tingkat', $sortDirection);
+                    break;
+            }
+        } else {
+            $query->orderBy('tingkat', 'asc');
+        }
+
+        $kelas = $query->paginate($perPage)->withQueryString();
+
+        $tahunAjaranFilter = Kelas::select('tahun_ajaran')->distinct()->pluck('tahun_ajaran');
+
+        $data = [
             'title' => 'Halaman Daftar Kelas',
             'menuAdmin' => 'active',
-            // 'menu_admin_index_kelas' => 'active',
-            'kelas' => Kelas::withcount('siswa')->with(['jurusan', 'walas.user.guru'])
-                ->join('jurusan', 'kelas.jurusan_id', '=', 'jurusan.id')
-                ->orderby('tingkat', 'asc')
-                ->orderby('jurusan.nama_jurusan', 'asc')
-                ->orderby('no_kelas', 'asc')
-                ->select('kelas.*')->get(),
-        );
+            'kelas' => $kelas,
+            'tahunAjaranFilter' => $tahunAjaranFilter,
+        ];
+
+        if ($request->ajax()) {
+            return response()->json([
+                'table' => view('admin.kelas.partials.table', $data)->render(),
+                'pagination' => view('admin.kelas.partials.pagination', ['kelas' => $kelas])->render(),
+            ]);
+        }
+
         return view('admin.kelas.index', $data);
     }
+
 
     public function create_kelas()
     {
@@ -216,6 +287,26 @@ class AdminController extends Controller
         return redirect()->route('admin_index_kelas.index')->with('success', 'Kelas Berhasil Dihapus');
     }
 
+    public function bulkAction_kelas(Request $request)
+    {
+        $ids = $request->input('ids');
+        if (!$ids) {
+            return redirect()->back()->with('error', 'Tidak Ada Data Yang Dipilih!');
+        }
+
+        foreach ($ids as $id) {
+            $kelas = Kelas::find($id)->get();
+
+            if ($kelas) {
+                if ($kelas->user) {
+                    $kelas->user->delete();
+                }
+
+                $kelas->delete();
+            }
+        }
+    }
+
     // umum kelasKu
     public function index_kelasKu(Request $request)
     {
@@ -247,7 +338,6 @@ class AdminController extends Controller
 
     public function index_siswa(Request $request)
     {
-        // Get filter parameters
         $kelasId = $request->input('kelas');
         $tahunAjaran = $request->input('tahun_ajaran');
         $search = $request->input('search');
@@ -255,10 +345,8 @@ class AdminController extends Controller
         $sortBy = $request->input('sort_by');
         $sortDirection = $request->input('sort_direction', 'asc');
 
-        // Start query builder
         $query = Siswa::with(['user.siswa', 'kelas.jurusan']);
 
-        // Apply filters
         if ($kelasId) {
             $query->where('kelas_id', $kelasId);
         }
@@ -269,12 +357,10 @@ class AdminController extends Controller
             });
         }
 
-        // Filter pencarian jika ada
         if ($search) {
             $searchTerm = strtolower(trim($search));
 
             $query->whereHas('user.siswa', function ($q) use ($searchTerm) {
-                // Pembersihan karakter non-printable atau spasi ekstra
                 $q->whereRaw('LOWER(REPLACE(nama, " ", "")) LIKE ?', ['%' . $searchTerm . '%']);
             })->orWhere(function ($q) use ($searchTerm) {
                 $q->orWhere('nis', 'like', "%{$searchTerm}%")
@@ -282,9 +368,7 @@ class AdminController extends Controller
             });
         }
 
-        // Apply sorting if provided
         if ($sortBy) {
-            // Map frontend column names to database columns
             $columnMap = [
                 // 'NISN' => 'nisn',
                 'NIS' => 'nis',
@@ -297,13 +381,11 @@ class AdminController extends Controller
                 $query->orderBy($columnMap[$sortBy], $sortDirection);
             }
         } else {
-            $query->orderBy('nama', 'asc'); // Default sorting
+            $query->orderBy('kelas_id', 'asc')->orderBy('nama', 'asc');
         }
 
-        // Pagination
         $siswa = $query->paginate($perPage)->withQueryString();
 
-        // Filter kelas dan tahun ajaran
         $kelasFilter = Kelas::with('jurusan')->orderBy('tingkat')->orderBy('jurusan_id')->orderBy('no_kelas')->get();
         $tahunAjaranFilter = Kelas::select('tahun_ajaran')->distinct()->pluck('tahun_ajaran');
 
@@ -314,9 +396,15 @@ class AdminController extends Controller
             'tahunAjaranFilter' => $tahunAjaranFilter,
         ];
 
+        if ($request->ajax()) {
+            return response()->json([
+                'table' => view('admin.siswa.partials.table', $data)->render(),
+                'pagination' => view('admin.siswa.partials.pagination', ['siswa' => $siswa])->render(),
+            ]);
+        }
+
         return view('admin.siswa.index', $data);
     }
-
 
     public function create_siswa()
     {
@@ -471,16 +559,30 @@ class AdminController extends Controller
     }
 
     // guru
-    public function index_guru()
+    public function index_guru(Request $request)
     {
-        $data = array(
-            'title' => 'Halaman Daftar Guru',
-            'menuPengguna' => 'active',
-            // 'menu_admin_index_guru' => 'active',
-            'guru' => Guru::with('user', 'mapel_kelas.mata_pelajaran')->orderby('nama', 'asc')->get(),
-        );
-        return view('admin.guru.index', $data);
+        $search = $request->input('search');
+        $perPage = $request->input('perPage', 10);
+
+        $query = Guru::with('user');
+
+        // Filter berdasarkan nama user
+        if ($search) {
+            $searchTerm = strtolower(trim($search));
+
+            $query->whereHas('user', function ($q) use ($searchTerm) {
+                $q->whereRaw('LOWER(REPLACE(nama, " ", "")) LIKE ?', ['%' . $searchTerm . '%']);
+            });
+        }
+
+        $guru = $query->paginate($perPage)->withQueryString();
+
+        return view('admin.guru.index', [
+            'title' => 'Halaman Data Guru',
+            'guru' => $guru,
+        ]);
     }
+
 
     public function create_guru()
     {
@@ -581,6 +683,26 @@ class AdminController extends Controller
         $guru->delete();
 
         return redirect()->route('admin_guru.index')->with('success', 'Data Guru Berhasil Dihapus');
+    }
+
+    public function bulkAction_guru(Request $request)
+    {
+        $ids = $request->input('ids');
+        if (!$ids) {
+            return redirect()->back()->with('error', 'Tidak Ada Data Yang Dipilih!');
+        }
+
+        foreach ($ids as $id) {
+            $guru = Guru::with('user')->find($id);
+
+            if ($guru) {
+                if ($guru->user) {
+                    $guru->user->delete();
+                }
+
+                $guru->delete();
+            }
+        }
     }
 
     public function import_guru(Request $request)
