@@ -377,11 +377,13 @@ class AdminController extends Controller
                 'Kelas' => 'kelas_id'
             ];
 
+            // dd($sortBy, $columnMap[$sortBy] ?? null);
+
             if (isset($columnMap[$sortBy])) {
                 $query->orderBy($columnMap[$sortBy], $sortDirection);
+            } else {
+                $query->orderBy('kelas_id', 'asc')->orderBy('nama', 'asc');
             }
-        } else {
-            $query->orderBy('kelas_id', 'asc')->orderBy('nama', 'asc');
         }
 
         $siswa = $query->paginate($perPage)->withQueryString();
@@ -563,26 +565,53 @@ class AdminController extends Controller
     {
         $search = $request->input('search');
         $perPage = $request->input('perPage', 10);
+        $sortBy = $request->input('sort_by');
+        $sortDirection = $request->input('sort_direction', 'asc');
 
         $query = Guru::with('user');
 
-        // Filter berdasarkan nama user
         if ($search) {
             $searchTerm = strtolower(trim($search));
 
-            $query->whereHas('user', function ($q) use ($searchTerm) {
+            $query->whereHas('user.guru', function ($q) use ($searchTerm) {
                 $q->whereRaw('LOWER(REPLACE(nama, " ", "")) LIKE ?', ['%' . $searchTerm . '%']);
+            })->orWhere(function ($q) use ($searchTerm) {
+                $q->orWhere('nip', 'like', "%{$searchTerm}%")
+                    ->orWhere('no_hp', 'like', "%{$searchTerm}%");
             });
         }
 
+        if ($sortBy) {
+            $columnMap = [
+                'NIP' => 'nip',
+                'Nama Guru' => 'nama',
+                'No. HP' => 'no_hp',
+            ];
+
+            if (isset($columnMap[$sortBy])) {
+                $query->orderBy($columnMap[$sortBy], $sortDirection);
+            } else {
+                $query->orderBy('nama', 'asc');
+            }
+        }
+
+
         $guru = $query->paginate($perPage)->withQueryString();
 
-        return view('admin.guru.index', [
+        $data = [
             'title' => 'Halaman Data Guru',
             'guru' => $guru,
-        ]);
-    }
+        ];
 
+        if ($request->ajax()) {
+            return response()->json([
+                'table' => view('admin.guru.partials.table', $data)->render(),
+                'pagination' => view('admin.guru.partials.pagination', ['guru' => $guru])->render(),
+            ]);
+        }
+
+        return view('admin.guru.index', $data);
+    }
 
     public function create_guru()
     {
@@ -732,7 +761,7 @@ class AdminController extends Controller
             }
         }
 
-        return back()->with('success', 'Import guru berhasil! Total: $imported guru.');
+        return back()->with('success', "Import guru berhasil! Total: $imported guru.");
     }
 
     // umum jurusan
@@ -748,14 +777,55 @@ class AdminController extends Controller
     }
 
     // umum jurusan
-    public function index_jurusan()
+    public function index_jurusan(Request $request)
     {
-        $data = array(
+        $search = $request->input('search');
+        $perPage = $request->input('perPage', 10);
+        $sortBy = $request->input('sort_by');
+        $sortDirection = $request->input('sort_direction', 'asc');
+
+        $query = Jurusan::query();
+
+        if ($search) {
+            $searchTerm = strtolower(trim($search));
+
+            $query->where(function ($q) use ($searchTerm) {
+                $q->whereRaw('LOWER(REPLACE(nama_jurusan, " ", "")) LIKE ?', ['%' . $searchTerm . '%'])
+                    ->orWhereRaw('LOWER(REPLACE(kode_jurusan, " ", "")) LIKE ?', ['%' . $searchTerm . '%']);
+            });
+        }
+
+        if ($sortBy) {
+            $columnMap = [
+                // 'NISN' => 'nisn',
+                'Nama Jurusan' => 'nama_jurusan',
+                'Kode Jurusan' => 'kode_jurusan',
+            ];
+
+            // dd($sortBy, $columnMap[$sortBy] ?? null);
+
+            if (isset($columnMap[$sortBy])) {
+                $query->orderBy($columnMap[$sortBy], $sortDirection);
+            } else {
+                $query->orderBy('nama_jurusan', 'asc')->orderBy('kode_jurusan', 'asc');
+            }
+        }
+
+        $jurusan = $query->paginate($perPage)->withQueryString();
+
+        $data = [
             'title' => 'Halaman Daftar Jurusan',
-            'menuAdmin' => 'active',
-            // 'menu_admin_index_jurusan' => 'active',
-            'jurusan' => Jurusan::orderby('nama_jurusan', 'asc')->get(),
-        );
+            // 'menuAdmin' => 'active',
+            'jurusan' => $jurusan,
+        ];
+
+        if ($request->ajax()) {
+            return response()->json([
+                'table' => view('admin.jurusan.partials.table', $data)->render(),
+                'pagination' => view('admin.jurusan.partials.pagination', ['jurusan' => $jurusan])->render(),
+            ]);
+        }
+
         return view('admin.jurusan.index', $data);
     }
 
@@ -836,16 +906,72 @@ class AdminController extends Controller
         return redirect()->route('admin_index_jurusan.index')->with('success', 'Jurusan Berhasil Dihapus');
     }
 
-    // umum mapel
-    public function index_mapel()
+    public function bulkAction_jurusan(Request $request)
     {
-        $data = array(
+        $ids = $request->input('ids');
+        if (!$ids) {
+            return redirect()->back()->with('error', 'Tidak Ada Data Yang Dipilih!');
+        }
+
+        foreach ($ids as $id) {
+            $jurusan = Jurusan::find($id);
+
+            $jurusan->delete();
+        }
+    }
+
+    // umum mapel
+    public function index_mapel(Request $request)
+    {
+        $search = $request->input('search');
+        $perPage = $request->input('perPage', 10);
+        $sortBy = $request->input('sort_by');
+        $sortDirection = $request->input('sort_direction', 'asc');
+
+        $query = MataPelajaran::query();
+
+        if ($search) {
+            $searchTerm = strtolower(trim($search));
+
+            $query->where(function ($q) use ($searchTerm) {
+                $q->whereRaw('LOWER(REPLACE(nama_mapel, " ", "")) LIKE ?', ['%' . $searchTerm . '%'])
+                    ->orWhereRaw('LOWER(REPLACE(kode_mapel, " ", "")) LIKE ?', ['%' . $searchTerm . '%']);
+            });
+        }
+
+        if ($sortBy) {
+            $columnMap = [
+                // 'NISN' => 'nisn',
+                'Nama Mapel' => 'nama_mapel',
+                'Kode Mapel' => 'kode_mapel',
+            ];
+
+            // dd($sortBy, $columnMap[$sortBy] ?? null);
+
+            if (isset($columnMap[$sortBy])) {
+                $query->orderBy($columnMap[$sortBy], $sortDirection);
+            } else {
+                $query->orderBy('nama_mapel', 'asc')->orderBy('kode_mapel', 'asc');
+            }
+        }
+
+        $mapel = $query->paginate($perPage)->withQueryString();
+
+        $data = [
             'title' => 'Halaman Daftar Mapel',
             'menuAdmin' => 'active',
             // 'menu_admin_index_mapel' => 'active',
-            'mapel' => MataPelajaran::orderby('nama_mapel', 'asc')->get(),
-        );
-        return view('admin.mata_pelajaran.index', $data);
+            'mapel' => $mapel,
+        ];
+
+        if ($request->ajax()) {
+            return response()->json([
+                'table' => view('admin.mapel.partials.table', $data)->render(),
+                'pagination' => view('admin.mapel.partials.pagination', ['mapel' => $mapel])->render(),
+            ]);
+        }
+
+        return view('admin.mapel.index', $data);
     }
 
     public function create_mapel()
@@ -855,7 +981,7 @@ class AdminController extends Controller
             'menuAdmin' => 'active',
             // 'menu_admin_index_mapel' => 'active',
         );
-        return view('admin.mata_pelajaran.create', $data);
+        return view('admin.mapel.create', $data);
     }
 
     public function store_mapel(Request $request)
@@ -885,7 +1011,7 @@ class AdminController extends Controller
             // 'mapel' => $mapel,
             // 'menu_admin_index_mapel' => 'active',
         );
-        return view('admin.mata_pelajaran.edit', $data);
+        return view('admin.mapel.edit', $data);
     }
 
     public function update_mapel(Request $request, $id)
@@ -915,6 +1041,20 @@ class AdminController extends Controller
         $mapel->delete();
 
         return redirect()->route('admin_index_mapel.index')->with('success', 'Mapel Berhasil Dihapus');
+    }
+
+    public function bulkAction_mapel(Request $request)
+    {
+        $ids = $request->input('ids');
+        if (!$ids) {
+            return redirect()->back()->with('error', 'Tidak Ada Data Yang Dipilih!');
+        }
+
+        foreach ($ids as $id) {
+            $mapel = MataPelajaran::find($id);
+
+            $mapel->delete();
+        }
     }
 
     // presensi siswa
@@ -977,7 +1117,7 @@ class AdminController extends Controller
 //     $data = array(
 //         'title' => 'Halaman Daftar Guru',
 //         'menu_admin_index_guru' => 'active',
-//         'guru' => Guru::with('user', 'mapel_kelas.mata_pelajaran')->get(),
+//         'guru' => Guru::with('user', 'mapel_kelas.mapel')->get(),
 //     );
 //     return view('admin.guru.index', $data);
 // }

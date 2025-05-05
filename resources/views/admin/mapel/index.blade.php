@@ -9,7 +9,7 @@
                 <div class="section-header">
                     <h2>Daftar Jurusan SMKN 1 Subang</h2>
                     <div class="action-buttons">
-                        <a href="{{ route('admin_jurusan.create') }}" class="btn btn-primary btn-circle">
+                        <a href="{{ route('admin_mapel.create') }}" class="btn btn-primary btn-circle">
                             <i class="fas fa-plus"></i>
                             <span class="button-label"></span>
                         </a>
@@ -18,7 +18,7 @@
 
                 <!-- Filter Section -->
                 <div class="filter-section">
-                    <form id="jurusanFilterForm">
+                    <form id="mapelFilterForm">
                         @csrf
                         <div class="row">
                             <div class="col-md-4">
@@ -26,7 +26,7 @@
                                     <label for="searchInput">Cari:</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" name="search" id="searchInput"
-                                            placeholder="Cari jurusan..." value="{{ request('search') }}">
+                                            placeholder="Cari mapel..." value="{{ request('search') }}">
                                         <button type="button" class="btn btn-primary" id="resetFilter">
                                             <i class="fas fa-sync-alt"></i>
                                         </button>
@@ -41,7 +41,7 @@
                                         @foreach ($kelasFilter as $kelas)
                                             <option value="{{ $kelas->id }}"
                                                 {{ request('kelas') == $kelas->id ? 'selected' : '' }}>
-                                                {{ $kelas->tingkat }} {{ $kelas->jurusan->kode_jurusan }}
+                                                {{ $kelas->tingkat }} {{ $kelas->mapel->kode_mapel }}
                                                 {{ $kelas->no_kelas }}
                                             </option>
                                         @endforeach
@@ -94,7 +94,7 @@
 
                 <!-- Table Section -->
                 <div class="table-responsive">
-                    <form id="bulk_form" action="{{ route('admin_jurusan.bulk_action') }}" method="POST">
+                    <form id="bulk_form" action="{{ route('admin_mapel.bulk_action') }}" method="POST">
                         @csrf
                         <input type="hidden" name="bulk_action" id="bulk_action" value="">
 
@@ -108,9 +108,9 @@
 
                         <div id="table-container">
                             <!-- Konten tabel akan diisi dengan AJAX -->
-                            @include('admin.jurusan.partials.table')
+                            @include('admin.mapel.partials.table')
                             <div class="mt-2 d-flex justify-content-end">
-                                {{-- {{ $jurusan->links() }}   --}}
+                                {{-- {{ $mapel->links() }}   --}}
                             </div>
                         </div>
                     </form>
@@ -119,7 +119,7 @@
                 <!-- Pagination Section -->
                 <div class="pagination-section" id="pagination-container">
                     <!-- Pagination akan diisi dengan AJAX -->
-                    @include('admin.jurusan.partials.pagination')
+                    @include('admin.mapel.partials.pagination')
 
                 </div>
             </div>
@@ -129,7 +129,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Variables
-            const filterForm = document.getElementById('jurusanFilterForm');
+            const filterForm = document.getElementById('mapelFilterForm');
             const tableContainer = document.getElementById('table-container');
             const paginationContainer = document.getElementById('pagination-container');
             const loadingIndicator = document.getElementById('loading-indicator');
@@ -155,7 +155,7 @@
 
                 // Create AJAX request
                 currentRequest = new XMLHttpRequest();
-                currentRequest.open('GET', '{{ route('admin_jurusan.filter') }}?' + new URLSearchParams(formData)
+                currentRequest.open('GET', '{{ route('admin_mapel.filter') }}?' + new URLSearchParams(formData)
                     .toString(), true);
                 currentRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
@@ -292,13 +292,13 @@
 
         // Bulk actions function (tetap sama)
         function bulkAction(action) {
-            const checkedBoxes = document.querySelectorAll('input[name="selected_jurusans []"]:checked');
+            const checkedBoxes = document.querySelectorAll('input[name="selected_mapels []"]:checked');
             if (checkedBoxes.length === 0) {
-                alert('Silahkan pilih jurusan terlebih dahulu');
+                alert('Silahkan pilih mapel terlebih dahulu');
                 return;
             }
 
-            if (action === 'delete' && !confirm('Anda yakin ingin menghapus jurusan yang dipilih?')) {
+            if (action === 'delete' && !confirm('Anda yakin ingin menghapus mapel yang dipilih?')) {
                 return;
             }
 
@@ -308,7 +308,7 @@
 
         // Toggle all checkboxes (tetap sama)
         function toggleAll(source) {
-            const checkboxes = document.querySelectorAll('input[name="selected_jurusans   []"]');
+            const checkboxes = document.querySelectorAll('input[name="selected_mapels   []"]');
             checkboxes.forEach(checkbox => {
                 checkbox.checked = source.checked;
             });

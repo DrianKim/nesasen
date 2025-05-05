@@ -6,14 +6,14 @@
             <h1 class="h3 fw-bold text-primary">
                 <i class="fas fa-user-edit me-2"></i> {{ $title }}
             </h1>
-            <a href="{{ route('admin_umum_jurusan.index') }}" class="btn btn-outline-primary">
+            <a href="{{ route('admin_jurusan.index') }}" class="btn btn-outline-primary">
                 <i class="fas fa-arrow-left me-1"></i> Kembali
             </a>
         </div>
 
         <div class="border-0 rounded-lg shadow-sm card">
             <div class="p-4 card-body">
-                <form action="{{ route('admin_umum_jurusan.store') }}" method="POST">
+                <form action="{{ route('admin_jurusan.store') }}" method="POST">
                     @csrf
 
                     {{-- data murid --}}

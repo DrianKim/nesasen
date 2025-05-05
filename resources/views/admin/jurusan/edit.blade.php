@@ -64,6 +64,9 @@
                                         <i class="fas fa-save me-2"></i>Simpan Perubahan
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>

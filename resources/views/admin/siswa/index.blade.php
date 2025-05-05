@@ -308,7 +308,7 @@
 
         // Bulk actions function (tetap sama)
         function bulkAction(action) {
-            const checkedBoxes = document.querySelectorAll('input[name="selected_murids []"]:checked');
+            const checkedBoxes = document.querySelectorAll('input[name="selected_siswa []"]:checked');
             if (checkedBoxes.length === 0) {
                 alert('Silahkan pilih siswa terlebih dahulu');
                 return;
@@ -324,7 +324,7 @@
 
         // Toggle all checkboxes (tetap sama)
         function toggleAll(source) {
-            const checkboxes = document.querySelectorAll('input[name="selected_murids   []"]');
+            const checkboxes = document.querySelectorAll('input[name="selected_siswa   []"]');
             checkboxes.forEach(checkbox => {
                 checkbox.checked = source.checked;
             });

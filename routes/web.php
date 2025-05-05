@@ -73,6 +73,7 @@ Route::middleware(['isLogin'])->group(function () {
 
         // guru
         Route::get('admin/guru', [AdminController::class, 'index_guru'])->name('admin_guru.index');
+        Route::get('admin/guru/filter', [AdminController::class, 'index_guru'])->name('admin_guru.filter');
         Route::get('admin/guru/create', [AdminController::class, 'create_guru'])->name('admin_guru.create');
         Route::post('admin/guru/store', [AdminController::class, 'store_guru'])->name('admin_guru.store');
         Route::get('admin/guru/edit/{id}', [AdminController::class, 'edit_guru'])->name('admin_guru.edit');
@@ -84,19 +85,23 @@ Route::middleware(['isLogin'])->group(function () {
 
         // umum jurusan
         Route::get('admin/jurusan', [AdminController::class, 'index_jurusan'])->name('admin_jurusan.index');
+        Route::get('admin/jurusan/filter', [AdminController::class, 'index_jurusan'])->name('admin_jurusan.filter');
         Route::get('admin/jurusan/create', [AdminController::class, 'create_jurusan'])->name('admin_jurusan.create');
         Route::post('admin/jurusan/store', [AdminController::class, 'store_jurusan'])->name('admin_jurusan.store');
         Route::get('admin/jurusan/edit/{id}', [AdminController::class, 'edit_jurusan'])->name('admin_jurusan.edit');
         Route::post('admin/jurusan/update/{id}', [AdminController::class, 'update_jurusan'])->name('admin_jurusan.update');
         Route::delete('admin/jurusan/destroy/{id}', [AdminController::class, 'destroy_jurusan'])->name('admin_jurusan.destroy');
+        Route::post('admin/jurusan/bulk_action', [AdminController::class, 'bulkAction_jurusan'])->name('admin_jurusan.bulk_action');
 
         // umum mapel
         Route::get('admin/mapel', [AdminController::class, 'index_mapel'])->name('admin_mapel.index');
+        Route::get('admin/mapel/filter', [AdminController::class, 'index_mapel'])->name('admin_mapel.filter');
         Route::get('admin/mapel/create', [AdminController::class, 'create_mapel'])->name('admin_mapel.create');
         Route::post('admin/mapel/store', [AdminController::class, 'store_mapel'])->name('admin_mapel.store');
         Route::get('admin/mapel/edit/{id}', [AdminController::class, 'edit_mapel'])->name('admin_mapel.edit');
         Route::post('admin/mapel/update/{id}', [AdminController::class, 'update_mapel'])->name('admin_mapel.update');
         Route::delete('admin/mapel/destroy/{id}', [AdminController::class, 'destroy_mapel'])->name('admin_mapel.destroy');
+        Route::post('admin/mapel/bulk_action', [AdminController::class, 'bulkAction_mapel'])->name('admin_mapel.bulk_action');
 
         // presensi siswa
         Route::get('admin/presensi/siswa', [AdminController::class, 'index_presensi_siswa'])->name('admin_presensi_siswa.index');
