@@ -1,13 +1,14 @@
 @extends('layouts.app')
 
 @section('content')
+
     <div class="p-0 container-fluid">
         <!-- Main content container -->
         <div class="skul-container">
             <!-- Student List Section -->
             <div class="content-section">
                 <div class="section-header">
-                    <h2>Daftar Jurusan SMKN 1 Subang</h2>
+                    <h2>Data Guru SMKN 1 Subang</h2>
                     <div class="action-buttons">
                         <a href="{{ route('admin_guru.create') }}" class="btn btn-primary btn-circle">
                             <i class="fas fa-plus"></i>
@@ -115,7 +116,8 @@
 
                         <div class="bulk-actions">
                             <div class="bulk-buttons">
-                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="bulkAction('delete')">
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                    onclick="bulkAction('delete')">
                                     <i class="fas fa-trash-alt"></i> Hapus
                                 </button>
                             </div>
@@ -307,7 +309,7 @@
 
         // Bulk actions function (tetap sama)
         function bulkAction(action) {
-            const checkedBoxes = document.querySelectorAll('input[name="selected_guru []"]:checked');
+            const checkedBoxes = document.querySelectorAll('input[name="selected_guru[]"]:checked');
             if (checkedBoxes.length === 0) {
                 alert('Silahkan pilih guru terlebih dahulu');
                 return;
@@ -323,7 +325,7 @@
 
         // Toggle all checkboxes (tetap sama)
         function toggleAll(source) {
-            const checkboxes = document.querySelectorAll('input[name="selected_guru   []"]');
+            const checkboxes = document.querySelectorAll('input[name="selected_guru[]"]');
             checkboxes.forEach(checkbox => {
                 checkbox.checked = source.checked;
             });

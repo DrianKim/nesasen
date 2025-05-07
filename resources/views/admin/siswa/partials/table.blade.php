@@ -21,7 +21,7 @@
         @forelse ($siswa as $item)
             <tr>
                 <td>
-                    <input type="checkbox" name="selected_murids[]"
+                    <input type="checkbox" name="selected_siswa[]"
                         value="{{ $item->id }}">
                 </td>
                 <td>{{ $item->nisn ?? '-' }}</td>

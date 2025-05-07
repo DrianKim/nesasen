@@ -1,114 +1,320 @@
 @extends('layouts.app')
 
 @section('content')
-    <!-- Page Heading -->
-    <div class="mb-4 d-flex justify-content-between align-items-center">
-        {{-- <h1 class="m-0 h4 fw-bold">
-            <i class="fas fa-chalkboard">
-            </i>
-            {{ $title }}
-        </h1> --}}
-        {{-- <button class="px-3 rounded btn btn-primary">
-            <i class="fas fa-plus me-2"></i>Tambah Siswa
-        </button> --}}
-    </div>
-
-    <div class="container">
-        <div class="card">
-            <div class="card-header">
-                <div class="mb-1 mr-2">
-                    <a href="{{ route('admin_kelas.create') }}" class="btn btn-primary btn-sm">
-                        <i class="mr-2 fas fa-plus"></i>
-                        Tambah Kelas
-                    </a>
-                </div>
-                <div class="filter-form">
-                    <div class="form-group">
-                        <select class="form-select">
-                            <option disabled value="">Kelas</option>
-                            <option value="1">-</option>
-                            <option value="2">-</option>
-                            <option value="3">-</option>
-                        </select>
-                    </div>
-                    <button type="button" class="btn btn-primary btn-filter btn-sm">
-                        <i class="fas fa-filter"></i>
-                        Terapkan Filter
-                    </button>
-                </div>
-            </div>
-
-            <div class="card-body">
-                <div class="search-box">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="search-input" placeholder="Cari berdasarkan jurusan atau kelas...">
-                </div>
-
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th width="1%">No</th>
-                                <th width="15%">KelasKu</th>
-                                <th width="20%">Kelas</th>
-                                <th width="20%">Guru</th>
-                                <th class="text-center" width="2%">
-                                    <i class="fas fa-cog"></i>
-                                </th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            @foreach ($kelasKu as $item)
-                            <tr class="text-center">
-                                <td class="text-center">{{ $loop->iteration }}</td>
-                                <td class="p-2 border">{{ $item->mata_pelajaran->nama_mapel ?? '' }}</td>
-                                <td class="p-2 border">{{ $item->kelas->tingkat. ' '. $item->kelas->jurusan->kode_jurusan. ' '. $item->kelas->no_kelas ?? '' }}</td>
-                                <td class="p-2 border">{{ $item->guru->nama ?? '-' }}</td>
-                                <td class="p-2 text-center border">
-                                    {{-- <button class="btn btn-primary btn-sm">
-                                        <i class="fas fa-eye"></i>
-                                    </button> --}}
-                                    <a href="{{ route('admin_kelas.edit', $item->id)}}" class="btn btn-sm btn-warning">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalKelasDestroy{{ $item->id }}">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                    {{-- @include('admin.kelas.modal') --}}
-                                </td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="page-info">
-                    Menampilkan 1-5 dari 24 data
-                </div>
-
-                <div class="pagination">
-                    <div class="page-item">
-                        <a class="page-link" href="#" aria-label="Previous">
-                            <i class="fas fa-chevron-left"></i>
+    <div class="p-0 container-fluid">
+        <!-- Main content container -->
+        <div class="skul-container">
+            <!-- Student List Section -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h2>Daftar Kelas SMKN 1 Subang</h2>
+                    <div class="action-buttons">
+                        <a href="{{ route('admin_kelasKu.create') }}" class="btn btn-primary btn-circle">
+                            <i class="fas fa-plus"></i>
+                            <span class="button-label"></span>
                         </a>
+                        <button type="button" class="btn btn-info btn-circle">
+                            <i class="fas fa-file-export"></i>
+                            <span class="button-label"></span>
+                        </button>
                     </div>
-                    <div class="page-item active">
-                        <a class="page-link" href="#">1</a>
+                </div>
+
+                <!-- Filter Section -->
+                <div class="filter-section">
+                    <form id="kelasKuFilterForm">
+                        @csrf
+                        <div class="row">
+                            {{-- <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="kelasKu">Kelas:</label>
+                                    <select class="form-select" id="kelasKu" name="kelasKu">
+                                        <option value="">Semua Kelas</option>
+                                        @foreach ($kelasKuFilter as $kelasKu)
+                                            <option value="{{ $kelasKu->id }}"
+                                                {{ request('kelasKu') == $kelasKu->id ? 'selected' : '' }}>
+                                                {{ $kelasKu->tingkat }} {{ $kelasKu->jurusan->kode_jurusan }}
+                                                {{ $kelasKu->no_kelasKu }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div> --}}
+                            {{-- <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="tahun_ajaran">Tahun Ajaran:</label>
+                                    <select class="form-select" id="tahun_ajaran" name="tahun_ajaran">
+                                        @foreach ($tahunAjaranFilter as $tahun)
+                                            <option value="{{ $tahun }}"
+                                                {{ request('tahun_ajaran') == $tahun ? 'selected' : '' }}>
+                                                {{ $tahun }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div> --}}
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="perPage">Tampilkan:</label>
+                                    <select class="form-select" id="perPage" name="perPage">
+                                        <option value="10" {{ request('perPage', 10) == 10 ? 'selected' : '' }}>10
+                                        </option>
+                                        <option value="25" {{ request('perPage') == 25 ? 'selected' : '' }}>25</option>
+                                        <option value="50" {{ request('perPage') == 50 ? 'selected' : '' }}>50</option>
+                                        <option value="100" {{ request('perPage') == 100 ? 'selected' : '' }}>100
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group search-box">
+                                    <label for="searchInput">Cari:</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" name="search" id="searchInput"
+                                            placeholder="Cari kelasKu atau nama guru..." value="{{ request('search') }}">
+                                        <button type="button" class="btn btn-primary" id="resetFilter">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Hidden fields for sorting -->
+                        <input type="hidden" name="sort_by" id="sort_by" value="{{ request('sort_by') }}">
+                        <input type="hidden" name="sort_direction" id="sort_direction"
+                            value="{{ request('sort_direction', 'asc') }}">
+                        <input type="hidden" name="page" id="current_page" value="{{ request('page', 1) }}">
+                    </form>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div id="loading-indicator" style="display:none;">
+                    <div class="my-3 d-flex justify-content-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
                     </div>
-                    <div class="page-item">
-                        <a class="page-link" href="#">2</a>
-                    </div>
-                    <div class="page-item">
-                        <a class="page-link" href="#">3</a>
-                    </div>
-                    <div class="page-item">
-                        <a class="page-link" href="#" aria-label="Next">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                    </div>
+                </div>
+
+                <!-- Table Section -->
+                <div class="table-responsive">
+                    <form id="bulk_form" action="{{ route('admin_kelasKu.bulk_action') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="bulk_action" id="bulk_action" value="">
+
+                        <div class="bulk-actions">
+                            <div class="bulk-buttons">
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="bulkAction('delete')">
+                                    <i class="fas fa-trash-alt"></i> Hapus
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="table-container">
+                            <!-- Konten tabel akan diisi dengan AJAX -->
+                            @include('admin.kelasKu.partials.table')
+                            <div class="mt-2 d-flex justify-content-end">
+                                {{ $kelasKu->links() }}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Pagination Section -->
+                <div class="pagination-section" id="pagination-container">
+                    <!-- Pagination akan diisi dengan AJAX -->
+                    @include('admin.kelasKu.partials.pagination')
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variables
+            const filterForm = document.getElementById('kelasKuFilterForm');
+            const tableContainer = document.getElementById('table-container');
+            const paginationContainer = document.getElementById('pagination-container');
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const searchInput = document.getElementById('searchInput');
+            const resetButton = document.getElementById('resetFilter');
+            const filters = ['kelasKu', 'tahun_ajaran', 'perPage'];
+
+            let searchTimer;
+            let currentRequest = null;
+
+            // Function to load data via AJAX
+            function loadData() {
+                // Show loading indicator
+                loadingIndicator.style.display = 'block';
+
+                // If there's a pending request, abort it
+                if (currentRequest) {
+                    currentRequest.abort();
+                }
+
+                // Get form data
+                const formData = new FormData(filterForm);
+
+                // Create AJAX request
+                currentRequest = new XMLHttpRequest();
+                currentRequest.open('GET', '{{ route('admin_kelasKu.filter') }}?' + new URLSearchParams(formData)
+                    .toString(), true);
+                currentRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+                currentRequest.onload = function() {
+                    if (this.status >= 200 && this.status < 400) {
+                        // Success response
+                        const response = JSON.parse(this.response);
+                        tableContainer.innerHTML = response.table;
+                        paginationContainer.innerHTML = response.pagination;
+
+                        // Rebind sorting events
+                        bindSortingEvents();
+                        // Rebind pagination events
+                        bindPaginationEvents();
+
+                        // Update URL without reloading the page
+                        updateURL(formData);
+                    } else {
+                        // Error response
+                        console.error('Request failed');
+                    }
+
+                    // Hide loading indicator
+                    loadingIndicator.style.display = 'none';
+                    currentRequest = null;
+                };
+
+                currentRequest.onerror = function() {
+                    console.error('Connection error');
+                    loadingIndicator.style.display = 'none';
+                    currentRequest = null;
+                };
+
+                currentRequest.send();
+            }
+
+            // Function to update URL with current filters
+            function updateURL(formData) {
+                if (history.pushState) {
+                    const searchParams = new URLSearchParams(formData);
+                    const newURL = window.location.protocol + '//' + window.location.host +
+                        window.location.pathname + '?' + searchParams.toString();
+                    window.history.pushState({
+                        path: newURL
+                    }, '', newURL);
+                }
+            }
+
+            // Bind events to filter elements
+            filters.forEach(filter => {
+                const element = document.getElementById(filter);
+                if (element) {
+                    element.addEventListener('change', function() {
+                        // Reset to page 1 when changing filters
+                        document.getElementById('current_page').value = 1;
+                        loadData();
+                    });
+                }
+            });
+
+            // Handle search input with debounce
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimer);
+                    searchTimer = setTimeout(() => {
+                        // Reset to page 1 when searching
+                        document.getElementById('current_page').value = 1;
+                        loadData();
+                    }, 500); // 500ms debounce
+                });
+            }
+
+            // Handle reset button
+            if (resetButton) {
+                resetButton.addEventListener('click', function() {
+                    // Reset all form fields
+                    filterForm.reset();
+                    // Reset hidden fields
+                    document.getElementById('sort_by').value = '';
+                    document.getElementById('sort_direction').value = 'asc';
+                    document.getElementById('current_page').value = 1;
+                    // Load data
+                    loadData();
+                });
+            }
+
+            // Function to bind sorting events
+            function bindSortingEvents() {
+                const sortableHeaders = document.querySelectorAll('.sortable');
+                sortableHeaders.forEach(header => {
+                    header.addEventListener('click', function() {
+                        const column = this.getAttribute('data-column');
+                        const sortBy = document.getElementById('sort_by');
+                        const sortDirection = document.getElementById('sort_direction');
+
+                        // Toggle sort direction if clicking the same column
+                        if (sortBy.value === column) {
+                            sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+                        } else {
+                            // Default to ascending for new column
+                            sortBy.value = column;
+                            sortDirection.value = 'asc';
+                        }
+
+                        // Load data with new sorting
+                        loadData();
+                    });
+                });
+            }
+
+            // Function to bind pagination events
+            function bindPaginationEvents() {
+                const paginationLinks = document.querySelectorAll('.pagination .page-link[data-page]');
+                paginationLinks.forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const page = this.getAttribute('data-page');
+                        document.getElementById('current_page').value = page;
+                        loadData();
+
+                        // Scroll to top of table
+                        window.scrollTo({
+                            top: document.querySelector('.content-section').offsetTop,
+                            behavior: 'smooth'
+                        });
+                    });
+                });
+            }
+
+            // Initial binding
+            bindSortingEvents();
+            bindPaginationEvents();
+        });
+
+        // Bulk actions function (tetap sama)
+        function bulkAction(action) {
+            const checkedBoxes = document.querySelectorAll('input[name="selected_kelasKu[]"]:checked');
+            if (checkedBoxes.length === 0) {
+                alert('Silahkan pilih kelasKu terlebih dahulu');
+                return;
+            }
+
+            if (action === 'delete' && !confirm('Anda yakin ingin menghapus kelasKu yang dipilih?')) {
+                return;
+            }
+
+            document.getElementById('bulk_action').value = action;
+            document.getElementById('bulk_form').submit();
+        }
+
+        // Toggle all checkboxes (tetap sama)
+        function toggleAll(source) {
+            const checkboxes = document.querySelectorAll('input[name="selected_kelasKu[]"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = source.checked;
+            });
+        }
+    </script>
 @endsection

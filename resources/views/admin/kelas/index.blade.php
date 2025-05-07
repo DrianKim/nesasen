@@ -7,7 +7,7 @@
             <!-- Student List Section -->
             <div class="content-section">
                 <div class="section-header">
-                    <h2>Daftar Kelas SMKN 1 Subang</h2>
+                    <h2>Data Kelas SMKN 1 Subang</h2>
                     <div class="action-buttons">
                         <a href="{{ route('admin_kelas.create') }}" class="btn btn-primary btn-circle">
                             <i class="fas fa-plus"></i>

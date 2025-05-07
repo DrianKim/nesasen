@@ -602,3 +602,242 @@ color: var(--secondary);
     cursor: not-allowed;
 }
 
+/* Styles for page loading overlay */
+#page-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+}
+
+#page-loading-overlay.hide {
+    transform: translateY(-100%);
+    opacity: 0;
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 20px;
+    position: relative;
+}
+
+.spinner-p {
+    width: 100px;
+    height: 100px;
+    animation: glow 2s infinite ease-in-out;
+}
+
+@keyframes glow {
+    0% {
+        stroke: #3498db;
+        filter: drop-shadow(0 0 2px #3498db);
+    }
+    50% {
+        stroke: #6ec1e4;
+        filter: drop-shadow(0 0 10px #6ec1e4);
+    }
+    100% {
+        stroke: #3498db;
+        filter: drop-shadow(0 0 2px #3498db);
+    }
+}
+
+.loading-spinner p {
+    font-size: 18px;
+    color: #555;
+    font-weight: 500;
+    margin-top: 10px;
+}
+
+/* Elemen sekolah tambahan */
+.pencil {
+    position: absolute;
+    width: 6px;
+    height: 30px;
+    background-color: #f39c12;
+    bottom: 65px;
+    right: 0;
+    transform: rotate(-30deg);
+}
+
+.pencil:before {
+    content: "";
+    position: absolute;
+    top: -8px;
+    left: -2px;
+    width: 10px;
+    height: 8px;
+    background-color: #e74c3c;
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.pencil:after {
+    content: "";
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    width: 6px;
+    height: 6px;
+    background-color: #95a5a6;
+}
+
+.book {
+    position: absolute;
+    width: 30px;
+    height: 24px;
+    background-color: #2ecc71;
+    bottom: 75px;
+    left: 0;
+    transform: rotate(15deg);
+    border-radius: 2px 5px 5px 2px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.book:before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 24px;
+    height: 3px;
+    background-color: white;
+    opacity: 0.6;
+}
+
+.book:after {
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 2px;
+    width: 15px;
+    height: 3px;
+    background-color: white;
+    opacity: 0.6;
+}
+
+.graduation-cap {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 10px;
+    background-color: #34495e;
+}
+
+.graduation-cap:before {
+    content: "";
+    position: absolute;
+    top: -12px;
+    left: 10px;
+    width: 20px;
+    height: 12px;
+    background-color: #34495e;
+    clip-path: polygon(0 100%, 50% 0, 100% 100%);
+}
+
+.graduation-cap:after {
+    content: "";
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    width: 2px;
+    height: 12px;
+    background-color: #f1c40f;
+    transform: translateX(-50%);
+}
+
+.board {
+    position: absolute;
+    width: 160px;
+    height: 70px;
+    background-color: rgba(22, 160, 133, 0.1);
+    border: 2px solid rgba(22, 160, 133, 0.3);
+    border-radius: 5px;
+    top: -80px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Comic Sans MS', cursive;
+    color: #16a085;
+    font-size: 14px;
+    overflow: hidden;
+}
+
+.board:before {
+    content: "";
+    position: absolute;
+    height: 100%;
+    width: 3px;
+    background-color: rgba(22, 160, 133, 0.2);
+    left: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-family: 'Arial', sans-serif;
+    color: #3498db;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.academic-stars {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+.star {
+    position: absolute;
+    color: #f1c40f;
+    font-size: 12px;
+    animation: twinkle 3s infinite;
+}
+
+@keyframes twinkle {
+    0% { opacity: 0.3; }
+    50% { opacity: 1; }
+    100% { opacity: 0.3; }
+}
+
+/* Dash animation for the P path */
+.spinner-p path {
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    animation: draw 3s infinite alternate;
+}
+
+@keyframes draw {
+    0% {
+        stroke-dashoffset: 300;
+        stroke: #3498db;
+    }
+    50% {
+        stroke-dashoffset: 0;
+        stroke: #2980b9;
+    }
+    75% {
+        stroke-dashoffset: 0;
+        stroke: #2980b9;
+    }
+    100% {
+        stroke-dashoffset: 0;
+        stroke: #3498db;
+    }
+}

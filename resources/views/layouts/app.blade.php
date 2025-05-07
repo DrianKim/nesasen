@@ -1,5 +1,79 @@
 @include('layouts.header')
 
+<!-- Loading Overlay -->
+<div id="page-loading-overlay">
+    <div class="loading-spinner">
+        <!-- Papan tulis -->
+        <div class="board">Mengantar Anda ke Halaman Tujuan...</div>
+
+        <!-- Topi kelulusan -->
+        <div class="graduation-cap"></div>
+
+        <!-- SVG Huruf P -->
+        <svg viewBox="0 0 100 100" class="spinner-p" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="40" stroke="#3498db" stroke-width="8" fill="none"
+                stroke-linecap="round" stroke-dasharray="200" stroke-dashoffset="150">
+                <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="1s"
+                    repeatCount="indefinite" />
+                <animate attributeName="stroke-dashoffset" values="150;100;150" dur="1.5s"
+                    repeatCount="indefinite" />
+            </circle>
+        </svg>
+        {{-- <svg viewBox="0 0 100 100" class="spinner-p">
+            <path d="M20,90 V10 H60 A20,20 0 1,1 20,30" fill="none" stroke="#3498db" stroke-width="8"
+                stroke-linecap="round" />
+            <circle cx="60" cy="22" r="5" fill="#f1c40f" opacity="0.7">
+                <animate attributeName="opacity" values="0.7;0.3;0.7" dur="2s" repeatCount="indefinite" />
+            </circle>
+        </svg> --}}
+
+
+        <!-- Buku -->
+        <div class="book"></div>
+
+        <!-- Pensil -->
+        <div class="pencil"></div>
+
+        <!-- Teks Loading -->
+        <p class="loading-text">LOADING...</p>
+
+        <!-- Bintang-bintang akademik -->
+        <div class="academic-stars">
+            <span class="star" style="top: 20%; left: 85%;">★</span>
+            <span class="star" style="top: 15%; left: 10%;">★</span>
+            <span class="star" style="top: 70%; left: 15%;">★</span>
+            <span class="star" style="top: 60%; left: 90%;">★</span>
+            <span class="star" style="top: 40%; left: 40%;">★</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            document.getElementById('page-loading-overlay').classList.add('hide');
+        }, 3000);
+    });
+
+    setTimeout(function() {
+        document.getElementById('page-loading-overlay').classList.remove('hide');
+    }, 6000);
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const pageLoadingOverlay = document.getElementById('page-loading-overlay');
+
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                pageLoadingOverlay.classList.add('hide');
+
+                pageLoadingOverlay.addEventListener('transitionend', function() {
+                    pageLoadingOverlay.style.display = 'none';
+                });
+            }, 500);
+        });
+    });
+</script>
+
 <body id="page-top" class="@if (session('dark_mode', false)) dark-mode @endif">
 
     <!-- Page Wrapper -->
@@ -152,8 +226,8 @@
                                 </h6>
                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                     <div class="mr-3 dropdown-list-image">
-                                        <img class="rounded-circle" src="{{ asset('sbadmin2\img\undraw_profile_3.svg') }}"
-                                            alt="User Avatar">
+                                        <img class="rounded-circle"
+                                            src="{{ asset('sbadmin2\img\undraw_profile_3.svg') }}" alt="User Avatar">
                                         <div class="status-indicator bg-success"></div>
                                     </div>
                                     <div class="font-weight-bold">
@@ -164,8 +238,8 @@
                                 </a>
                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                     <div class="mr-3 dropdown-list-image">
-                                        <img class="rounded-circle" src="{{ asset('sbadmin2\img\undraw_profile_2.svg') }}"
-                                            alt="User Avatar">
+                                        <img class="rounded-circle"
+                                            src="{{ asset('sbadmin2\img\undraw_profile_2.svg') }}" alt="User Avatar">
                                         <div class="status-indicator"></div>
                                     </div>
                                     <div>
@@ -176,8 +250,8 @@
                                 </a>
                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                     <div class="mr-3 dropdown-list-image">
-                                        <img class="rounded-circle" src="{{ asset('sbadmin2\img\undraw_profile.svg') }}"
-                                            alt="User Avatar">
+                                        <img class="rounded-circle"
+                                            src="{{ asset('sbadmin2\img\undraw_profile.svg') }}" alt="User Avatar">
                                         <div class="status-indicator bg-warning"></div>
                                     </div>
                                     <div>

@@ -7,7 +7,7 @@
             <!-- Student List Section -->
             <div class="content-section">
                 <div class="section-header">
-                    <h2>Daftar Jurusan SMKN 1 Subang</h2>
+                    <h2>Daftar Mata Pelajaran SMKN 1 Subang</h2>
                     <div class="action-buttons">
                         <a href="{{ route('admin_mapel.create') }}" class="btn btn-primary btn-circle">
                             <i class="fas fa-plus"></i>
@@ -292,7 +292,7 @@
 
         // Bulk actions function (tetap sama)
         function bulkAction(action) {
-            const checkedBoxes = document.querySelectorAll('input[name="selected_mapels []"]:checked');
+            const checkedBoxes = document.querySelectorAll('input[name="selected_mapel[]"]:checked');
             if (checkedBoxes.length === 0) {
                 alert('Silahkan pilih mapel terlebih dahulu');
                 return;
@@ -308,7 +308,7 @@
 
         // Toggle all checkboxes (tetap sama)
         function toggleAll(source) {
-            const checkboxes = document.querySelectorAll('input[name="selected_mapels   []"]');
+            const checkboxes = document.querySelectorAll('input[name="selected_mapel[]"]');
             checkboxes.forEach(checkbox => {
                 checkbox.checked = source.checked;
             });

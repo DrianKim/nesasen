@@ -12,6 +12,7 @@ use App\Models\Jurusan;
 use App\Models\MapelKelas;
 use Illuminate\Support\Str;
 use App\Imports\SiswaImport;
+use App\Models\Absensi;
 use Illuminate\Http\Request;
 use App\Models\MataPelajaran;
 use Database\Seeders\GuruSeeder;
@@ -159,7 +160,6 @@ class AdminController extends Controller
         return view('admin.kelas.index', $data);
     }
 
-
     public function create_kelas()
     {
         $data = array(
@@ -305,23 +305,112 @@ class AdminController extends Controller
                 $kelas->delete();
             }
         }
+        return redirect()->back()->with('success', 'Kelas Berhasil Dihapus');
     }
 
     // umum kelasKu
     public function index_kelasKu(Request $request)
     {
+        $search = $request->input('search');
+        $perPage = $request->input('perPage', 10);
+        $sortBy = $request->input('sort_by');
+        $sortDirection = $request->input('sort_direction', 'asc');
 
-        $data = array(
-            'title' => 'Halaman Daftar Kelas',
+        $query = MapelKelas::with('kelas.jurusan', 'mata_pelajaran', 'guru');
+
+        if ($search) {
+            $searchTerm = strtolower(trim($search));
+
+            $query->where(function ($q) use ($searchTerm) {
+                $q->whereHas('mata_pelajaran', function ($q2) use ($searchTerm) {
+                    $q2->whereRaw('LOWER(REPLACE(nama_mapel, " ", "")) LIKE ?', ["%$searchTerm%"])
+                        ->orWhereRaw('LOWER(REPLACE(kode_mapel, " ", "")) LIKE ?', ["%$searchTerm%"]);
+                })
+                    ->orWhereHas('mata_pelajaran', function ($q3) use ($searchTerm) {
+                        $q3->whereHas('guru', function ($q4) use ($searchTerm) {
+                            $q4->whereRaw('LOWER(REPLACE(nama, " ", "")) LIKE ?', ["%$searchTerm%"]);
+                        });
+                    });
+            });
+        }
+
+        if ($sortBy) {
+            switch ($sortBy) {
+                case 'KelasKu':
+                    $query->join('mata_pelajaran', 'mapel_kelas.mata_pelajaran_id', '=', 'mata_pelajaran.id')
+                        ->orderBy('mata_pelajaran.nama_mapel', $sortDirection)
+                        ->select('mapel_kelas.*');
+                    break;
+
+                case 'Kelas':
+                    $query->join('kelas', 'mapel_kelas.kelas_id', '=', 'kelas.id')
+                        ->join('jurusan', 'kelas.jurusan_id', '=', 'jurusan.id')
+                        ->orderByRaw("CONCAT(kelas.tingkat, jurusan.kode_jurusan, kelas.no_kelas) $sortDirection")
+                        ->select('mapel_kelas.*');
+                    break;
+
+                case 'Guru':
+                    $query->join('mata_pelajaran', 'mapel_kelas.mata_pelajaran_id', '=', 'mata_pelajaran.id')
+                        ->join('guru', 'mata_pelajaran.guru_id', '=', 'guru.id')
+                        ->orderBy('guru.nama', $sortDirection)
+                        ->select('mapel_kelas.*');
+                    break;
+
+                default:
+                    $query->orderBy('id', 'asc');
+                    break;
+            }
+        } else {
+            $query->orderBy('id', 'asc');
+        }
+
+        // dd($sortBy, $columnMap[$sortBy] ?? null);
+        //     if (isset($columnMap[$sortBy])) {
+        //         $query->orderBy($columnMap[$sortBy], $sortDirection);
+        //     } else {
+        //         $query->orderBy('nama_mapel', 'asc')->orderBy('kode_mapel', 'asc');
+        //     }
+        // }
+
+        $kelasKu = $query->paginate($perPage)->withQueryString();
+
+        $data = [
+            'title' => 'Halaman Kelasku',
             'menuAdmin' => 'active',
-            // 'menu_admin_index_kelas' => 'active',
-            'kelasKu' => MapelKelas::with([
-                'kelas.jurusan',
-                'mata_pelajaran',
-                'guru',
-            ])->get(),
-        );
+            'kelasKu' => $kelasKu
+        ];
+
+        if ($request->ajax()) {
+            return response()->json([
+                'table' => view('admin.kelasKu.partials.table', $data)->render(),
+                'pagination' => view('admin.kelasKu.partials.pagination', ['kelasKu' => $kelasKu])->render(),
+            ]);
+        }
+
         return view('admin.kelasKu.index', $data);
+    }
+
+    public function bulkAction_kelasKu(Request $request)
+    {
+        $ids = $request->input('ids');
+        if (!$ids) {
+            return redirect()->back()->with('error', 'Tidak Ada Data Yang Dipilih!');
+        }
+
+        foreach ($ids as $id) {
+            $kelas = Kelas::find($id)->get();
+
+            if ($kelas) {
+                $walas = $kelas->walas;
+
+                if ($walas && $walas->user) {
+                    $walas->user->delete();
+                }
+
+                $kelas->delete();
+            }
+        }
+        return redirect()->back()->with('success', 'KelasKu Berhasil Dihapus');
     }
 
     // siswa
@@ -526,6 +615,7 @@ class AdminController extends Controller
                 $siswa->delete();
             }
         }
+        return redirect()->back()->with('success', 'Siswa Berhasil Dihapus');
     }
 
     public function import_siswa(Request $request)
@@ -732,6 +822,7 @@ class AdminController extends Controller
                 $guru->delete();
             }
         }
+        return redirect()->back()->with('success', 'Guru Berhasil Dihapus');
     }
 
     public function import_guru(Request $request)
@@ -918,6 +1009,7 @@ class AdminController extends Controller
 
             $jurusan->delete();
         }
+        return redirect()->back()->with('success', 'Jurusan Berhasil Dihapus');
     }
 
     // umum mapel
@@ -941,7 +1033,6 @@ class AdminController extends Controller
 
         if ($sortBy) {
             $columnMap = [
-                // 'NISN' => 'nisn',
                 'Nama Mapel' => 'nama_mapel',
                 'Kode Mapel' => 'kode_mapel',
             ];
@@ -1055,14 +1146,62 @@ class AdminController extends Controller
 
             $mapel->delete();
         }
+        return redirect()->back()->with('success', 'Mapel Berhasil Dihapus');
     }
 
     // presensi siswa
-    public function index_presensi_siswa()
+    public function index_presensi_siswa(Request $request)
     {
-        $data = array(
+        $kelas = $request->input('kelas');
+        $tanggal = $request->input('tanggal');
+        $perPage = $request->input('perPage', 10);
+        $sortBy = $request->input('sort_by');
+        $sortDirection = $request->input('sort_direction', 'asc');
+
+        $query = Absensi::query();
+
+        if ($kelas) {
+            $query->whereHas('siswa', function($q) use ($kelas) {
+                $q->where('kelas_id', $kelas);
+            });
+        }
+
+        if ($tanggal) {
+            $query->whereDate('tanggal', $tanggal);
+        }
+
+        if ($sortBy) {
+            $columnMap = [
+                'Kelas' => 'kelas',
+                'Absen Masuk' => 'status',
+                'Absen Keluar' => 'status',
+                'Hadir' => 'jenis_absen',
+                'Izin' => 'jenis_absen',
+                'Sakit' => 'jenis_absen',
+            ];
+
+            // dd($sortBy, $columnMap[$sortBy] ?? null);
+
+            if (isset($columnMap[$sortBy])) {
+                $query->orderBy($columnMap[$sortBy], $sortDirection);
+            } else {
+                $query->orderBy('tanggal', 'asc');
+            }
+        }
+
+        $presensi_siswa = $query->paginate($perPage)->withQueryString();
+
+        $data = [
             'title' => 'Presensi Siswa',
-        );
+            'presensi_siswa' => $presensi_siswa,
+        ];
+
+        if ($request->ajax()) {
+            return response()->json([
+                'table' => view('admin.presensi.siswa.partials.table', $data)->render(),
+                'pagination' => view('admin.presensi.siswa.partials.pagination', ['presensi_siswa' => $presensi_siswa])->render(),
+            ]);
+        }
         return view('admin.presensi.siswa.index', $data);
     }
 

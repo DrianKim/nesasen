@@ -7,10 +7,10 @@
             <!-- Student List Section -->
             <div class="content-section">
                 <div class="section-header">
-                    <h2>Daftar Siswa SMKN 1 Subang</h2>
+                    <h2>Data Siswa SMKN 1 Subang</h2>
                     <div class="action-buttons">
                         <a href="{{ route('admin_siswa.create') }}" class="btn btn-primary btn-circle">
-                            <i class="fas fa-plus"></i>
+                            <i class="ml-2 fas fa-plus"></i>
                             <span class="button-label"></span>
                         </a>
                         <form action="{{ route('siswa.import') }}" method="POST" enctype="multipart/form-data"
@@ -20,12 +20,12 @@
                                 onchange="document.getElementById('importSiswaForm').submit();">
                             <button type="button" class="btn btn-success btn-circle"
                                 onclick="document.getElementById('fileInput').click();">
-                                <i class="fas fa-file-import"></i>
+                                <i class="ml-2 fas fa-file-import"></i>
                                 <span class="button-label"></span>
                             </button>
                         </form>
                         <button type="button" class="btn btn-info btn-circle">
-                            <i class="fas fa-file-export"></i>
+                            <i class="ml-2 fas fa-file-export"></i>
                             <span class="button-label"></span>
                         </button>
                     </div>
@@ -98,7 +98,7 @@
                     </form>
                 </div>
 
-                <!-- Loading Indicator -->
+                <!-- Loading Indicator for AJAX requests -->
                 <div id="loading-indicator" style="display:none;">
                     <div class="my-3 d-flex justify-content-center">
                         <div class="spinner-border text-primary" role="status">
@@ -308,7 +308,7 @@
 
         // Bulk actions function (tetap sama)
         function bulkAction(action) {
-            const checkedBoxes = document.querySelectorAll('input[name="selected_siswa []"]:checked');
+            const checkedBoxes = document.querySelectorAll('input[name="selected_siswa[]"]:checked');
             if (checkedBoxes.length === 0) {
                 alert('Silahkan pilih siswa terlebih dahulu');
                 return;
@@ -324,7 +324,7 @@
 
         // Toggle all checkboxes (tetap sama)
         function toggleAll(source) {
-            const checkboxes = document.querySelectorAll('input[name="selected_siswa   []"]');
+            const checkboxes = document.querySelectorAll('input[name="selected_siswa[]"]');
             checkboxes.forEach(checkbox => {
                 checkbox.checked = source.checked;
             });

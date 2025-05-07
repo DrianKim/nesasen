@@ -1,10 +1,10 @@
 <!-- Modal Delete -->
-<div class="modal fade" id="modalKelasDestroy{{ $item->id }}" tabindex="-1" role="dialog"
+<div class="modal fade" id="modalKelasKuDestroy{{ $item->id }}" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="text-white modal-header bg-danger">
-                <h5 class="modal-title" id="exampleModalLongTitle">Hapus Kelas Ini?</h5>
+                <h5 class="modal-title" id="exampleModalLongTitle">Hapus Kelasku Ini?</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true" class="text-white">&times;</span>
                 </button>
@@ -14,28 +14,28 @@
 
                 <div class="row">
                     <div class="col-6">
+                        KelasKu
+                    </div>
+                    <div class="col-6">
+                        : {{ $item->mata_pelajaran->nama_mapel ?? '' }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
                         Kelas
                     </div>
                     <div class="col-6">
-                        : {{ $item->tingkat. ' '. $item->jurusan->kode_jurusan. ' '. $item->no_kelas ?? '' }}
+                        : {{ $item->kelas->tingkat. ' '. $item->kelas->jurusan->kode_jurusan. ' '. $item->kelas->no_kelas ?? '' }}
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-6">
-                        Guru Yang Mengampu
-                    </div>
-                    <div class="col-6">
-                        : {{ $item->walas->user->guru->nama ?? '' }}
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-6">
-                        Total Murid
+                        Guru
                     </div>
                     <div class="col-6">
                         :
                         <span>
-                            {{ $item->murid_count ?? 0 }} Murid
+                            {{ $item->guru->nama ?? '' }}
                         </span>
                     </div>
                 </div>

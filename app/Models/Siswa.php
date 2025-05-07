@@ -33,4 +33,9 @@ class Siswa extends Model
     {
         return $this->belongsTo(Jurusan::class, 'jurusan_id');
     }
+
+    public function absensi()
+    {
+        return $this->hasOne(Absensi::class);
+    }
 }

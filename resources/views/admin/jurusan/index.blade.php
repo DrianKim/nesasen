@@ -21,18 +21,6 @@
                     <form id="jurusanFilterForm">
                         @csrf
                         <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group search-box">
-                                    <label for="searchInput">Cari:</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" name="search" id="searchInput"
-                                            placeholder="Cari jurusan..." value="{{ request('search') }}">
-                                        <button type="button" class="btn btn-primary" id="resetFilter">
-                                            <i class="fas fa-sync-alt"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
                             {{-- <div class="col-md-3">
                                 <div class="form-group">
                                     <label for="kelas">:</label>
@@ -72,6 +60,18 @@
                                         <option value="100" {{ request('perPage') == 100 ? 'selected' : '' }}>100
                                         </option>
                                     </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group search-box">
+                                    <label for="searchInput">Cari:</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" name="search" id="searchInput"
+                                            placeholder="Cari jurusan..." value="{{ request('search') }}">
+                                        <button type="button" class="btn btn-primary" id="resetFilter">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
