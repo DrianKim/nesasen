@@ -11,6 +11,7 @@
 
     <title>M-Kelas | {{ $title }}</title>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}" type="image/x-icon">
 

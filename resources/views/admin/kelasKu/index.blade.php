@@ -10,11 +10,11 @@
                     <h2>Daftar Kelas SMKN 1 Subang</h2>
                     <div class="action-buttons">
                         <a href="{{ route('admin_kelasKu.create') }}" class="btn btn-primary btn-circle">
-                            <i class="fas fa-plus"></i>
+                            <i class="ml-2 fas fa-plus"></i>
                             <span class="button-label"></span>
                         </a>
                         <button type="button" class="btn btn-info btn-circle">
-                            <i class="fas fa-file-export"></i>
+                            <i class="ml-2 fas fa-file-export"></i>
                             <span class="button-label"></span>
                         </button>
                     </div>

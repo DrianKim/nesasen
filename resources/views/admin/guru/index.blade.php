@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-
     <div class="p-0 container-fluid">
         <!-- Main content container -->
         <div class="skul-container">
@@ -10,10 +9,11 @@
                 <div class="section-header">
                     <h2>Data Guru SMKN 1 Subang</h2>
                     <div class="action-buttons">
-                        <a href="{{ route('admin_guru.create') }}" class="btn btn-primary btn-circle">
-                            <i class="fas fa-plus"></i>
+                        @include('admin.guru.modal-create')
+                        <button class="btn btn-primary btn-circle" data-toggle="modal" data-target="#modalGuruCreate">
+                            <i class="ml-2 fas fa-plus"></i>
                             <span class="button-label"></span>
-                        </a>
+                        </button>
                         <form action="{{ route('guru.import') }}" method="POST" enctype="multipart/form-data"
                             id="importJurusanForm" class="d-inline">
                             @csrf
@@ -21,12 +21,12 @@
                                 onchange="document.getElementById('importJurusanForm').submit();">
                             <button type="button" class="btn btn-success btn-circle"
                                 onclick="document.getElementById('fileInput').click();">
-                                <i class="fas fa-file-import"></i>
+                                <i class="ml-2 fas fa-file-import"></i>
                                 <span class="button-label"></span>
                             </button>
                         </form>
                         <button type="button" class="btn btn-info btn-circle">
-                            <i class="fas fa-file-export"></i>
+                            <i class="ml-2 fas fa-file-export"></i>
                             <span class="button-label"></span>
                         </button>
                     </div>
@@ -116,8 +116,7 @@
 
                         <div class="bulk-actions">
                             <div class="bulk-buttons">
-                                <button type="button" class="btn btn-sm btn-outline-danger"
-                                    onclick="bulkAction('delete')">
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="bulkAction('delete')">
                                     <i class="fas fa-trash-alt"></i> Hapus
                                 </button>
                             </div>

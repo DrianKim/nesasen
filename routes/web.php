@@ -68,6 +68,7 @@ Route::middleware(['isLogin'])->group(function () {
         Route::get('admin/siswa/filter', [AdminController::class, 'index_siswa'])->name('admin_siswa.filter');
         Route::get('admin/siswa/create', [AdminController::class, 'create_siswa'])->name('admin_siswa.create');
         Route::post('admin/siswa/store', [AdminController::class, 'store_siswa'])->name('admin_siswa.store');
+        Route::post('admin/siswa/inline-update/{$id}', [AdminController::class, 'inline_update_siswa'])->name('admin_siswa.inline_update');
         Route::get('admin/siswa/edit/{id}', [AdminController::class, 'edit_siswa'])->name('admin_siswa.edit');
         Route::post('admin/siswa/update/{id}', [AdminController::class, 'update_siswa'])->name('admin_siswa.update');
         Route::delete('admin/siswa/destroy/{id}', [AdminController::class, 'destroy_siswa'])->name('admin_siswa.destroy');

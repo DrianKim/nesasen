@@ -49,27 +49,35 @@
 </div>
 
 <script>
-    window.addEventListener('load', function() {
-        setTimeout(function() {
-            document.getElementById('page-loading-overlay').classList.add('hide');
-        }, 3000);
-    });
-
-    setTimeout(function() {
-        document.getElementById('page-loading-overlay').classList.remove('hide');
-    }, 6000);
-
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const pageLoadingOverlay = document.getElementById('page-loading-overlay');
 
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                pageLoadingOverlay.classList.add('hide');
+        // Cek apakah submit dari modal form
+        const isModalSubmit = sessionStorage.getItem('modalSubmit') === 'true';
 
-                pageLoadingOverlay.addEventListener('transitionend', function() {
+        if (isModalSubmit) {
+            // Jangan tampilkan loading
+            pageLoadingOverlay.classList.add('hide');
+            pageLoadingOverlay.style.display = 'none';
+            sessionStorage.removeItem('modalSubmit');
+        } else {
+            // Tampilkan loading hanya untuk normal reload/page load
+            pageLoadingOverlay.classList.remove('hide');
+
+            window.addEventListener('load', function () {
+                pageLoadingOverlay.classList.add('hide');
+                pageLoadingOverlay.addEventListener('transitionend', function () {
                     pageLoadingOverlay.style.display = 'none';
                 });
-            }, 500);
+            });
+        }
+
+        // Tambahkan event untuk semua form yg pakai modal atau ajax-like submit
+        const modalForms = document.querySelectorAll('form.form-modal, form.form-delete');
+        modalForms.forEach(form => {
+            form.addEventListener('submit', function () {
+                sessionStorage.setItem('modalSubmit', 'true');
+            });
         });
     });
 </script>

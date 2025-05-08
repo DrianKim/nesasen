@@ -9,10 +9,11 @@
                 <div class="section-header">
                     <h2>Data Siswa SMKN 1 Subang</h2>
                     <div class="action-buttons">
-                        <a href="{{ route('admin_siswa.create') }}" class="btn btn-primary btn-circle">
-                            <i class="ml-2 fas fa-plus"></i>
+                        @include('admin.siswa.modal-create')
+                        <button class="btn btn-primary btn-circle" data-toggle="modal" data-target="#modalSiswaCreate">
+                            <i class="ml-2 fas fa-user-plus"></i>
                             <span class="button-label"></span>
-                        </a>
+                        </button>
                         <form action="{{ route('siswa.import') }}" method="POST" enctype="multipart/form-data"
                             id="importSiswaForm" class="d-inline">
                             @csrf
@@ -141,6 +142,7 @@
             </div>
         </div>
     </div>
+    
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -329,5 +331,149 @@
                 checkbox.checked = source.checked;
             });
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Use event delegation for all buttons to handle dynamically created elements
+            document.addEventListener('click', function(event) {
+                // Handle edit button clicks
+                if (event.target.classList.contains('edit-btn') || event.target.closest('.edit-btn')) {
+                    const button = event.target.classList.contains('edit-btn') ? event.target : event.target
+                        .closest('.edit-btn');
+                    handleEditButtonClick(button);
+                }
+
+                // Handle save button clicks
+                if (event.target.classList.contains('save-btn') || event.target.closest('.save-btn')) {
+                    const button = event.target.classList.contains('save-btn') ? event.target : event.target
+                        .closest('.save-btn');
+                    handleSaveButtonClick(button);
+                }
+
+                // Handle cancel button clicks
+                if (event.target.classList.contains('cancel-btn') || event.target.closest('.cancel-btn')) {
+                    const button = event.target.classList.contains('cancel-btn') ? event.target : event
+                        .target.closest('.cancel-btn');
+                    handleCancelButtonClick(button);
+                }
+            });
+
+            function handleEditButtonClick(button) {
+                const row = button.closest('tr');
+                const cells = row.querySelectorAll('td.editable-cell');
+
+                // Store original values in data attributes
+                cells.forEach(cell => {
+                    const value = cell.textContent.trim();
+                    cell.innerHTML =
+                        `<input type="text" class="form-control" value="${value}" data-original="${value}">`;
+                });
+
+                const actionButtons = row.querySelector('.action-buttons');
+                actionButtons.innerHTML = `
+            <button type="button" class="btn btn-sm btn-success save-btn">
+                <i class="fas fa-save"></i> Save
+            </button>
+            <button type="button" class="btn btn-sm btn-danger cancel-btn">
+                <i class="fas fa-times"></i> Cancel
+            </button>`;
+            }
+
+            function handleSaveButtonClick(button) {
+                const row = button.closest('tr');
+                const cells = row.querySelectorAll('td.editable-cell');
+                const actionButtons = row.querySelector('.action-buttons');
+
+                const updatedData = {};
+                cells.forEach(cell => {
+                    const field = cell.dataset.field;
+                    updatedData[field] = cell.querySelector('input').value;
+                });
+
+                // Get the ID from the row's id attribute
+                const id = row.id.replace('row-', '');
+
+                // Show loading state
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                button.disabled = true;
+
+                fetch(`/admin/siswa/inline-update/${id}`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                'content')
+                        },
+                        body: JSON.stringify(updatedData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('Berhasil', 'Data berhasil diperbarui', 'success');
+                            cells.forEach(cell => {
+                                const field = cell.dataset.field;
+                                cell.textContent = updatedData[field];
+                            });
+
+                            resetActionButtons(actionButtons, id);
+                        } else {
+                            Swal.fire('Gagal', data.message || 'Data gagal diperbarui', 'error');
+                            button.innerHTML = '<i class="fas fa-save"></i> Save';
+                            button.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Gagal', 'Terjadi kesalahan, coba lagi', 'error');
+                        button.innerHTML = '<i class="fas fa-save"></i> Save';
+                        button.disabled = false;
+                    });
+            }
+
+            function handleCancelButtonClick(button) {
+                const row = button.closest('tr');
+                const cells = row.querySelectorAll('td.editable-cell');
+                const actionButtons = row.querySelector('.action-buttons');
+
+                cells.forEach(cell => {
+                    const originalValue = cell.querySelector('input').getAttribute('data-original');
+                    cell.textContent = originalValue;
+                });
+
+                const id = row.id.replace('row-', '');
+                resetActionButtons(actionButtons, id);
+            }
+
+            function resetActionButtons(actionButtons, id) {
+                actionButtons.innerHTML = `
+            <button type="button" class="btn btn-sm btn-outline-primary edit-btn">
+                <i class="fas fa-edit"></i> Edit
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal"
+                data-target="#modalSiswaDestroy${id}">
+                <i class="fas fa-trash"></i>
+            </button>
+        `;
+            }
+        });
+
+        $(document).ready(function() {
+            $('#formSiswa').on('submit', function(e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: "{{ route('admin_siswa.store') }}", // route store
+                    method: 'POST',
+                    data: $(this).serialize(), // Serialize form data
+                    success: function(response) {
+                        alert('Siswa berhasil ditambahkan!');
+                        $('#modalSiswaCreate').modal('hide');
+                        location.reload(); // Reload halaman untuk update data
+                    },
+                    error: function(xhr) {
+                        alert('Ada kesalahan. Gagal menyimpan data.');
+                    }
+                });
+            });
+        });
     </script>
 @endsection

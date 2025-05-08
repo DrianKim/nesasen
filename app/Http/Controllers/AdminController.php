@@ -8,18 +8,18 @@ use App\Models\User;
 use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\walas;
+use App\Models\Absensi;
 use App\Models\Jurusan;
 use App\Models\MapelKelas;
 use Illuminate\Support\Str;
 use App\Imports\SiswaImport;
-use App\Models\Absensi;
 use Illuminate\Http\Request;
 use App\Models\MataPelajaran;
 use Database\Seeders\GuruSeeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Container\Attributes\Log;
 use Psy\CodeCleaner\FunctionContextPass;
 
 use function PHPUnit\Framework\returnSelf;
@@ -482,6 +482,7 @@ class AdminController extends Controller
 
         $data = [
             'title' => 'Halaman Data Siswa',
+            'kelasList' => Kelas::all(),
             'siswa' => $siswa,
             'kelasFilter' => $kelasFilter,
             'tahunAjaranFilter' => $tahunAjaranFilter,
@@ -510,30 +511,103 @@ class AdminController extends Controller
 
     public function store_siswa(Request $request)
     {
-        $request->validate([
+        // dd($request->all());
+        $validated = $request->validate([
+            'nisn' => 'required|numeric|digits_between:8,10|unique:siswa,nisn',
+            'nis' => 'nullable|numeric|digits_between:4,10|unique:siswa,nis',
             'nama' => 'required|string|max:255',
-            'kelas_id' => 'required'
+            'username' => 'required|unique:users,username',
+            'tanggal_lahir' => 'required|date',
+            'kelas_id' => 'required',
+            'no_hp' => 'required|digits_between:10,15',
+            'email' => 'required|email|max:255',
         ], [
+            'nisn.required' => 'NISN Tidak Boleh Kosong',
+            'nisn.numeric' => 'NISN Harus Angka',
+            'nisn.digits_between' => 'NISN Harus Antara 8-10 Digit',
+            'nisn.unique' => 'NISN Sudah Digunakan',
+            'nis.numeric' => 'NIS Harus Angka',
+            'nis.digits_between' => 'NIS Harus Antara 4-10 Digit',
+            'nis.unique' => 'NIS Sudah Digunakan',
             'nama.required' => 'Nama Tidak Boleh Kosong',
-            'kelas_id.required' => 'Pilih Salah Satu Kelas',
+            'username.required' => 'Username Tidak Boleh Kosong',
+            'username.unique' => 'Username Sudah Digunakan',
+            'tanggal_lahir.required' => 'Tanggal Lahir Tidak Boleh Kosong',
+            'tanggal_lahir.date' => 'Tanggal Lahir Tidak Valid',
+            'kelas_id.required' => 'Kelas Tidak Boleh Kosong',
+            'no_hp.required' => 'No HP Tidak Boleh Kosong',
+            'no_hp.digits_between' => 'No HP Harus Antara 10-15 Digit',
+            'email.required' => 'Email Tidak Boleh Kosong',
+            'email.email' => 'Email Tidak Valid',
         ]);
 
-        $siswa = Siswa::create([
-            'nama' => $request->nama,
-            'kelas_id' => $request->kelas_id,
-        ]);
+        try {
+            // Simpan data siswa
+            $siswa = Siswa::create([
+                'nisn' => $request->nisn,
+                'nis' => $request->nis,
+                'nama' => $request->nama,
+                'tanggal_lahir' => $request->tanggal_lahir,
+                'kelas_id' => $request->kelas_id,
+                'no_hp' => $request->no_hp,
+                'email' => $request->email,
+            ]);
 
-        $username = $this->generateUsernameFromName($request->nama);
+            // Buat akun user untuk siswa
+            $password = date('dmY', strtotime($request->tanggal_lahir)); // Password default adalah tanggal lahir
 
-        User::create([
-            'username' => $username,
-            'guru_id' => null,
-            'siswa_id' => $siswa->id,
-            'role_id' => 4,
-            'password' => null,
-        ]);
+            User::create([
+                'username' => $request->username,
+                'guru_id' => null,
+                'siswa_id' => $siswa->id,
+                'role_id' => 4,
+                'password' => Hash::make($password),
+            ]);
 
-        return redirect()->route('admin_siswa.index')->with('success', 'Siswa berhasil ditambahkan dengan username: ' .  $username);
+            // Redirect dengan pesan sukses
+            return redirect()->route('admin_siswa.index')->with('success', 'Siswa berhasil ditambahkan!');
+        } catch (\Exception $e) {
+            // Jika ada error, kembali ke form dengan error message
+            return back()->withErrors(['general' => 'Terjadi kesalahan, coba lagi.'])->withInput();
+        }
+    }
+
+    public function inline_update_siswa(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'nisn' => 'required|string',
+                'nis' => 'required|string',
+                'nama' => 'required|string',
+                'no_hp' => 'required|string',
+            ]);
+
+            $siswa = Siswa::findOrFail($id);
+
+            // Only update the fields we expect to be editable
+            $allowedFields = ['nisn', 'nis', 'nama', 'no_hp'];
+
+            foreach ($allowedFields as $field) {
+                if ($request->has($field)) {
+                    $siswa->$field = $request->$field;
+                }
+            }
+
+            $siswa->save();
+
+            return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function edit_siswa($id)
@@ -716,27 +790,60 @@ class AdminController extends Controller
 
     public function store_guru(Request $request)
     {
-        $request->validate([
+        // dd($request->all());
+        $validated = $request->validate([
+            'nip' => 'required|string|regex:/^\d{8,10}$/|unique:guru,nip',
             'nama' => 'required|string|max:255',
+            'username' => 'required|unique:users,username',
+            'tanggal_lahir' => 'required|date',
+            'no_hp' => 'required|string|regex:/^\d{10,15}$/',
+            'email' => 'required|email|max:255',
         ], [
-            'nama.required' => 'Nama Tidak Boleh Kosong'
+            'nip.required' => 'NIP Tidak Boleh Kosong',
+            'nip.regex' => 'NIP Harus Antara 8-10 Digit Angka',
+            'nip.unique' => 'NIP Sudah Digunakan',
+
+            'nama.required' => 'Nama Tidak Boleh Kosong',
+
+            'username.required' => 'Username Tidak Boleh Kosong',
+            'username.unique' => 'Username Sudah Digunakan',
+
+            'tanggal_lahir.required' => 'Tanggal Lahir Tidak Boleh Kosong',
+            'tanggal_lahir.date' => 'Tanggal Lahir Tidak Valid',
+
+            'no_hp.required' => 'No HP Tidak Boleh Kosong',
+            'no_hp.regex' => 'No HP Harus Antara 10-15 Digit Angka',
+
+            'email.required' => 'Email Tidak Boleh Kosong',
+            'email.email' => 'Email Tidak Valid',
         ]);
 
-        $guru = Guru::create([
-            'nama' => $request->nama,
-        ]);
+        try {
+            // Simpan data guru
+            $guru = Guru::create([
+                'nip' => $request->nip,
+                'nama' => $request->nama,
+                'tanggal_lahir' => $request->tanggal_lahir,
+                'no_hp' => $request->no_hp,
+                'email' => $request->email,
+            ]);
 
-        $username = $this->generateUsernameFromName($request->nama);
+            // Set password default berdasarkan tanggal lahir
+            $password = date('dmY', strtotime($request->tanggal_lahir)); // Password default adalah tanggal lahir
 
-        User::create([
-            'username' => $username,
-            'guru_id' => $guru->id,
-            'siswa_id' => null,
-            'role_id' => 3,
-            'password' => null,
-        ]);
+            // Simpan data user
+            User::create([
+                'username' => $request->username,
+                'guru_id' => $guru->id,
+                'siswa_id' => null,
+                'role_id' => 3, 
+                'password' => Hash::make($password),
+            ]);
 
-        return redirect()->route('admin_guru.index')->with('success', 'Guru berhasil ditambahkan dengan username: ' . $username);
+            return redirect()->route('admin_guru.index')->with('success', 'Guru berhasil ditambahkan!');
+        } catch (\Exception $e) {
+            return back()->withErrors(['general' => 'Terjadi kesalahan, coba lagi.'])->withInput();
+        }
     }
 
     public function edit_guru($id)
@@ -1152,42 +1259,27 @@ class AdminController extends Controller
     // presensi siswa
     public function index_presensi_siswa(Request $request)
     {
-        $kelas = $request->input('kelas');
-        $tanggal = $request->input('tanggal');
+        // Basic setup
         $perPage = $request->input('perPage', 10);
-        $sortBy = $request->input('sort_by');
-        $sortDirection = $request->input('sort_direction', 'asc');
+        $query = Absensi::with('siswa');
 
-        $query = Absensi::query();
-
-        if ($kelas) {
-            $query->whereHas('siswa', function($q) use ($kelas) {
-                $q->where('kelas_id', $kelas);
+        // Simple filtering (no joins yet)
+        if ($request->filled('kelas')) {
+            $query->whereHas('siswa', function ($q) use ($request) {
+                $q->where('kelas_id', $request->input('kelas'));
             });
         }
 
-        if ($tanggal) {
-            $query->whereDate('tanggal', $tanggal);
+        if ($request->filled('tanggal')) {
+            $query->whereDate('tanggal', $request->input('tanggal'));
         }
 
-        if ($sortBy) {
-            $columnMap = [
-                'Kelas' => 'kelas',
-                'Absen Masuk' => 'status',
-                'Absen Keluar' => 'status',
-                'Hadir' => 'jenis_absen',
-                'Izin' => 'jenis_absen',
-                'Sakit' => 'jenis_absen',
-            ];
+        // Simple sorting (avoiding joins for now)
+        $sortBy = $request->input('sort_by');
+        $sortDirection = $request->input('sort_direction', 'asc');
 
-            // dd($sortBy, $columnMap[$sortBy] ?? null);
-
-            if (isset($columnMap[$sortBy])) {
-                $query->orderBy($columnMap[$sortBy], $sortDirection);
-            } else {
-                $query->orderBy('tanggal', 'asc');
-            }
-        }
+        // Just use default sorting for now
+        $query->orderBy('tanggal', 'desc');
 
         $presensi_siswa = $query->paginate($perPage)->withQueryString();
 
@@ -1202,6 +1294,7 @@ class AdminController extends Controller
                 'pagination' => view('admin.presensi.siswa.partials.pagination', ['presensi_siswa' => $presensi_siswa])->render(),
             ]);
         }
+
         return view('admin.presensi.siswa.index', $data);
     }
 

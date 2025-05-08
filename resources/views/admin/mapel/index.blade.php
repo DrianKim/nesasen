@@ -10,7 +10,7 @@
                     <h2>Daftar Mata Pelajaran SMKN 1 Subang</h2>
                     <div class="action-buttons">
                         <a href="{{ route('admin_mapel.create') }}" class="btn btn-primary btn-circle">
-                            <i class="fas fa-plus"></i>
+                            <i class="ml-2 fas fa-plus"></i>
                             <span class="button-label"></span>
                         </a>
                     </div>
