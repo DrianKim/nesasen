@@ -9,13 +9,13 @@
                 <div class="section-header">
                     <h2>Daftar Jurusan SMKN 1 Subang</h2>
                     <div class="action-buttons">
-                        <a href="{{ route('admin_jurusan.create') }}" class="btn btn-primary btn-circle">
+                        @include('admin.jurusan.modal-create')
+                        <button class="btn btn-primary btn-circle" data-toggle="modal" data-target="#modalJurusanCreate">
                             <i class="ml-2 fas fa-plus"></i>
                             <span class="button-label"></span>
-                        </a>
+                        </button>
                     </div>
                 </div>
-
                 <!-- Filter Section -->
                 <div class="filter-section">
                     <form id="jurusanFilterForm">

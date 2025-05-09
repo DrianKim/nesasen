@@ -25,18 +25,16 @@
                 <!-- Form Start -->
                 <form class="form-modal" id="formTambahGuru" action="{{ route('admin_guru.store') }}" method="POST">
                     @csrf
-                    <div class="mb-3 row">
-                        <div class="col-md-12 form-group">
-                            <label for="nip">Nip</label>
-                            <input type="text"
-                                class="border rounded form-control border-opacity-30 @error('nip') is-invalid @enderror"
-                                id="nip" name="nip" value="{{ old('nip') }}">
-                            <small>
-                                @error('nip')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                            </small>
-                        </div>
+                    <div class="mb-3 form-group">
+                        <label for="nip">Nip</label>
+                        <input type="text"
+                            class="border rounded form-control border-opacity-30 @error('nip') is-invalid @enderror"
+                            id="nip" name="nip" value="{{ old('nip') }}">
+                        <small>
+                            @error('nip')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </small>
                     </div>
 
                     <div class="mb-3 form-group">
@@ -132,6 +130,25 @@
 @if ($errors->any())
     <script>
         $(document).ready(function() {
+            $('#modalGuruCreate').modal('show');
+        });
+    </script>
+@endif
+@if ($errors->any())
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops!',
+            text: 'Cek lagi data yang kamu isi, ada yang salah tuh.',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    </script>
+@endif
+
+{{-- @if ($errors->any())
+    <script>
+        $(document).ready(function() {
             // Buka modal kalau ada error validasi
             $('#modalGuruCreate').modal('show');
 
@@ -144,7 +161,7 @@
             });
         });
     </script>
-@endif
+@endif --}}
 
 {{-- @if ($errors->any())
     <script>

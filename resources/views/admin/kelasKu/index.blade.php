@@ -7,12 +7,13 @@
             <!-- Student List Section -->
             <div class="content-section">
                 <div class="section-header">
-                    <h2>Daftar Kelas SMKN 1 Subang</h2>
+                    <h2>KelasKu SMKN 1 Subang</h2>
                     <div class="action-buttons">
-                        <a href="{{ route('admin_kelasKu.create') }}" class="btn btn-primary btn-circle">
+                        @include('admin.kelasKu.modal-create')
+                        <button class="btn btn-primary btn-circle" data-toggle="modal" data-target="#modalKelasKuCreate">
                             <i class="ml-2 fas fa-plus"></i>
                             <span class="button-label"></span>
-                        </a>
+                        </button>
                         <button type="button" class="btn btn-info btn-circle">
                             <i class="ml-2 fas fa-file-export"></i>
                             <span class="button-label"></span>
@@ -114,7 +115,7 @@
                             <!-- Konten tabel akan diisi dengan AJAX -->
                             @include('admin.kelasKu.partials.table')
                             <div class="mt-2 d-flex justify-content-end">
-                                {{ $kelasKu->links() }}
+                                {{-- {{ $kelasKu->links() }} --}}
                             </div>
                         </div>
                     </form>

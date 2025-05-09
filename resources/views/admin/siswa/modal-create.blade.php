@@ -25,7 +25,7 @@
                 <!-- Form Start -->
                 <form class="form-modal" id="formTambahSiswa" action="{{ route('admin_siswa.store') }}" method="POST">
                     @csrf
-                    <div class="mb-3 row">
+                    <div class="row">
                         <div class="col-md-6 form-group">
                             <label for="nisn">NISN</label>
                             <input type="text" class="border rounded form-control border-opacity-30 @error('nisn') is-invalid @enderror" id="nisn"
@@ -70,7 +70,7 @@
                         </small>
                     </div>
 
-                    <div class="mb-3 row">
+                    <div class="row">
                         <div class="col-md-6 form-group">
                             <label for="tanggal_lahir">Tanggal Lahir</label>
                             <input type="date" class="border rounded form-control border-opacity-30 @error('tanggal_lahir') is-invalid @enderror"

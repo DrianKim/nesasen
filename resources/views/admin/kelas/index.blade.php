@@ -9,10 +9,11 @@
                 <div class="section-header">
                     <h2>Data Kelas SMKN 1 Subang</h2>
                     <div class="action-buttons">
-                        <a href="{{ route('admin_kelas.create') }}" class="btn btn-primary btn-circle">
+                        @include('admin.kelas.modal-create')
+                        <button class="btn btn-primary btn-circle" data-toggle="modal" data-target="#modalKelasCreate">
                             <i class="ml-2 fas fa-plus"></i>
                             <span class="button-label"></span>
-                        </a>
+                        </button>
                         <button type="button" class="btn btn-info btn-circle">
                             <i class="ml-2 fas fa-file-export"></i>
                             <span class="button-label"></span>

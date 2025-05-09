@@ -100,15 +100,18 @@ class AdminController extends Controller
             $query->where(function ($q) use ($searchTerm) {
                 $q->whereRaw('LOWER(tingkat) LIKE ?', ["%{$searchTerm}%"])
                     ->orWhereRaw('LOWER(no_kelas) LIKE ?', ["%{$searchTerm}%"])
+
                     ->orWhereHas('jurusan', function ($q2) use ($searchTerm) {
                         $q2->whereRaw('LOWER(nama_jurusan) LIKE ?', ["%{$searchTerm}%"])
                             ->orWhereRaw('LOWER(kode_jurusan) LIKE ?', ["%{$searchTerm}%"]);
                     })
-                    ->orWhereHas('walas.user', function ($q3) use ($searchTerm) {
+
+                    ->orWhereHas('walas.user.guru', function ($q3) use ($searchTerm) {
                         $q3->whereRaw('LOWER(nama) LIKE ?', ["%{$searchTerm}%"]);
                     });
             });
         }
+
 
         if ($sortBy) {
             switch ($sortBy) {
@@ -142,10 +145,16 @@ class AdminController extends Controller
         $kelas = $query->paginate($perPage)->withQueryString();
 
         $tahunAjaranFilter = Kelas::select('tahun_ajaran')->distinct()->pluck('tahun_ajaran');
+        $guruWalasIds = Walas::pluck('user_id');
+
 
         $data = [
             'title' => 'Halaman Daftar Kelas',
             'menuAdmin' => 'active',
+            'jurusanList' => Jurusan::all(),
+            'guruList' => Guru::whereHas('user', function ($query) use ($guruWalasIds) {
+                $query->whereNotIn('id', $guruWalasIds);
+            })->get(),
             'kelas' => $kelas,
             'tahunAjaranFilter' => $tahunAjaranFilter,
         ];
@@ -186,29 +195,33 @@ class AdminController extends Controller
             'no_kelas' => 'No Kelas Tidak Boleh Kosong',
         ]);
 
-        $kelas = Kelas::create([
-            'tingkat' => $request->tingkat,
-            'jurusan_id' => $request->jurusan_id,
-            'no_kelas' => $request->no_kelas,
-        ]);
+        try {
+            $kelas = Kelas::create([
+                'tingkat' => $request->tingkat,
+                'jurusan_id' => $request->jurusan_id,
+                'no_kelas' => $request->no_kelas,
+            ]);
 
-        if ($request->guru_id) {
-            $guru = Guru::findOrFail($request->guru_id);
+            if ($request->guru_id) {
+                $guru = Guru::findOrFail($request->guru_id);
 
-            $user = User::where('guru_id', $guru->id)->first();
+                $user = User::where('guru_id', $guru->id)->first();
 
-            if ($user && $user->role_id == 3) {
-                Walas::create([
-                    'user_id' => $user->id,
-                    'kelas_id' => $kelas->id,
-                ]);
+                if ($user && $user->role_id == 3) {
+                    Walas::create([
+                        'user_id' => $user->id,
+                        'kelas_id' => $kelas->id,
+                    ]);
 
-                $user->role_id = 2;
-                $user->save();
+                    $user->role_id = 2;
+                    $user->save();
+                }
             }
-        }
 
-        return redirect()->route('admin_index_kelas.index')->with('success', 'Kelas Berhasil Ditambahkan');
+            return redirect()->route('admin_kelas.index')->with('success', 'Kelas Berhasil Ditambahkan');
+        } catch (\Exception $e) {
+            return back()->withErrors(['general' => 'Terjadi kesalahan, coba lagi.'])->withInput();
+        }
     }
 
     public function edit_kelas($id)
@@ -282,9 +295,20 @@ class AdminController extends Controller
     {
         $kelas = Kelas::findOrFail($id);
 
+        $walas = Walas::where('kelas_id', $kelas->id)->first();
+
+        if ($walas) {
+            $user = User::find($walas->user_id);
+            if ($user) {
+                $user->role_id = 3;
+                $user->save();
+            }
+            $walas->delete();
+        }
+
         $kelas->delete();
 
-        return redirect()->route('admin_index_kelas.index')->with('success', 'Kelas Berhasil Dihapus');
+        return redirect()->route('admin_kelas.index')->with('success', 'Kelas Berhasil Dihapus');
     }
 
     public function bulkAction_kelas(Request $request)
@@ -326,10 +350,8 @@ class AdminController extends Controller
                     $q2->whereRaw('LOWER(REPLACE(nama_mapel, " ", "")) LIKE ?', ["%$searchTerm%"])
                         ->orWhereRaw('LOWER(REPLACE(kode_mapel, " ", "")) LIKE ?', ["%$searchTerm%"]);
                 })
-                    ->orWhereHas('mata_pelajaran', function ($q3) use ($searchTerm) {
-                        $q3->whereHas('guru', function ($q4) use ($searchTerm) {
-                            $q4->whereRaw('LOWER(REPLACE(nama, " ", "")) LIKE ?', ["%$searchTerm%"]);
-                        });
+                    ->orWhereHas('guru', function ($q3) use ($searchTerm) {
+                        $q3->whereRaw('LOWER(REPLACE(nama, " ", "")) LIKE ?', ["%$searchTerm%"]);
                     });
             });
         }
@@ -350,8 +372,8 @@ class AdminController extends Controller
                     break;
 
                 case 'Guru':
-                    $query->join('mata_pelajaran', 'mapel_kelas.mata_pelajaran_id', '=', 'mata_pelajaran.id')
-                        ->join('guru', 'mata_pelajaran.guru_id', '=', 'guru.id')
+                    // FIX: join langsung ke guru dari mapel_kelas.guru_id
+                    $query->join('guru', 'mapel_kelas.guru_id', '=', 'guru.id')
                         ->orderBy('guru.nama', $sortDirection)
                         ->select('mapel_kelas.*');
                     break;
@@ -377,7 +399,10 @@ class AdminController extends Controller
         $data = [
             'title' => 'Halaman Kelasku',
             'menuAdmin' => 'active',
-            'kelasKu' => $kelasKu
+            'kelasKu' => $kelasKu,
+            'mapelList' => MataPelajaran::all(),
+            'guruList' => Guru::all(),
+            'kelasList' => Kelas::with('jurusan')->get(),
         ];
 
         if ($request->ajax()) {
@@ -388,6 +413,32 @@ class AdminController extends Controller
         }
 
         return view('admin.kelasKu.index', $data);
+    }
+
+    public function store_kelasKu(Request $request)
+    {
+        // dd($request->all());
+        $request->validate([
+            'kelas_id' => 'required|exists:kelas,id',
+            'mapel_id' => 'required|exists:mata_pelajaran,id',
+            'guru_id' => 'required|exists:guru,id',
+        ], [
+            'kelas_id.required' => 'Kelas Tidak Boleh Kosong',
+            'mapel_id.required' => 'Mata Pelajaran Tidak Boleh Kosong',
+            'guru_id.required' => 'Guru Tidak Boleh Kosong',
+        ]);
+
+        try {
+            MapelKelas::create([
+                'kelas_id' => $request->kelas_id,
+                'mapel_id' => $request->mapel_id,
+                'guru_id' => $request->guru_id,
+            ]);
+
+            return redirect()->route('admin_kelasKu.index')->with('success', 'KelasKu Berhasil Ditambahkan');
+        } catch (\Exception $e) {
+            return back()->withErrors(['general' => 'Terjadi kesalahan, coba lagi.'])->withInput();
+        }
     }
 
     public function bulkAction_kelasKu(Request $request)
@@ -526,17 +577,24 @@ class AdminController extends Controller
             'nisn.numeric' => 'NISN Harus Angka',
             'nisn.digits_between' => 'NISN Harus Antara 8-10 Digit',
             'nisn.unique' => 'NISN Sudah Digunakan',
+
             'nis.numeric' => 'NIS Harus Angka',
             'nis.digits_between' => 'NIS Harus Antara 4-10 Digit',
             'nis.unique' => 'NIS Sudah Digunakan',
+
             'nama.required' => 'Nama Tidak Boleh Kosong',
+
             'username.required' => 'Username Tidak Boleh Kosong',
             'username.unique' => 'Username Sudah Digunakan',
+
             'tanggal_lahir.required' => 'Tanggal Lahir Tidak Boleh Kosong',
             'tanggal_lahir.date' => 'Tanggal Lahir Tidak Valid',
+
             'kelas_id.required' => 'Kelas Tidak Boleh Kosong',
+
             'no_hp.required' => 'No HP Tidak Boleh Kosong',
             'no_hp.digits_between' => 'No HP Harus Antara 10-15 Digit',
+
             'email.required' => 'Email Tidak Boleh Kosong',
             'email.email' => 'Email Tidak Valid',
         ]);
@@ -792,15 +850,14 @@ class AdminController extends Controller
     {
         // dd($request->all());
         $validated = $request->validate([
-            'nip' => 'required|string|regex:/^\d{8,10}$/|unique:guru,nip',
+            'nip' => 'required|string|unique:guru,nip',
             'nama' => 'required|string|max:255',
             'username' => 'required|unique:users,username',
             'tanggal_lahir' => 'required|date',
-            'no_hp' => 'required|string|regex:/^\d{10,15}$/',
+            'no_hp' => 'required|string|digits',
             'email' => 'required|email|max:255',
         ], [
             'nip.required' => 'NIP Tidak Boleh Kosong',
-            'nip.regex' => 'NIP Harus Antara 8-10 Digit Angka',
             'nip.unique' => 'NIP Sudah Digunakan',
 
             'nama.required' => 'Nama Tidak Boleh Kosong',
@@ -812,14 +869,13 @@ class AdminController extends Controller
             'tanggal_lahir.date' => 'Tanggal Lahir Tidak Valid',
 
             'no_hp.required' => 'No HP Tidak Boleh Kosong',
-            'no_hp.regex' => 'No HP Harus Antara 10-15 Digit Angka',
+            'no_hp.digits_between' => 'No HP Harus Antara 10-15 Digit',
 
             'email.required' => 'Email Tidak Boleh Kosong',
             'email.email' => 'Email Tidak Valid',
         ]);
 
         try {
-            // Simpan data guru
             $guru = Guru::create([
                 'nip' => $request->nip,
                 'nama' => $request->nama,
@@ -828,15 +884,13 @@ class AdminController extends Controller
                 'email' => $request->email,
             ]);
 
-            // Set password default berdasarkan tanggal lahir
-            $password = date('dmY', strtotime($request->tanggal_lahir)); // Password default adalah tanggal lahir
+            $password = date('dmY', strtotime($request->tanggal_lahir));
 
-            // Simpan data user
             User::create([
                 'username' => $request->username,
                 'guru_id' => $guru->id,
                 'siswa_id' => null,
-                'role_id' => 3, 
+                'role_id' => 3,
                 'password' => Hash::make($password),
             ]);
 
@@ -1039,20 +1093,28 @@ class AdminController extends Controller
 
     public function store_jurusan(Request $request)
     {
+        // dd($request->all());
         $request->validate([
-            'nama_jurusan' => 'required|string|max:255',
-            'kode_jurusan' => 'required|string|max:255',
+            'nama_jurusan' => 'required|string|max:255|unique:jurusan,nama_jurusan',
+            'kode_jurusan' => 'required|string|max:255|unique:jurusan,kode_jurusan',
         ], [
             'nama_jurusan.required' => 'Nama Jurusan Tidak Boleh Kosong',
+            'nama_jurusan.unique' => 'Nama Jurusan Sudah Ada',
+
             'kode_jurusan.required' => 'Kode Jurusan Tidak Boleh Kosong',
+            'kode_jurusan.unique' => 'Kode Jurusan Sudah Ada',
         ]);
 
-        Jurusan::create([
-            'nama_jurusan' => $request->nama_jurusan,
-            'kode_jurusan' => $request->kode_jurusan,
-        ]);
+        try {
+            Jurusan::create([
+                'nama_jurusan' => $request->nama_jurusan,
+                'kode_jurusan' => $request->kode_jurusan,
+            ]);
 
-        return redirect()->route('admin_index_jurusan.index')->with('success', 'Jurusan Berhasil Ditambahkan');
+            return redirect()->route('admin_jurusan.index')->with('success', 'Jurusan Berhasil Ditambahkan');
+        } catch (\Exception $e) {
+            return back()->withErrors(['general' => 'Terjadi kesalahan, coba lagi.'])->withInput();
+        }
     }
 
     public function edit_jurusan($id)
@@ -1083,7 +1145,7 @@ class AdminController extends Controller
             'kode_jurusan' => $request->kode_jurusan,
         ]));
 
-        return redirect()->route('admin_index_jurusan.index')->with('success', 'Jurusan Berhasil Diedit');
+        return redirect()->route('admin_jurusan.index')->with('success', 'Jurusan Berhasil Diedit');
 
         // $user->save();
         // $request->validate([
@@ -1101,7 +1163,7 @@ class AdminController extends Controller
 
         $jurusan->delete();
 
-        return redirect()->route('admin_index_jurusan.index')->with('success', 'Jurusan Berhasil Dihapus');
+        return redirect()->route('admin_jurusan.index')->with('success', 'Jurusan Berhasil Dihapus');
     }
 
     public function bulkAction_jurusan(Request $request)
@@ -1185,19 +1247,26 @@ class AdminController extends Controller
     public function store_mapel(Request $request)
     {
         $request->validate([
-            'nama_mapel' => 'required|string',
-            'kode_mapel' => 'required|string',
+            'nama_mapel' => 'required|string|unique:mata_pelajaran,nama_mapel',
+            'kode_mapel' => 'required|string|unique:mata_pelajaran,kode_mapel',
         ], [
             'nama_mapel.required' => 'Nama Mapel Tidak Boleh Kosong',
+            'nama_mapel.unique' => 'Nama Mapel Sudah Ada',
+
             'kode_mapel.required' => 'Kode Mapel Tidak Boleh Kosong',
+            'kode_mapel.unique' => 'Kode Mapel Sudah Ada',
         ]);
 
-        MataPelajaran::create([
-            'nama_mapel' => $request->nama_mapel,
-            'kode_mapel' => $request->kode_mapel,
-        ]);
+        try {
+            MataPelajaran::create([
+                'nama_mapel' => $request->nama_mapel,
+                'kode_mapel' => $request->kode_mapel,
+            ]);
 
-        return redirect()->route('admin_index_mapel.index')->with('success', 'Mata Pelajaran berhasil ditambahkan');
+            return redirect()->route('admin_mapel.index')->with('success', 'Mata Pelajaran berhasil ditambahkan!');
+        } catch (\Exception $e) {
+            return back()->withErrors(['general' => 'Terjadi kesalahan, coba lagi.'])->withInput();
+        }
     }
 
     public function edit_mapel($id)
@@ -1229,7 +1298,7 @@ class AdminController extends Controller
             'kode_mapel' => $request->kode_mapel,
         ]));
 
-        return redirect()->route('admin_index_mapel.index')->with('success', 'Mapel Berhasil Diedit');
+        return redirect()->route('admin_mapel.index')->with('success', 'Mapel Berhasil Diedit');
     }
 
     public function destroy_mapel($id)
@@ -1238,7 +1307,7 @@ class AdminController extends Controller
 
         $mapel->delete();
 
-        return redirect()->route('admin_index_mapel.index')->with('success', 'Mapel Berhasil Dihapus');
+        return redirect()->route('admin_mapel.index')->with('success', 'Mapel Berhasil Dihapus');
     }
 
     public function bulkAction_mapel(Request $request)

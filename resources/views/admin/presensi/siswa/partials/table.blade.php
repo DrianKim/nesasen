@@ -53,7 +53,7 @@
                     <div class="empty-state">
                         <img src="{{ asset('assets/images/empty-data.svg') }}" alt="No Data"
                             width="120">
-                        <p>Tidak ada data presensi_siswa yang ditemukan</p>
+                        <p>Tidak ada data presensi siswa yang ditemukan</p>
                         {{-- <a href="{{ route('admin_presensi_siswa.create') }}"
                             class="btn btn-primary btn-sm">
                             <i class="mr-1 fas fa-plus"></i> Tambah PresensiSiswa

@@ -4,7 +4,7 @@
     <div class="p-0 container-fluid">
         <!-- Main content container -->
         <div class="skul-container">
-            <!-- Student List Section -->
+            <!-- Teacher List Section -->
             <div class="content-section">
                 <div class="section-header">
                     <h2>Data Guru SMKN 1 Subang</h2>
