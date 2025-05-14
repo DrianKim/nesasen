@@ -8,20 +8,21 @@ use App\Models\User;
 use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\walas;
-use App\Models\Absensi;
 use App\Models\Jurusan;
 use App\Models\MapelKelas;
+use App\Models\absensiGuru;
 use Illuminate\Support\Str;
 use App\Imports\SiswaImport;
+use App\Models\absensiSiswa;
 use Illuminate\Http\Request;
 use App\Models\MataPelajaran;
 use Database\Seeders\GuruSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+
 use Maatwebsite\Excel\Facades\Excel;
 use Psy\CodeCleaner\FunctionContextPass;
-
 use function PHPUnit\Framework\returnSelf;
 
 class AdminController extends Controller
@@ -1328,11 +1329,14 @@ class AdminController extends Controller
     // presensi siswa
     public function index_presensi_siswa(Request $request)
     {
-        // Basic setup
         $perPage = $request->input('perPage', 10);
-        $query = Absensi::with('siswa');
+        $sortBy = $request->input('sort_by');
+        $filterBy = $request->input('filter_by');
+        $sortDirection = $request->input('sort_direction', 'asc');
 
-        // Simple filtering (no joins yet)
+        $query = absensiSiswa::with('siswa.kelas.jurusan');
+
+        // Filter
         if ($request->filled('kelas')) {
             $query->whereHas('siswa', function ($q) use ($request) {
                 $q->where('kelas_id', $request->input('kelas'));
@@ -1340,21 +1344,62 @@ class AdminController extends Controller
         }
 
         if ($request->filled('tanggal')) {
-            $query->whereDate('tanggal', $request->input('tanggal'));
+            $query->where('tanggal', $request->input('tanggal'));
         }
 
-        // Simple sorting (avoiding joins for now)
-        $sortBy = $request->input('sort_by');
-        $sortDirection = $request->input('sort_direction', 'asc');
+        if ($request->filled('filter_by')) {
+            $query->where($filterBy, '>', 0);
+        }
 
-        // Just use default sorting for now
-        $query->orderBy('tanggal', 'desc');
+        // Sorting manual tanpa join dulu
+        $columnMap = [
+            'Absen Masuk' => 'absen_masuk',
+            'Absen Pulang' => 'absen_pulang',
+            'Hadir' => 'hadir',
+            'Izin' => 'izin',
+            'Sakit' => 'sakit',
+        ];
 
-        $presensi_siswa = $query->paginate($perPage)->withQueryString();
+        if (isset($columnMap[$sortBy])) {
+            $query->orderBy($columnMap[$sortBy], $sortDirection);
+        } else {
+            $query->orderBy('tanggal', 'desc');
+        }
+
+        $presensi_raw = $query->paginate($perPage)->withQueryString();
+
+        // Map data
+        $presensi_siswa = $presensi_raw->getCollection()->transform(function ($item) {
+            $kelas = optional($item->siswa->kelas);
+            $jurusan = optional($kelas->jurusan);
+
+            return [
+                'id' => $item->id,
+                'kelas' => $kelas ? $kelas->tingkat . ' ' . $jurusan->kode_jurusan . ' ' . $kelas->no_kelas : '-',
+                'masuk' => $item->absen_masuk,
+                'pulang' => $item->absen_pulang,
+                'hadir' => $item->hadir,
+                'izin' => $item->izin,
+                'sakit' => $item->sakit,
+            ];
+        });
+
+        $presensi_siswa = new \Illuminate\Pagination\LengthAwarePaginator(
+            $presensi_siswa,
+            $presensi_raw->total(),
+            $presensi_raw->perPage(),
+            $presensi_raw->currentPage(),
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        $kelasFilter = Kelas::with('jurusan')->orderBy('tingkat')->orderBy('jurusan_id')->orderBy('no_kelas')->get();
+        $tanggalFilter = absensiSiswa::select('tanggal')->distinct()->orderBy('tanggal', 'desc')->pluck('tanggal');
 
         $data = [
             'title' => 'Presensi Siswa',
             'presensi_siswa' => $presensi_siswa,
+            'kelasFilter' => $kelasFilter,
+            'tanggalFilter' => $tanggalFilter,
         ];
 
         if ($request->ajax()) {
@@ -1367,21 +1412,150 @@ class AdminController extends Controller
         return view('admin.presensi.siswa.index', $data);
     }
 
-    // presensi siswa
-    public function index_presensi_guru()
+    // presensi guru
+    public function index_presensi_guru(Request $request)
     {
-        $data = array(
-            'title' => 'Presensi Guru',
+        $perPage = $request->input('perPage', 10);
+        $sortBy = $request->input('sort_by');
+        $sortDirection = $request->input('sort_direction', 'asc');
+
+        $query = absensiGuru::with('guru');
+
+        // Filter
+        if ($request->filled('tanggal')) {
+            $query->where('tanggal', $request->input('tanggal'));
+        }
+
+        // Sorting manual tanpa join dulu
+        $columnMap = [
+            'tanggal' => 'tanggal',
+            'Absen Masuk' => 'absen_masuk',
+            'Absen Pulang' => 'absen_pulang',
+            'Hadir' => 'hadir',
+            'Izin' => 'izin',
+            'Sakit' => 'sakit',
+        ];
+
+        if (isset($columnMap[$sortBy])) {
+            $query->orderBy($columnMap[$sortBy], $sortDirection);
+        } else {
+            $query->orderBy('tanggal', 'desc');
+        }
+
+        $presensi_raw = $query->paginate($perPage)->withQueryString();
+
+        // Map data
+        $presensi_guru = $presensi_raw->getCollection()->transform(function ($item) {
+
+            return [
+                'id' => $item->id,
+                'masuk' => $item->absen_masuk,
+                'pulang' => $item->absen_pulang,
+                'hadir' => $item->hadir,
+                'izin' => $item->izin,
+                'sakit' => $item->sakit,
+            ];
+        });
+
+        $presensi_guru = new \Illuminate\Pagination\LengthAwarePaginator(
+            $presensi_guru,
+            $presensi_raw->total(),
+            $presensi_raw->perPage(),
+            $presensi_raw->currentPage(),
+            ['path' => request()->url(), 'query' => request()->query()]
         );
+
+        $tanggalFilter = absensiGuru::select('tanggal')->distinct()->orderBy('tanggal', 'desc')->pluck('tanggal');
+
+        $data = [
+            'title' => 'Presensi Siswa',
+            'presensi_guru' => $presensi_guru,
+            'tanggalFilter' => $tanggalFilter,
+        ];
+
+        if ($request->ajax()) {
+            return response()->json([
+                'table' => view('admin.presensi.guru.partials.table', $data)->render(),
+                'pagination' => view('admin.presensi.guru.partials.pagination', ['presensi_guru' => $presensi_guru])->render(),
+            ]);
+        }
+
         return view('admin.presensi.guru.index', $data);
     }
 
-    // presensi siswa
-    public function index_presensi_per_mapel()
+    // presensi per mapel
+    public function index_presensi_per_mapel(Request $request)
     {
-        $data = array(
-            'title' => 'Presensi Per-Mapel',
+        $perPage = $request->input('perPage', 10);
+        $sortBy = $request->input('sort_by');
+        $filterBy = $request->input('filter_by');
+        $sortDirection = $request->input('sort_direction', 'asc');
+
+        $query = absensiSiswa::with('siswa.kelas.jurusan');
+
+        // Filter
+        if ($request->filled('kelas')) {
+            $query->whereHas('siswa', function ($q) use ($request) {
+                $q->where('kelas_id', $request->input('kelas'));
+            });
+        }
+
+        if ($request->filled('tanggal')) {
+            $query->where('tanggal', $request->input('tanggal'));
+        }
+
+        if ($request->filled('filter_by')) {
+            $query->where($filterBy, '>', 0);
+        }
+
+        // Sorting manual tanpa join dulu
+        $columnMap = [
+            'Absen Masuk' => 'absen_masuk',
+            'Absen Pulang' => 'absen_pulang',
+            'Hadir' => 'hadir',
+            'Izin' => 'izin',
+            'Sakit' => 'sakit',
+        ];
+
+        if (isset($columnMap[$sortBy])) {
+            $query->orderBy($columnMap[$sortBy], $sortDirection);
+        } else {
+            $query->orderBy('tanggal', 'desc');
+        }
+
+        $presensi_raw = $query->paginate($perPage)->withQueryString();
+
+        // Map data
+        $presensi_siswa = $presensi_raw->getCollection()->transform(function ($item) {
+            $kelas = optional($item->siswa->kelas);
+            $jurusan = optional($kelas->jurusan);
+
+            return [
+                'id' => $item->id,
+                'kelas' => $kelas ? $kelas->tingkat . ' ' . $jurusan->kode_jurusan . ' ' . $kelas->no_kelas : '-',
+                'masuk' => $item->absen_masuk,
+                'pulang' => $item->absen_pulang,
+                'hadir' => $item->hadir,
+                'izin' => $item->izin,
+                'sakit' => $item->sakit,
+            ];
+        });
+
+        $presensi_siswa = new \Illuminate\Pagination\LengthAwarePaginator(
+            $presensi_siswa,
+            $presensi_raw->total(),
+            $presensi_raw->perPage(),
+            $presensi_raw->currentPage(),
+            ['path' => request()->url(), 'query' => request()->query()]
         );
+
+        $kelasFilter = Kelas::with('jurusan')->orderBy('tingkat')->orderBy('jurusan_id')->orderBy('no_kelas')->get();
+        $tanggalFilter = absensiSiswa::select('tanggal')->distinct()->orderBy('tanggal', 'desc')->pluck('tanggal');
+
+        $data = [
+            'title' => 'Presensi Per-Mapel',
+
+        ];
         return view('admin.presensi.per_mapel.index', $data);
     }
 

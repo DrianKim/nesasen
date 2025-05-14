@@ -3,13 +3,10 @@
 <!-- Loading Overlay -->
 <div id="page-loading-overlay">
     <div class="loading-spinner">
-        <!-- Papan tulis -->
         <div class="board">Mengantar Anda ke Halaman Tujuan...</div>
 
-        <!-- Topi kelulusan -->
         <div class="graduation-cap"></div>
 
-        <!-- SVG Huruf P -->
         <svg viewBox="0 0 100 100" class="spinner-p" xmlns="http://www.w3.org/2000/svg">
             <circle cx="50" cy="50" r="40" stroke="#3498db" stroke-width="8" fill="none"
                 stroke-linecap="round" stroke-dasharray="200" stroke-dashoffset="150">
@@ -27,17 +24,12 @@
             </circle>
         </svg> --}}
 
-
-        <!-- Buku -->
         <div class="book"></div>
 
-        <!-- Pensil -->
         <div class="pencil"></div>
 
-        <!-- Teks Loading -->
         <p class="loading-text">LOADING...</p>
 
-        <!-- Bintang-bintang akademik -->
         <div class="academic-stars">
             <span class="star" style="top: 20%; left: 85%;">★</span>
             <span class="star" style="top: 15%; left: 10%;">★</span>
@@ -49,7 +41,7 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const pageLoadingOverlay = document.getElementById('page-loading-overlay');
 
         // Cek apakah submit dari modal form
@@ -64,9 +56,9 @@
             // Tampilkan loading hanya untuk normal reload/page load
             pageLoadingOverlay.classList.remove('hide');
 
-            window.addEventListener('load', function () {
+            window.addEventListener('load', function() {
                 pageLoadingOverlay.classList.add('hide');
-                pageLoadingOverlay.addEventListener('transitionend', function () {
+                pageLoadingOverlay.addEventListener('transitionend', function() {
                     pageLoadingOverlay.style.display = 'none';
                 });
             });
@@ -75,7 +67,7 @@
         // Tambahkan event untuk semua form yg pakai modal atau ajax-like submit
         const modalForms = document.querySelectorAll('form.form-modal, form.form-delete');
         modalForms.forEach(form => {
-            form.addEventListener('submit', function () {
+            form.addEventListener('submit', function() {
                 sessionStorage.setItem('modalSubmit', 'true');
             });
         });
@@ -280,7 +272,7 @@
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span
-                                    class="mr-2 d-none d-lg-inline small">{{ auth()->user()->name_admin ?? (auth()->user()->murid->nama ?? auth()->user()->guru->nama) }}</span>
+                                    class="mr-2 d-none d-lg-inline small">{{ auth()->user()->name_admin ?? (auth()->user()->siswa->nama ?? auth()->user()->guru->nama) }}</span>
                                 <img class="img-profile rounded-circle"
                                     src="{{ asset('images/avatars/profile-' . auth()->id() % 5 . '.jpg') }}">
                             </a>
@@ -329,7 +321,7 @@
                                         {{ $currentYear ?? '2024/2025' }}</span>
                                     @if (auth()->user()->role_id == 4)
                                         <span class="mx-1 badge badge-info">Kelas:
-                                            {{ auth()->user()->murid->kelas->nama_kelas ?? '-' }}</span>
+                                            {{ auth()->user()->siswa->kelas->nama_kelas ?? '-' }}</span>
                                     @endif
                                 </div>
                             </div>
@@ -351,7 +343,8 @@
                         <span class="text-gray-600">© {{ date('Y') }} SMKN 1 Subang</span>
                         <span class="mx-2">·</span>
                         <span class="text-gray-600">Made with <i class="text-danger fas fa-heart"></i> by <a
-                                href="#" class="font-weight-bold">P</a></span>
+                                href="#" class="font-weight-bold">R</a> & <a href="#"
+                                class="font-weight-bold">P</a></span>
                     </div>
                 </div>
             </footer>

@@ -10,12 +10,13 @@
                     <h2>Data Kelas SMKN 1 Subang</h2>
                     <div class="action-buttons">
                         @include('admin.kelas.modal-create')
-                        <button class="btn btn-primary btn-circle" data-toggle="modal" data-target="#modalKelasCreate">
+                        <button type="button" class="btn btn-primary btn-circle" data-toggle="modal" data-target="#modalKelasCreate">
                             <i class="ml-2 fas fa-plus"></i>
                             <span class="button-label"></span>
                         </button>
-                        <button type="button" class="btn btn-info btn-circle">
-                            <i class="ml-2 fas fa-file-export"></i>
+                        @include('admin.kelas.modal-import')
+                        <button type="button" class="btn btn-info btn-circle" data-toggle="modal" data-target="#modalKelasImport">
+                            <i class="ml-2 fas fa-file-import"></i>
                             <span class="button-label"></span>
                         </button>
                     </div>

@@ -15,7 +15,6 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    // PROSES LOGIN
     public function loginProses(Request $request)
     {
         $request->validate([

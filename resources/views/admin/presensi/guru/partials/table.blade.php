@@ -4,7 +4,7 @@
             {{-- <th width="3%">
                 <input type="checkbox" onclick="toggleAll(this)">
             </th> --}}
-            <th width="15%" class="sortable" data-column="Kelas">Kelas<i
+            <th width="15%" class="sortable" data-column="Kelas">Tanggal<i
                     class="fas fa-sort"></i></th>
             <th width="15%" class="sortable" data-column="Absen Masuk">Check In<i
                     class="fas fa-sort"></i></th>
@@ -20,12 +20,12 @@
         </tr>
     </thead>
     <tbody>
-        @forelse ($presensi_siswa as $item)
+        @forelse ($presensi_guru as $item)
             <tr>
                 {{-- <td>
-                    <input type="checkbox" name="selected_presensi_siswa[]" value="{{ $item->id }}">
+                    <input type="checkbox" name="selected_presensi_guru[]" value="{{ $item->id }}">
                 </td> --}}
-                <td>X RPL 1</td>
+                <td>13/05/2025</td>
                 <td>0</td>
                 <td>0</td>
                 <td>0</td>
@@ -50,7 +50,7 @@
                             <i class="fas fa-trash"></i> --}}
                         </button>
                     </div>
-                    {{-- @include('admin.presensi.siswa.modal') --}}
+                    {{-- @include('admin.presensi.guru.modal') --}}
                 </td>
             </tr>
         @empty
@@ -59,8 +59,8 @@
                     <div class="empty-state">
                         <img src="{{ asset('assets\img\not-found.png') }}" alt="No Data"
                             width="120">
-                        <p>Tidak ada data presensi siswa yang ditemukan</p>
-                        {{-- <a href="{{ route('admin_presensi_siswa.create') }}"
+                        <p>Tidak ada data presensi guru yang ditemukan</p>
+                        {{-- <a href="{{ route('admin_presensi_guru.create') }}"
                             class="btn btn-primary btn-sm">
                             <i class="mr-1 fas fa-plus"></i> Tambah PresensiSiswa
                         </a> --}}

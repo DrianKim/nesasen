@@ -4,21 +4,21 @@
     <div class="p-0 container-fluid">
         <!-- Main content container -->
         <div class="skul-container">
-            <!-- Teacher List Section -->
+            <!-- Student List Section -->
             <div class="content-section">
                 <div class="section-header">
                     <h2>Data Guru SMKN 1 Subang</h2>
                     <div class="action-buttons">
                         @include('admin.guru.modal-create')
                         <button class="btn btn-primary btn-circle" data-toggle="modal" data-target="#modalGuruCreate">
-                            <i class="ml-2 fas fa-plus"></i>
+                            <i class="ml-2 fas fa-user-plus"></i>
                             <span class="button-label"></span>
                         </button>
                         <form action="{{ route('guru.import') }}" method="POST" enctype="multipart/form-data"
-                            id="importJurusanForm" class="d-inline">
+                            id="importGuruForm" class="d-inline">
                             @csrf
                             <input type="file" name="file" id="fileInput" accept=".xlsx,.xls" style="display: none;"
-                                onchange="document.getElementById('importJurusanForm').submit();">
+                                onchange="document.getElementById('importGuruForm').submit();">
                             <button type="button" class="btn btn-success btn-circle"
                                 onclick="document.getElementById('fileInput').click();">
                                 <i class="ml-2 fas fa-file-import"></i>
@@ -33,64 +33,46 @@
                 </div>
 
                 <!-- Filter Section -->
-                <div class="filter-section">
+                <div class="mb-3 filter-section">
                     <form id="guruFilterForm">
                         @csrf
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group search-box">
-                                    <label for="searchInput">Cari:</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" name="search" id="searchInput"
-                                            placeholder="Cari guru..." value="{{ request('search') }}">
-                                        <button type="button" class="btn btn-primary" id="resetFilter">
-                                            <i class="fas fa-sync-alt"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            {{-- <div class="col-md-3">
-                                <div class="form-group">
-                                    <label for="kelas">:</label>
-                                    <select class="form-select" id="kelas" name="kelas">
-                                        <option value="">Semua </option>
-                                        @foreach ($kelasFilter as $kelas)
-                                            <option value="{{ $kelas->id }}"
-                                                {{ request('kelas') == $kelas->id ? 'selected' : '' }}>
-                                                {{ $kelas->tingkat }} {{ $kelas->jurusan->kode_jurusan }}
-                                                {{ $kelas->no_kelas }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label for="tahun_ajaran">Tahun Ajaran:</label>
-                                    <select class="form-select" id="tahun_ajaran" name="tahun_ajaran">
-                                        @foreach ($tahunAjaranFilter as $tahun)
-                                            <option value="{{ $tahun }}"
-                                                {{ request('tahun_ajaran') == $tahun ? 'selected' : '' }}>
-                                                {{ $tahun }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
+                        <div class="row align-items-end g-2">
+                            <!-- Filter Kelas -->
                             <div class="col-md-2">
-                                <div class="form-group">
-                                    <label for="perPage">Tampilkan:</label>
-                                    <select class="form-select" id="perPage" name="perPage">
-                                        <option value="10" {{ request('perPage', 10) == 10 ? 'selected' : '' }}>10
-                                        </option>
-                                        <option value="25" {{ request('perPage') == 25 ? 'selected' : '' }}>25</option>
-                                        <option value="50" {{ request('perPage') == 50 ? 'selected' : '' }}>50</option>
-                                        <option value="100" {{ request('perPage') == 100 ? 'selected' : '' }}>100
-                                        </option>
-                                    </select>
+                            </div>
+
+                            <!-- Filter Tanggal -->
+                            <div class="col-md-3">
+                            </div>
+
+                            <!-- Spacer -->
+                            <div class="col-md-2">
+                                <!-- Empty space to push the search to the right -->
+                            </div>
+
+                            <!-- Per Page Dropdown -->
+                            <div class="col-md-2">
+                                <label for="perPage" class="mb-1 small text-muted">Tampilkan:</label>
+                                <select class="form-select form-select-sm" id="perPage" name="perPage">
+                                    <option value="10" {{ request('perPage', 10) == 10 ? 'selected' : '' }}>10</option>
+                                    <option value="25" {{ request('perPage') == 25 ? 'selected' : '' }}>25</option>
+                                    <option value="50" {{ request('perPage') == 50 ? 'selected' : '' }}>50</option>
+                                    <option value="100" {{ request('perPage') == 100 ? 'selected' : '' }}>100</option>
+                                </select>
+                            </div>
+
+                            <!-- Search Box -->
+                            <div class="col-md-3">
+                                <div class="input-group input-group-sm">
+                                    <input type="text" class="form-control" name="search" id="searchInput"
+                                        placeholder="Cari guru..." value="{{ request('search') }}">
+                                    <button type="button" class="btn btn-primary" id="resetFilter">
+                                        <i class="fas fa-search"></i>
+                                    </button>
                                 </div>
-                            </div> --}}
+                            </div>
                         </div>
+
                         <!-- Hidden fields for sorting -->
                         <input type="hidden" name="sort_by" id="sort_by" value="{{ request('sort_by') }}">
                         <input type="hidden" name="sort_direction" id="sort_direction"
@@ -99,7 +81,7 @@
                     </form>
                 </div>
 
-                <!-- Loading Indicator -->
+                <!-- Loading Indicator for AJAX requests -->
                 <div id="loading-indicator" style="display:none;">
                     <div class="my-3 d-flex justify-content-center">
                         <div class="spinner-border text-primary" role="status">
@@ -114,13 +96,14 @@
                         @csrf
                         <input type="hidden" name="bulk_action" id="bulk_action" value="">
 
-                        <div class="bulk-actions">
+                        {{-- <div class="bulk-actions">
                             <div class="bulk-buttons">
-                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="bulkAction('delete')">
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                    onclick="bulkAction('delete')">
                                     <i class="fas fa-trash-alt"></i> Hapus
                                 </button>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <div id="table-container">
                             <!-- Konten tabel akan diisi dengan AJAX -->
@@ -141,6 +124,7 @@
             </div>
         </div>
     </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -329,5 +313,149 @@
                 checkbox.checked = source.checked;
             });
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Use event delegation for all buttons to handle dynamically created elements
+            document.addEventListener('click', function(event) {
+                // Handle edit button clicks
+                if (event.target.classList.contains('edit-btn') || event.target.closest('.edit-btn')) {
+                    const button = event.target.classList.contains('edit-btn') ? event.target : event.target
+                        .closest('.edit-btn');
+                    handleEditButtonClick(button);
+                }
+
+                // Handle save button clicks
+                if (event.target.classList.contains('save-btn') || event.target.closest('.save-btn')) {
+                    const button = event.target.classList.contains('save-btn') ? event.target : event.target
+                        .closest('.save-btn');
+                    handleSaveButtonClick(button);
+                }
+
+                // Handle cancel button clicks
+                if (event.target.classList.contains('cancel-btn') || event.target.closest('.cancel-btn')) {
+                    const button = event.target.classList.contains('cancel-btn') ? event.target : event
+                        .target.closest('.cancel-btn');
+                    handleCancelButtonClick(button);
+                }
+            });
+
+            function handleEditButtonClick(button) {
+                const row = button.closest('tr');
+                const cells = row.querySelectorAll('td.editable-cell');
+
+                // Store original values in data attributes
+                cells.forEach(cell => {
+                    const value = cell.textContent.trim();
+                    cell.innerHTML =
+                        `<input type="text" class="form-control" value="${value}" data-original="${value}">`;
+                });
+
+                const actionButtons = row.querySelector('.action-buttons');
+                actionButtons.innerHTML = `
+            <button type="button" class="btn btn-sm btn-success save-btn">
+                <i class="fas fa-save"></i> Save
+            </button>
+            <button type="button" class="btn btn-sm btn-danger cancel-btn">
+                <i class="fas fa-times"></i> Cancel
+            </button>`;
+            }
+
+            function handleSaveButtonClick(button) {
+                const row = button.closest('tr');
+                const cells = row.querySelectorAll('td.editable-cell');
+                const actionButtons = row.querySelector('.action-buttons');
+
+                const updatedData = {};
+                cells.forEach(cell => {
+                    const field = cell.dataset.field;
+                    updatedData[field] = cell.querySelector('input').value;
+                });
+
+                // Get the ID from the row's id attribute
+                const id = row.id.replace('row-', '');
+
+                // Show loading state
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                button.disabled = true;
+
+                fetch(`/admin/guru/inline-update/${id}`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                'content')
+                        },
+                        body: JSON.stringify(updatedData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('Berhasil', 'Data berhasil diperbarui', 'success');
+                            cells.forEach(cell => {
+                                const field = cell.dataset.field;
+                                cell.textContent = updatedData[field];
+                            });
+
+                            resetActionButtons(actionButtons, id);
+                        } else {
+                            Swal.fire('Gagal', data.message || 'Data gagal diperbarui', 'error');
+                            button.innerHTML = '<i class="fas fa-save"></i> Save';
+                            button.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Gagal', 'Terjadi kesalahan, coba lagi', 'error');
+                        button.innerHTML = '<i class="fas fa-save"></i> Save';
+                        button.disabled = false;
+                    });
+            }
+
+            function handleCancelButtonClick(button) {
+                const row = button.closest('tr');
+                const cells = row.querySelectorAll('td.editable-cell');
+                const actionButtons = row.querySelector('.action-buttons');
+
+                cells.forEach(cell => {
+                    const originalValue = cell.querySelector('input').getAttribute('data-original');
+                    cell.textContent = originalValue;
+                });
+
+                const id = row.id.replace('row-', '');
+                resetActionButtons(actionButtons, id);
+            }
+
+            function resetActionButtons(actionButtons, id) {
+                actionButtons.innerHTML = `
+            <button type="button" class="btn btn-sm btn-outline-primary edit-btn">
+                <i class="fas fa-edit"></i> Edit
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal"
+                data-target="#modalGuruDestroy${id}">
+                <i class="fas fa-trash"></i>
+            </button>
+        `;
+            }
+        });
+
+        $(document).ready(function() {
+            $('#formGuru').on('submit', function(e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: "{{ route('admin_guru.store') }}", // route store
+                    method: 'POST',
+                    data: $(this).serialize(), // Serialize form data
+                    success: function(response) {
+                        alert('Guru berhasil ditambahkan!');
+                        $('#modalGuruCreate').modal('hide');
+                        location.reload(); // Reload halaman untuk update data
+                    },
+                    error: function(xhr) {
+                        alert('Ada kesalahan. Gagal menyimpan data.');
+                    }
+                });
+            });
+        });
     </script>
 @endsection

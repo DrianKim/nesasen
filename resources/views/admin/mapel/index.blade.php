@@ -22,57 +22,70 @@
                     <form id="mapelFilterForm">
                         @csrf
                         <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group search-box">
-                                    <label for="searchInput">Cari:</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" name="search" id="searchInput"
-                                            placeholder="Cari mapel..." value="{{ request('search') }}">
-                                        <button type="button" class="btn btn-primary" id="resetFilter">
-                                            <i class="fas fa-sync-alt"></i>
-                                        </button>
+                            <!-- Left side filters -->
+                            <div class="col-md-6">
+                                {{-- <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="kelas">Kelas:</label>
+                                            <select class="form-select" id="kelas" name="kelas">
+                                                <option value="">Semua Kelas</option>
+                                                @foreach ($kelasFilter as $kelas)
+                                                    <option value="{{ $kelas->id }}"
+                                                        {{ request('kelas') == $kelas->id ? 'selected' : '' }}>
+                                                        {{ $kelas->tingkat }} {{ $kelas->jurusan->kode_jurusan }}
+                                                        {{ $kelas->no_kelas }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div> --}}
+                                    {{-- <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="tahun_ajaran">Tahun Ajaran:</label>
+                                            <select class="form-select" id="tahun_ajaran" name="tahun_ajaran">
+                                                @foreach ($tahunAjaranFilter as $tahun)
+                                                    <option value="{{ $tahun }}"
+                                                        {{ request('tahun_ajaran') == $tahun ? 'selected' : '' }}>
+                                                        {{ $tahun }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
+                                </div> --}}
                             </div>
-                            {{-- <div class="col-md-3">
-                                <div class="form-group">
-                                    <label for="kelas">:</label>
-                                    <select class="form-select" id="kelas" name="kelas">
-                                        <option value="">Semua </option>
-                                        @foreach ($kelasFilter as $kelas)
-                                            <option value="{{ $kelas->id }}"
-                                                {{ request('kelas') == $kelas->id ? 'selected' : '' }}>
-                                                {{ $kelas->tingkat }} {{ $kelas->mapel->kode_mapel }}
-                                                {{ $kelas->no_kelas }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label for="tahun_ajaran">Tahun Ajaran:</label>
-                                    <select class="form-select" id="tahun_ajaran" name="tahun_ajaran">
-                                        @foreach ($tahunAjaranFilter as $tahun)
-                                            <option value="{{ $tahun }}"
-                                                {{ request('tahun_ajaran') == $tahun ? 'selected' : '' }}>
-                                                {{ $tahun }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div> --}}
-                            <div class="col-md-2">
-                                <div class="form-group">
-                                    <label for="perPage">Tampilkan:</label>
-                                    <select class="form-select" id="perPage" name="perPage">
-                                        <option value="10" {{ request('perPage', 10) == 10 ? 'selected' : '' }}>10
-                                        </option>
-                                        <option value="25" {{ request('perPage') == 25 ? 'selected' : '' }}>25</option>
-                                        <option value="50" {{ request('perPage') == 50 ? 'selected' : '' }}>50</option>
-                                        <option value="100" {{ request('perPage') == 100 ? 'selected' : '' }}>100
-                                        </option>
-                                    </select>
+
+                            <!-- Right side filters -->
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="perPage">Tampilkan:</label>
+                                            <select class="form-select" id="perPage" name="perPage">
+                                                <option value="10" {{ request('perPage', 10) == 10 ? 'selected' : '' }}>
+                                                    10</option>
+                                                <option value="25" {{ request('perPage') == 25 ? 'selected' : '' }}>25
+                                                </option>
+                                                <option value="50" {{ request('perPage') == 50 ? 'selected' : '' }}>50
+                                                </option>
+                                                <option value="100" {{ request('perPage') == 100 ? 'selected' : '' }}>
+                                                    100</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="form-group search-box">
+                                            <label for="searchInput">Cari:</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" name="search" id="searchInput"
+                                                    placeholder="Cari mapel..." value="{{ request('search') }}">
+                                                <button type="button" class="btn btn-primary" id="resetFilter">
+                                                    <i class="fas fa-sync-alt"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -99,13 +112,13 @@
                         @csrf
                         <input type="hidden" name="bulk_action" id="bulk_action" value="">
 
-                        <div class="bulk-actions">
+                        {{-- <div class="bulk-actions">
                             <div class="bulk-buttons">
                                 <button type="button" class="btn btn-sm btn-outline-danger" onclick="bulkAction('delete')">
                                     <i class="fas fa-trash-alt"></i> Hapus
                                 </button>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <div id="table-container">
                             <!-- Konten tabel akan diisi dengan AJAX -->

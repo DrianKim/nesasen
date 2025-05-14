@@ -38,7 +38,7 @@
             <tr>
                 <td colspan="7" class="py-4 text-center">
                     <div class="empty-state">
-                        <img src="{{ asset('assets/images/empty-data.svg') }}" alt="No Data" width="120">
+                        <img src="{{ asset('assets\img\not-found.png') }}" alt="No Data" width="120">
                         <p>Tidak ada data kelas yang ditemukan</p>
                         @include('admin.kelas.modal-create')
                         <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalKelasCreate">

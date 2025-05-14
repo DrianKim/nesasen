@@ -7,7 +7,7 @@
                 style="background-color: #f5f5f5; border-bottom: 1px solid #ddd;">
                 <div class="d-flex align-items-center">
                     <div class="mr-3" style="background-color: #e0f7f5; border-radius: 50%; padding: 10px;">
-                        <img src="assets/img/icons/student-icon.png" alt="Student Icon"
+                        <img src="{{ asset('assets\img\classroom.png') }}" alt="Kelas Icon"
                             style="width: 40px; height: 40px;">
                     </div>
                     <div>

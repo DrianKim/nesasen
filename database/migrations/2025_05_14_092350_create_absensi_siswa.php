@@ -11,15 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('absensi', function (Blueprint $table) {
+        Schema::create('absensi_siswa', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('siswa_id')->constrained('siswa')->onDelete('cascade');
             $table->date('tanggal');
+            $table->foreignId('siswa_id')->constrained('siswa')->onDelete('cascade');
             $table->enum('status', ['masuk', 'pulang']);
             $table->enum('jenis_absen', ['Hadir', 'Sakit', 'Izin', 'Alfa']);
             $table->datetime('waktu_absen');
             $table->string('foto_absen');
             $table->string('lokasi_absen');
+            $table->string('keterangan')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('absensi');
+        Schema::dropIfExists('absensi_siswa');
     }
 };

@@ -1,5 +1,5 @@
-<!-- Modal Create -->
-<div class="modal fade" id="modalKelasKuCreate" tabindex="-1" role="dialog" aria-labelledby="modalKelasKuCreateTitle"
+<!-- Modal Import -->
+<div class="modal fade" id="modalKelasImport" tabindex="-1" role="dialog" aria-labelledby="modalKelasImportTitle"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
@@ -7,14 +7,14 @@
                 style="background-color: #f5f5f5; border-bottom: 1px solid #ddd;">
                 <div class="d-flex align-items-center">
                     <div class="mr-3" style="background-color: #e0f7f5; border-radius: 50%; padding: 10px;">
-                        <img src="{{ asset('assets\img\classroom.png') }}" alt="KelasKu Icon"
+                        <img src="{{ asset('assets\img\classroom.png') }}" alt="Kelas Icon"
                             style="width: 40px; height: 40px;">
                     </div>
                     <div>
-                        <h5 class="modal-title" style="font-weight: 500" id="modalKelasKuCreateTitle">Tambahkan Data
-                            KelasKu
+                        <h5 class="modal-title" style="font-weight: 500" id="modalKelasImportTitle">Import Data
+                            Kelas
                         </h5>
-                        <p class="mb-0 text-muted" style="font-size: 0.85rem;">Pastikan data yang kamu input benar</p>
+                        <p class="mb-0 text-muted" style="font-size: 0.85rem;">Disarankan untuk melakukan import data per kelas dengan format berikut</p>
                     </div>
                 </div>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -24,43 +24,38 @@
 
             <div class="modal-body">
                 <!-- Form Start -->
-                <form class="form-modal" id="formTambahKelasKu" action="{{ route('admin_kelasKu.store') }}" method="POST">
+                <form class="form-modal" id="formTambahKelas" action="{{ route('admin_kelas.store') }}" method="POST">
                     @csrf
                     <div class="row">
                         <div class="col-md-6 form-group">
-                            <label for="mapel_id">KelasKu</label>
+                            <label for="tingkat">Tingkat</label>
                             <select
-                                class="border rounded form-control border-opacity-30 @error('mapel_id') is-invalid @enderror"
-                                name="mapel_id">
-                                <option value="" disabled>---Pilih Kelasku---</option>
-                                @foreach ($mapelList as $mapel)
-                                    <option value="{{ $mapel->id }}"
-                                        {{ old('mapel_id') == $mapel->id ? 'selected' : '' }}>
-                                        {{ $mapel->nama_mapel }}
-                                    </option>
-                                @endforeach
+                                class="border rounded form-control border-opacity-30 @error('tingkat') is-invalid @enderror"
+                                name="tingkat">
+                                <option value="" disabled>---Pilih Tingkat---</option>
+                                <option value="X" {{ old('tingkat') == 'X' ? 'selected' : '' }}>X</option>
+                                <option value="XI" {{ old('tingkat') == 'XI' ? 'selected' : '' }}>XI</option>
+                                <option value="XII" {{ old('tingkat') == 'XII' ? 'selected' : '' }}>XII</option>
                             </select>
                             <small>
-                                @error('mapel_id')
+                                @error('kode_mapel')
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
                             </small>
                         </div>
                         <div class="col-md-6 form-group">
-                            <label for="kelas_id">Kelas</label>
+                            <label for="no_kelas">No Kelas</label>
                             <select
-                                class="border rounded form-control border-opacity-30 @error('kelas_id') is-invalid @enderror"
-                                name="kelas_id">
-                                <option value="" disabled>---Pilih Kelas---</option>
-                                @foreach ($kelasList as $kelas)
-                                    <option value="{{ $kelas->id }}"
-                                        {{ old('kelas_id') == $kelas->id ? 'selected' : '' }}>
-                                        {{ $kelas->tingkat . ' ' . $kelas->jurusan->kode_jurusan . ' ' . $kelas->no_kelas }}
-                                    </option>
-                                @endforeach
+                                class="border rounded form-control border-opacity-30 @error('no_kelas') is-invalid @enderror"
+                                name="no_kelas">
+                                <option value="" disabled>---Pilih No Kelas---</option>
+                                <option value="1" {{ old('no_kelas') == '1' ? 'selected' : '' }}>1</option>
+                                <option value="2" {{ old('no_kelas') == '2' ? 'selected' : '' }}>2</option>
+                                <option value="3" {{ old('no_kelas') == '3' ? 'selected' : '' }}>3</option>
+                                <option value="4" {{ old('no_kelas') == '4' ? 'selected' : '' }}>4</option>
                             </select>
                             <small>
-                                @error('kelas_id')
+                                @error('kode_mapel')
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
                             </small>
@@ -68,13 +63,34 @@
                     </div>
 
                     <div class="mb-3 form-group">
-                        <label for="guru">Guru</label>
+                        <label for="jurusan">Jurusan</label>
+                        <select name="jurusan_id"
+                            class="border rounded form-control border-opacity-30 @error('jurusan_id') is-invalid @enderror"
+                            id="jurusan">
+                            <option value="" disabled>---Pilih Jurusan---</option>
+                            @foreach ($jurusanList as $jurusan)
+                                <option value="{{ $jurusan->id }}"
+                                    {{ old('jurusan_id') == $jurusan->id ? 'selected' : '' }}>
+                                    {{ $jurusan->nama_jurusan . ' (' . $jurusan->kode_jurusan . ')' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <small>
+                            @error('kelas_id')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </small>
+                    </div>
+
+                    <div class="mb-3 form-group">
+                        <label for="guru">Guru <small class="text-muted">*Silahkan Pilih Guru Untuk Menjadi Wali
+                                Kelas (Opsional)</small></label>
                         <select name="guru_id"
                             class="border rounded form-control border-opacity-30 @error('guru_id') is-invalid @enderror"
                             id="guru">
                             <option value="" disabled>---Pilih Guru---</option>
                             @foreach ($guruList as $guru)
-                                <option value="{{ $guru->id }}"
+                                <option value="{{ $guru->id }} {{ old('guru_id') == $guru->id ? 'selected' : '' }}"
                                     {{ old('guru_id') == $guru->id ? 'selected' : '' }}>
                                     {{ $guru->nama }}
                                 </option>
@@ -115,7 +131,7 @@
 @if ($errors->any())
     <script>
         $(document).ready(function() {
-            $('#modalKelasKuCreate').modal('show');
+            $('#modalKelasImport').modal('show');
         });
     </script>
 @endif
@@ -135,7 +151,7 @@
     <script>
         $(document).ready(function() {
             // Buka modal kalau ada error validasi
-            $('#modalKelasKuCreate').modal('show');
+            $('#modalKelasImport').modal('show');
 
             // Optional: Tampilkan error pake SweetAlert
             Swal.fire({
@@ -162,10 +178,10 @@
 
 {{-- <script>
     $(document).ready(function() {
-        $('#formTambahKelasKu').submit(function(e) {
+        $('#formTambahKelas').submit(function(e) {
             e.preventDefault(); // Prevent the form from being submitted traditionally
 
-            let formData = new FormData(this); // Create FormData object for the form
+            let formData = new FormData(this); // Import FormData object for the form
             $.ajax({
                 url: '{{ route('admin_mapel.store') }}', // Route tujuan
                 method: 'POST',
@@ -176,7 +192,7 @@
                     if (response.success) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'KelasKu berhasil ditambahkan!',
+                            title: 'Kelas berhasil ditambahkan!',
                             showConfirmButton: false,
                             timer: 1500
                         }).then(function() {

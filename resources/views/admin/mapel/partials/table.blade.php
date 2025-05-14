@@ -4,10 +4,8 @@
             <th width="3%">
                 <input type="checkbox" onclick="toggleAll(this)">
             </th>
-            <th width="30%" class="sortable" data-column="Nama Mapel">Nama Mapel<i
-                    class="fas fa-sort"></i></th>
-            <th width="30%" class="sortable" data-column="Kode Mapel">Kode Mapel<i
-                    class="fas fa-sort"></i></th>
+            <th width="30%" class="sortable" data-column="Nama Mapel">Nama Mapel<i class="fas fa-sort"></i></th>
+            <th width="30%" class="sortable" data-column="Kode Mapel">Kode Mapel<i class="fas fa-sort"></i></th>
             <th class="text-center" width="12%">Action</th>
         </tr>
     </thead>
@@ -22,13 +20,11 @@
                 </td>
                 <td class="text-center">
                     <div class="action-buttons">
-                        <button type="button" class="btn btn-sm btn-outline-primary"
-                            data-toggle="modal"
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal"
                             data-target="#modalMapelShow{{ $item->id }}">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-danger"
-                            data-toggle="modal"
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal"
                             data-target="#modalMapelDestroy{{ $item->id }}">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -40,13 +36,14 @@
             <tr>
                 <td colspan="7" class="py-4 text-center">
                     <div class="empty-state">
-                        <img src="{{ asset('assets/images/empty-data.svg') }}" alt="No Data"
-                            width="120">
+                        <img src="{{ asset('assets\img\not-found.png') }}" alt="No Data" width="120">
                         <p>Tidak ada data mapel yang ditemukan</p>
-                        <a href="{{ route('admin_mapel.create') }}"
-                            class="btn btn-primary btn-sm">
-                            <i class="mr-1 fas fa-plus"></i> Tambah Mapel
-                        </a>
+                        @include('admin.mapel.modal-create')
+                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+                            data-target="#modalMapelCreate">
+                            <i class="mr-1 fas fa-plus"></i>
+                            <span class="button-label">Tambah Mapel</span>
+                        </button>
                     </div>
                 </td>
             </tr>

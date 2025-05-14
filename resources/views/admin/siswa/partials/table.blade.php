@@ -42,11 +42,13 @@
             <tr>
                 <td colspan="7" class="py-4 text-center">
                     <div class="empty-state">
-                        <img src="{{ asset('assets/images/empty-data.svg') }}" alt="No Data" width="120">
+                        <img src="{{ asset('assets\img\not-found.png') }}" alt="No Data" width="120">
                         <p>Tidak ada data siswa yang ditemukan</p>
-                        <a href="{{ route('admin_siswa.create') }}" class="btn btn-primary btn-sm">
+                        @include('admin.siswa.modal-create')
+                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+                            data-target="#modalSiswaCreate">
                             <i class="mr-1 fas fa-plus"></i> Tambah Siswa
-                        </a>
+                        </button>
                     </div>
                 </td>
             </tr>

@@ -15,7 +15,7 @@ class ProfilController extends Controller
         $user = User::find(Auth::id());
 
         if ($user->role_id == 4) {
-            $profil = $user->murid;
+            $profil = $user->siswa;
         } elseif ($user->role_id == 3 || $user->role_id == 2) {
             $profil = $user->guru;
         } else {
@@ -34,7 +34,7 @@ class ProfilController extends Controller
     public function edit()
     {
         $user = User::find(Auth::id());
-        $profil = $user->role_id == 4 ? $user->murid : $user->guru;
+        $profil = $user->role_id == 4 ? $user->siswa : $user->guru;
 
         $data = array(
             'title' => 'Edit Profil',
@@ -49,7 +49,7 @@ class ProfilController extends Controller
     public function update(Request $request)
     {
         $user = Auth::user();
-        $profil = $user->role_id == 4 ? $user->murid : $user->guru;
+        $profil = $user->role_id == 4 ? $user->siswa : $user->guru;
 
         $validationRules = [
             'email' => 'required|email',

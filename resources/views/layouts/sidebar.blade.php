@@ -289,58 +289,28 @@
             Area Siswa
         </div>
 
+        <!-- Nav Item - Beranda -->
+        <li class="nav-item {{ $menuBeranda ?? '' }}">
+            <a class="py-2 nav-link" href="#">
+                <i class="fas fa-fw fa-home"></i>
+                <span>Beranda</span>
+            </a>
+        </li>
+
+        <!-- Nav Item - Presensi -->
+        <li class="nav-item {{ $menuPresensi ?? '' }}">
+            <a class="py-2 nav-link" href="#">
+                <i class="fas fa-fw fa-user-check"></i>
+                <span>Presensi</span>
+            </a>
+        </li>
+
         <!-- Nav Item - Profil -->
         <li class="nav-item {{ $menuProfil ?? '' }}">
             <a class="py-2 nav-link" href="{{ route('profil.index') }}">
                 <i class="fas fa-fw fa-user-circle"></i>
                 <span>Profil Saya</span>
             </a>
-        </li>
-
-        <!-- Nav Item - Akademik Siswa -->
-        <li class="nav-item">
-            <a class="py-2 nav-link collapsed" href="#" data-toggle="collapse"
-                data-target="#collapseAkademikSiswa" aria-expanded="false" aria-controls="collapseAkademikSiswa">
-                <i class="fas fa-fw fa-graduation-cap"></i>
-                <span>Akademik</span>
-            </a>
-            <div id="collapseAkademikSiswa" class="collapse" aria-labelledby="headingAkademikSiswa"
-                data-parent="#accordionSidebar">
-                <div class="py-2 bg-white rounded collapse-inner">
-                    <a class="collapse-item" href="{{ route('jadwal_pelajaran.index') }}">
-                        <i class="fas fa-fw fa-angle-right"></i> Jadwal Pelajaran
-                    </a>
-                    <a class="collapse-item" href="#">
-                        <i class="fas fa-fw fa-angle-right"></i> Nilai
-                    </a>
-                    <a class="collapse-item" href="#">
-                        <i class="fas fa-fw fa-angle-right"></i> Presensi
-                    </a>
-                </div>
-            </div>
-        </li>
-
-        <!-- Nav Item - Tugas Siswa -->
-        <li class="nav-item">
-            <a class="py-2 nav-link collapsed" href="#" data-toggle="collapse"
-                data-target="#collapseTugasSiswa" aria-expanded="false" aria-controls="collapseTugasSiswa">
-                <i class="fas fa-fw fa-tasks"></i>
-                <span>Tugas & Materi</span>
-            </a>
-            <div id="collapseTugasSiswa" class="collapse" aria-labelledby="headingTugasSiswa"
-                data-parent="#accordionSidebar">
-                <div class="py-2 bg-white rounded collapse-inner">
-                    <a class="collapse-item" href="#">
-                        <i class="fas fa-fw fa-angle-right"></i> Materi Pelajaran
-                    </a>
-                    <a class="collapse-item" href="#">
-                        <i class="fas fa-fw fa-angle-right"></i> Tugas
-                    </a>
-                    <a class="collapse-item" href="#">
-                        <i class="fas fa-fw fa-angle-right"></i> Kumpulkan Tugas
-                    </a>
-                </div>
-            </div>
         </li>
     @endif
 

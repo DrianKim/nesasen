@@ -38,11 +38,14 @@
             <tr>
                 <td colspan="7" class="py-4 text-center">
                     <div class="empty-state">
-                        <img src="{{ asset('assets/images/empty-data.svg') }}" alt="No Data" width="120">
+                        <img src="{{ asset('assets\img\not-found.png') }}" alt="No Data" width="120">
                         <p>Tidak ada data kelasKu yang ditemukan</p>
-                        <a href="{{ route('admin_kelasKu.create') }}" class="btn btn-primary btn-sm">
-                            <i class="mr-1 fas fa-plus"></i> Tambah KelasKu
-                        </a>
+                        @include('admin.kelasKu.modal-create')
+                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+                            data-target="#modalKelasKuCreate">
+                            <i class="mr-1 fas fa-plus"></i>
+                            <span class="button-label">Tambah KelasKu</span>
+                        </button>
                     </div>
                 </td>
             </tr>
