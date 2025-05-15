@@ -38,15 +38,9 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="tahun_ajaran">Tahun Ajaran:</label>
-                                    <select class="form-select" id="tahun_ajaran" name="tahun_ajaran">
-                                        @foreach ($tahunAjaranFilter as $tahun)
-                                            <option value="{{ $tahun }}"
-                                                {{ request('tahun_ajaran') == $tahun ? 'selected' : '' }}>
-                                                {{ $tahun }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <label for="tanggal">Tanggal:</label>
+                                    <input type="date" class="form-control" id="tanggal" name="tanggal"
+                                        value="{{ request('tanggal') }}">
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -87,31 +81,27 @@
                 <div id="loading-indicator" style="display:none;">
                     <div class="my-3 d-flex justify-content-center">
                         <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Sabarnigga...</span>
+                            <span class="visually-hidden">Loading...</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Table Section -->
                 <div class="table-responsive">
-                    <form id="bulk_form" action="{{ route('admin_izin_siswa.bulk_action') }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="bulk_action" id="bulk_action" value="">
 
-                        <div id="table-container">
-                            <!-- Konten tabel akan diisi dengan AJAX -->
-                            @include('admin.presensi.siswa.partials.table')
-                            <div class="mt-2 d-flex justify-content-end">
-                                {{-- {{ $izin_siswa->links() }}   --}}
-                            </div>
+                    <div id="table-container">
+                        <!-- Konten tabel akan diisi dengan AJAX -->
+                        @include('admin.izin.siswa.partials.table')
+                        <div class="mt-2 d-flex justify-content-end">
+                            {{-- {{ $izin_siswa->links() }}   --}}
                         </div>
-                    </form>
+                    </div>
                 </div>
 
                 <!-- Pagination Section -->
                 <div class="pagination-section" id="pagination-container">
                     <!-- Pagination akan diisi dengan AJAX -->
-                    @include('admin.presensi.siswa.partials.pagination')
+                    @include('admin.izin.siswa.partials.pagination')
 
                 </div>
             </div>
@@ -127,7 +117,7 @@
             const loadingIndicator = document.getElementById('loading-indicator');
             const searchInput = document.getElementById('searchInput');
             const resetButton = document.getElementById('resetFilter');
-            const filters = ['kelas', 'tahun_ajaran', 'perPage'];
+            const filters = ['kelas', 'perPage'];
             const tanggalInput = document.getElementById('tanggal');
 
             let searchTimer;

@@ -11,17 +11,6 @@
     <!-- Divider -->
     <hr class="sidebar-divider">
 
-    <!-- Nav Item - Dashboard -->
-    <li class="nav-item {{ $menuDashboard ?? '' }}">
-        <a class="py-2 nav-link" href="{{ route('dashboard') }}">
-            <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Beranda</span>
-        </a>
-    </li>
-
-    <!-- Divider -->
-    <hr class="sidebar-divider">
-
     <!-- Nav Item - Notifikasi -->
     {{-- <li class="nav-item">
         <a class="py-2 nav-link" href="#">
@@ -43,6 +32,17 @@
 
     <!-- ADMIN MENU -->
     @if (auth()->user()->role_id == 1)
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+        <!-- Nav Item - Dashboard -->
+        <li class="nav-item {{ $menuDashboard ?? '' }}">
+            <a class="py-2 nav-link" href="{{ route('dashboard') }}">
+                <i class="fas fa-fw fa-tachometer-alt"></i>
+                <span>Beranda</span>
+            </a>
+        </li>
+
         <!-- Heading -->
         <div class="sidebar-heading">
             Area Administrator
@@ -291,7 +291,7 @@
 
         <!-- Nav Item - Beranda -->
         <li class="nav-item {{ $menuBeranda ?? '' }}">
-            <a class="py-2 nav-link" href="#">
+            <a class="py-2 nav-link" href="{{ route('siswa.beranda') }}">
                 <i class="fas fa-fw fa-home"></i>
                 <span>Beranda</span>
             </a>

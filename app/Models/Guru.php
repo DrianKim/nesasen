@@ -38,4 +38,13 @@ class Guru extends Model
         return $this->hasOne(MapelKelas::class);
     }
 
+    public function izin()
+    {
+        return $this->hasMany(IzinGuru::class);
+    }
+    public function absensiGuru()
+    {
+        return $this->hasMany(absensiGuru::class);
+    }
+
 }

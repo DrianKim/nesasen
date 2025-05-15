@@ -13,8 +13,23 @@ return new class extends Migration
     {
         Schema::create('izin_siswa', function (Blueprint $table) {
             $table->id();
+            $table->date('tanggal');
+            $table->foreignId('siswa_id')->constrained('siswa')->onDelete('cascade');
+            $table->enum('jenis_izin', ['Keperluan Keluarga', 'Sakit', 'Keperluan Sekolah', 'Lainnya']);
+            $table->string('keterangan')->nullable();
+            $table->string('lampiran')->nullable();
             $table->timestamps();
         });
+        // $table->id();
+        // $table->date('tanggal');
+        // $table->foreignId('siswa_id')->constrained('siswa')->onDelete('cascade');
+        // $table->enum('status', ['masuk', 'pulang']);
+        // $table->enum('jenis_izin', ['Hadir', 'Sakit', 'Izin', 'Alfa']);
+        // $table->datetime('waktu_izin');
+        // $table->string('foto_izin');
+        // $table->string('lokasi_izin');
+        // $table->string('keterangan')->nullable();
+        // $table->timestamps();
     }
 
     /**

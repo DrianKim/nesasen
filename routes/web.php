@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\MuridController;
+use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\WalasController;
 use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\PengajarController;
@@ -36,11 +36,22 @@ Route::middleware(['isLogin'])->group(function () {
 
     Route::get('jadwal_mengajar', [PengajarController::class, 'index_jadwal_mengajar'])->name('jadwal_mengajar.index');
 
-    Route::get('jadwal_pelajaran', [MuridController::class, 'index_jadwal_pelajaran'])->name('jadwal_pelajaran.index');
+    Route::get('jadwal_pelajaran', [SiswaController::class, 'index_jadwal_pelajaran'])->name('jadwal_pelajaran.index');
 
     Route::middleware(['auth', 'isGuru'])->group(function () {});
 
     Route::middleware(['auth', 'isWalas'])->group(function () {});
+
+    // siswa
+    // beranda
+    Route::get('siswa.beranda', [SiswaController::class, 'beranda_index'])->name('siswa.beranda');
+
+    // presensi
+    Route::get('siswa/presensi', [SiswaController::class, 'presensi_index'])->name('siswa.presensi');
+
+    // izin
+    Route::get('siswa/izin', [SiswaController::class, 'izin_index'])->name('siswa.izin');
+    Route::post('siswa/izin/store', [SiswaController::class, 'izin_store'])->name('siswa.izin.store');
 
     Route::middleware(['auth', 'isAdmin'])->group(function () {
         // umum kelas
@@ -131,9 +142,23 @@ Route::middleware(['isLogin'])->group(function () {
 
         // izin siswa
         Route::get('admin/izin/siswa', [AdminController::class, 'index_izin_siswa'])->name('admin_izin_siswa.index');
+        Route::get('admin/presensi/siswa/filter', [AdminController::class, 'index_presensi_siswa'])->name('admin_presensi_siswa.filter');
+        Route::get('admin/presensi/siswa/create', [AdminController::class, 'create_presensi_siswa'])->name('admin_presensi_siswa.create');
+        Route::post('admin/presensi/siswa/store', [AdminController::class, 'store_presensi_siswa'])->name('admin_presensi_siswa.store');
+        Route::get('admin/presensi/siswa/edit/{id}', [AdminController::class, 'edit_presensi_siswa'])->name('admin_presensi_siswa.edit');
+        Route::post('admin/presensi/siswa/update/{id}', [AdminController::class, 'update_presensi_siswa'])->name('admin_presensi_siswa.update');
+        Route::delete('admin/presensi/siswa/destroy/{id}', [AdminController::class, 'destroy_presensi_siswa'])->name('admin_presensi_siswa.destroy');
+        Route::delete('admin/presensi/siswa/bulk_action', [AdminController::class, 'bulkAction_presensi_siswa'])->name('admin_presensi_siswa.bulk_action');
 
         // izin guru
         Route::get('admin/izin/guru', [AdminController::class, 'index_izin_guru'])->name('admin_izin_guru.index');
+        Route::get('admin/izin/guru/filter', [AdminController::class, 'filter_izin_guru'])->name('admin_izin_guru.filter');
+        Route::get('admin/izin/guru/create', [AdminController::class, 'create_izin_guru'])->name('admin_izin_guru.create');
+        Route::post('admin/izin/guru/store', [AdminController::class, 'store_izin_guru'])->name('admin_izin_guru.store');
+        Route::get('admin/izin/guru/edit/{id}', [AdminController::class, 'edit_izin_guru'])->name('admin_izin_guru.edit');
+        Route::post('admin/izin/guru/update/{id}', [AdminController::class, 'update_izin_guru'])->name('admin_izin_guru.update');
+        Route::delete('admin/izin/guru/destroy/{id}', [AdminController::class, 'destroy_izin_guru'])->name('admin_izin_guru.destroy');
+        Route::delete('admin/izin/guru/bulk_action', [AdminController::class, 'bulkAction_izin_guru'])->name('admin_izin_guru.bulk_action');
 
         // Route::get('admin/semester', [AdminController::class, 'semester'])->name('admin_semester.index');
         // Route::get('admin/tahunAjaran', [AdminController::class, 'tahunAjaran'])->name('admin_tahunAjaran.index');

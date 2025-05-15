@@ -34,8 +34,13 @@ class Siswa extends Model
         return $this->belongsTo(Jurusan::class, 'jurusan_id');
     }
 
-    public function absensi()
+    public function absensiSiswa()
     {
-        return $this->hasOne(Absensi::class);
+        return $this->hasOne(absensiSiswa::class);
+    }
+
+    public function izin()
+    {
+        return $this->hasMany(izinSiswa::class);
     }
 }

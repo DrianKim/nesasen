@@ -13,7 +13,11 @@ return new class extends Migration
     {
         Schema::create('izin_guru', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->date('tanggal');
+            $table->foreignId('guru_id')->constrained('guru')->onDelete('cascade');
+            $table->enum('jenis_izin', ['Keperluan Keluarga', 'Sakit', 'Keperluan Sekolah', 'Lainnya']);
+            $table->string('keterangan')->nullable();
+            $table->string('lampiran')->nullable();
         });
     }
 
