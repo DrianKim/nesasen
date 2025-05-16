@@ -46,5 +46,4 @@ class Walas extends Model
         return $this->hasMany(Jurusan::class, 'jurusan_id', 'id');
     }
 
-
 }

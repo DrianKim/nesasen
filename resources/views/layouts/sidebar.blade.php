@@ -5,11 +5,8 @@
         <div class="sidebar-brand-icon">
             <i class="fas fa-school"></i>
         </div>
-        <div class="mx-2 sidebar-brand-text">M-KELAS</div>
+        <div class="mx-2 sidebar-brand-text">CEREN</div>
     </a>
-
-    <!-- Divider -->
-    <hr class="sidebar-divider">
 
     <!-- Nav Item - Notifikasi -->
     {{-- <li class="nav-item">
@@ -32,6 +29,10 @@
 
     <!-- ADMIN MENU -->
     @if (auth()->user()->role_id == 1)
+        <!-- Heading -->
+        <div class="sidebar-heading">
+            Area Administrator
+        </div>
         <!-- Divider -->
         <hr class="sidebar-divider">
 
@@ -43,10 +44,6 @@
             </a>
         </li>
 
-        <!-- Heading -->
-        <div class="sidebar-heading">
-            Area Administrator
-        </div>
 
         {{-- kelas --}}
         <li class="nav-item {{ $menu ?? '' }}">

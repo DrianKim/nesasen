@@ -36,4 +36,14 @@ class MapelKelas extends Model
     {
         return $this->hasMany(Jadwal::class);
     }
+
+    public function tugas()
+    {
+        return $this->hasMany(Tugas::class);
+    }
+
+    public function pengumpulanTugas()
+    {
+        return $this->hasMany(PengumpulanTugas::class);
+    }
 }

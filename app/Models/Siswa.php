@@ -9,8 +9,10 @@ class Siswa extends Model
     protected $table = 'siswa';
 
     protected $fillable = [
+        'user_id',
         'nama',
         'kelas_id',
+        'nisn',
         'nis',
         'tanggal_lahir',
         'no_hp',
@@ -22,7 +24,7 @@ class Siswa extends Model
 
     public function user()
     {
-        return $this->hasOne(User::class);
+        return $this->belongsTo(User::class);
     }
     public function kelas()
     {

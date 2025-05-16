@@ -97,9 +97,11 @@
 
                 <!-- Feature 4: Jadwal -->
                 <div class="feature-item">
-                    <div class="feature-icon red">
-                        <i class="fas fa-calendar"></i>
-                    </div>
+                    <a href="{{ route('siswa.jadwal') }}">
+                        <div class="feature-icon red">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                    </a>
                     <div class="feature-name">Jadwal</div>
                 </div>
 
@@ -113,10 +115,12 @@
 
                 <!-- Feature 6: Tugasku -->
                 <div class="feature-item">
-                    <div class="feature-icon red">
-                        <i class="fas fa-tasks"></i>
-                    </div>
-                    <div class="feature-name">Tugasku</div>
+                    <a href="{{ route('siswa.kelasKu.index') }}">
+                        <div class="feature-icon red">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                    </a>
+                    <div class="feature-name">KelasKu</div>
                 </div>
 
                 <!-- Feature 7: Catatan Sikap -->

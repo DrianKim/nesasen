@@ -22,8 +22,6 @@ class User extends Authenticatable
         'username',
         'name_admin',
         'password',
-        'siswa_id',
-        'guru_id',
         'role_id'
     ];
 
@@ -32,7 +30,6 @@ class User extends Authenticatable
         return 'username';
     }
 
-
     public function role()
     {
         return $this->belongsTo(Role::class);
@@ -40,17 +37,17 @@ class User extends Authenticatable
 
     public function siswa()
     {
-        return $this->belongsTo(Siswa::class);
+        return $this->hasOne(Siswa::class);
     }
 
     public function walas()
     {
-        return $this->belongsTo(walas::class);
+        return $this->hasOne(walas::class);
     }
 
     public function guru()
     {
-        return $this->belongsTo(Guru::class, 'guru_id');
+        return $this->hasOne(Guru::class);
     }
 
     public function kelas()

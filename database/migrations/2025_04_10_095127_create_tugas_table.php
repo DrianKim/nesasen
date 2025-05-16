@@ -16,7 +16,10 @@ return new class extends Migration
             $table->foreignid('mapel_kelas_id')->constrained('mapel_kelas')->onDelete('cascade');
             $table->string('judul_tugas');
             $table->text('deskripsi');
-            $table->date('deadline');
+            $table->string('lampiran')->nullable();
+            $table->date('tanggal_mulai');
+            $table->date('tanggal_selesai');
+            $table->enum('status', ['aktif', 'nonaktif'])->default('aktif');
             $table->timestamps();
         });
     }

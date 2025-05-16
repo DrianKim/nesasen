@@ -99,12 +99,14 @@
                     <div class="mr-auto d-none d-sm-inline-block form-inline ml-md-3 my-md-0 mw-100">
                         <div class="input-group global-search">
                             <div class="input-group-prepend">
-                                <span class="bg-transparent border-0 input-group-text">
-                                    <i class="fas fa-search fa-sm text-primary"></i>
-                                </span>
+                                <img src="{{ asset('assets\img\smeapng.png') }}" alt="smea icon" width="43px" height="43px"
+                                    class="rounded-circle">
                             </div>
-                            <input type="text" class="bg-transparent border-0 form-control global-search-input"
-                                placeholder="Search for anything..." aria-label="Search">
+                            <span class="bg-transparent border-0 input-group-text">
+                                SMKN 1 Subang
+                            </span>
+                            {{-- <input type="text" class="bg-transparent border-0 form-control global-search-input"
+                                placeholder="Search for anything..." aria-label="Search"> --}}
                         </div>
                     </div>
 

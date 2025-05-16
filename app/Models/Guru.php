@@ -8,6 +8,7 @@ class Guru extends Model
 {
     protected $table = 'guru';
     protected $fillable = [
+        'user_id',
         'nama',
         'nip',
         'tanggal_lahir',
@@ -20,7 +21,7 @@ class Guru extends Model
 
     public function user()
     {
-        return $this->hasOne(User::class);
+        return $this->belongsTo(User::class);
     }
 
     public function walas()

@@ -34,6 +34,9 @@
     <meta name="apple-mobile-web-app-title" content="M-Kelas">
     <link rel="apple-touch-icon" href="{{ asset('images/icons/icon-152x152.png') }}">
 
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
     <!-- Dashboard specific styles or scripts -->
     @stack('styles')
     {{-- <style>

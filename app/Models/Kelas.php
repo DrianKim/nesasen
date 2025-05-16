@@ -38,5 +38,8 @@ class Kelas extends Model
         return $this->hasOne(walas::class);
     }
 
-
+    public function jadwal()
+    {
+        return $this->hasMany(Jadwal::class);
+    }
 }

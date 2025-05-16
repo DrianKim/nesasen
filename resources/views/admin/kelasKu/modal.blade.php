@@ -47,7 +47,7 @@
                     <i class="fas fa-times"></i>
                     Tutup
                 </button>
-                <form action="{{ route('admin_kelas.destroy', $item->id) }}" method="POST">
+                <form action="{{ route('admin_kelasKu.destroy', $item->id) }}" method="POST">
                     @csrf
                     @method('delete')
                     <button type="submit" class="btn btn-danger btn-sm">

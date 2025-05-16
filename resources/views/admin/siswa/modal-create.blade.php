@@ -27,7 +27,7 @@
                     @csrf
                     <div class="row">
                         <div class="col-md-6 form-group">
-                            <label for="nisn">NISN</label>
+                            <label for="nisn">NISN <small class="text-muted">(Opsional)</small></label>
                             <input type="text" class="border rounded form-control border-opacity-30 @error('nisn') is-invalid @enderror" id="nisn"
                                 name="nisn" value="{{ old('nisn') }}">
                             <small>
@@ -37,7 +37,7 @@
                             </small>
                         </div>
                         <div class="col-md-6 form-group">
-                            <label for="nis">NIS <small class="text-muted">(Opsional)</small></label>
+                            <label for="nis">NIS</label>
                             <input type="text" class="border rounded form-control border-opacity-30 @error('nis') is-invalid @enderror" id="nis"
                                 name="nis" value="{{ old('nis') }}">
                             <small>

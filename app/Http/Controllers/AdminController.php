@@ -103,18 +103,15 @@ class AdminController extends Controller
             $query->where(function ($q) use ($searchTerm) {
                 $q->whereRaw('LOWER(tingkat) LIKE ?', ["%{$searchTerm}%"])
                     ->orWhereRaw('LOWER(no_kelas) LIKE ?', ["%{$searchTerm}%"])
-
                     ->orWhereHas('jurusan', function ($q2) use ($searchTerm) {
                         $q2->whereRaw('LOWER(nama_jurusan) LIKE ?', ["%{$searchTerm}%"])
                             ->orWhereRaw('LOWER(kode_jurusan) LIKE ?', ["%{$searchTerm}%"]);
                     })
-
                     ->orWhereHas('walas.user.guru', function ($q3) use ($searchTerm) {
                         $q3->whereRaw('LOWER(nama) LIKE ?', ["%{$searchTerm}%"]);
                     });
             });
         }
-
 
         if ($sortBy) {
             switch ($sortBy) {
@@ -122,13 +119,14 @@ class AdminController extends Controller
                     $query->orderByRaw("tingkat $sortDirection")
                         ->orderByRaw("no_kelas $sortDirection")
                         ->join('jurusan', 'kelas.jurusan_id', '=', 'jurusan.id')
-                        ->orderBy('jurusan.nama_jurusan', $sortDirection);
+                        ->orderBy('jurusan.nama_jurusan', $sortDirection)
+                        ->select('kelas.*');
                     break;
 
                 case 'Wali Kelas':
                     $query->join('walas', 'kelas.id', '=', 'walas.kelas_id')
                         ->join('users', 'walas.user_id', '=', 'users.id')
-                        ->join('guru', 'users.id', '=', 'guru.user_id')
+                        ->join('guru', 'guru.user_id', '=', 'users.id')
                         ->orderBy("guru.nama", $sortDirection)
                         ->select('kelas.*');
                     break;
@@ -149,7 +147,6 @@ class AdminController extends Controller
 
         $tahunAjaranFilter = Kelas::select('tahun_ajaran')->distinct()->pluck('tahun_ajaran');
         $guruWalasIds = Walas::pluck('user_id');
-
 
         $data = [
             'title' => 'Halaman Daftar Kelas',
@@ -208,7 +205,7 @@ class AdminController extends Controller
             if ($request->guru_id) {
                 $guru = Guru::findOrFail($request->guru_id);
 
-                $user = User::where('guru_id', $guru->id)->first();
+                $user = $guru->user;
 
                 if ($user && $user->role_id == 3) {
                     Walas::create([
@@ -444,6 +441,15 @@ class AdminController extends Controller
         }
     }
 
+    public function destroy_kelasKu($id)
+    {
+        $kelasKu = MapelKelas::findOrFail($id);
+
+        $kelasKu->delete();
+
+        return redirect()->route('admin_kelasKu.index')->with('success', 'KelasKu Berhasil Dihapus');
+    }
+
     public function bulkAction_kelasKu(Request $request)
     {
         $ids = $request->input('ids');
@@ -567,12 +573,12 @@ class AdminController extends Controller
     {
         // dd($request->all());
         $validated = $request->validate([
-            'nisn' => 'required|numeric|digits_between:8,10|unique:siswa,nisn',
-            'nis' => 'nullable|numeric|digits_between:4,10|unique:siswa,nis',
+            'nisn' => 'nullable|numeric|digits_between:8,10|unique:siswa,nisn',
+            'nis' => 'required|numeric|digits_between:4,10|unique:siswa,nis',
             'nama' => 'required|string|max:255',
             'username' => 'required|unique:users,username',
             'tanggal_lahir' => 'required|date',
-            'kelas_id' => 'required',
+            'kelas_id' => 'required|exists:kelas,id',
             'no_hp' => 'required|digits_between:10,15',
             'email' => 'required|email|max:255',
         ], [
@@ -580,55 +586,45 @@ class AdminController extends Controller
             'nisn.numeric' => 'NISN Harus Angka',
             'nisn.digits_between' => 'NISN Harus Antara 8-10 Digit',
             'nisn.unique' => 'NISN Sudah Digunakan',
-
             'nis.numeric' => 'NIS Harus Angka',
             'nis.digits_between' => 'NIS Harus Antara 4-10 Digit',
             'nis.unique' => 'NIS Sudah Digunakan',
-
             'nama.required' => 'Nama Tidak Boleh Kosong',
-
             'username.required' => 'Username Tidak Boleh Kosong',
             'username.unique' => 'Username Sudah Digunakan',
-
             'tanggal_lahir.required' => 'Tanggal Lahir Tidak Boleh Kosong',
             'tanggal_lahir.date' => 'Tanggal Lahir Tidak Valid',
-
             'kelas_id.required' => 'Kelas Tidak Boleh Kosong',
-
+            'kelas_id.exists' => 'Kelas Tidak Valid',
             'no_hp.required' => 'No HP Tidak Boleh Kosong',
             'no_hp.digits_between' => 'No HP Harus Antara 10-15 Digit',
-
             'email.required' => 'Email Tidak Boleh Kosong',
             'email.email' => 'Email Tidak Valid',
+            'email.max' => 'Email Terlalu Panjang',
         ]);
 
         try {
-            // Simpan data siswa
-            $siswa = Siswa::create([
-                'nisn' => $request->nisn,
-                'nis' => $request->nis,
-                'nama' => $request->nama,
-                'tanggal_lahir' => $request->tanggal_lahir,
-                'kelas_id' => $request->kelas_id,
-                'no_hp' => $request->no_hp,
-                'email' => $request->email,
-            ]);
+            $password = date('dmY', strtotime($validated['tanggal_lahir']));
 
-            // Buat akun user untuk siswa
-            $password = date('dmY', strtotime($request->tanggal_lahir)); // Password default adalah tanggal lahir
-
-            User::create([
+            $user = User::create([
                 'username' => $request->username,
-                'guru_id' => null,
-                'siswa_id' => $siswa->id,
                 'role_id' => 4,
                 'password' => Hash::make($password),
             ]);
 
-            // Redirect dengan pesan sukses
+            Siswa::create([
+                'user_id' => $user->id,
+                'nisn' => $request->nisn,
+                'nis' => $request->nis,
+                'nama' => $request->nama,
+                'kelas_id' => $request->kelas_id,
+                'tanggal_lahir' => $request->tanggal_lahir,
+                'no_hp' => $request->no_hp,
+                'email' => $request->email,
+            ]);
+
             return redirect()->route('admin_siswa.index')->with('success', 'Siswa berhasil ditambahkan!');
         } catch (\Exception $e) {
-            // Jika ada error, kembali ke form dengan error message
             return back()->withErrors(['general' => 'Terjadi kesalahan, coba lagi.'])->withInput();
         }
     }
@@ -857,7 +853,7 @@ class AdminController extends Controller
             'nama' => 'required|string|max:255',
             'username' => 'required|unique:users,username',
             'tanggal_lahir' => 'required|date',
-            'no_hp' => 'required|string|digits',
+            'no_hp' => 'required|digits_between:10,15',
             'email' => 'required|email|max:255',
         ], [
             'nip.required' => 'NIP Tidak Boleh Kosong',
@@ -879,22 +875,22 @@ class AdminController extends Controller
         ]);
 
         try {
-            $guru = Guru::create([
+
+            $password = date('dmY', strtotime($request->tanggal_lahir));
+
+            $user = User::create([
+                'username' => $request->username,
+                'role_id' => 3,
+                'password' => Hash::make($password),
+            ]);
+
+            Guru::create([
+                'user_id' => $user->id,
                 'nip' => $request->nip,
                 'nama' => $request->nama,
                 'tanggal_lahir' => $request->tanggal_lahir,
                 'no_hp' => $request->no_hp,
                 'email' => $request->email,
-            ]);
-
-            $password = date('dmY', strtotime($request->tanggal_lahir));
-
-            User::create([
-                'username' => $request->username,
-                'guru_id' => $guru->id,
-                'siswa_id' => null,
-                'role_id' => 3,
-                'password' => Hash::make($password),
             ]);
 
             return redirect()->route('admin_guru.index')->with('success', 'Guru berhasil ditambahkan!');

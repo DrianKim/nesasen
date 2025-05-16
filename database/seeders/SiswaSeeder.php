@@ -15,6 +15,7 @@ class SiswaSeeder extends Seeder
     {
         DB::table('siswa')->insert([
             [
+                'user_id' => 2,
                 'nama' => 'Dede Sukmadik',
                 'kelas_id' => 2,
                 'nis' => '123456',
@@ -25,6 +26,7 @@ class SiswaSeeder extends Seeder
                 'alamat' => 'Jl. Ngawi No. 1',
             ],
             [
+                'user_id' => 3,
                 'nama' => 'Siti Nurjanah',
                 'kelas_id' => 3,
                 'nis' => '123457',
@@ -35,6 +37,7 @@ class SiswaSeeder extends Seeder
                 'alamat' => 'Jl. Mawar No. 5',
             ],
             [
+                'user_id' => 4,
                 'nama' => 'Bambang Pamungkas',
                 'kelas_id' => 2,
                 'nis' => '123458',
@@ -45,6 +48,7 @@ class SiswaSeeder extends Seeder
                 'alamat' => 'Jl. Kenangan No. 9',
             ],
             [
+                'user_id' => 5,
                 'nama' => 'Ayu Lestari',
                 'kelas_id' => 4,
                 'nis' => '123459',
@@ -55,6 +59,7 @@ class SiswaSeeder extends Seeder
                 'alamat' => 'Jl. Melati No. 11',
             ],
             [
+                'user_id' => 6,
                 'nama' => 'Rizky Maulana',
                 'kelas_id' => 3,
                 'nis' => '123460',
@@ -65,6 +70,7 @@ class SiswaSeeder extends Seeder
                 'alamat' => 'Jl. Anggrek No. 7',
             ],
             [
+                'user_id' => 7,
                 'nama' => 'Nadia Zahra',
                 'kelas_id' => 2,
                 'nis' => '123461',
@@ -75,6 +81,7 @@ class SiswaSeeder extends Seeder
                 'alamat' => 'Jl. Sakura No. 4',
             ],
             [
+                'user_id' => 8,
                 'nama' => 'Wili Salim',
                 'kelas_id' => 4,
                 'nis' => '123462',
@@ -85,6 +92,7 @@ class SiswaSeeder extends Seeder
                 'alamat' => 'Jl. Durian No. 10',
             ],
             [
+                'user_id' => 9,
                 'nama' => 'Putri Andini',
                 'kelas_id' => 3,
                 'nis' => '123463',
@@ -95,6 +103,7 @@ class SiswaSeeder extends Seeder
                 'alamat' => 'Jl. Cemara No. 8',
             ],
             [
+                'user_id' => 10,
                 'nama' => 'Dani Pratama',
                 'kelas_id' => 2,
                 'nis' => '123464',
@@ -105,6 +114,7 @@ class SiswaSeeder extends Seeder
                 'alamat' => 'Jl. Apel No. 2',
             ],
             [
+                'user_id' => 11,
                 'nama' => 'Melati Anjani',
                 'kelas_id' => 4,
                 'nis' => '123465',

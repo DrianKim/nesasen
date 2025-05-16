@@ -53,6 +53,12 @@ Route::middleware(['isLogin'])->group(function () {
     Route::get('siswa/izin', [SiswaController::class, 'izin_index'])->name('siswa.izin');
     Route::post('siswa/izin/store', [SiswaController::class, 'izin_store'])->name('siswa.izin.store');
 
+    // kelasKu
+    Route::get('siswa/kelasKu', [SiswaController::class, 'index_kelasKu'])->name('siswa.kelasKu.index');
+
+    // jadwal
+    Route::get('siswa/jadwal', [SiswaController::class, 'index_jadwal'])->name('siswa.jadwal');
+
     Route::middleware(['auth', 'isAdmin'])->group(function () {
         // umum kelas
         Route::get('admin/kelas', [AdminController::class, 'index_kelas'])->name('admin_kelas.index');
@@ -142,13 +148,13 @@ Route::middleware(['isLogin'])->group(function () {
 
         // izin siswa
         Route::get('admin/izin/siswa', [AdminController::class, 'index_izin_siswa'])->name('admin_izin_siswa.index');
-        Route::get('admin/presensi/siswa/filter', [AdminController::class, 'index_presensi_siswa'])->name('admin_presensi_siswa.filter');
-        Route::get('admin/presensi/siswa/create', [AdminController::class, 'create_presensi_siswa'])->name('admin_presensi_siswa.create');
-        Route::post('admin/presensi/siswa/store', [AdminController::class, 'store_presensi_siswa'])->name('admin_presensi_siswa.store');
-        Route::get('admin/presensi/siswa/edit/{id}', [AdminController::class, 'edit_presensi_siswa'])->name('admin_presensi_siswa.edit');
-        Route::post('admin/presensi/siswa/update/{id}', [AdminController::class, 'update_presensi_siswa'])->name('admin_presensi_siswa.update');
-        Route::delete('admin/presensi/siswa/destroy/{id}', [AdminController::class, 'destroy_presensi_siswa'])->name('admin_presensi_siswa.destroy');
-        Route::delete('admin/presensi/siswa/bulk_action', [AdminController::class, 'bulkAction_presensi_siswa'])->name('admin_presensi_siswa.bulk_action');
+        Route::get('admin/izin/siswa/filter', [AdminController::class, 'index_izin_siswa'])->name('admin_izin_siswa.filter');
+        Route::get('admin/izin/siswa/create', [AdminController::class, 'create_izin_siswa'])->name('admin_izin_siswa.create');
+        Route::post('admin/izin/siswa/store', [AdminController::class, 'store_izin_siswa'])->name('admin_izin_siswa.store');
+        Route::get('admin/izin/siswa/edit/{id}', [AdminController::class, 'edit_izin_siswa'])->name('admin_izin_siswa.edit');
+        Route::post('admin/izin/siswa/update/{id}', [AdminController::class, 'update_izin_siswa'])->name('admin_izin_siswa.update');
+        Route::delete('admin/izin/siswa/destroy/{id}', [AdminController::class, 'destroy_izin_siswa'])->name('admin_izin_siswa.destroy');
+        Route::delete('admin/izin/siswa/bulk_action', [AdminController::class, 'bulkAction_izin_siswa'])->name('admin_izin_siswa.bulk_action');
 
         // izin guru
         Route::get('admin/izin/guru', [AdminController::class, 'index_izin_guru'])->name('admin_izin_guru.index');

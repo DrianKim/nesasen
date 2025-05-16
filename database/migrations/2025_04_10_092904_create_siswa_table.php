@@ -13,16 +13,18 @@ return new class extends Migration
     {
         Schema::create('siswa', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('kelas_id')->nullable()->constrained('kelas')->onDelete('set null');
             $table->string('nama');
-            $table->foreignid('kelas_id')->nullable()->constrained('kelas')->onDelete('cascade');
-            $table->string('nisn')->unique()->nullable();
-            $table->string('nis')->unique()->nullable();
+            $table->string('nis')->unique();
+            $table->string('nisn')->unique()->nullable(); // opsional
             $table->date('tanggal_lahir')->nullable();
             $table->string('no_hp')->nullable();
-            $table->string('email')->unique()->nullable();
+            $table->string('email')->nullable(); // gak usah unique, udah ada di users
             $table->enum('jenis_kelamin', ['Laki-laki', 'Perempuan'])->nullable();
             $table->text('alamat')->nullable();
             $table->string('foto_profil')->nullable();
+
             $table->timestamps();
         });
     }
