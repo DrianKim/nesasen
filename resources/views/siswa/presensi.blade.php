@@ -244,7 +244,7 @@
             [-6.555186284742653, 107.75938717313718],
         ], {
             color: 'blue ',
-            fillOpacity: 0.1
+            fillOpacity: 0.2
         }).addTo(map);
 
         // Tile OpenStreetMap
