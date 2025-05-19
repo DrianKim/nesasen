@@ -296,7 +296,7 @@
 
         <!-- Nav Item - Presensi -->
         <li class="nav-item {{ $menuPresensi ?? '' }}">
-            <a class="py-2 nav-link" href="#">
+            <a class="py-2 nav-link" href="{{ route('siswa.presensi') }}">
                 <i class="fas fa-fw fa-user-check"></i>
                 <span>Presensi</span>
             </a>
@@ -310,7 +310,6 @@
             </a>
         </li>
     @endif
-
 
     <!-- Divider -->
     <hr class="sidebar-divider d-none d-md-block">
