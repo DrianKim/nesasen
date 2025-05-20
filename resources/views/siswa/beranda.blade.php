@@ -71,7 +71,7 @@
                 <div class="feature-item">
                     <a href="{{ route('siswa.presensi') }}">
                         <div class="feature-icon red">
-                            <i class="fas fa-alarm-clock"></i>
+                            <i class="fas fa-clock"></i>
                         </div>
                     </a>
                     <div class="feature-name">Presensi</div>

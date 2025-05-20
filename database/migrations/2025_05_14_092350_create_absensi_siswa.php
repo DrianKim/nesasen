@@ -16,7 +16,6 @@ return new class extends Migration
             $table->date('tanggal');
             $table->foreignId('siswa_id')->constrained('siswa')->onDelete('cascade');
             $table->enum('status', ['masuk', 'pulang']);
-            $table->enum('jenis_absen', ['Hadir', 'Sakit', 'Izin', 'Alfa']);
             $table->datetime('waktu_absen');
             $table->string('foto_absen');
             $table->string('lokasi_absen');

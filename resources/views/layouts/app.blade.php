@@ -44,6 +44,24 @@
     document.addEventListener('DOMContentLoaded', function() {
         const pageLoadingOverlay = document.getElementById('page-loading-overlay');
 
+        const hariIndo = [
+            'Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'
+        ];
+        const bulanIndo = [
+            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+
+        const now = new Date();
+        const hari = hariIndo[now.getDay()];
+        const tanggal = now.getDate();
+        const bulan = bulanIndo[now.getMonth()];
+        const tahun = now.getFullYear();
+
+        const keterangan = `${hari}, ${tanggal} ${bulan} ${tahun}`;
+        console.log(keterangan);
+
+        document.getElementById("tanggalSekarang").textContent = keterangan;
         // Cek apakah submit dari modal form
         const isModalSubmit = sessionStorage.getItem('modalSubmit') === 'true';
 
@@ -95,18 +113,11 @@
                         <i class="fa fa-bars"></i>
                     </button>
 
-                    <!-- Global Search -->
-                    <div class="mr-auto d-none d-sm-inline-block form-inline ml-md-3 my-md-0 mw-100">
+                    <!-- Hari -->
+                    <div class="mr-auto d-none d-sm-inline-block form-inline ml-md-0 my-md-0 mw-100">
                         <div class="input-group global-search">
-                            <div class="input-group-prepend">
-                                <img src="{{ asset('assets\img\smeapng.png') }}" alt="smea icon" width="43px" height="43px"
-                                    class="rounded-circle">
-                            </div>
-                            <span class="bg-transparent border-0 input-group-text">
-                                SMKN 1 Subang
+                            <span id="tanggalSekarang" class="bg-transparent border-0 input-group-text">
                             </span>
-                            {{-- <input type="text" class="bg-transparent border-0 form-control global-search-input"
-                                placeholder="Search for anything..." aria-label="Search"> --}}
                         </div>
                     </div>
 

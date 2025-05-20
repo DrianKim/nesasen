@@ -3,9 +3,11 @@
     <!-- Sidebar - Brand -->
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
         <div class="sidebar-brand-icon">
-            <i class="fas fa-school"></i>
+            {{-- <img src="{{ asset('assets\img\nesasen Landscape Logo.png') }}" alt="nesasen icon" width="150px" height="50px"> --}}
+            {{-- <img src="{{ asset('assets\img\smeapng.png') }}" alt="SMEA icon" width="50px" height="50px"> --}}
+            {{-- <i class="fas fa-school"></i> --}}
         </div>
-        <div class="mx-2 sidebar-brand-text">CEREN</div>
+        <div class="mx-2 sidebar-brand-text"></div>
     </a>
 
     <!-- Nav Item - Notifikasi -->

@@ -22,9 +22,9 @@
                     <label class="form-label">Jenis Izin</label>
                     <div class="option-grid">
                         <div class="option-item active">
-                            <input type="radio" name="jenis_izin" id="acara_keluarga" value="Acara Keluarga" checked
+                            <input type="radio" name="jenis_izin" id="keperluan_keluarga" value="Keperluan Keluarga"
                                 class="option-input">
-                            <label for="acara_keluarga" class="option-label">
+                            <label for="keperluan_keluarga" class="option-label">
                                 <span class="ml-2">
                                     Keperluan Keluarga
                                 </span>
@@ -70,9 +70,11 @@
                 <!-- Tanggal Izin -->
                 <div class="form-group">
                     <label class="form-label">Tanggal Izin</label>
-                    <div class="date-input">
-                        <input type="date" name="tanggal" id="tanggal" placeholder="Pilih Tanggal"
-                            class="form-control date-picker @error('tanggal') is-invalid @enderror">
+                    <div class="date-input" id="assa-date">
+                        <input type="text" name="tanggal" id="tanggal" placeholder="Pilih Tanggal"
+                            class="form-control date-picker @error('tanggal') is-invalid @enderror" readonly>
+                        {{-- <input type="date" name="tanggal" id="tanggal" placeholder="Pilih Tanggal"
+                            class="form-control date-picker @error('tanggal') is-invalid @enderror"> --}}
                     </div>
                     <small>
                         @error('tanggal')
@@ -103,7 +105,7 @@
                 <div class="form-group">
                     <label class="form-label">Keterangan Tambahan</label>
                     <textarea name="keterangan" id="keterangan" class="form-control textarea @error('keterangan') is-invalid @enderror"
-                        rows="4" placeholder="Keterangan Tambahan"></textarea>
+                        rows="4" placeholder="Deskripsi"></textarea>
                     <small>
                         @error('keterangan')
                             <div class="text-danger">{{ $message }}</div>
@@ -111,20 +113,41 @@
                     </small>
                 </div>
 
-                <!-- Upload Gambar -->
+                <!-- Upload Lampiran -->
                 <div class="form-group">
-                    <label class="form-label">Upload Gambar <span class="optional">(opsional)</span></label>
+                    <label class="form-label">Upload Lampiran <span class="optional">(opsional)</span></label>
                     <div class="upload-container">
-                        <input type="file" name="gambar" id="gambar" class="file-input" accept="image/*">
-                        <label for="gambar" class="upload-label">
-                            <i class="fas fa-camera"></i> Tambah Gambar
+                        <input type="file" name="lampiran" id="lampiran" class="file-input"
+                            accept="image/*,application/pdf,.doc,.docx">
+                        <label for="lampiran" class="upload-label">
+                            <i class="fas fa-upload"></i> Tambah Lampiran
                         </label>
                         <div id="preview-container" class="hidden preview-container">
-                            <img id="image-preview" src="#" alt="Preview" class="image-preview">
+                            <img id="image-preview" src="#" alt="Preview" class="hidden image-preview">
+                            <div id="file-info" class="hidden file-info">
+                                <i class="fas fa-file"></i>
+                                <span id="file-name"></span>
+                                <span id="file-size"></span>
+                            </div>
                             <button type="button" id="remove-image" class="remove-image">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
+
+                        @if (isset($izinSiswa) && !empty($izinSiswa->lampiran))
+                            <div class="mt-3">
+                                <p class="text-muted">Lampiran yang sudah diupload:</p>
+                                @if (Str::endsWith(strtolower($izinSiswa->lampiran), ['.jpg', '.jpeg', '.png', '.gif', '.bmp']))
+                                    <img src="{{ asset('storage/' . $izinSiswa->lampiran) }}" alt="Lampiran"
+                                        class="mt-2 img-fluid" style="max-width: 200px;">
+                                @else
+                                    <div class="file-info-existing">
+                                        <i class="fas fa-file-alt"></i>
+                                        <span>{{ basename($izinSiswa->lampiran) }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -328,6 +351,7 @@
             padding: 40px 20px;
             text-align: center;
             background-color: #f9f9f9;
+            position: relative;
         }
 
         .file-input {
@@ -360,6 +384,7 @@
             max-width: 100%;
             max-height: 200px;
             border-radius: 8px;
+            display: block;
         }
 
         .remove-image {
@@ -376,10 +401,36 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            z-index: 10;
+        }
+
+        .file-info {
+            background-color: #f9f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            text-align: center;
+            margin-top: 10px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .file-info i {
+            font-size: 20px;
+            color: #6c757d;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .file-info #file-name {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 5px;
+            word-break: break-all;
         }
 
         .hidden {
-            display: none;
+            display: none !important;
         }
 
         .submit-button {
@@ -399,10 +450,6 @@
         }
     </style>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-
     <script>
         $(document).ready(function() {
             // Initialize datepicker
@@ -416,10 +463,10 @@
             // Toggle date range fields based on checkbox
             $("#multi_day").change(function() {
                 if ($(this).is(":checked")) {
-                    $("#single-date").addClass("hidden");
+                    $("#assa-date").addClass("hidden");
                     $("#date-range").removeClass("hidden");
                 } else {
-                    $("#single-date").removeClass("hidden");
+                    $("#assa-date").removeClass("hidden");
                     $("#date-range").addClass("hidden");
                 }
             });
@@ -430,23 +477,51 @@
                 $(this).closest(".option-item").addClass("active");
             });
 
-            // Image preview functionality
-            $("#gambar").change(function() {
+            // File preview functionality (support image and other files)
+            $("#lampiran").change(function() {
                 const file = this.files[0];
                 if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        $("#image-preview").attr("src", e.target.result);
+                    // Get file info
+                    const fileName = file.name;
+                    const fileSize = (file.size / 1024 / 1024).toFixed(2); // Convert to MB
+
+                    // Check if file is an image
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            $("#image-preview").attr("src", e.target.result);
+                            $("#image-preview").removeClass("hidden");
+                            $("#file-info").addClass("hidden");
+                            $("#preview-container").removeClass("hidden");
+                            $(".upload-label").addClass("hidden");
+                        }
+                        reader.readAsDataURL(file);
+                    } else {
+                        // For non-image files, show file info
+                        $("#image-preview").addClass("hidden");
+                        $("#file-name").text(fileName);
+                        $("#file-size").text(fileSize + " MB");
+                        $("#file-info").removeClass("hidden");
                         $("#preview-container").removeClass("hidden");
                         $(".upload-label").addClass("hidden");
                     }
-                    reader.readAsDataURL(file);
+
+                    // Debug info - console log untuk troubleshooting
+                    console.log("File selected:", fileName);
+                    console.log("File type:", file.type);
+                    console.log("File size:", fileSize + " MB");
                 }
             });
 
-            // Remove image preview
-            $("#remove-image").click(function() {
-                $("#gambar").val("");
+            // Remove file preview
+            $("#remove-image").click(function(e) {
+                e.preventDefault(); // Prevent any default behavior
+                console.log("Remove button clicked");
+
+                $("#lampiran").val("");
+                $("#image-preview").attr("src", "");
+                $("#image-preview").addClass("hidden");
+                $("#file-info").addClass("hidden");
                 $("#preview-container").addClass("hidden");
                 $(".upload-label").removeClass("hidden");
             });

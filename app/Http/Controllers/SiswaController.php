@@ -17,6 +17,7 @@ class SiswaController extends Controller
     {
         $data = array(
             'title' => 'Data Siswa',
+            'menuBeranda' => 'active',
             'siswa' => Siswa::all(),
         );
         return view('siswa.beranda', $data);
@@ -26,6 +27,7 @@ class SiswaController extends Controller
     {
         $data = array(
             'title' => 'Presensi Siswa',
+            'menuPresensi' => 'active',
             'siswa' => Siswa::all(),
             'absensiSiswa' => absensiSiswa::where('siswa_id', Auth::user()->id)->get(),
         );
@@ -37,7 +39,7 @@ class SiswaController extends Controller
         $data = array(
             'title' => 'Izin Siswa',
             'siswa' => Siswa::all(),
-            'absensiSiswa' => absensiSiswa::where('siswa_id', Auth::user()->id)->get(),
+            'izinSiswa' => izinSiswa::where('siswa_id', Auth::user()->id)->get(),
         );
         return view('siswa.izin', $data);
     }
@@ -49,22 +51,31 @@ class SiswaController extends Controller
             'jenis_izin' => 'required',
             'tanggal' => 'required|date',
             'keterangan' => 'required|string|max:255',
-            'lampiran' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'lampiran' => 'nullable|image|file|mimes:jpg,jpeg,png,pdf',
         ], [
             'jenis_izin.required' => 'Jenis izin harus diisi',
             'tanggal.required' => 'Tanggal izin harus diisi',
             'keterangan.required' => 'Keterangan harus diisi',
+            'lampiran.image' => 'Lampiran harus berupa gambar',
             'lampiran.file' => 'Lampiran harus berupa file',
             'lampiran.mimes' => 'Lampiran harus berupa file dengan format jpg, jpeg, png, atau pdf',
-            'lampiran.max' => 'Lampiran tidak boleh lebih dari 2MB',
         ]);
 
+        $pathLampiran = null;
+
+        $tanggal = Carbon::createFromFormat('d-m-Y', $request->tanggal);
+
+        if ($request->hasFile('lampiran')) {
+            $lampiran = $request->file('lampiran');
+            $pathLampiran = $lampiran->store('lampiran_izin', 'public');
+        }
+
         izinSiswa::create([
-            'tanggal' => $request->tanggal,
+            'tanggal' => $tanggal,
             'siswa_id' => Auth::user()->siswa->id,
             'jenis_izin' => $request->jenis_izin,
             'keterangan' => $request->keterangan,
-            'lampiran' => $request->file('lampiran') ? $request->file('lampiran')->store('lampiran_izin') : null,
+            'lampiran' => $pathLampiran,
             // 'tanggal',
             // 'siswa_id',
             // 'jenis_absen',

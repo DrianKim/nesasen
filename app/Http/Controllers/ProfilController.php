@@ -28,7 +28,7 @@ class ProfilController extends Controller
             'profil' => $profil,
         );
 
-        return view('pengguna.index', $data);
+        return view('profil.index', $data);
     }
 
     public function edit()
@@ -43,7 +43,7 @@ class ProfilController extends Controller
             'profil' => $profil,
         );
 
-        return view('pengguna.index', $data);
+        return view('profil.index', $data);
     }
 
     public function update(Request $request)
@@ -74,8 +74,12 @@ class ProfilController extends Controller
         $request->validate($validationRules);
 
         if ($request->filled('new_password') && $request->filled('current_password')) {
-            if (Hash::check($request->new_password, $user->password)) {
-                return back()->withErrors(['new_password' => 'Password baru tidak boleh sama dengan password lama'])->withInput();
+            if (Hash::check($request->current_password, $user->password)) {
+                if ($request->current_password === $request->new_password) {
+                    return back()->withErrors(['new_password' => 'Password baru tidak boleh sama dengan password lama'])->withInput();
+                }
+            } else {
+                return back()->withErrors(['current_password' => 'Password lama salah'])->withInput();
             }
         }
 
@@ -91,27 +95,29 @@ class ProfilController extends Controller
             $profil->nip = $request->nip;
         }
 
+        dd($request->profil);
         if ($request->hasFile('foto_profil')) {
-            if ($profil->foto_profil && file_exists(public_path('image/profil/' . $profil->foto_profil))) {
-                unlink(public_path('image/profil/' . $profil->foto_profil));
+            if ($profil->foto_profil && file_exists(public_path('foto_profil/' . $profil->foto_profil))) {
+                unlink(public_path('foto_profil/' . $profil->foto_profil));
             }
 
             $file = $request->file('foto_profil');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time() . '.' . $file->getClientOriginalExtension();
 
-            if (!file_exists(public_path('image/profil'))) {
-                mkdir(public_path('image/profil'), 0775, true);
+            if (!file_exists(public_path('foto_profil'))) {
+                mkdir(public_path('foto_profil'), 0775, true);
             }
 
-            $file->move(public_path('image/profil'), $filename);
+            $file->move(public_path('foto_profil'), $filename);
             $profil->foto_profil = $filename;
         }
 
         $profil->save();
 
         if ($request->filled('new_password')) {
-            DB::table('users')->where('id', $user->id)->update(['password' => Hash::make($request->new_password)
-                ]);
+            DB::table('users')->where('id', $user->id)->update([
+                'password' => Hash::make($request->new_password)
+            ]);
         }
 
         if ($request->ajax() || $request->wantsJson()) {

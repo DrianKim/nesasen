@@ -17,12 +17,16 @@
                                 {{-- upload foto_profil --}}
                                 <label for="upload-foto-profil"
                                     class="bottom-0 mb-1 cursor-pointer position-absolute end-0 me-1">
-                                    <div class="text-white d-flex align-items-center justify-content-center bg-primary rounded-circle"
-                                        style="width: 30px; height: 30px; cursor: pointer;">
-                                        <i class="fas fa-camera"></i>
-                                    </div>
-                                    <input type="file" id="upload-foto-profil" style="display: none;"
-                                        accept="image/jpeg,image/png,image/jpg">
+                                    <form action="{{ route('profil.update') }}" method="POST"
+                                        enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="text-white d-flex align-items-center justify-content-center bg-primary rounded-circle"
+                                            style="width: 30px; height: 30px; cursor: pointer;">
+                                            <i class="fas fa-camera"></i>
+                                        </div>
+                                        <input type="file" id="upload-foto-profil" name="foto_profil" style="display: none;"
+                                            accept="image/jpeg,image/png,image/jpg">
+                                    </form>
                                 </label>
                             </div>
                         </div>
@@ -35,7 +39,7 @@
                                 data-target="#editProfilModal">
                                 <i class="fas fa-edit me-2"></i>Edit Profil
                             </button>
-                            @include('pengguna.modal')
+                            @include('profil.modal')
                         </div>
                     </div>
 
@@ -61,9 +65,9 @@
                         </li>
                     </ul>
                     <div class="p-3 tab-content bg-light rounded-3" id="profilTabContent">
-                        @include('pengguna.informasi')
-                        @include('pengguna.aktivitas')
-                        @include('pengguna.pengaturan')
+                        @include('profil.informasi')
+                        @include('profil.aktivitas')
+                        @include('profil.pengaturan')
                     </div>
                 @else
                     <div class="py-5 text-center">
@@ -78,50 +82,56 @@
 @endsection
 <script>
     @if ($profil)
-    document.getElementById('upload-foto-profil').addEventListener('change', function() {
-        if (this.files && this.files[0]) {
-            const formData = new FormData();
-            formData.append('foto_profil', this.files[0]);
-            formData.append('_token', '{{ csrf_token() }}');
+        document.getElementById('upload-foto-profil').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('foto_profil', file);
+                formData.append('_token', '{{ csrf_token() }}');
 
-            formData.append('email', '{{ $profil->email ?? '-' }}');
-            formData.append('no_hp', '{{ $profil->no_hp ?? '-' }}');
-            formData.append('tanggal_lahir', '{{ $profil->tanggal_lahir ?? '-' }}');
-            formData.append('jenis_kelamin', '{{ $profil->jenis_kelamin ?? '-' }}');
-            formData.append('alamat', '{{ $profil->alamat ?? '-' }}');
+                formData.append('email', '{{ $profil->email ?? '' }}');
+                formData.append('no_hp', '{{ $profil->no_hp ?? '' }}');
+                formData.append('tanggal_lahir',
+                    '{{ \Carbon\Carbon::parse($profil->tanggal_lahir)->format('Y-m-d') }}');
+                formData.append('jenis_kelamin', '{{ $profil->jenis_kelamin ?? '' }}');
+                formData.append('alamat', '{{ $profil->alamat ?? '' }}');
 
-            @if ($profil->user->role_id == 4)
-                formData.append('nis', '{{ $profil->nis ?? '-' }}');
-            @else
-                formData.append('nip', '{{ $profil->nip ?? '-' }}');
-            @endif
+                @if ($profil->user->role_id == 4)
+                    formData.append('nis', '{{ $profil->nis ?? '' }}');
+                @else
+                    formData.append('nip', '{{ $profil->nip ?? '' }}');
+                @endif
 
-            // Tampilkan loading
-            const loadingOverlay = document.createElement('div');
-            loadingOverlay.className =
-                'position-absolute top-0 start-0 d-flex align-items-center justify-content-center bg-dark bg-opacity-50 rounded-circle';
-            loadingOverlay.style.width = '100px';
-            loadingOverlay.style.height = '100px';
-            loadingOverlay.innerHTML = '<div class="text-white spinner-border" role="status"></div>';
-            this.parentElement.parentElement.appendChild(loadingOverlay);
+                // Preview PP sebelum upload
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.querySelector('img[alt="Foto Profil"]').src = event.target.result;
+                };
+                reader.readAsDataURL(file);
 
-            // Kirim request untuk update foto
-            fetch('{{ route('profil.update') }}', {
-                method: 'POST',
-                body: formData
-            }).then(response => {
-                if (response.ok) {
-                    return response.json();
-                }
-                throw new Error('Gagal mengupload foto');
-            }).then(data => {
-                // Refresh halaman setelah berhasil
-                window.location.reload();
-            }).catch(error => {
-                alert('Gagal mengupload foto: ' + error.message);
-                loadingOverlay.remove();
-            });
-        }
-    });
+                // Tampilkan loading
+                const loadingOverlay = document.createElement('div');
+                loadingOverlay.className =
+                    'position-absolute top-0 start-0 d-flex align-items-center justify-content-center bg-dark bg-opacity-50 rounded-circle';
+                loadingOverlay.style.width = '100px';
+                loadingOverlay.style.height = '100px';
+                loadingOverlay.innerHTML = '<div class="text-white spinner-border" role="status"></div>';
+                this.parentElement.parentElement.appendChild(loadingOverlay);
+
+                // Kirim request POST
+                fetch('{{ route('profil.update') }}', {
+                    method: 'POST',
+                    body: formData
+                }).then(response => {
+                    if (response.ok) return response.json();
+                    throw new Error('Gagal mengupload foto');
+                }).then(data => {
+                    window.location.reload();
+                }).catch(error => {
+                    alert('Gagal mengupload foto: ' + error.message);
+                    loadingOverlay.remove();
+                });
+            }
+        });
     @endif
 </script>

@@ -17,11 +17,11 @@
             <div id="map"></div>
 
             <!-- Check In/Out Buttons -->
-            <div class="clock-buttons">
-                <button id="clockInBtn" class="clock-btn clock-in active">
+            <div class="check-buttons">
+                <button id="checkInBtn" class="check-btn check-in active btn-sm">
                     <i class="fas fa-check-circle"></i> Check In --:--
                 </button>
-                <button id="clockOutBtn" class="clock-btn clock-out">
+                <button id="checkOutBtn" class="check-btn check-out btn-sm">
                     <i class="fas fa-times-circle"></i> Check Out --:--
                 </button>
             </div>
@@ -34,7 +34,7 @@
             </div>
             <div class="school-details">
                 <h3>SMKN 1 SUBANG</h3>
-                <p>Jalan Arief Rahman Hakim No 35, Kabupaten Subang, Jawa Barat 41213, Indonesia</p>
+                <p>CQV6+J32, Cigadung, Kec. Subang, Kabupaten Subang, Jawa Barat 41211, Indonesia</p>
             </div>
         </div>
 
@@ -42,9 +42,15 @@
         <div class="location-status">
             <p class="location-warning" id="locationWarning"></p>
             <div class="time-display">
-                <i class="far fa-clock"></i>
+                <i class="far fa-check"></i>
                 <span id="currentTime"></span>
             </div>
+        </div>
+
+        <!-- Reason for Check In -->
+        <div id="alasanWrapper" class="mb-2" style="display: none;">
+            <textarea id="alasanText" class="border rounded form-control border-opacity-30" rows="2" placeholder="Masukkan alasan kamu..."
+                style="resize: none;"></textarea>
         </div>
 
         <!-- Action Button -->
@@ -98,44 +104,66 @@
             width: 100%;
         }
 
+        .check-buttons {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 1000;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 90%;
+        }
+
+        .check-btn {
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            background-color: #f5f5f5;
+            color: #333;
+            cursor: default;
+            font-weight: bold;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+            background-color: #fff;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            justify-content: center;
+        }
+
+        .check-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        @media (min-width: 768px) {
+            .check-btn {
+                width: auto;
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+        }
+
         #map {
             height: 100%;
             width: 100%;
             background-color: #e5e5e5;
         }
 
-        .clock-buttons {
-            position: absolute;
-            top: 10px;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            padding: 0 20px;
+        .check-in {
+            /* background-color: 4px solid #28a745; */
+            color: #28a745;
         }
 
-        .clock-btn {
-            padding: 8px 15px;
-            border-radius: 5px;
-            border: none;
-            color: white;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
+        .check-out {
+            /* background-color: 4px solid #dc3545; */
+            color: #dc3545;
         }
 
-        .clock-in {
-            background-color: #4CAF50;
-        }
-
-        .clock-out {
-            background-color: #FF5252;
-        }
-
-        .clock-btn.active {
+        .check-btn.active {
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
         }
 
@@ -175,6 +203,22 @@
             font-size: 12px;
             color: #666;
             line-height: 1.4;
+        }
+
+        @media (max-width: 768px) {
+            .school-details h3 {
+                margin: 0;
+                font-size: 14px;
+                font-weight: bold;
+                color: #333;
+            }
+
+            .school-details p {
+                margin: 5px 0 0;
+                font-size: 11px;
+                color: #666;
+                line-height: 1.4;
+            }
         }
 
         .location-status {
@@ -217,17 +261,21 @@
         .action-button:hover {
             background-color: #00AB91;
         }
+
+        #alasanWrapper textarea {
+            /* border: 2px solid #201c1c; */
+            font-size: 14px;
+        }
     </style>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <script>
-        const schoolPosition = L.latLng(-6.555879634402878, 107.75989081030457); // titik sekolah
-
-        let userMarker;
+        const schoolPosition = L.latLng(-6.555879634402878, 107.75989081030457);
 
         const map = L.map('map').setView(schoolPosition, 18);
+
         const sekolahPolygon = L.polygon([
             [-6.555454600479895, 107.75975103728187],
             [-6.555898966792278, 107.76041729459291],
@@ -242,71 +290,111 @@
             [-6.555882642397315, 107.7593436323789],
             [-6.555720551529119, 107.75915516205691],
             [-6.555186284742653, 107.75938717313718],
+            // urban
+            // [-6.947725124439583, 107.62709247541171],
+            // [-6.947747048686173, 107.62725812363563],
+            // [-6.947949847918558, 107.62722361358898],
+            // [-6.947916961562483, 107.62704278094454],
         ], {
-            color: 'blue ',
+            color: 'red',
             fillOpacity: 0.2
         }).addTo(map);
 
-        // Tile OpenStreetMap
+        // Map Tile
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
         // Marker sekolah
-        L.marker(schoolPosition).addTo(map)
-            .bindPopup("Lokasi Sekolah")
-            .openPopup();
+        L.marker(schoolPosition).addTo(map).bindPopup("SMKN 1 Subang").openPopup();
 
-        // Ambil posisi user
+        let userLatLng = null;
+
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(position => {
-                const userLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
+                userLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
 
-                // Tambahkan marker user
                 L.marker(userLatLng).addTo(map).bindPopup("Lokasi Kamu").openPopup();
 
-                // Validasi lokasi
                 if (sekolahPolygon.getBounds().contains(userLatLng)) {
-                    // Dalam area polygon
-                    document.getElementById('locationWarning').textContent = '✅ Kamu berada di area presensi';
-                    document.getElementById('locationWarning').style.color = 'green';
+                    document.getElementById('locationWarning').textContent = 'Kamu berada di area presensi';
+                    document.getElementById('locationWarning').style.color = '#28a745';
+                    document.getElementById('alasanWrapper').style.display = 'none';
                 } else {
-                    // Di luar area polygon
-                    document.getElementById('locationWarning').textContent = '❌ Kamu di luar area presensi';
-                    document.getElementById('locationWarning').style.color = 'red';
+                    document.getElementById('locationWarning').textContent = 'Kamu di luar area presensi';
+                    document.getElementById('locationWarning').style.color = '#dc3545';
+                    document.getElementById('alasanWrapper').style.display = 'block';
                 }
             });
         }
 
-        // Update current time
+        // Checkin dan Checkout jam
+        const checkinTime = null;
+        const checkoutTime = null;
+
+        const checkInBtn = document.getElementById('checkInBtn');
+        const checkOutBtn = document.getElementById('checkOutBtn');
+
+        checkInBtn.innerHTML = `<i class="fas fa-check-circle"></i> Check In ${checkinTime || '--:--'}`;
+        checkOutBtn.innerHTML = `<i class="fas fa-times-circle"></i> Check Out ${checkoutTime || '--:--'}`;
+
+        function checkIn(alasan = null) {
+            const jam = new Date().toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('checkInBtn').innerHTML = `<i class="fas fa-check-circle"></i> Check In ${jam}`;
+
+            if (alasan) {
+                console.log("Presensi luar area dengan alasan:", alasan);
+            } else {
+                console.log("Presensi dalam area.");
+            }
+
+            // TODO: Simpan ke server via AJAX / fetch
+        }
+
+        document.getElementById('checkInBtn').addEventListener('click', function() {
+            const diLuarArea = document.getElementById('alasanWrapper').style.display === 'block';
+            let alasan = null;
+
+            if (diLuarArea) {
+                alasan = document.getElementById('alasanText').value.trim();
+                if (alasan === '') {
+                    alert("Kamu harus isi alasan kenapa presensi di luar area bro!");
+                    return;
+                }
+            }
+
+            checkIn(alasan);
+        });
+
+        document.getElementById('checkOutBtn').addEventListener('click', function() {
+            const jam = new Date().toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('checkOutBtn').innerHTML =
+                `<i class="fas fa-times-circle"></i> Check Out ${jam}`;
+            console.log("Check out berhasil");
+        });
+
+        document.getElementById('requestCheckIn').addEventListener('click', function() {
+            alert('Request check-in berhasil dikirim!');
+        });
+
+        // Waktu sekarang
         function updateTime() {
             const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            document.getElementById('currentTime').textContent = `${hours}:${minutes}:${seconds}`;
+            const jam = now.toLocaleTimeString('id-ID', {
+                hour12: false
+            });
+            document.getElementById('currentTime').textContent = jam;
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             setInterval(updateTime, 1000);
             updateTime();
-
-            const clockInBtn = document.getElementById('clockInBtn');
-            const clockOutBtn = document.getElementById('clockOutBtn');
-
-            clockInBtn.addEventListener('click', function() {
-                clockInBtn.classList.add('active');
-                clockOutBtn.classList.remove('active');
-            });
-
-            clockOutBtn.addEventListener('click', function() {
-                clockOutBtn.classList.add('active');
-                clockInBtn.classList.remove('active');
-            });
-
-            document.getElementById('requestCheckIn').addEventListener('click', function() {
-                alert('Request for clock in has been sent.');
-            });
         });
     </script>
 @endsection
