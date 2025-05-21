@@ -1,0 +1,243 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&display=swap");
+
+body {
+    font-family: "Montserrat", sans-serif;
+    background-color: #f5faff;
+    margin: 0;
+    padding: 40px;
+}
+
+/* Header untuk Logo */
+header {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+.logo img {
+    margin-top: 0.1rem;
+    width: 180px;
+    height: 60px;
+}
+
+/* Container */
+.container {
+    max-width: 960px;
+    margin: auto;
+    text-align: center;
+}
+
+.container h1 {
+    font-size: 2.5rem;
+    color: #222;
+}
+
+.container p {
+    margin-bottom: 2rem;
+    color: #555;
+}
+
+/* Grid Layout */
+.grid {
+    display: grid;
+    grid-template-areas:
+        "admin admin"
+        "guru siswa";
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.card.admin {
+    grid-area: admin;
+}
+
+.card.guru {
+    grid-area: guru;
+}
+
+.card.siswa {
+    grid-area: siswa;
+}
+
+.card {
+    position: relative;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: left;
+    transition: transform 0.2s;
+    text-decoration: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 160px;
+    overflow: hidden;
+}
+
+.card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-top: 160px solid rgba(0, 0, 0, 0.05); /* Warna efek segitiga */
+    border-left: 60px solid transparent;
+    z-index: 1;
+}
+
+.card img.vector {
+    position: relative;
+    margin-top: 2rem;
+    z-index: 2;
+    width: 200px;
+    height: auto;
+    flex-shrink: 0;
+}
+
+.card-content {
+    max-width: calc(100% - 120px);
+}
+
+.card:hover {
+    transform: scale(1.02);
+}
+
+.card h2 {
+    margin-top: 0;
+}
+
+.admin {
+    background-color: #b3e5fc;
+    color: #01579b;
+}
+
+.guru {
+    background-color: #c8e6c9;
+    color: #2e7d32;
+}
+
+.siswa {
+    background-color: #ffcdd2;
+    color: #c62828;
+}
+
+/* Footer untuk Sosial Media */
+footer {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.social-media a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: #007bff;
+}
+
+footer p {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: #555;
+}
+
+/* Menambahkan hiasan di pojok kanan atas dan kiri bawah */
+.decorative-image {
+    position: absolute;
+    z-index: -1; /* Agar gambar tidak menghalangi konten lainnya */
+}
+
+.decorative-image.top-right {
+    top: 0;
+    right: 0;
+    width: 150px; /* Sesuaikan ukuran hiasan untuk desktop */
+    height: auto;
+}
+
+.decorative-image.bottom-left {
+    bottom: 0;
+    left: 0;
+    width: 150px; /* Sesuaikan ukuran hiasan untuk desktop */
+    height: auto;
+}
+
+/* Responsive Design untuk Mobile */
+@media (max-width: 768px) {
+    .logo img {
+        width: 110px;
+        height: 40px;
+    }
+
+    .grid {
+        grid-template-areas:
+            "admin"
+            "guru"
+            "siswa";
+        grid-template-columns: 1fr;
+        gap: 1rem; /* Jarak antar card */
+    }
+
+    .card {
+        display: flex; /* Gunakan flexbox */
+        flex-direction: row; /* Gambar dan teks sejajar secara horizontal */
+        align-items: center; /* Rata tengah */
+        justify-content: flex-start; /* Teks di kiri, gambar di kanan */
+        padding: 20px;
+        height: 160px; /* Tetap persegi panjang */
+        gap: 20px; /* Jarak antara gambar dan teks */
+    }
+
+    .card img.vector {
+        width: 155px; /* Gambar vektor lebih besar di mobile */
+        height: 155px; /* Atur tinggi gambar vektor supaya lebih proporsional */
+        margin-top: auto;
+        object-fit: cover; /* Agar gambar tidak pecah */
+        flex-shrink: 0; /* Gambar nggak mengecil */
+    }
+
+    .card-content {
+        text-align: left; /* Teks rata kiri */
+    }
+
+    .card-content h2 {
+        font-size: 1.2rem; /* Ukuran font lebih kecil untuk mobile */
+    }
+
+    .card-content p {
+        font-size: 0.9rem; /* Ukuran font untuk deskripsi lebih kecil */
+    }
+
+    /* Menambahkan hiasan di pojok kanan atas dan kiri bawah */
+    .decorative-image {
+        position: absolute;
+        z-index: -1; /* Agar gambar tidak menghalangi konten lainnya */
+    }
+
+    /* Hiasan di pojok kanan atas */
+    .decorative-image.top-right {
+        top: 0;
+        right: 0;
+        width: 150px; /* Sesuaikan ukuran hiasan untuk desktop */
+        height: auto;
+    }
+
+    /* Hiasan di pojok kiri bawah */
+    .decorative-image.bottom-left {
+        bottom: 0;
+        left: 0;
+        width: 150px; /* Sesuaikan ukuran hiasan untuk desktop */
+        height: auto;
+    }
+
+    /* Untuk memastikan posisi tetap benar di mobile */
+    .decorative-image.top-right {
+        width: 100px; /* Ukuran lebih kecil di mobile */
+    }
+
+    .decorative-image.bottom-left {
+        width: 100px; /* Ukuran lebih kecil di mobile */
+    }
+
+    /* Atur gambar hiasan tetap di belakang konten */
+    body {
+        position: relative;
+    }
+}

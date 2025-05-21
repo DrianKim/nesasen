@@ -1,4 +1,5 @@
 <!-- Sidebar -->
+@auth
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled" id="accordionSidebar">
     <!-- Sidebar - Brand -->
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
@@ -42,7 +43,7 @@
 
 
     <!-- ADMIN MENU -->
-    @if (auth()->user()->role_id == 1)
+    @if (auth()->check() && auth()->user()->role_id == 1)
         <!-- Heading -->
         <div class="sidebar-heading">
             Area Administrator
@@ -353,4 +354,5 @@
         <button class="border-0 rounded-circle" id="sidebarToggle"></button>
     </div>
 </ul>
+@endauth
 <!-- End of Sidebar -->

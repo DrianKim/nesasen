@@ -87,7 +87,10 @@
     <!-- Page Wrapper -->
     <div id="wrapper">
 
-        @include('layouts.sidebar')
+        @auth
+            @include('layouts.sidebar')
+        @endauth
+
 
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
@@ -279,8 +282,17 @@
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span
-                                    class="mr-2 d-none d-lg-inline small">{{ auth()->user()->name_admin ?? (auth()->user()->murid->nama ?? auth()->user()->guru->nama) }}</span>
+                                @php
+                                    $user = auth()->user();
+                                    $nama = 'Pengguna';
+
+                                    if ($user) {
+                                        $nama = $user->name_admin ?? optional($user->siswa)->nama ?? optional($user->guru)->nama ?? 'Pengguna';
+                                    }
+                                @endphp
+
+                                <span class="mr-2 d-none d-lg-inline small">{{ $nama }}</span>
+
                                 <img class="img-profile rounded-circle"
                                     src="{{ asset('images/avatars/profile-' . auth()->id() % 5 . '.jpg') }}">
                             </a>
