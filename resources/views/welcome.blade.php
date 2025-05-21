@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title>M-Tugas | Beranda</title>
+<title>Nesasen</title>
 <meta name="description" content="">
 <meta name="keywords" content="">
 
@@ -43,8 +43,8 @@
 
     <a href="#" class="logo d-flex align-items-center me-auto">
         <!-- Uncomment the line below if you also wish to use an image logo -->
-        <!-- <img src="assets/img/logo.png" alt=""> -->
-        <h1 class="sitename">NESASEN</h1>
+        <img src="{{ asset('img/ls-logo.png') }}" alt="Nesasen Logo" />
+        {{-- <h1 class="sitename">NESASEN</h1> --}}
     </a>
 
     <nav id="navmenu" class="navmenu">
@@ -60,7 +60,7 @@
     <a class="btn-getstarted" href="{{ route('dashboard') }}">Dashboard</a>
 
     @else
-    <a class="btn-getstarted" href="{{ route('login') }}">Login</a>
+    <a class="btn-getstarted" href="{{ route('selectRole') }}">Login</a>
 
     @endauth
 
@@ -75,14 +75,14 @@
     <div class="container">
         <div class="row gy-4">
         <div class="order-2 col-lg-6 order-lg-1 d-flex flex-column justify-content-center" data-aos="fade-up">
-            <h1>M-Tugas</h1>
-            <p>Aplikasi Manajemen Tugas</p>
+            <h1>NESASEN</h1>
+            <p>Platform Absensi dan Informasi Sekolah</p>
             <div class="d-flex">
             @auth
             <a href="{{ route('dashboard') }}" class="btn-get-started">Dashboard</a>
 
             @else
-            <a href="{{ route('login') }}" class="btn-get-started">Login</a>
+            <a href="{{ route('selectRole') }}" class="btn-get-started">Login</a>
 
             @endauth
             </div>

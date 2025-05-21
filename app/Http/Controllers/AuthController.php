@@ -29,7 +29,17 @@ class AuthController extends Controller
         $credentials = $request->only('username', 'password');
 
         if (Auth::attempt($credentials)) {
-            return redirect()->route('dashboard')->with('success', 'Anda Berhasil Login');
+            $user = Auth::user();
+            if ($user->role_id == 1) {
+                return redirect()->route('dashboard')->with('success', 'Anda Berhasil Login');
+            } elseif ($user->role_id == 2 || $user->role_id == 3) {
+                return redirect()->route('dashboard')->with('success', 'Anda Berhasil Login');
+            } elseif ($user->role_id == 4) {
+                return redirect()->route('siswa.beranda')->with('success', 'Anda Berhasil Login');
+            } else {
+                Auth::logout();
+                return redirect()->back()->with('error', 'Role tidak dikenali');
+            }
         } else {
             return redirect()->back()->with('error', 'Username atau Password Salah');
         }
