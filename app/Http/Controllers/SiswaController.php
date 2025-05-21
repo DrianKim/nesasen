@@ -7,9 +7,11 @@ use App\Models\Siswa;
 use App\Models\Jadwal;
 use App\Models\izinSiswa;
 use App\Models\MapelKelas;
+use Illuminate\Support\Str;
 use App\Models\absensiSiswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class SiswaController extends Controller
 {
@@ -32,6 +34,59 @@ class SiswaController extends Controller
             'absensiSiswa' => absensiSiswa::where('siswa_id', Auth::user()->id)->get(),
         );
         return view('siswa.presensi', $data);
+    }
+
+    public function presensi_store(Request $request)
+    {
+        $request->validate([
+            'foto_absen' => 'required|string',
+            'lokasi_absen' => 'required|string',
+            'keterangan' => 'required|string|max:255',
+        ], [
+            'foto_absen.required' => 'Foto absen harus diisi',
+            'lokasi_absen.required' => 'Lokasi absen harus diisi',
+            'keterangan.required' => 'Keterangan harus diisi',
+            'keterangan.max' => 'Keterangan tidak boleh lebih dari 255 karakter',
+        ]);
+
+        $siswaId = Auth::user()->siswa->id;
+        $today = now()->toDateString();
+
+        $presensi = absensiSiswa::where('siswa_id', $siswaId)
+            ->whereDate('tanggal', $today)
+            ->first();
+
+        $base64String = $request->input('foto_absen');
+        $image = str_replace('data:image/png;base64,', '', $base64String);
+        $image = str_replace(' ', '+', $image);
+        $imageName = 'presensi_' . Str::random(10) . '_' . now()->format('Ymd_His') . '.png';
+        Storage::disk('public')->put('presensi/' . $imageName, base64_decode($image));
+
+        if ($presensi) {
+            $presensi->update([
+                'status' => 'pulang',
+                'waktu_absen' => now()->format('H:i:s'),
+                'foto_absen' => 'presensi/' . $imageName,
+                'lokasi_absen' => $request->lokasi_absen,
+                'keterangan' => $request->keterangan,
+            ]);
+
+            $message = 'Presensi pulang berhasil diajukan';
+        } else {
+            absensiSiswa::create([
+                'tanggal' => $today,
+                'siswa_id' => $siswaId,
+                'status' => 'masuk',
+                'waktu_absen' => now()->format('H:i:s'),
+                'foto_absen' => 'presensi/' . $imageName,
+                'lokasi_absen' => $request->lokasi_absen,
+                'keterangan' => $request->keterangan,
+            ]);
+
+            $message = 'Presensi masuk berhasil diajukan';
+        }
+
+        return redirect()->back()->with('success', 'Presensi berhasil diajukan');
     }
 
     public function izin_index()

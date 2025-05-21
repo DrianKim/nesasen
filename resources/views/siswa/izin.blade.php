@@ -19,7 +19,7 @@
 
                 <!-- Jenis Izin -->
                 <div class="form-group">
-                    <label class="form-label">Jenis Izin</label>
+                    <label class="form-label @error('jenis_izin') is-invalid @enderror">Jenis Izin</label>
                     <div class="option-grid">
                         <div class="option-item active">
                             <input type="radio" name="jenis_izin" id="keperluan_keluarga" value="Keperluan Keluarga"
@@ -55,6 +55,11 @@
                                 </span>
                             </label>
                         </div>
+                        <small>
+                            @error('jenis_izin')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </small>
                     </div>
                 </div>
 
@@ -72,9 +77,11 @@
                     <label class="form-label">Tanggal Izin</label>
                     <div class="date-input" id="assa-date">
                         <input type="text" name="tanggal" id="tanggal" placeholder="Pilih Tanggal"
-                            class="form-control date-picker @error('tanggal') is-invalid @enderror" readonly>
+                            class="form-control date-picker @error('tanggal') is-invalid @enderror" readonly
+                            value="{{ old('tanggal') }}">
                         {{-- <input type="date" name="tanggal" id="tanggal" placeholder="Pilih Tanggal"
                             class="form-control date-picker @error('tanggal') is-invalid @enderror"> --}}
+                        <i class="fas fa-calendar-alt date-icon"></i>
                     </div>
                     <small>
                         @error('tanggal')
@@ -90,13 +97,13 @@
                             <label class="form-label">Tanggal Mulai</label>
                             <input type="text" name="tanggal_mulai" id="tanggal_mulai" placeholder="Pilih Tanggal"
                                 readonly class="form-control date-picker">
-                            <i class="fas fa-calendar-alt date-icon"></i>
+                            <i class="mt-2 fas fa-calendar-alt date-icon"></i>
                         </div>
                         <div class="date-input half">
                             <label class="form-label">Tanggal Selesai</label>
                             <input type="text" name="tanggal_selesai" id="tanggal_selesai" placeholder="Pilih Tanggal"
                                 readonly class="form-control date-picker">
-                            <i class="fas fa-calendar-alt date-icon"></i>
+                            <i class="mt-2 fas fa-calendar-alt date-icon"></i>
                         </div>
                     </div>
                 </div>
@@ -105,7 +112,7 @@
                 <div class="form-group">
                     <label class="form-label">Keterangan Tambahan</label>
                     <textarea name="keterangan" id="keterangan" class="form-control textarea @error('keterangan') is-invalid @enderror"
-                        rows="4" placeholder="Deskripsi"></textarea>
+                        rows="4" placeholder="Deskripsi">{{ old('keterangan') }}</textarea>
                     <small>
                         @error('keterangan')
                             <div class="text-danger">{{ $message }}</div>
@@ -115,10 +122,10 @@
 
                 <!-- Upload Lampiran -->
                 <div class="form-group">
-                    <label class="form-label">Upload Lampiran <span class="optional">(opsional)</span></label>
+                    <label class="form-label">Lampiran <span class="optional">(opsional)</span></label>
                     <div class="upload-container">
                         <input type="file" name="lampiran" id="lampiran" class="file-input"
-                            accept="image/*,application/pdf,.doc,.docx">
+                            accept="image/*,application/pdf,.doc,.docx" value="{{ old('lampiran') }}">
                         <label for="lampiran" class="upload-label">
                             <i class="fas fa-upload"></i> Tambah Lampiran
                         </label>
@@ -257,6 +264,19 @@
             background: linear-gradient(to right, #ff7e5f, #feb47b);
             color: #fff;
             border: none;
+        }
+
+        @media (max-width: 768px) {
+            .option-item {
+                /* center the text */
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+
+                position: relative;
+                height: 50px;
+            }
         }
 
         .toggle-switch {

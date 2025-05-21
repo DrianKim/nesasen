@@ -1,18 +1,45 @@
 <?php
 
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\WalasController;
 use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\PengajarController;
+use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\AdminController;
-use Maatwebsite\Excel\Facades\Excel;
 
+// Landing Page
 Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
+
+// Select Role Page
+Route::get('/pilih-role', function () {
+    return view('auth.select-role');
+})->name('selectRole');
+
+// Login Page
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
+
+// Regist OTP Page
+Route::get('/regist-otp', function () {
+    return view('auth.regist-otp');
+})->name('registerOtp');
+
+// Regist Data Page
+Route::get('/regist-data', function () {
+    return view('auth.regist-data');
+})->name('registerData');
+
+// Regist User Page
+// Route::get('/regist-user', function () {
+//     return view('auth.regist-user');
+// })->name('registerUser');
 
 // Login
 Route::get('login', [AuthController::class, 'index'])->name('login');
@@ -20,7 +47,13 @@ Route::post('login', [AuthController::class, 'loginProses'])->name('loginProses'
 Route::get('logout', [AuthController::class, 'logout'])->name('logout');
 
 // Register
-Route::post('register', [AuthController::class, 'registerProses'])->name('registerProses');
+Route::get('/regist-user', [RegisterController::class, 'showRegisterUser'])->name('register.user');
+Route::post('/regist-data', [RegisterController::class, 'simpanData'])->name('register.data.store');
+Route::post('/register/user', [RegisterController::class, 'simpanAkun'])->name('register.user.store');
+
+// Otp
+Route::post('/send-otp', [OtpController::class, 'kirimOtp'])->name('sendOtp');
+Route::post('/verifikasi-otp', [OtpController::class, 'verifikasiOtp'])->name('verifikasiOtp');
 
 Route::middleware(['isLogin'])->group(function () {
     // Dashboard

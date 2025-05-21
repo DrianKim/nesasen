@@ -49,14 +49,45 @@
 
         <!-- Reason for Check In -->
         <div id="alasanWrapper" class="mb-2" style="display: none;">
-            <textarea id="alasanText" class="border rounded form-control border-opacity-30" rows="2" placeholder="Masukkan alasan kamu..."
-                style="resize: none;"></textarea>
+            <textarea id="alasanText" class="border rounded form-control border-opacity-30" rows="2"
+                placeholder="Masukkan alasan kamu..." style="resize: none;" required></textarea>
         </div>
 
         <!-- Action Button -->
         <button class="action-button" id="requestCheckIn">
             REQUEST CHECK IN
         </button>
+    </div>
+
+    <!-- Modal Selfie Validation -->
+    <div class="modal fade" id="selfieModal" tabindex="-1" role="dialog" aria-labelledby="selfieModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="py-4 text-center modal-body">
+                    <div class="mb-3 selfie-illustration">
+                        <img src="{{ asset('assets/img/selfie-illustration.png') }}" alt="Selfie Icon" class="img-fluid"
+                            style="max-height: 150px;">
+                    </div>
+                    <h5 class="mb-2 modal-title" id="selfieModalLabel">Ketentuan Validasi</h5>
+                    <p class="mb-4 text-muted">Untuk menjaga keamanan dan integritas presensi, kami butuh selfie kamu ya.
+                    </p>
+
+                    <div id="camera-container" class="mb-3" style="display: none;">
+                        <video id="camera-preview" width="100%" autoplay></video>
+                        <canvas id="selfie-canvas" style="display: none;"></canvas>
+                        <img id="selfie-preview" class="mb-3 rounded img-fluid" style="display: none; max-height: 300px;">
+                    </div>
+
+                    <button id="ambilSelfieBtn" class="btn btn-primary btn-block btn-lg">
+                        AMBIL SELFIE
+                    </button>
+                    <button id="kirimPresensiBtn" class="mt-2 btn btn-success btn-block btn-lg" style="display: none;">
+                        KIRIM PRESENSI
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <style>
@@ -266,6 +297,46 @@
             /* border: 2px solid #201c1c; */
             font-size: 14px;
         }
+
+        /* Modal Selfie Style */
+        .modal-content {
+            border-radius: 15px;
+        }
+
+        #ambilSelfieBtn {
+            background-color: #00BFA5;
+            border: none;
+            border-radius: 6px;
+            padding: 8px;
+            font-weight: bold;
+        }
+
+        #ambilSelfieBtn:hover {
+            background-color: #00AB91;
+        }
+
+        #kirimPresensiBtn {
+            background-color: #28a745;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: bold;
+        }
+
+        #camera-container {
+            position: relative;
+        }
+
+        #camera-preview {
+            border-radius: 10px;
+            background-color: #f0f0f0;
+        }
+
+        #selfie-canvas {
+            display: none;
+            width: 100%;
+            max-width: 400px;
+        }
     </style>
 
     <!-- Leaflet JS -->
@@ -273,103 +344,190 @@
 
     <script>
         const schoolPosition = L.latLng(-6.555879634402878, 107.75989081030457);
-
         const map = L.map('map').setView(schoolPosition, 18);
 
         const sekolahPolygon = L.polygon([
-            [-6.555454600479895, 107.75975103728187],
-            [-6.555898966792278, 107.76041729459291],
-            [-6.556318358309657, 107.76076425871443],
-            [-6.55645958567214, 107.76068915686167],
-            [-6.556299705636153, 107.76008565983054],
-            [-6.556800228746744, 107.7598384112381],
-            [-6.556471142506854, 107.75911823811627],
-            [-6.556321921140308, 107.75919602217854],
-            [-6.55618317319476, 107.759241215537],
-            [-6.556085194523248, 107.75918811050764],
-            [-6.555882642397315, 107.7593436323789],
-            [-6.555720551529119, 107.75915516205691],
-            [-6.555186284742653, 107.75938717313718],
-            // urban
-            // [-6.947725124439583, 107.62709247541171],
-            // [-6.947747048686173, 107.62725812363563],
-            // [-6.947949847918558, 107.62722361358898],
-            // [-6.947916961562483, 107.62704278094454],
+            [-6.5554546, 107.759751],
+            [-6.555899, 107.760417],
+            [-6.556318, 107.760764],
+            [-6.556460, 107.760689],
+            [-6.556300, 107.760086],
+            [-6.556800, 107.759838],
+            [-6.556471, 107.759118],
+            [-6.556322, 107.759196],
+            [-6.556183, 107.759241],
+            [-6.556085, 107.759188],
+            [-6.555883, 107.759344],
+            [-6.555721, 107.759155],
+            [-6.555186, 107.759387],
         ], {
             color: 'red',
             fillOpacity: 0.2
         }).addTo(map);
 
-        // Map Tile
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // Marker sekolah
         L.marker(schoolPosition).addTo(map).bindPopup("SMKN 1 Subang").openPopup();
 
         let userLatLng = null;
-
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(position => {
                 userLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
 
                 L.marker(userLatLng).addTo(map).bindPopup("Lokasi Kamu").openPopup();
 
-                if (sekolahPolygon.getBounds().contains(userLatLng)) {
-                    document.getElementById('locationWarning').textContent = 'Kamu berada di area presensi';
-                    document.getElementById('locationWarning').style.color = '#28a745';
-                    document.getElementById('alasanWrapper').style.display = 'none';
-                } else {
-                    document.getElementById('locationWarning').textContent = 'Kamu di luar area presensi';
-                    document.getElementById('locationWarning').style.color = '#dc3545';
-                    document.getElementById('alasanWrapper').style.display = 'block';
-                }
+                const insideArea = sekolahPolygon.getBounds().contains(userLatLng);
+                document.getElementById('locationWarning').textContent = insideArea ?
+                    'Kamu berada di area presensi' : 'Kamu di luar area presensi';
+                document.getElementById('locationWarning').style.color = insideArea ? '#28a745' : '#dc3545';
+                document.getElementById('alasanWrapper').style.display = insideArea ? 'none' : 'block';
             });
         }
 
-        // Checkin dan Checkout jam
-        const checkinTime = null;
-        const checkoutTime = null;
+        // Tombol jam awal
+        document.getElementById('checkInBtn').innerHTML = `<i class="fas fa-check-circle"></i> Check In --:--`;
+        document.getElementById('checkOutBtn').innerHTML = `<i class="fas fa-times-circle"></i> Check Out --:--`;
 
-        const checkInBtn = document.getElementById('checkInBtn');
-        const checkOutBtn = document.getElementById('checkOutBtn');
+        // Data selfie
+        let selfieData = null;
+        let stream = null;
 
-        checkInBtn.innerHTML = `<i class="fas fa-check-circle"></i> Check In ${checkinTime || '--:--'}`;
-        checkOutBtn.innerHTML = `<i class="fas fa-times-circle"></i> Check Out ${checkoutTime || '--:--'}`;
+        const cameraContainer = document.getElementById('camera-container');
+        const cameraPreview = document.getElementById('camera-preview');
+        const selfieCanvas = document.getElementById('selfie-canvas');
+        const selfiePreview = document.getElementById('selfie-preview');
+        const ambilSelfieBtn = document.getElementById('ambilSelfieBtn');
+        const kirimPresensiBtn = document.getElementById('kirimPresensiBtn');
+        kirimPresensiBtn.disabled = true;
 
-        function checkIn(alasan = null) {
+        function startCamera() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert("Browser kamu tidak support kamera!");
+                return;
+            }
+
+            cameraContainer.style.display = 'block';
+            ambilSelfieBtn.textContent = 'AMBIL FOTO';
+
+            navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'user',
+                        width: {
+                            ideal: 1280
+                        },
+                        height: {
+                            ideal: 720
+                        }
+                    },
+                    audio: false
+                })
+                .then(s => {
+                    stream = s;
+                    cameraPreview.srcObject = stream;
+                    cameraPreview.play();
+                })
+                .catch(err => {
+                    console.error('Error accessing camera:', err);
+                    alert('Tidak dapat mengakses kamera. Pastikan kamu memberikan izin kamera.');
+                });
+        }
+
+        function takeSelfie() {
+            selfieCanvas.width = cameraPreview.videoWidth;
+            selfieCanvas.height = cameraPreview.videoHeight;
+
+            const ctx = selfieCanvas.getContext('2d');
+            ctx.drawImage(cameraPreview, 0, 0, selfieCanvas.width, selfieCanvas.height);
+            selfieData = selfieCanvas.toDataURL('image/jpeg');
+
+            selfiePreview.src = selfieData;
+            selfiePreview.style.display = 'block';
+            cameraPreview.style.display = 'none';
+
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+
+            ambilSelfieBtn.textContent = 'AMBIL ULANG';
+            kirimPresensiBtn.style.display = 'block';
+        }
+
+        function checkIn(alasan = null, selfieData = null) {
             const jam = new Date().toLocaleTimeString([], {
                 hour: '2-digit',
                 minute: '2-digit'
             });
+
             document.getElementById('checkInBtn').innerHTML = `<i class="fas fa-check-circle"></i> Check In ${jam}`;
 
-            if (alasan) {
-                console.log("Presensi luar area dengan alasan:", alasan);
-            } else {
-                console.log("Presensi dalam area.");
-            }
+            const data = {
+                jam,
+                alasan,
+                selfie: selfieData,
+                lokasi: userLatLng ? {
+                    lat: userLatLng.lat,
+                    lng: userLatLng.lng
+                } : null
+            };
 
-            // TODO: Simpan ke server via AJAX / fetch
+            console.log("Data presensi:", data);
+            alert('Presensi berhasil dicatat!');
+
+            // TODO: fetch/axios ke controller Laravel lo
         }
 
-        document.getElementById('checkInBtn').addEventListener('click', function() {
+        document.getElementById('requestCheckIn').addEventListener('click', () => {
+            $('#selfieModal').modal('show');
+        });
+
+        ambilSelfieBtn.addEventListener('click', () => {
+            !stream ? startCamera() : takeSelfie();
+        });
+
+        kirimPresensiBtn.addEventListener('click', () => {
             const diLuarArea = document.getElementById('alasanWrapper').style.display === 'block';
             let alasan = null;
 
             if (diLuarArea) {
                 alasan = document.getElementById('alasanText').value.trim();
-                if (alasan === '') {
-                    alert("Kamu harus isi alasan kenapa presensi di luar area bro!");
-                    return;
-                }
+                if (!alasan) return alert("Isi alasan kenapa presensi di luar area!");
             }
 
-            checkIn(alasan);
+            $('#selfieModal').modal('hide');
+            checkIn(alasan, selfieData);
+
+            // Reset UI
+            selfiePreview.style.display = 'none';
+            cameraPreview.style.display = 'block';
+            kirimPresensiBtn.style.display = 'none';
+            cameraContainer.style.display = 'none';
+            ambilSelfieBtn.textContent = 'AMBIL SELFIE';
+            selfieData = null;
         });
 
-        document.getElementById('checkOutBtn').addEventListener('click', function() {
+        $('#selfieModal').on('hidden.bs.modal', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+
+            // Reset tampilan
+            selfiePreview.style.display = 'none';
+            cameraPreview.style.display = 'block';
+            kirimPresensiBtn.style.display = 'none';
+            cameraContainer.style.display = 'none';
+            ambilSelfieBtn.textContent = 'AMBIL SELFIE';
+
+            // Opsional: alert kalau keluar modal tanpa selfie
+            if (!selfieData) {
+                alert("Kamu belum ambil selfie!");
+            }
+        });
+
+        document.getElementById('checkOutBtn').addEventListener('click', () => {
             const jam = new Date().toLocaleTimeString([], {
                 hour: '2-digit',
                 minute: '2-digit'
@@ -379,11 +537,6 @@
             console.log("Check out berhasil");
         });
 
-        document.getElementById('requestCheckIn').addEventListener('click', function() {
-            alert('Request check-in berhasil dikirim!');
-        });
-
-        // Waktu sekarang
         function updateTime() {
             const now = new Date();
             const jam = now.toLocaleTimeString('id-ID', {
@@ -392,7 +545,7 @@
             document.getElementById('currentTime').textContent = jam;
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', () => {
             setInterval(updateTime, 1000);
             updateTime();
         });
