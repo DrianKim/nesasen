@@ -15,6 +15,7 @@ class GuruSeeder extends Seeder
     {
         DB::table('guru')->insert([
             [
+                'user_id' => 12,
                 'nama' => 'Dedi Purnama',
                 'nip' => '9876543210',
                 'tanggal_lahir' => '1980-01-01',
@@ -24,6 +25,7 @@ class GuruSeeder extends Seeder
                 'alamat' => 'Jl. Merdeka No. 10',
             ],
             [
+                'user_id' => 13,
                 'nama' => 'Siti Anisa',
                 'nip' => '9876543211',
                 'tanggal_lahir' => '1982-05-12',
@@ -33,6 +35,7 @@ class GuruSeeder extends Seeder
                 'alamat' => 'Jl. Melati No. 15',
             ],
             [
+                'user_id' => 14,
                 'nama' => 'Bambang Widodo',
                 'nip' => '9876543212',
                 'tanggal_lahir' => '1979-06-23',
@@ -42,6 +45,7 @@ class GuruSeeder extends Seeder
                 'alamat' => 'Jl. Kenangan No. 8',
             ],
             [
+                'user_id' => 15,
                 'nama' => 'Ayu Lestari',
                 'nip' => '9876543213',
                 'tanggal_lahir' => '1983-07-25',
@@ -51,6 +55,7 @@ class GuruSeeder extends Seeder
                 'alamat' => 'Jl. Pahlawan No. 20',
             ],
             [
+                'user_id' => 16,
                 'nama' => 'Rizky Maulana',
                 'nip' => '9876543214',
                 'tanggal_lahir' => '1984-09-30',
@@ -60,6 +65,7 @@ class GuruSeeder extends Seeder
                 'alamat' => 'Jl. Cemara No. 5',
             ],
             [
+                'user_id' => 17,
                 'nama' => 'Nadia Zahra',
                 'nip' => '9876543215',
                 'tanggal_lahir' => '1985-10-12',
@@ -69,6 +75,7 @@ class GuruSeeder extends Seeder
                 'alamat' => 'Jl. Sakura No. 7',
             ],
             [
+                'user_id' => 18,
                 'nama' => 'Agus Salim',
                 'nip' => '9876543216',
                 'tanggal_lahir' => '1986-12-16',
@@ -78,6 +85,7 @@ class GuruSeeder extends Seeder
                 'alamat' => 'Jl. Jambu No. 4',
             ],
             [
+                'user_id' => 19,
                 'nama' => 'Putri Andini',
                 'nip' => '9876543217',
                 'tanggal_lahir' => '1987-01-21',
@@ -87,6 +95,7 @@ class GuruSeeder extends Seeder
                 'alamat' => 'Jl. Durian No. 12',
             ],
             [
+                'user_id' => 20,
                 'nama' => 'Dani Pratama',
                 'nip' => '9876543218',
                 'tanggal_lahir' => '1988-03-18',
@@ -96,6 +105,7 @@ class GuruSeeder extends Seeder
                 'alamat' => 'Jl. Pisang No. 3',
             ],
             [
+                'user_id' => 21,
                 'nama' => 'Melati Anjani',
                 'nip' => '9876543219',
                 'tanggal_lahir' => '1989-05-05',

@@ -16,10 +16,6 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->string('name_admin')->nullable();
             $table->string('password')->nullable();
-            $table->unsignedBigInteger('siswa_id')->nullable();
-            $table->unsignedBigInteger('guru_id')->nullable();
-            $table->foreign('siswa_id')->references('id')->on('siswa')->onDelete('set null');
-            $table->foreign('guru_id')->references('id')->on('guru')->onDelete('set null');
             // $table->string('email')->unique()->nullable();
             $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
             $table->rememberToken();

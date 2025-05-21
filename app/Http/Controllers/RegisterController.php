@@ -47,14 +47,12 @@ class RegisterController extends Controller
 
     public function simpanAkun(Request $request)
     {
-
         $request->validate([
             'username' => 'required|unique:users,username',
-                    'password' => 'required|confirmed|min:6',
-                ]);
+            'password' => 'required|confirmed|min:6',
+        ]);
 
-                // Ambil data dari session
-                $role = Session::get('register_role');
+        $role = Session::get('register_role');
         $email = Session::get('register_email');
         $nama = Session::get('register_nama');
         $tanggal_lahir = Session::get('register_tanggal_lahir');
@@ -64,46 +62,46 @@ class RegisterController extends Controller
             return back()->with('error', 'Data tidak lengkap.');
         }
 
-        // Buat data ke tabel sesuai role
         if ($role === 'siswa') {
-            $siswa = Siswa::create([
+            $user = User::create([
+                'username' => $request->username,
+                'password' => Hash::make($request->password),
+                'role_id' => 4,
+            ]);
+
+            $user->siswa()->create([
                 'nama' => $nama,
                 'email' => $email,
                 'tanggal_lahir' => $tanggal_lahir,
                 'no_hp' => $no_hp,
-            ]);
-
-            User::create([
-                'username' => $request->username,
-                'password' => Hash::make($request->password),
-                'role_id' => 4, // role_id siswa
-                'siswa_id' => $siswa->id,
+                // tambahin data lain kalau ada
             ]);
         } elseif ($role === 'guru') {
-            $guru = Guru::create([
+            $user = User::create([
+                'username' => $request->username,
+                'password' => Hash::make($request->password),
+                'role_id' => 3,
+            ]);
+
+            $user->guru()->create([
                 'nama' => $nama,
                 'email' => $email,
                 'tanggal_lahir' => $tanggal_lahir,
                 'no_hp' => $no_hp,
-            ]);
-
-            User::create([
-                'username' => $request->username,
-                'password' => Hash::make($request->password),
-                'role_id' => 3, // role_id guru
-                'guru_id' => $guru->id,
+                // data lainnya
             ]);
         }
 
-        // Bersihkan session
+        // Hapus session
         Session::forget([
-            'register_email',
             'register_nama',
+            'register_email',
             'register_tanggal_lahir',
             'register_no_hp',
             'register_role'
-        ]);
+        ]); 
 
-        return redirect()->route('login', ['role' => $role])->with('success', 'Akun berhasil dibuat. Silakan login!');
+        return redirect()->route('login', ['role' => $role])
+            ->with('success', 'Akun berhasil dibuat. Silakan login!');
     }
 }

@@ -40,7 +40,7 @@ class User extends Authenticatable
 
     public function siswa()
     {
-        return $this->belongsTo(Siswa::class);
+        return $this->hasOne(Siswa::class);
     }
 
     public function walas()
@@ -50,7 +50,7 @@ class User extends Authenticatable
 
     public function guru()
     {
-        return $this->belongsTo(Guru::class, 'guru_id');
+        return $this->hasOne(Guru::class);
     }
 
     public function kelas()

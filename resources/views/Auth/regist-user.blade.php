@@ -151,10 +151,7 @@
 
     // Submit form -> redirect ke login sesuai role
     document.getElementById("register-form").addEventListener("submit", function (e) {
-    // validasi udah aman di HTML & Laravel
-    // biarkan form jalan normal
     });
-
   });
 </script>
 
