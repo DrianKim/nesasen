@@ -80,7 +80,7 @@ header .logo img {
 h2 {
     font-size: 1.5rem;
     color: #333;
-    margin-bottom: 2rem; /* Menambahkan jarak antara judul dan input */
+    margin-bottom: 0.8rem; /* Menambahkan jarak antara judul dan input */
     text-align: center;
 }
 

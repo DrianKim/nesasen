@@ -71,7 +71,7 @@
                                     <label class="form-label fw-bold">Jenip Kelamin</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-venus-mars"></i></span>
-                                        <select name="jenip_kelamin"
+                                        <select name="jenis_kelamin"
                                             class="form-control @error('jenip_kelamin') is-invalid @enderror">
                                             <option disabled>Pilih Jenis Kelamin</option>
                                             <option value="Laki-laki"

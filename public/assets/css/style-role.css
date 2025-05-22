@@ -161,6 +161,18 @@ footer p {
 
 /* Responsive Design untuk Mobile */
 @media (max-width: 768px) {
+    .container h1 {
+        margin-top: 40px;
+        text-align: start;
+        font-size: 1.3rem;
+        color: #222;
+    }
+
+    .container p {
+        text-align: start;
+        font-size: 0.9rem;
+    }
+
     .logo img {
         width: 110px;
         height: 40px;
@@ -181,13 +193,13 @@ footer p {
         align-items: center; /* Rata tengah */
         justify-content: flex-start; /* Teks di kiri, gambar di kanan */
         padding: 20px;
-        height: 160px; /* Tetap persegi panjang */
+        height: 110px; /* Tetap persegi panjang */
         gap: 20px; /* Jarak antara gambar dan teks */
     }
 
     .card img.vector {
-        width: 155px; /* Gambar vektor lebih besar di mobile */
-        height: 155px; /* Atur tinggi gambar vektor supaya lebih proporsional */
+        width: 150px; /* Gambar vektor lebih besar di mobile */
+        height: 150px; /* Atur tinggi gambar vektor supaya lebih proporsional */
         margin-top: auto;
         object-fit: cover; /* Agar gambar tidak pecah */
         flex-shrink: 0; /* Gambar nggak mengecil */
@@ -198,11 +210,11 @@ footer p {
     }
 
     .card-content h2 {
-        font-size: 1.2rem; /* Ukuran font lebih kecil untuk mobile */
+        font-size: 1.0rem; /* Ukuran font lebih kecil untuk mobile */
     }
 
     .card-content p {
-        font-size: 0.9rem; /* Ukuran font untuk deskripsi lebih kecil */
+        font-size: 0.8rem; /* Ukuran font untuk deskripsi lebih kecil */
     }
 
     /* Menambahkan hiasan di pojok kanan atas dan kiri bawah */
@@ -234,6 +246,10 @@ footer p {
 
     .decorative-image.bottom-left {
         width: 100px; /* Ukuran lebih kecil di mobile */
+    }
+
+    .social-media a {
+        font-size: 0.9rem;
     }
 
     /* Atur gambar hiasan tetap di belakang konten */

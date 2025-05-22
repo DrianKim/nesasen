@@ -9,11 +9,11 @@
     <meta name="author" content="Development Team">
     <meta name="theme-color" content="#4e73df">
 
-    <title>M-Kelas | {{ $title }}</title>
+    <title>Nesasen | {{ $title }}</title>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('img/favicon.png') }}" type="image/x-icon">
 
     <!-- Custom fonts for this template-->
     <link href="{{ asset('sbadmin2/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">

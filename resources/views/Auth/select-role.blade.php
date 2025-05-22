@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pilih Peran</title>
     <link rel="stylesheet" href="{{ asset('assets/css/style-role.css') }}">
-    <link href="{{ asset('enno/assets/img/favicon.png') }}" rel="icon">
+    <link href="{{ asset('img/favicon.png') }}" rel="icon">
     <link href="{{ asset('enno/assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
 </head>
 
@@ -46,10 +46,10 @@
             </a>
 
             <!-- Siswa -->
-            <a href="{{ url('login') }}?role=murid" class="card siswa">
+            <a href="{{ url('login') }}?role=siswa" class="card siswa">
                 <div class="card-content">
                     <h2>Siswa</h2>
-                    <p>Jika kamu murid NESAS yang CEREN, pilih yang ini</p>
+                    <p>Jika kamu siswa NESAS yang CEREN, pilih yang ini</p>
                 </div>
                 <img src="{{ asset('img/siswa-vector.png') }}" alt="Siswa" class="vector" />
             </a>
@@ -59,9 +59,9 @@
     <!-- Sosial Media Links -->
     <footer>
         <div class="social-media">
-            <a href="https://www.youtube.com/@NesasCeren" target="_blank">YouTube</a>
-            <a href="https://www.instagram.com/officialsmkn1subang/" target="_blank">Instagram</a>
-            <a href="https://www.facebook.com/officialsmkn1subang/" target="_blank">Facebook</a>
+            <a href="https://www.youtube.com/@NesasCeren" target="_blank" style="color:black">YouTube</a>
+            <a href="https://www.instagram.com/officialsmkn1subang/" target="_blank" style="color:black">Instagram</a>
+            <a href="https://www.facebook.com/officialsmkn1subang/" target="_blank" style="color:black">Facebook</a>
         </div>
         <p>&copy; {{ date('Y') }} Made with ❤️ by R & P.</p>
     </footer>

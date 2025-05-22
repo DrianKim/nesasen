@@ -7,7 +7,7 @@
     <title>Login</title>
     <link rel="stylesheet" href="{{ asset('assets/css/style-login.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-    <link href="{{ asset('enno/assets/img/favicon.png') }}" rel="icon">
+    <link href="{{ asset('img/favicon.png') }}" rel="icon">
     <link href="{{ asset('enno/assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
 </head>
 
@@ -70,7 +70,7 @@
                     <input type="checkbox" id="privacy" />
                     <label for="privacy">
                         Dengan login menggunakan username atau metode lain, saya setuju
-                        dengan <a href="#">Ketentuan Pengguna & Kebijakan Privasi</a>
+                        dengan <a href="{{ route('ketentuan-pengguna-&-kebijakan-privasi') }}">Ketentuan Pengguna & Kebijakan Privasi</a>
                     </label>
                 </div>
 

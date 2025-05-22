@@ -13,7 +13,7 @@ class RegisterController extends Controller
 {
     public function simpanData(Request $request)
     {
-        $role = $request->role === 'murid' ? 'siswa' : $request->role;
+        $role = $request->role === 'siswa' ? 'siswa' : $request->role;
 
         $request->merge(['role' => $role]);
 
@@ -50,7 +50,12 @@ class RegisterController extends Controller
         $request->validate([
             'username' => 'required|unique:users,username',
             'password' => 'required|confirmed|min:6',
-        ]);
+        ], [
+            'username.required' => 'Username Tidak Boleh Kosong',
+            'username.unique' => 'Username Sudah Digunakan',
+            'password.required' => 'Password Tidak Boleh Kosong',
+        ]
+    );
 
         $role = Session::get('register_role');
         $email = Session::get('register_email');

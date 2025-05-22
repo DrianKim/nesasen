@@ -31,7 +31,7 @@
                         </div>
                         <div class="ml-2">
                             <small class="text-muted d-block">NIS</small>
-                            <span class="fw-medium">{{ $profil->nis }}</span>
+                            <span class="fw-medium">{{ $profil->nis ?? '-' }}</span>
                         </div>
                     </div>
                 </div>
@@ -43,7 +43,7 @@
                         </div>
                         <div class="ml-2">
                             <small class="text-muted d-block">NIP</small>
-                            <span class="fw-medium">{{ $profil->nip }}</span>
+                            <span class="fw-medium">{{ $profil->nip ?? '-' }}</span>
                         </div>
                     </div>
                 </div>
@@ -66,7 +66,7 @@
                     </div>
                     <div class="ml-2">
                         <small class="text-muted d-block">Jenis Kelamin</small>
-                        <span class="fw-medium">{{ $profil->jenis_kelamin }}</span>
+                        <span class="fw-medium">{{ $profil->jenis_kelamin ?? '-' }}</span>
                     </div>
                 </div>
             </div>
@@ -90,7 +90,7 @@
                     </div>
                     <div class="ml-2">
                         <small class="text-muted d-block">Alamat</small>
-                        <span class="fw-medium">{{ $profil->alamat }}</span>
+                        <span class="fw-medium">{{ $profil->alamat ?? '-' }}</span>
                     </div>
                 </div>
             </div>

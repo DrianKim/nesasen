@@ -7,7 +7,7 @@
     <title>Daftar Akun</title>
     <link rel="stylesheet" href="{{ asset('assets/css/style-register.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-    <link href="{{ asset('enno/assets/img/favicon.png') }}" rel="icon">
+    <link href="{{ asset('img/favicon.png') }}" rel="icon">
     <link href="{{ asset('enno/assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
 </head>
 
@@ -33,22 +33,34 @@
                 <!-- Input Username -->
                 <div class="input-group">
                     <label for="username">Username</label>
-                    <input type="text" id="username" name="username" placeholder="Username" required />
+                    <input type="text" id="username" name="username" placeholder="Username" required
+                        class="@error('username') is-invalid @enderror" />
                     <span class="input-icon3">
                         <i class="fa fa-user"></i>
                     </span>
+                    <small>
+                        @error('username')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </small>
                 </div>
 
                 <!-- Input Password -->
                 <div class="input-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Password" required />
+                    <input type="password" id="password" name="password" placeholder="Password" required
+                        class="@error('password') is-invalid @enderror" />
                     <span class="input-icon3">
                         <i class="fa fa-lock"></i>
                     </span>
                     <span class="eye-icon" id="toggle-password">
                         <i class="fa fa-eye"></i>
                     </span>
+                    <small>
+                        @error('password')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </small>
                 </div>
 
                 <!-- Input Confirm Password -->

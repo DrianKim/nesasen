@@ -17,6 +17,11 @@ Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
+// Ketentuan Pengguana & Kebijakan Privasi
+Route::get('/ketentuan-pengguna-&-kebijakan-privasi', function () {
+    return view('ketentuan-pengguna-&-kebijakan-privasi');
+})->name('ketentuan-pengguna-&-kebijakan-privasi');
+
 // Select Role Page
 Route::get('/pilih-role', function () {
     return view('auth.select-role');
@@ -94,7 +99,7 @@ Route::middleware(['isLogin'])->group(function () {
     Route::middleware(['auth', 'isAdmin'])->group(function () {
         // Dashboard
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        
+
         // umum kelas
         Route::get('admin/kelas', [AdminController::class, 'index_kelas'])->name('admin_kelas.index');
         Route::get('admin/kelas/filter', [AdminController::class, 'index_kelas'])->name('admin_kelas.filter');

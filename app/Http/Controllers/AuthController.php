@@ -30,6 +30,14 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
+
+            // Cek role dari request URL
+            if ($user->role->nama_role !== $request->role) {
+                Auth::logout();
+                return redirect()->back()->with('error', 'Role tidak sesuai, silakan login sesuai peran');
+            }
+
+            // Redirect sesuai role_id
             if ($user->role_id == 1) {
                 return redirect()->route('dashboard')->with('success', 'Anda Berhasil Login');
             } elseif ($user->role_id == 2 || $user->role_id == 3) {
@@ -41,7 +49,7 @@ class AuthController extends Controller
                 return redirect()->back()->with('error', 'Role tidak dikenali');
             }
         } else {
-            return redirect()->back()->with('error', 'Username atau Password Salah');
+            return redirect()->back()->with('error', 'Username atau Password salah');
         }
     }
 

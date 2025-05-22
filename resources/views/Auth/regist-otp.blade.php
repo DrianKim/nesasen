@@ -8,7 +8,7 @@
     <title>Daftar</title>
     <link rel="stylesheet" href="{{ asset('assets/css/style-register.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-    <link href="{{ asset('enno/assets/img/favicon.png') }}" rel="icon">
+    <link href="{{ asset('img/favicon.png') }}" rel="icon">
     <link href="{{ asset('enno/assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
@@ -62,7 +62,7 @@
                     <input type="checkbox" id="privacy" />
                     <label for="privacy">
                         Saya telah membaca dan menyetujui
-                        <a href="#">Ketentuan Pengguna & Kebijakan Privasi</a>
+                        <a href="{{ route('ketentuan-pengguna-&-kebijakan-privasi') }}">Ketentuan Pengguna & Kebijakan Privasi</a>
                     </label>
                 </div>
 

@@ -34,7 +34,7 @@ class AdminController extends Controller
     // public function index_walas()
     // {
     //     $data = array(
-    //         'title' => 'Halaman Daftar Wali Kelas',
+    //         'title' => 'Daftar Wali Kelas',
     //         'menuPengguna' => 'active',
     //         // 'menu_admin_index_walas' => 'active',
     //         'walas' => Walas::with('guru')->get(),
@@ -45,7 +45,7 @@ class AdminController extends Controller
     // public function create_walas()
     // {
     //     $data = array(
-    //         'title' => 'Halaman Tambah Wali Kelas',
+    //         'title' => 'Tambah Wali Kelas',
     //         'menuPengguna' => 'active',
     //         // 'menu_admin_index_walas' => 'active',
     //         'walas' => Walas::with('guru')->get(),
@@ -149,7 +149,7 @@ class AdminController extends Controller
         $guruWalasIds = Walas::pluck('user_id');
 
         $data = [
-            'title' => 'Halaman Daftar Kelas',
+            'title' => 'Daftar Kelas',
             'menuAdmin' => 'active',
             'jurusanList' => Jurusan::all(),
             'guruList' => Guru::whereHas('user', function ($query) use ($guruWalasIds) {
@@ -172,7 +172,7 @@ class AdminController extends Controller
     public function create_kelas()
     {
         $data = array(
-            'title' => 'Halaman Tambah Kelas',
+            'title' => 'Tambah Kelas',
             'menuAdmin' => 'active',
             // 'menu_admin_index_kelas' => 'active',
             'jurusanList' => Jurusan::all(),
@@ -229,7 +229,7 @@ class AdminController extends Controller
         $kelas = Kelas::findOrFail($id);
 
         $data = array(
-            'title' => 'Halaman Edit Kelas',
+            'title' => 'Edit Kelas',
             'menuAdmin' => 'active',
             'kelas' => $kelas,
             'jurusanList' => Jurusan::all(),
@@ -397,7 +397,7 @@ class AdminController extends Controller
         $kelasKu = $query->paginate($perPage)->withQueryString();
 
         $data = [
-            'title' => 'Halaman Kelasku',
+            'title' => 'Kelasku',
             'menuAdmin' => 'active',
             'kelasKu' => $kelasKu,
             'mapelList' => MataPelajaran::all(),
@@ -541,7 +541,7 @@ class AdminController extends Controller
         $tahunAjaranFilter = Kelas::select('tahun_ajaran')->distinct()->pluck('tahun_ajaran');
 
         $data = [
-            'title' => 'Halaman Data Siswa',
+            'title' => 'Data Siswa',
             'kelasList' => Kelas::all(),
             'siswa' => $siswa,
             'kelasFilter' => $kelasFilter,
@@ -561,7 +561,7 @@ class AdminController extends Controller
     public function create_siswa()
     {
         $data = array(
-            'title' => 'Halaman Tambah Siswa',
+            'title' => 'Tambah Siswa',
             'menuPengguna' => 'active',
             // 'menu_admin_index_siswa' => 'active',
             'kelasList' => Kelas::all(),
@@ -670,7 +670,7 @@ class AdminController extends Controller
     public function edit_siswa($id)
     {
         $data = array(
-            'title' => 'Halaman Edit Siswa',
+            'title' => 'Edit Siswa',
             'menuPengguna' => 'active',
             // 'menu_admin_index_siswa' => 'active',
             'siswa' => Siswa::with('user', 'kelas.jurusan')->findOrFail($id),
@@ -820,7 +820,7 @@ class AdminController extends Controller
         $guru = $query->paginate($perPage)->withQueryString();
 
         $data = [
-            'title' => 'Halaman Data Guru',
+            'title' => 'Data Guru',
             'guru' => $guru,
         ];
 
@@ -837,7 +837,7 @@ class AdminController extends Controller
     public function create_guru()
     {
         $data = array(
-            'title' => 'Halaman Tambah Guru',
+            'title' => 'Tambah Guru',
             'menuPengguna' => 'active',
             // 'menu_admin_index_guru' => 'active',
         );
@@ -902,7 +902,7 @@ class AdminController extends Controller
     public function edit_guru($id)
     {
         $data = array(
-            'title' => 'Halaman Edit Guru',
+            'title' => 'Edit Guru',
             'menuPengguna' => 'active',
             // 'menu_admin_index_guru' => 'active',
             'guru' => Guru::with('user')->findOrFail($id),
@@ -1019,7 +1019,7 @@ class AdminController extends Controller
     public function index_jadwal_pelajaran()
     {
         $data = array(
-            'title' => 'Halaman Jadwal Pelajaran',
+            'title' => 'Jadwal Pelajaran',
             'menuAdmin' => 'active',
             // 'menu_admin_index_jurusan' => 'active',
             // 'jurusan' => Jurusan::orderby('nama_jurusan', 'asc')->get(),
@@ -1065,7 +1065,7 @@ class AdminController extends Controller
         $jurusan = $query->paginate($perPage)->withQueryString();
 
         $data = [
-            'title' => 'Halaman Daftar Jurusan',
+            'title' => 'Daftar Jurusan',
             // 'menuAdmin' => 'active',
             'jurusan' => $jurusan,
         ];
@@ -1083,7 +1083,7 @@ class AdminController extends Controller
     public function create_jurusan()
     {
         $data = array(
-            'title' => 'Halaman Tambah Jurusan',
+            'title' => 'Tambah Jurusan',
             'menuAdmin' => 'active',
             // 'menu_admin_index_jurusan' => 'active',
         );
@@ -1119,7 +1119,7 @@ class AdminController extends Controller
     public function edit_jurusan($id)
     {
         $data = array(
-            'title' => 'Halaman Edit Jurusan',
+            'title' => 'Edit Jurusan',
             'menuAdmin' => 'active',
             // 'menu_admin_index_jurusan' => 'active',
             'jurusan' => Jurusan::findOrFail($id),
@@ -1217,7 +1217,7 @@ class AdminController extends Controller
         $mapel = $query->paginate($perPage)->withQueryString();
 
         $data = [
-            'title' => 'Halaman Daftar Mapel',
+            'title' => 'Daftar Mapel',
             'menuAdmin' => 'active',
             // 'menu_admin_index_mapel' => 'active',
             'mapel' => $mapel,
@@ -1236,7 +1236,7 @@ class AdminController extends Controller
     public function create_mapel()
     {
         $data = array(
-            'title' => 'Halaman Tambah Mapel',
+            'title' => 'Tambah Mapel',
             'menuAdmin' => 'active',
             // 'menu_admin_index_mapel' => 'active',
         );
@@ -1271,7 +1271,7 @@ class AdminController extends Controller
     public function edit_mapel($id)
     {
         $data = array(
-            'title' => 'Halaman Daftar Mapel',
+            'title' => 'Daftar Mapel',
             'menuAdmin' => 'active',
             'mapel' => MataPelajaran::findorfail($id),
             // 'mapel' => $mapel,
@@ -1647,7 +1647,7 @@ class AdminController extends Controller
 // public function index_semester()
 // {
 //     $data = array(
-//         'title' => 'Halaman Daftar Semester',
+//         'title' => 'Daftar Semester',
 //         'menu_admin_index_guru' => 'active',
 //         'guru' => Guru::get(),
 //     );
@@ -1657,7 +1657,7 @@ class AdminController extends Controller
 // public function index_tahunAjaran()
 // {
 //     $data = array(
-//         'title' => 'Halaman Daftar Guru',
+//         'title' => 'Daftar Guru',
 //         'menu_admin_index_guru' => 'active',
 //         'guru' => Guru::with('user', 'mapel_kelas.mapel')->get(),
 //     );
