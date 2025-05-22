@@ -17,7 +17,7 @@ class isAdmin
     public function handle(Request $request, Closure $next): Response
     {
         if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Silahkan Login Terlebih Dahulu');
+            return redirect()->route('selectRole')->with('error', 'Silahkan Login Terlebih Dahulu');
         }
 
         if (Auth::user()->role_id == 1) {

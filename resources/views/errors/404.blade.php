@@ -24,8 +24,8 @@
             <p class="mb-4 text-muted">Mungkin sudah dihapus, atau anda tidak mempunyai akses.</p>
 
             <div class="gap-3 mb-3 d-flex flex-column flex-md-row justify-content-center">
-                <a href="{{ route('dashboard') }}" class="btn btn-primary btn-lg">
-                    <i class="fas fa-home"></i> Kembali ke Dashboard
+                <a href="javascript:history.back()" class="btn btn-primary btn-lg">
+                    <i class="fas fa-arrow-left"></i> Kembali ke Halaman Sebelumnya
                 </a>
             </div>
 

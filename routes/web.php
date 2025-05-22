@@ -57,8 +57,6 @@ Route::post('/send-otp', [OtpController::class, 'kirimOtp'])->name('sendOtp');
 Route::post('/verifikasi-otp', [OtpController::class, 'verifikasiOtp'])->name('verifikasiOtp');
 
 Route::middleware(['isLogin'])->group(function () {
-    // Dashboard
-    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // profil
     Route::get('profil', [ProfilController::class, 'index'])->name('profil.index');
@@ -94,6 +92,9 @@ Route::middleware(['isLogin'])->group(function () {
     Route::get('siswa/jadwal', [SiswaController::class, 'index_jadwal'])->name('siswa.jadwal');
 
     Route::middleware(['auth', 'isAdmin'])->group(function () {
+        // Dashboard
+        Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        
         // umum kelas
         Route::get('admin/kelas', [AdminController::class, 'index_kelas'])->name('admin_kelas.index');
         Route::get('admin/kelas/filter', [AdminController::class, 'index_kelas'])->name('admin_kelas.filter');

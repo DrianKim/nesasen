@@ -18,8 +18,8 @@ class checkLogin
     {
         if (Auth::check()) {
             return $next($request);
-        } else {    
-            return redirect()->route('login')
+        } else {
+            return redirect()->route('selectRole')
                                     ->with('error', 'Anda Belum Login!');
         }
     }

@@ -80,6 +80,17 @@
         </script>
     @endif
 
+    @if (session('error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: '{{ session('error') }}',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>
+    @endif
+
 </body>
 
 </html>
