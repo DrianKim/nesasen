@@ -564,7 +564,7 @@
             <p>SMKN 1 Subang berhak memperbarui ketentuan dan kebijakan Nesasen kapan saja. Perubahan akan diumumkan
                 melalui:</p>
             <ul>
-                <li>notifikasi dalam aplikasi</li>
+                <li>Notifikasi dalam aplikasi</li>
                 <li>Pengumuman di website sekolah</li>
                 <li>Email ke pengguna terdaftar</li>
             </ul>
