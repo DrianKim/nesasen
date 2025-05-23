@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ketentuan & Kebijakan Privasi - NESAS Presensi</title>
+    <title>Ketentuan & Kebijakan Privasi - Nesasen</title>
     <link rel="stylesheet" href="{{ asset('assets/css/style-role.css') }}">
     <link href="{{ asset('img/favicon.png') }}" rel="icon">
     <link href="{{ asset('enno/assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
@@ -33,7 +33,7 @@
 
         /* Additional styles for terms and privacy page */
         .content-section {
-        background: white;
+            background: white;
             border-radius: 15px;
             padding: 30px;
             margin: 20px 0;
@@ -393,67 +393,59 @@
         </a>
 
         <h1 class="main-title">Ketentuan Pengguna & Kebijakan Privasi</h1>
-        {{-- <style>
-            @media (max-width: 480px) {
-                .main-title {
-                    font-size: 1.1em !important;
-                }
-            }
-
-            @media (max-width: 768px) and (min-width: 481px) {}
-        </style> --}}
-        <p>Aplikasi Presensi Online SMKN 1 Subang</p>
+        <p>Aplikasi Nesasen – SMKN 1 Subang</p>
 
         <div class="highlight-box">
-            <h3>Selamat Datang di NESAS Presensi!</h3>
-            <p>Dengan menggunakan aplikasi ini, Anda menyetujui ketentuan penggunaan dan kebijakan privasi yang berlaku.
-            </p>
+            <h3>Selamat Datang di Nesasen!</h3>
+            <p>Dengan mengakses dan menggunakan aplikasi ini, Anda dianggap telah membaca, memahami, dan menyetujui
+                seluruh ketentuan serta kebijakan privasi yang berlaku.</p>
         </div>
 
         <!-- KETENTUAN PENGGUNA -->
         <div class="content-section">
             <h2>📋 Ketentuan Pengguna</h2>
 
-            <h3>1. Penerimaan Ketentuan</h3>
-            <p>Dengan mengakses dan menggunakan aplikasi NESAS Presensi, Anda menyetujui untuk mematuhi semua ketentuan
-                dan syarat yang ditetapkan dalam dokumen ini.</p>
+            <h3>1. Persetujuan Penggunaan</h3>
+            <p>Dengan menggunakan Nesasen, Anda menyetujui untuk mematuhi seluruh aturan penggunaan aplikasi yang telah
+                ditetapkan oleh pihak sekolah.</p>
 
-            <h3>2. Penggunaan Aplikasi</h3>
+            <h3>2. Peran & Kewajiban Pengguna</h3>
             <ul>
-                <li><strong>Siswa:</strong> Wajib melakukan presensi sesuai jadwal yang telah ditentukan</li>
-                <li><strong>Guru:</strong> Dapat memantau dan mengelola presensi siswa dalam kelas yang diampu</li>
-                <li><strong>Admin:</strong> Memiliki akses penuh untuk mengelola sistem presensi</li>
+                <li><strong>Siswa:</strong> Melakukan presensi sesuai jadwal, mengerjakan dan mengumpulkan tugas dari
+                    guru melalui aplikasi.</li>
+                <li><strong>Guru:</strong> Mengelola presensi siswa, memberikan tugas, dan menilai hasil tugas siswa
+                    secara digital.</li>
+                <li><strong>Admin:</strong> Mengelola sistem secara keseluruhan, termasuk data pengguna, jadwal
+                    pelajaran, dan laporan aktivitas.</li>
             </ul>
 
-            <h3>3. Kewajiban Pengguna</h3>
+            <h3>3. Tanggung Jawab Pengguna</h3>
             <ol>
-                <li>Menggunakan akun pribadi dan tidak memberikan kredensial kepada orang lain</li>
-                <li>Memberikan informasi yang akurat dan benar saat melakukan presensi</li>
-                <li>Melakukan presensi dari lokasi yang telah ditentukan (area sekolah)</li>
-                <li>Mengambil foto selfie yang jelas dan sesuai untuk validasi identitas</li>
-                <li>Tidak melakukan manipulasi lokasi atau data presensi</li>
-                <li>Menjaga kerahasiaan akun dan password pribadi</li>
+                <li>Wajib menggunakan akun pribadi dan menjaga kerahasiaannya.</li>
+                <li>Memberikan data yang benar saat melakukan presensi dan tugas.</li>
+                <li>Presensi hanya diperbolehkan dari area sekolah yang telah ditentukan.</li>
+                <li>Foto selfie harus jelas dan sesuai untuk verifikasi kehadiran.</li>
+                <li>Dilarang memalsukan lokasi atau informasi apapun di aplikasi.</li>
             </ol>
 
             <div class="warning-box">
-                <strong>Peringatan:</strong> Setiap upaya manipulasi data presensi atau pelanggaran ketentuan akan
-                mengakibatkan sanksi sesuai dengan peraturan sekolah yang berlaku.
+                <strong>Perhatian:</strong> Pelanggaran terhadap ketentuan ini dapat dikenai sanksi sesuai kebijakan
+                SMKN 1 Subang.
             </div>
 
             <h3>4. Batasan Penggunaan</h3>
             <ul>
-                <li>Aplikasi hanya boleh digunakan untuk keperluan presensi sekolah</li>
-                <li>Dilarang menggunakan aplikasi untuk tujuan yang tidak sesuai</li>
-                <li>Dilarang melakukan reverse engineering atau modifikasi aplikasi</li>
-                <li>Dilarang menyebarkan informasi atau data dari aplikasi tanpa izin</li>
+                <li>Nesasen hanya untuk keperluan kegiatan sekolah.</li>
+                <li>Dilarang menggunakan aplikasi untuk kepentingan pribadi yang tidak berkaitan dengan sekolah.</li>
+                <li>Dilarang memodifikasi, meretas, atau menyebarkan sistem Nesasen tanpa izin.</li>
             </ul>
 
-            <h3>5. Sanksi dan Pelanggaran</h3>
-            <p>Pelanggaran terhadap ketentuan ini dapat mengakibatkan:</p>
+            <h3>5. Konsekuensi Pelanggaran</h3>
+            <p>Pelanggaran terhadap ketentuan ini dapat berakibat:</p>
             <ul>
-                <li>Pemblokiran akses sementara atau permanen</li>
-                <li>Sanksi akademik sesuai peraturan sekolah</li>
-                <li>Pelaporan kepada pihak yang berwenang jika diperlukan</li>
+                <li>Pembatasan atau pemblokiran akses ke aplikasi.</li>
+                <li>Sanksi akademik sesuai kebijakan sekolah.</li>
+                <li>Tindakan hukum jika terdapat unsur pelanggaran berat.</li>
             </ul>
         </div>
 
@@ -461,89 +453,87 @@
         <div class="content-section">
             <h2>🔒 Kebijakan Privasi</h2>
 
-            <h3>1. Informasi yang Kami Kumpulkan</h3>
+            <h3>1. Data yang Kami Kumpulkan</h3>
 
-            <h4>a. Data Pribadi:</h4>
+            <h4>a. Data Identitas:</h4>
             <ul>
-                <li>Nama lengkap dan nomor induk siswa/guru</li>
-                <li>Kelas dan jurusan (untuk siswa)</li>
-                <li>Mata pelajaran yang diampu (untuk guru)</li>
-                <li>Alamat email dan nomor telepon (jika diperlukan)</li>
+                <li>Nama lengkap dan NIS/NIP</li>
+                <li>Kelas dan jurusan siswa</li>
+                <li>Mata pelajaran yang diampu guru</li>
+                <li>Kontak seperti email dan nomor HP</li>
             </ul>
 
             <h4>b. Data Presensi:</h4>
             <ul>
-                <li>Waktu check-in dan check-out</li>
-                <li>Lokasi geografis saat melakukan presensi</li>
-                <li>Foto selfie untuk validasi identitas</li>
-                <li>Alasan keterlambatan atau ketidakhadiran</li>
-                <li>Status kehadiran (hadir, terlambat, izin, sakit, alfa)</li>
+                <li>Jam masuk dan keluar</li>
+                <li>Lokasi saat presensi dilakukan</li>
+                <li>Foto selfie untuk verifikasi</li>
+                <li>Alasan izin atau ketidakhadiran</li>
+                <li>Status presensi: hadir, telat, izin, sakit, alfa</li>
             </ul>
 
             <h4>c. Data Teknis:</h4>
             <ul>
-                <li>Alamat IP perangkat</li>
-                <li>Jenis perangkat dan browser yang digunakan</li>
-                <li>Log aktivitas dalam aplikasi</li>
-                <li>Metadata foto yang diambil</li>
+                <li>Alamat IP dan jenis perangkat</li>
+                <li>Browser yang digunakan</li>
+                <li>Riwayat aktivitas di aplikasi</li>
+                <li>Metadata foto selfie</li>
             </ul>
 
-            <h3>2. Cara Kami Menggunakan Informasi</h3>
+            <h3>2. Penggunaan Informasi</h3>
             <ul>
-                <li>Memproses dan mencatat kehadiran siswa dan guru</li>
-                <li>Membuat laporan presensi untuk keperluan akademik</li>
-                <li>Memverifikasi identitas pengguna melalui foto selfie</li>
-                <li>Memantau dan mencegah penyalahgunaan sistem</li>
-                <li>Meningkatkan kualitas layanan aplikasi</li>
-                <li>Memberikan notifikasi terkait presensi</li>
+                <li>Memproses dan mencatat kehadiran</li>
+                <li>Menampilkan laporan presensi dan tugas</li>
+                <li>Verifikasi identitas melalui foto selfie</li>
+                <li>Deteksi penyalahgunaan sistem</li>
+                <li>Peningkatan layanan aplikasi</li>
+                <li>Notifikasi terkait aktivitas pengguna</li>
             </ul>
 
-            <h3>3. Penyimpanan dan Keamanan Data</h3>
+            <h3>3. Keamanan & Penyimpanan Data</h3>
             <ul>
-                <li>Data disimpan di server yang aman dan terlindungi</li>
-                <li>Akses data dibatasi hanya untuk pihak yang berwenang</li>
-                <li>Menggunakan enkripsi untuk melindungi data sensitif</li>
-                <li>Backup data dilakukan secara berkala</li>
-                <li>Server dilindungi dengan firewall dan sistem keamanan terkini</li>
+                <li>Data disimpan dengan sistem keamanan berlapis</li>
+                <li>Hanya pihak berwenang yang dapat mengakses data</li>
+                <li>Data sensitif dilindungi dengan enkripsi</li>
+                <li>Backup dilakukan secara rutin</li>
             </ul>
 
-            <h3>4. Pembagian Informasi</h3>
-            <p>Kami <strong>TIDAK</strong> akan membagikan informasi pribadi Anda kepada pihak ketiga, kecuali:</p>
+            <h3>4. Pembagian Data</h3>
+            <p>Kami <strong>TIDAK</strong> membagikan data pribadi tanpa izin, kecuali jika diperlukan untuk:</p>
             <ul>
-                <li>Untuk keperluan akademik internal sekolah</li>
-                <li>Kepada orang tua/wali siswa terkait kehadiran anaknya</li>
-                <li>Jika diwajibkan oleh hukum atau otoritas yang berwenang</li>
-                <li>Untuk melindungi hak dan keamanan sekolah</li>
+                <li>Kepentingan internal sekolah</li>
+                <li>Informasi kehadiran kepada orang tua/wali</li>
+                <li>Proses hukum atau permintaan resmi dari pihak berwenang</li>
             </ul>
 
-            <h3>5. Hak Pengguna</h3>
-            <p>Anda memiliki hak untuk:</p>
+            <h3>5. Hak Anda</h3>
+            <p>Pengguna berhak untuk:</p>
             <ul>
-                <li>Mengakses data pribadi yang kami simpan</li>
-                <li>Meminta koreksi data yang tidak akurat</li>
-                <li>Mengetahui bagaimana data Anda digunakan</li>
-                <li>Mengajukan keluhan terkait penggunaan data</li>
+                <li>Mengakses dan melihat data pribadi yang tersimpan</li>
+                <li>Meminta koreksi data jika ada kesalahan</li>
+                <li>Mengetahui bagaimana data digunakan</li>
+                <li>Menyampaikan keluhan atau pertanyaan terkait privasi</li>
             </ul>
 
             <div class="warning-box">
-                <strong>Catatan Penting:</strong> Foto selfie yang diambil akan disimpan untuk keperluan validasi dan
-                dapat digunakan untuk investigasi jika terjadi ketidaksesuaian data presensi.
+                <strong>Catatan:</strong> Foto selfie akan disimpan untuk keperluan verifikasi, dan dapat digunakan
+                dalam penyelidikan jika ditemukan ketidaksesuaian data.
             </div>
 
-            <h3>6. Retensi Data</h3>
+            <h3>6. Masa Penyimpanan Data</h3>
             <ul>
-                <li>Data presensi akan disimpan selama masa studi siswa</li>
-                <li>Data dapat disimpan lebih lama untuk keperluan arsip sekolah</li>
-                <li>Foto selfie akan dihapus setelah periode tertentu kecuali diperlukan untuk investigasi</li>
-                <li>Data yang tidak relevan akan dihapus secara berkala</li>
+                <li>Data akan disimpan selama masa aktif sebagai siswa/guru</li>
+                <li>Dapat diperpanjang untuk keperluan dokumentasi sekolah</li>
+                <li>Foto selfie akan dihapus setelah masa tertentu, kecuali jika dibutuhkan</li>
+                <li>Data tidak relevan akan dihapus secara berkala</li>
             </ul>
 
-            <h3>7. Cookies dan Teknologi Pelacakan</h3>
+            <h3>7. Cookies & Teknologi Pelacakan</h3>
             <ul>
-                <li>Kami menggunakan cookies untuk meningkatkan pengalaman pengguna</li>
-                <li>Session cookies digunakan untuk menjaga login pengguna</li>
-                <li>Analytics cookies untuk memahami penggunaan aplikasi</li>
-                <li>Anda dapat mengatur preferensi cookies melalui browser</li>
+                <li>Kami menggunakan cookies untuk menyimpan preferensi pengguna</li>
+                <li>Session cookies menjaga login tetap aktif</li>
+                <li>Cookies juga digunakan untuk keperluan analitik</li>
+                <li>Pengguna bisa mengatur cookies melalui pengaturan browser</li>
             </ul>
         </div>
 
@@ -551,8 +541,7 @@
         <div class="content-section">
             <h2>📞 Kontak dan Pertanyaan</h2>
 
-            <p>Jika Anda memiliki pertanyaan, keluhan, atau memerlukan bantuan terkait aplikasi ini, silakan hubungi:
-            </p>
+            <p>Untuk pertanyaan, keluhan, atau bantuan teknis seputar Nesasen, silakan hubungi:</p>
 
             <h3>Tim IT SMKN 1 Subang</h3>
             <ul>
@@ -564,25 +553,24 @@
             <h3>Jam Layanan</h3>
             <ul>
                 <li><strong>Senin - Jumat:</strong> 07:00 - 16:00 WIB</li>
-                <li><strong>Sabtu:</strong> 07:00 - 12:00 WIB</li>
-                <li><strong>Minggu dan Hari Libur:</strong> Tutup</li>
+                <li><strong>Sabtu, Minggu, & Hari Libur:</strong> Tutup</li>
             </ul>
         </div>
 
         <!-- PERUBAHAN KEBIJAKAN -->
         <div class="content-section">
-            <h2>📝 Perubahan Ketentuan dan Kebijakan</h2>
+            <h2>📝 Perubahan Ketentuan & Kebijakan</h2>
 
-            <p>SMKN 1 Subang berhak untuk mengubah atau memperbarui ketentuan dan kebijakan privasi ini sewaktu-waktu.
-                Perubahan akan diberitahukan melalui:</p>
+            <p>SMKN 1 Subang berhak memperbarui ketentuan dan kebijakan Nesasen kapan saja. Perubahan akan diumumkan
+                melalui:</p>
             <ul>
                 <li>Notifikasi dalam aplikasi</li>
                 <li>Pengumuman di website sekolah</li>
-                <li>Email kepada pengguna terdaftar</li>
+                <li>Email ke pengguna terdaftar</li>
             </ul>
 
-            <p>Dengan terus menggunakan aplikasi setelah perubahan diberlakukan, Anda dianggap menyetujui ketentuan yang
-                baru.</p>
+            <p>Dengan terus menggunakan Nesasen setelah ada pembaruan, Anda dianggap telah menyetujui perubahan
+                tersebut.</p>
         </div>
 
         <div class="last-updated">
@@ -590,6 +578,7 @@
             <p><strong>Berlaku efektif:</strong> {{ date('d F Y') }}</p>
         </div>
     </main>
+
 
     <!-- Sosial Media Links -->
     <footer>
