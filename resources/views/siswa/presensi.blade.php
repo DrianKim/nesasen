@@ -65,26 +65,57 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="py-4 text-center modal-body">
-                    <div class="mb-3 selfie-illustration">
-                        <img src="{{ asset('assets/img/selfie-illustration.png') }}" alt="Selfie Icon" class="img-fluid"
-                            style="max-height: 150px;">
+                    <!-- Initial View: Before taking selfie -->
+                    <div id="initial-view">
+                        <div class="mb-3 selfie-illustration">
+                            <img src="{{ asset('assets/img/selfie-illustration.png') }}" alt="Selfie Icon" class="img-fluid"
+                                style="max-height: 150px;">
+                        </div>
+                        <h5 class="mb-2 modal-title" id="selfieModalLabel">Ketentuan Validasi</h5>
+                        <p class="mb-4 text-muted">Untuk menjaga keamanan dan integritas presensi, kami butuh selfie kamu
+                            ya.
+                        </p>
                     </div>
-                    <h5 class="mb-2 modal-title" id="selfieModalLabel">Ketentuan Validasi</h5>
-                    <p class="mb-4 text-muted">Untuk menjaga keamanan dan integritas presensi, kami butuh selfie kamu ya.
-                    </p>
 
+                    <!-- Camera View -->
                     <div id="camera-container" class="mb-3" style="display: none;">
                         <video id="camera-preview" width="100%" autoplay></video>
                         <canvas id="selfie-canvas" style="display: none;"></canvas>
-                        <img id="selfie-preview" class="mb-3 rounded img-fluid" style="display: none; max-height: 300px;">
                     </div>
 
-                    <button id="ambilSelfieBtn" class="btn btn-primary btn-block btn-lg">
-                        AMBIL SELFIE
-                    </button>
-                    <button id="kirimPresensiBtn" class="mt-2 btn btn-success btn-block btn-lg" style="display: none;">
-                        KIRIM PRESENSI
-                    </button>
+                    <!-- After Selfie View: Match the design -->
+                    <div id="after-selfie-view" style="display: none;">
+                        <!-- Check In Time Display -->
+                        <div class="mb-3 Check-in-header">
+                            <span class="Check-in-label">
+                                <i class="fas fa-circle text-success" style="font-size: 8px; margin-right: 8px;"></i>
+                                Check In
+                            </span>
+                            <span class="Check-in-time" id="CheckInTime">03:42</span>
+                        </div>
+
+                        <!-- Selfie Preview with rounded corners and proper sizing -->
+                        <div class="mb-3 selfie-preview-container">
+                            <img id="selfie-preview" class="selfie-image" style="display: none;">
+                        </div>
+
+                        <!-- Foto Ulang button -->
+                        <button id="fotoUlangBtn" class="mb-3 text-danger btn btn-link foto-ulang-btn">
+                            <i class="fas fa-camera"></i>
+                            Foto Ulang
+                        </button>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button id="ambilSelfieBtn" class="btn btn-primary btn-block btn-lg">
+                            AMBIL SELFIE
+                        </button>
+                        <button id="kirimPresensiBtn" class="btn btn-success btn-block btn-lg submit-btn"
+                            style="display: none;">
+                            SUBMIT CHECK IN
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -298,7 +329,6 @@
             font-size: 14px;
         }
 
-        /* Modal Selfie Style */
         .modal-content {
             border-radius: 15px;
         }
@@ -336,6 +366,106 @@
             display: none;
             width: 100%;
             max-width: 400px;
+        }
+
+        .Check-in-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            margin-bottom: 20px;
+        }
+
+        .Check-in-label {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #28a745;
+            font-weight: 500;
+        }
+
+        .Check-in-time {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .selfie-preview-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .selfie-image {
+            width: 200px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 3px solid #f0f0f0;
+        }
+
+        .foto-ulang-btn {
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 14px;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .foto-ulang-btn:hover {
+            background-color: #e9ecef;
+            color: #495057;
+            text-decoration: none;
+        }
+
+        .foto-ulang-btn i {
+            margin-right: 8px;
+            font-size: 12px;
+        }
+
+        .submit-btn {
+            background-color: #20c997 !important;
+            border-color: #20c997 !important;
+            font-weight: 600;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .submit-btn:hover {
+            background-color: #1ba085 !important;
+            border-color: #1ba085 !important;
+        }
+
+        #camera-preview {
+            border-radius: 20px;
+            background-color: #f0f0f0;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .camera-active #initial-view {
+            display: none !important;
+        }
+
+        @media (max-width: 576px) {
+            .selfie-image {
+                width: 180px;
+                height: 270px;
+            }
+
+            .Check-in-header {
+                padding: 0 10px;
+            }
+
+            .modal-body {
+                padding: 20px 15px;
+            }
         }
     </style>
 
@@ -390,7 +520,7 @@
         document.getElementById('checkInBtn').innerHTML = `<i class="fas fa-check-circle"></i> Check In --:--`;
         document.getElementById('checkOutBtn').innerHTML = `<i class="fas fa-times-circle"></i> Check Out --:--`;
 
-        // Data selfie
+        // Data selfie dan elemen DOM
         let selfieData = null;
         let stream = null;
 
@@ -400,7 +530,23 @@
         const selfiePreview = document.getElementById('selfie-preview');
         const ambilSelfieBtn = document.getElementById('ambilSelfieBtn');
         const kirimPresensiBtn = document.getElementById('kirimPresensiBtn');
-        kirimPresensiBtn.disabled = true;
+        const fotoUlangBtn = document.getElementById('fotoUlangBtn');
+        const initialView = document.getElementById('initial-view');
+        const afterSelfieView = document.getElementById('after-selfie-view');
+        const CheckInTime = document.getElementById('CheckInTime');
+        const modalBody = document.querySelector('.modal-body');
+
+        function setCurrentTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+            if (CheckInTime) {
+                CheckInTime.textContent = timeString;
+            }
+        }
 
         function startCamera() {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -408,17 +554,25 @@
                 return;
             }
 
+            // Hide initial view and after selfie view, show camera
+            initialView.style.display = 'none';
+            afterSelfieView.style.display = 'none';
             cameraContainer.style.display = 'block';
+            modalBody.classList.add('camera-active');
+
+            // Reset buttons properly
+            ambilSelfieBtn.style.display = 'block';
             ambilSelfieBtn.textContent = 'AMBIL FOTO';
+            kirimPresensiBtn.style.display = 'none';
 
             navigator.mediaDevices.getUserMedia({
                     video: {
                         facingMode: 'user',
                         width: {
-                            ideal: 1280
+                            ideal: 720
                         },
                         height: {
-                            ideal: 720
+                            ideal: 1280
                         }
                     },
                     audio: false
@@ -431,6 +585,7 @@
                 .catch(err => {
                     console.error('Error accessing camera:', err);
                     alert('Tidak dapat mengakses kamera. Pastikan kamu memberikan izin kamera.');
+                    resetModalView();
                 });
         }
 
@@ -442,17 +597,58 @@
             ctx.drawImage(cameraPreview, 0, 0, selfieCanvas.width, selfieCanvas.height);
             selfieData = selfieCanvas.toDataURL('image/jpeg');
 
-            selfiePreview.src = selfieData;
-            selfiePreview.style.display = 'block';
-            cameraPreview.style.display = 'none';
-
+            // Stop camera
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
                 stream = null;
             }
 
-            ambilSelfieBtn.textContent = 'AMBIL ULANG';
+            // Show after selfie view
+            showAfterSelfieView();
+        }
+
+        function showAfterSelfieView() {
+            // Hide camera and initial view
+            cameraContainer.style.display = 'none';
+            initialView.style.display = 'none';
+            modalBody.classList.remove('camera-active');
+
+            // Show after selfie view
+            afterSelfieView.style.display = 'block';
+            selfiePreview.src = selfieData;
+            selfiePreview.style.display = 'block';
+
+            // Update buttons
+            ambilSelfieBtn.style.display = 'none';
             kirimPresensiBtn.style.display = 'block';
+
+            // Set time
+            setCurrentTime();
+        }
+
+        function resetModalView() {
+            // Reset all views
+            initialView.style.display = 'block';
+            cameraContainer.style.display = 'none';
+            afterSelfieView.style.display = 'none';
+            modalBody.classList.remove('camera-active');
+
+            // Reset buttons
+            ambilSelfieBtn.style.display = 'block';
+            ambilSelfieBtn.textContent = 'AMBIL SELFIE';
+            kirimPresensiBtn.style.display = 'none';
+
+            // Reset selfie data
+            selfieData = null;
+            if (selfiePreview) {
+                selfiePreview.style.display = 'none';
+            }
+
+            // Stop camera if running
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
         }
 
         function checkIn(alasan = null, selfieData = null) {
@@ -476,16 +672,35 @@
             console.log("Data presensi:", data);
             alert('Presensi berhasil dicatat!');
 
-            // TODO: fetch/axios ke controller Laravel lo
+            // TODO: fetch/axios ke controller Laravel
         }
 
+        // Event listeners
         document.getElementById('requestCheckIn').addEventListener('click', () => {
+            resetModalView();
             $('#selfieModal').modal('show');
         });
 
         ambilSelfieBtn.addEventListener('click', () => {
-            !stream ? startCamera() : takeSelfie();
+            if (!stream) {
+                startCamera();
+            } else {
+                takeSelfie();
+            }
         });
+
+        if (fotoUlangBtn) {
+            fotoUlangBtn.addEventListener('click', () => {
+                // Reset selfie data
+                selfieData = null;
+
+                // Hide after selfie view
+                afterSelfieView.style.display = 'none';
+
+                // Start camera again
+                startCamera();
+            });
+        }
 
         kirimPresensiBtn.addEventListener('click', () => {
             const diLuarArea = document.getElementById('alasanWrapper').style.display === 'block';
@@ -493,38 +708,19 @@
 
             if (diLuarArea) {
                 alasan = document.getElementById('alasanText').value.trim();
-                if (!alasan) return alert("Isi alasan kenapa presensi di luar area!");
+                if (!alasan) {
+                    alert("Isi alasan kenapa presensi di luar area!");
+                    return;
+                }
             }
 
             $('#selfieModal').modal('hide');
             checkIn(alasan, selfieData);
-
-            // Reset UI
-            selfiePreview.style.display = 'none';
-            cameraPreview.style.display = 'block';
-            kirimPresensiBtn.style.display = 'none';
-            cameraContainer.style.display = 'none';
-            ambilSelfieBtn.textContent = 'AMBIL SELFIE';
-            selfieData = null;
         });
 
+        // Modal close event
         $('#selfieModal').on('hidden.bs.modal', () => {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                stream = null;
-            }
-
-            // Reset tampilan
-            selfiePreview.style.display = 'none';
-            cameraPreview.style.display = 'block';
-            kirimPresensiBtn.style.display = 'none';
-            cameraContainer.style.display = 'none';
-            ambilSelfieBtn.textContent = 'AMBIL SELFIE';
-
-            // Opsional: alert kalau keluar modal tanpa selfie
-            if (!selfieData) {
-                alert("Kamu belum ambil selfie!");
-            }
+            resetModalView();
         });
 
         document.getElementById('checkOutBtn').addEventListener('click', () => {
@@ -542,7 +738,10 @@
             const jam = now.toLocaleTimeString('id-ID', {
                 hour12: false
             });
-            document.getElementById('currentTime').textContent = jam;
+            const timeElement = document.getElementById('currentTime');
+            if (timeElement) {
+                timeElement.textContent = jam;
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
