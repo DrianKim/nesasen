@@ -289,26 +289,29 @@
 }
 
 .foto-ulang-btn {
-    background: none;
+    background-color: #f8f9fa;
     border: none;
-    color: #666;
+    color: #dc3545;
     font-size: 14px;
-    text-decoration: none;
     padding: 8px 15px;
     border-radius: 20px;
-    background-color: #f8f9fa;
-    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); 
+    text-decoration: none; 
 }
 
 .foto-ulang-btn:hover {
-    background-color: #e9ecef;
-    color: #495057;
+    background-color: #f1f3f5;
+    color: #c82333; 
     text-decoration: none;
 }
 
 .foto-ulang-btn i {
-    margin-right: 8px;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .submit-btn {

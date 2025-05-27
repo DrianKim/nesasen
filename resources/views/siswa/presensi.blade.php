@@ -102,7 +102,7 @@
                         <input type="file" id="selfieInput" accept="image/*" capture="user" hidden />
 
                         <!-- Foto Ulang button -->
-                        <button id="fotoUlangBtn" class="mb-3 text-danger btn btn-link foto-ulang-btn">
+                        <button id="fotoUlangBtn" class="mb-3 text-danger foto-ulang-btn">
                             <i class="fas fa-camera"></i>
                             Foto Ulang
                         </button>
@@ -217,6 +217,7 @@
         let selfieData = null;
         let stream = null;
         let sudahCheckIn = false;
+        let presensiStatus = 'checkin';
 
         const cameraContainer = document.getElementById('camera-container');
         const cameraPreview = document.getElementById('camera-preview');
@@ -327,19 +328,19 @@
             if (!sudahCheckIn) {
                 // CHECK IN
                 $('#checkStatusLabel')
-                .removeClass('checkout')
-                .addClass('checkin')
-                .html(
-                    `<i class="fas fa-circle text-success" style="font-size: 8px; margin-right: 8px;"></i>Check In`);
+                    .removeClass('checkout')
+                    .addClass('checkin')
+                    .html(
+                        `<i class="fas fa-circle text-success" style="font-size: 8px; margin-right: 8px;"></i>Check In`);
                 $('#CheckInTime').text(jam).show();
                 $('#CheckOutTime').hide();
             } else {
                 // CHECK OUT
                 $('#checkStatusLabel')
-                .removeClass('checkin')
-                .addClass('checkout')
-                .html(
-                    `<i class="fas fa-circle text-danger" style="font-size: 8px; margin-right: 8px;"></i>Check Out`);
+                    .removeClass('checkin')
+                    .addClass('checkout')
+                    .html(
+                        `<i class="fas fa-circle text-danger" style="font-size: 8px; margin-right: 8px;"></i>Check Out`);
                 $('#CheckOutTime').text(jam).show();
                 $('#CheckInTime').hide();
             }
@@ -385,40 +386,99 @@
             }
         }
 
+        // Ambil status presensi hari ini dari backend
+        fetch("{{ route('siswa.presensi.hari_ini') }}")
+            .then(res => res.json())
+            .then(data => {
+                const requestBtn = document.getElementById('requestCheckIn');
+                const submitBtn = document.getElementById('kirimPresensiBtn');
+
+                // Kondisi default: Check In
+                let status = 'checkin';
+
+                if (data.jam_masuk && !data.jam_keluar) {
+                    status = 'checkout';
+                } else if (data.jam_masuk && data.jam_keluar) {
+                    status = 'done';
+                }
+
+                if (status === 'checkin') {
+                    requestBtn.textContent = 'REQUEST CHECK IN';
+                    submitBtn.textContent = 'SUBMIT CHECK IN';
+                    submitBtn.classList.remove('btn-danger');
+                    submitBtn.classList.add('btn-success');
+                    submitBtn.disabled = false;
+                    requestBtn.disabled = false;
+                } else if (status === 'checkout') {
+                    requestBtn.textContent = 'REQUEST CHECK OUT';
+                    submitBtn.textContent = 'SUBMIT CHECK OUT';
+                    submitBtn.classList.remove('btn-success');
+                    submitBtn.classList.add('btn-danger');
+                    submitBtn.disabled = false;
+                    requestBtn.disabled = false;
+                } else {
+                    requestBtn.textContent = 'PRESENSI SELESAI';
+                    submitBtn.textContent = 'SUDAH PRESENSI';
+                    submitBtn.disabled = true;
+                    requestBtn.disabled = true;
+                    submitBtn.classList.remove('btn-success', 'btn-danger');
+                    submitBtn.classList.add('btn-secondary');
+                }
+            })
+            .catch(err => {
+                console.error('Gagal ambil status presensi:', err);
+            });
+
         window.addEventListener('DOMContentLoaded', () => {
             fetch('/siswa/presensi/hari-ini')
-                .then(response => response.json())
+                .then(res => res.json())
                 .then(data => {
+                    console.log('Data Presensi:', data);
                     if (data.jam_masuk && !data.jam_keluar) {
                         sudahCheckIn = true;
-                        checkIn(null, null, data.jam_masuk);
+                        checkIn(data.jam_masuk, null, data.jam_masuk, data.jam_keluar);
+                    } else if (data.jam_keluar) {
+                        checkOut(null, null, data.jam_keluar, data.jam_masuk);
                     }
-                    if (data.jam_keluar) {
-                        sudahCheckIn = false;
-                        checkOut(null, null, data.jam_keluar);
-                    }
-                })
-                .catch(err => {
-                    console.error('Gagal ambil data presensi:', err);
                 });
         });
 
-        function checkIn(alasan = null, selfieData = null, jam = null) {
-            const jamTampil = jam ?? new Date().toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+        function checkIn(alasan = null, selfieData = null, jam = null, jam_keluar = null) {
+            const jamTampil = jam ?
+                jam.slice(0, 5) :
+                new Date().toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
             document.getElementById('checkInInfo').innerHTML =
                 `<i class="fas fa-check-circle"></i> Check In ${jamTampil}`;
+
+            // Tampilkan jam_keluar jika ada
+            if (jam_keluar) {
+                const jamKeluarTampil = jam_keluar.slice(0, 5);
+                document.getElementById('checkOutInfo').innerHTML =
+                    `<i class="fas fa-times-circle"></i> Check Out ${jamKeluarTampil}`;
+            }
         }
 
-        function checkOut(alasan = null, selfieData = null, jam = null) {
-            const jamTampil = jam ?? new Date().toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+        function checkOut(alasan = null, selfieData = null, jam = null, jam_masuk = null) {
+            const jamTampil = jam ?
+                jam.slice(0, 5) :
+                new Date().toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
             document.getElementById('checkOutInfo').innerHTML =
-                `<i class="fas fa-check-circle"></i> Check Out ${jamTampil}`;
+                `<i class="fas fa-times-circle"></i> Check Out ${jamTampil}`;
+
+            // Tampilkan jam_masuk jika ada
+            if (jam_masuk) {
+                const jamMasukTampil = jam_masuk.slice(0, 5);
+                document.getElementById('checkInInfo').innerHTML =
+                    `<i class="fas fa-check-circle"></i> Check In ${jamMasukTampil}`;
+            }
         }
 
         fileinput.onchange = () => {

@@ -85,7 +85,7 @@ Route::middleware(['isLogin'])->group(function () {
 
     // presensi
     Route::get('siswa/presensi', [SiswaController::class, 'presensi_index'])->name('siswa.presensi');
-    Route::get('/siswa/presensi/hari-ini', [SiswaController::class, 'presensi_hari_ini']);
+Route::get('/siswa/presensi/hari-ini', [SiswaController::class, 'presensi_hari_ini'])->name('siswa.presensi.hari_ini');
     Route::post('/siswa/presensi/store', [SiswaController::class, 'presensi_store'])->name('siswa.presensi.store');
 
     // izin
