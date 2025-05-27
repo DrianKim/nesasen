@@ -85,13 +85,12 @@
 
                     <!-- After Selfie View: Match the design -->
                     <div id="after-selfie-view" style="display: none;">
-                        <!-- Check In Time Display -->
+                        <!-- Check In/Out Time Display -->
                         <div class="mb-3 Check-in-header">
-                            <span class="Check-in-label">
-                                <i class="fas fa-circle text-success" style="font-size: 8px; margin-right: 8px;"></i>
-                                Check In
+                            <span class="Check-in-label" id="checkStatusLabel">
                             </span>
-                            <span class="Check-in-time" id="CheckInTime"></span>
+                            <span class="Check-in-time" id="CheckInTime" style="display: none;"></span>
+                            <span class="Check-out-time" id="CheckOutTime" style="display: none;"></span>
                         </div>
 
                         <!-- Selfie Preview with rounded corners and proper sizing -->
@@ -217,6 +216,7 @@
         // Data selfie dan elemen DOM
         let selfieData = null;
         let stream = null;
+        let sudahCheckIn = false;
 
         const cameraContainer = document.getElementById('camera-container');
         const cameraPreview = document.getElementById('camera-preview');
@@ -309,22 +309,55 @@
         }
 
         function showAfterSelfieView() {
-            // Hide camera and initial view
+            // Hide kamera
             cameraContainer.style.display = 'none';
             initialView.style.display = 'none';
             modalBody.classList.remove('camera-active');
 
-            // Show after selfie view
+            // Tampil view selfie
             afterSelfieView.style.display = 'block';
             selfiePreview.src = selfieData;
             selfiePreview.style.display = 'block';
 
-            // Update buttons
+            const now = new Date();
+            const jam = now.getHours().toString().padStart(2, '0') + ':' +
+                now.getMinutes().toString().padStart(2, '0') + ':' +
+                now.getSeconds().toString().padStart(2, '0');
+
+            if (!sudahCheckIn) {
+                // CHECK IN
+                $('#checkStatusLabel')
+                .removeClass('checkout')
+                .addClass('checkin')
+                .html(
+                    `<i class="fas fa-circle text-success" style="font-size: 8px; margin-right: 8px;"></i>Check In`);
+                $('#CheckInTime').text(jam).show();
+                $('#CheckOutTime').hide();
+            } else {
+                // CHECK OUT
+                $('#checkStatusLabel')
+                .removeClass('checkin')
+                .addClass('checkout')
+                .html(
+                    `<i class="fas fa-circle text-danger" style="font-size: 8px; margin-right: 8px;"></i>Check Out`);
+                $('#CheckOutTime').text(jam).show();
+                $('#CheckInTime').hide();
+            }
+
+            console.log('Sudah Check In:', sudahCheckIn);
+            // Tombol
             ambilSelfieBtn.style.display = 'none';
             kirimPresensiBtn.style.display = 'block';
+        }
 
-            // Set time
-            setCurrentTime();
+        // Update status berdasarkan hasil presensi
+        function handlePresensiResponse(response) {
+            if (response.type === 'masuk') {
+                sudahCheckIn = true;
+                $('#CheckInTime').text(response.jam);
+            } else if (response.type === 'keluar') {
+                sudahCheckIn = false;
+            }
         }
 
         function resetModalView() {
@@ -356,10 +389,12 @@
             fetch('/siswa/presensi/hari-ini')
                 .then(response => response.json())
                 .then(data => {
-                    if (data.jam_masuk) {
+                    if (data.jam_masuk && !data.jam_keluar) {
+                        sudahCheckIn = true;
                         checkIn(null, null, data.jam_masuk);
                     }
                     if (data.jam_keluar) {
+                        sudahCheckIn = false;
                         checkOut(null, null, data.jam_keluar);
                     }
                 })
@@ -373,7 +408,8 @@
                 hour: '2-digit',
                 minute: '2-digit'
             });
-            document.getElementById('checkInInfo').innerHTML = `<i class="fas fa-check-circle"></i> Check In ${jamTampil}`;
+            document.getElementById('checkInInfo').innerHTML =
+                `<i class="fas fa-check-circle"></i> Check In ${jamTampil}`;
         }
 
         function checkOut(alasan = null, selfieData = null, jam = null) {

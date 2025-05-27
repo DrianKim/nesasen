@@ -256,8 +256,15 @@
     display: flex;
     align-items: center;
     font-size: 14px;
-    color: #28a745;
     font-weight: 500;
+}
+
+.Check-in-label.checkin {
+    color: #28a745; /* Hijau */
+}
+
+.Check-in-label.checkout {
+    color: #dc3545; /* Merah */
 }
 
 .Check-in-time {
