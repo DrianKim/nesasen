@@ -471,13 +471,13 @@
                 });
 
             document.getElementById('checkOutInfo').innerHTML =
-                `<i class="fas fa-times-circle"></i> Check Out ${jamTampil}`;
+                `<i class="fas fa-clock"></i> Check Out ${jamTampil}`;
 
-            // Tampilkan jam_masuk jika ada
+            // Tampilkan jam_masuk jika ada 
             if (jam_masuk) {
                 const jamMasukTampil = jam_masuk.slice(0, 5);
                 document.getElementById('checkInInfo').innerHTML =
-                    `<i class="fas fa-check-circle"></i> Check In ${jamMasukTampil}`;
+                    `<i class="fas fa-clock"></i> Check In ${jamMasukTampil}`;
             }
         }
 
