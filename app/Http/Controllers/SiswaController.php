@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Middleware\isLogin;
 use Carbon\Carbon;
 use App\Models\Siswa;
 use App\Models\Jadwal;
 use App\Models\izinSiswa;
 use App\Models\MapelKelas;
 use Illuminate\Support\Str;
-use App\Models\absensiSiswa;
 use Illuminate\Http\Request;
+use App\Models\presensiSiswa;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -31,62 +33,104 @@ class SiswaController extends Controller
             'title' => 'Presensi Siswa',
             'menuPresensi' => 'active',
             'siswa' => Siswa::all(),
-            'absensiSiswa' => absensiSiswa::where('siswa_id', Auth::user()->id)->get(),
+            'presensiSiswa' => presensiSiswa::where('siswa_id', Auth::user()->id)->get(),
         );
         return view('siswa.presensi', $data);
     }
 
-    public function presensi_store(Request $request)
+    public function presensi_hari_ini()
     {
-        $request->validate([
-            'foto_absen' => 'required|string',
-            'lokasi_absen' => 'required|string',
-            'keterangan' => 'required|string|max:255',
-        ], [
-            'foto_absen.required' => 'Foto absen harus diisi',
-            'lokasi_absen.required' => 'Lokasi absen harus diisi',
-            'keterangan.required' => 'Keterangan harus diisi',
-            'keterangan.max' => 'Keterangan tidak boleh lebih dari 255 karakter',
-        ]);
+        $siswaId = auth()->user()->siswa->id;
+        $tanggal = now()->toDateString();
 
-        $siswaId = Auth::user()->siswa->id;
-        $today = now()->toDateString();
-
-        $presensi = absensiSiswa::where('siswa_id', $siswaId)
-            ->whereDate('tanggal', $today)
+        $presensi = presensiSiswa::where('siswa_id', $siswaId)
+            ->where('tanggal', $tanggal)
             ->first();
 
-        $base64String = $request->input('foto_absen');
-        $image = str_replace('data:image/png;base64,', '', $base64String);
-        $image = str_replace(' ', '+', $image);
-        $imageName = 'presensi_' . Str::random(10) . '_' . now()->format('Ymd_His') . '.png';
-        Storage::disk('public')->put('presensi/' . $imageName, base64_decode($image));
+        return response()->json([
+            'jam_masuk' => optional($presensi)->jam_masuk,
+            'jam_keluar' => optional($presensi)->jam_keluar,
+        ]);
+    }
 
-        if ($presensi) {
-            $presensi->update([
-                'status' => 'pulang',
-                'waktu_absen' => now()->format('H:i:s'),
-                'foto_absen' => 'presensi/' . $imageName,
-                'lokasi_absen' => $request->lokasi_absen,
-                'keterangan' => $request->keterangan,
-            ]);
+    public function presensi_store(Request $request)
+    {
+        // dd($request->all());
+        $request->validate([
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'selfie' => 'nullable|image|file|max:2048',
+            'status_kehadiran' => 'required|in:hadir,terlambat,alfa',
+            'status_lokasi' => 'required|in:dalam_area,di_luar_area',
+        ], [
+            'latitude.required' => 'Latitude tidak ada',
+            'longitude.required' => 'Longitude tidak ada',
+            'selfie.image' => 'File selfie harus berupa gambar',
+            'selfie.file' => 'File selfie harus berupa file',
+            'selfie.max' => 'Ukuran file selfie maksimal 2MB',
+            'status_kehadiran.required' => 'Status kehadiran harus diisi',
+            'status_kehadiran.in' => 'Status kehadiran harus berupa salah satu dari: hadir, terlambat, alfa',
+            'status_lokasi.required' => 'Status lokasi harus diisi',
+            'status_lokasi.in' => 'Status lokasi harus berupa salah satu dari: dalam_area, di_luar_area',
+        ]);
 
-            $message = 'Presensi pulang berhasil diajukan';
-        } else {
-            absensiSiswa::create([
-                'tanggal' => $today,
-                'siswa_id' => $siswaId,
-                'status' => 'masuk',
-                'waktu_absen' => now()->format('H:i:s'),
-                'foto_absen' => 'presensi/' . $imageName,
-                'lokasi_absen' => $request->lokasi_absen,
-                'keterangan' => $request->keterangan,
-            ]);
+        // dd(auth()->user()->id);
+        $siswaId = auth()->user()->siswa->id;
+        $tanggal = now()->toDateString();
+        $waktu = now()->toTimeString();
+        $alasan = $request->alasan ?? null;
 
-            $message = 'Presensi masuk berhasil diajukan';
+        $lokasi = json_encode([
+            'lat' => $request->latitude,
+            'lng' => $request->longitude,
+        ]);
+
+        $fotoPath = null;
+        if ($request->hasfile('selfie')) {
+            $fotoPath = $request->file('selfie')->store('presensi_foto', 'public');
         }
 
-        return redirect()->back()->with('success', 'Presensi berhasil diajukan');
+        $presensi = presensiSiswa::where('siswa_id', $siswaId)
+            ->where('tanggal', $tanggal)->first();
+
+        $status_kehadiran = $request->status_kehadiran;
+        $status_lokasi = $request->status_lokasi;
+
+        if ($request->filled('alasan')) {
+            $status_lokasi = 'di_luar_area';
+        }
+
+        if (!$presensi) {
+            presensiSiswa::create([
+                'siswa_id' => $siswaId,
+                'tanggal' => $tanggal,
+                'jam_masuk' => $waktu,
+                'foto_masuk' => $fotoPath,
+                'lokasi_masuk' => $lokasi,
+                'alasan' => $alasan,
+                'status_kehadiran' => $status_kehadiran,
+                'status_lokasi' => $status_lokasi,
+            ]);
+            return response()->json([
+                'message' => 'Berhasil Melakukan Check In!',
+                'type' => 'masuk',
+                'jam' => $waktu,
+            ]);
+        } elseif (is_null($presensi->jam_keluar)) {
+            $presensi->update([
+                'jam_keluar' => $waktu,
+                'foto_keluar' => $fotoPath,
+                'lokasi_keluar' => $lokasi,
+
+            ]);
+            return response()->json([
+                'message' => 'Berhasil Melakukan Check Out!',
+                'type' => 'keluar',
+                'jam' => $waktu,
+            ]);
+        } else {
+            return response()->json(['message' => 'Kamu sudah presensi full hari ini.'], 400);
+        }
     }
 
     public function izin_index()

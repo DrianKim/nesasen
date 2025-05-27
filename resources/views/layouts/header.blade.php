@@ -5,9 +5,10 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="M-Kelas - Learning Management System for SMKN 1 Subang">
+    <meta name="description" content="Nesasen - Learning Management System for SMKN 1 Subang">
     <meta name="author" content="Development Team">
     <meta name="theme-color" content="#4e73df">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Nesasen | {{ $title }}</title>
 
@@ -36,6 +37,8 @@
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <link rel="stylesheet" href="{{ asset('assets/css/style-presensi.css') }}">
 
     <!-- Dashboard specific styles or scripts -->
     @stack('styles')

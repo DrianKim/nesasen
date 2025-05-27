@@ -81,10 +81,12 @@ Route::middleware(['isLogin'])->group(function () {
 
     // siswa
     // beranda
-    Route::get('siswa.beranda', [SiswaController::class, 'beranda_index'])->name('siswa.beranda');
+    Route::get('siswa/beranda', [SiswaController::class, 'beranda_index'])->name('siswa.beranda');
 
     // presensi
     Route::get('siswa/presensi', [SiswaController::class, 'presensi_index'])->name('siswa.presensi');
+    Route::get('/siswa/presensi/hari-ini', [SiswaController::class, 'presensi_hari_ini']);
+    Route::post('/siswa/presensi/store', [SiswaController::class, 'presensi_store'])->name('siswa.presensi.store');
 
     // izin
     Route::get('siswa/izin', [SiswaController::class, 'izin_index'])->name('siswa.izin');
@@ -96,7 +98,7 @@ Route::middleware(['isLogin'])->group(function () {
     // jadwal
     Route::get('siswa/jadwal', [SiswaController::class, 'index_jadwal'])->name('siswa.jadwal');
 
-    Route::middleware(['auth', 'isAdmin'])->group(function () {
+    Route::middleware(['isAdmin'])->group(function () {
         // Dashboard
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

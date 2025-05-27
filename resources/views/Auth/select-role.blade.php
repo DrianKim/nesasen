@@ -18,7 +18,9 @@
     <!-- Header dengan logo -->
     <header>
         <div class="logo">
-            <img src="{{ asset('img/ls-logo.png') }}" alt="Nesasen Logo" />
+            <a href="{{ route('welcome') }}">
+                <img src="{{ asset('img/ls-loo.png') }}" alt="Nesasen Logo" />
+            </a>
         </div>
     </header>
 

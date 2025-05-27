@@ -16,12 +16,12 @@
         <div class="map-container">
             <div id="map"></div>
 
-            <!-- Check In/Out Buttons -->
+            <!-- Check In/Out Info -->
             <div class="check-buttons">
-                <button id="checkInBtn" class="check-btn check-in active btn-sm">
+                <button id="checkInInfo" class="check-btn check-in active btn-sm">
                     <i class="fas fa-check-circle"></i> Check In --:--
                 </button>
-                <button id="checkOutBtn" class="check-btn check-out btn-sm">
+                <button id="checkOutInfo" class="check-btn check-out btn-sm">
                     <i class="fas fa-times-circle"></i> Check Out --:--
                 </button>
             </div>
@@ -91,13 +91,16 @@
                                 <i class="fas fa-circle text-success" style="font-size: 8px; margin-right: 8px;"></i>
                                 Check In
                             </span>
-                            <span class="Check-in-time" id="CheckInTime">03:42</span>
+                            <span class="Check-in-time" id="CheckInTime"></span>
                         </div>
 
                         <!-- Selfie Preview with rounded corners and proper sizing -->
                         <div class="mb-3 selfie-preview-container">
                             <img id="selfie-preview" class="selfie-image" style="display: none;">
                         </div>
+
+                        <!-- Selfie file -->
+                        <input type="file" id="selfieInput" accept="image/*" capture="user" hidden />
 
                         <!-- Foto Ulang button -->
                         <button id="fotoUlangBtn" class="mb-3 text-danger btn btn-link foto-ulang-btn">
@@ -121,375 +124,58 @@
         </div>
     </div>
 
-    <style>
-        .presensi-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            background-color: #f0f7ff;
-        }
-
-        .presensi-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
-            background-color: #fff;
-        }
-
-        .back-button {
-            display: flex;
-            align-items: center;
-            font-size: 16px;
-            color: #333;
-            text-decoration: none;
-        }
-
-        .back-button i {
-            margin-right: 10px;
-        }
-
-        .history-button {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #f5f5f5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        .map-container {
-            position: relative;
-            height: 350px;
-            width: 100%;
-        }
-
-        .check-buttons {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 12px;
-            z-index: 1000;
-            flex-wrap: wrap;
-            justify-content: center;
-            width: 90%;
-        }
-
-        .check-btn {
-            padding: 6px 12px;
-            font-size: 13px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            background-color: #f5f5f5;
-            color: #333;
-            cursor: default;
-            font-weight: bold;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-            background-color: #fff;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            justify-content: center;
-        }
-
-        .check-btn:hover {
-            background-color: #e0e0e0;
-        }
-
-        @media (min-width: 768px) {
-            .check-btn {
-                width: auto;
-                padding: 8px 15px;
-                font-size: 14px;
-            }
-        }
-
-        #map {
-            height: 100%;
-            width: 100%;
-            background-color: #e5e5e5;
-        }
-
-        .check-in {
-            /* background-color: 4px solid #28a745; */
-            color: #28a745;
-        }
-
-        .check-out {
-            /* background-color: 4px solid #dc3545; */
-            color: #dc3545;
-        }
-
-        .check-btn.active {
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .school-info {
-            display: flex;
-            align-items: center;
-            background-color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .school-logo {
-            width: 50px;
-            height: 50px;
-            margin-right: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .school-logo img {
-            width: 100%;
-            height: auto;
-        }
-
-        .school-details h3 {
-            margin: 0;
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .school-details p {
-            margin: 5px 0 0;
-            font-size: 12px;
-            color: #666;
-            line-height: 1.4;
-        }
-
-        @media (max-width: 768px) {
-            .school-details h3 {
-                margin: 0;
-                font-size: 14px;
-                font-weight: bold;
-                color: #333;
-            }
-
-            .school-details p {
-                margin: 5px 0 0;
-                font-size: 11px;
-                color: #666;
-                line-height: 1.4;
-            }
-        }
-
-        .location-status {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-            margin-top: 10px;
-        }
-
-        .location-warning {
-            color: #FF5252;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .time-display {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .action-button {
-            background-color: #00BFA5;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 15px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .action-button:hover {
-            background-color: #00AB91;
-        }
-
-        #alasanWrapper textarea {
-            /* border: 2px solid #201c1c; */
-            font-size: 14px;
-        }
-
-        .modal-content {
-            border-radius: 15px;
-        }
-
-        #ambilSelfieBtn {
-            background-color: #00BFA5;
-            border: none;
-            border-radius: 6px;
-            padding: 8px;
-            font-weight: bold;
-        }
-
-        #ambilSelfieBtn:hover {
-            background-color: #00AB91;
-        }
-
-        #kirimPresensiBtn {
-            background-color: #28a745;
-            border: none;
-            border-radius: 10px;
-            padding: 12px;
-            font-weight: bold;
-        }
-
-        #camera-container {
-            position: relative;
-        }
-
-        #camera-preview {
-            border-radius: 10px;
-            background-color: #f0f0f0;
-        }
-
-        #selfie-canvas {
-            display: none;
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .Check-in-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-            margin-bottom: 20px;
-        }
-
-        .Check-in-label {
-            display: flex;
-            align-items: center;
-            font-size: 14px;
-            color: #28a745;
-            font-weight: 500;
-        }
-
-        .Check-in-time {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .selfie-preview-container {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
-        }
-
-        .selfie-image {
-            width: 200px;
-            height: 300px;
-            object-fit: cover;
-            border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border: 3px solid #f0f0f0;
-        }
-
-        .foto-ulang-btn {
-            background: none;
-            border: none;
-            color: #666;
-            font-size: 14px;
-            text-decoration: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            background-color: #f8f9fa;
-            transition: all 0.3s ease;
-        }
-
-        .foto-ulang-btn:hover {
-            background-color: #e9ecef;
-            color: #495057;
-            text-decoration: none;
-        }
-
-        .foto-ulang-btn i {
-            margin-right: 8px;
-            font-size: 12px;
-        }
-
-        .submit-btn {
-            background-color: #20c997 !important;
-            border-color: #20c997 !important;
-            font-weight: 600;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-
-        .submit-btn:hover {
-            background-color: #1ba085 !important;
-            border-color: #1ba085 !important;
-        }
-
-        #camera-preview {
-            border-radius: 20px;
-            background-color: #f0f0f0;
-            max-width: 100%;
-            height: auto;
-        }
-
-        .camera-active #initial-view {
-            display: none !important;
-        }
-
-        @media (max-width: 576px) {
-            .selfie-image {
-                width: 180px;
-                height: 270px;
-            }
-
-            .Check-in-header {
-                padding: 0 10px;
-            }
-
-            .modal-body {
-                padding: 20px 15px;
-            }
-        }
-    </style>
-
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- Sweet Alert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         const schoolPosition = L.latLng(-6.555879634402878, 107.75989081030457);
         const map = L.map('map').setView(schoolPosition, 18);
 
         const sekolahPolygon = L.polygon([
-            [-6.5554546, 107.759751],
-            [-6.555899, 107.760417],
-            [-6.556318, 107.760764],
-            [-6.556460, 107.760689],
-            [-6.556300, 107.760086],
-            [-6.556800, 107.759838],
-            [-6.556471, 107.759118],
-            [-6.556322, 107.759196],
-            [-6.556183, 107.759241],
-            [-6.556085, 107.759188],
-            [-6.555883, 107.759344],
-            [-6.555721, 107.759155],
-            [-6.555186, 107.759387],
+            [-6.5551890749458295, 107.759372533305],
+            [-6.555848899619548, 107.76026428227516],
+            [-6.555950411029656, 107.76040361804996],
+            [-6.55610689992767, 107.76062323055038],
+            [-6.556195893182945, 107.76055010478507],
+            [-6.556350269201218, 107.76076034136156],
+            [-6.556479218543643, 107.76066527786566],
+            [-6.556366347621804, 107.76020009831149],
+            [-6.556322859036399, 107.76007311476963],
+            [-6.556674972416403, 107.7599032393415],
+            [-6.556893740959282, 107.75979628073753],
+            [-6.556483289424733, 107.75908532060282],
+            [-6.556272854749352, 107.75914404297384],
+            [-6.556201277790777, 107.75923386517093],
+            [-6.556104297520548, 107.75918118208767],
+            [-6.556059655802599, 107.75925710770679],
+            [-6.556022710929824, 107.75924006318087],
+            [-6.555959596766229, 107.75931288979496],
+            [-6.555896482593184, 107.75923231566844],
+            [-6.555856458967682, 107.75926330571673],
+            [-6.555762251179814, 107.75914523597766],
+            [-6.555720688172769, 107.7591715775186],
+            [-6.555686822016526, 107.75912354294292],
+            [-6.555626786551073, 107.75918242403606],
+            [-6.555591381017379, 107.75915763199617],
+            [-6.55540511706991, 107.75930328524294],
+            [-6.555366632776824, 107.7592552506672],
+            [-6.555189604989252, 107.75937301285347],
+            // [-6.5554546, 107.759751],
+            // [-6.555899, 107.760417],
+            // [-6.556318, 107.760764],
+            // [-6.556460, 107.760689],
+            // [-6.556300, 107.760086],
+            // [-6.556800, 107.759838],
+            // [-6.556471, 107.759118],
+            // [-6.556322, 107.759196],
+            // [-6.556183, 107.759241],
+            // [-6.556085, 107.759188],
+            // [-6.555883, 107.759344],
+            // [-6.555721, 107.759155],
+            // [-6.555186, 107.759387],
         ], {
             color: 'red',
             fillOpacity: 0.2
@@ -502,23 +188,31 @@
         L.marker(schoolPosition).addTo(map).bindPopup("SMKN 1 Subang").openPopup();
 
         let userLatLng = null;
+        let insideArea = false;
+
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(position => {
-                userLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
+                    userLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
 
-                L.marker(userLatLng).addTo(map).bindPopup("Lokasi Kamu").openPopup();
+                    L.marker(userLatLng).addTo(map).bindPopup("Lokasi Kamu").openPopup();
 
-                const insideArea = sekolahPolygon.getBounds().contains(userLatLng);
-                document.getElementById('locationWarning').textContent = insideArea ?
-                    'Kamu berada di area presensi' : 'Kamu di luar area presensi';
-                document.getElementById('locationWarning').style.color = insideArea ? '#28a745' : '#dc3545';
-                document.getElementById('alasanWrapper').style.display = insideArea ? 'none' : 'block';
-            });
+                    const insideArea = sekolahPolygon.getBounds().contains(userLatLng);
+                    document.getElementById('locationWarning').textContent = insideArea ?
+                        'Kamu berada di area presensi' : 'Kamu di luar area presensi';
+                    document.getElementById('locationWarning').style.color = insideArea ? '#28a745' : '#dc3545';
+                    document.getElementById('alasanWrapper').style.display = insideArea ? 'none' : 'block';
+                },
+                error => {
+                    console.error("Gagal ambil lokasi:", error);
+                    document.getElementById('locationWarning').textContent = 'Tidak bisa mendeteksi lokasi!';
+                    document.getElementById('locationWarning').style.color = 'red';
+                }
+            );
         }
 
         // Tombol jam awal
-        document.getElementById('checkInBtn').innerHTML = `<i class="fas fa-check-circle"></i> Check In --:--`;
-        document.getElementById('checkOutBtn').innerHTML = `<i class="fas fa-times-circle"></i> Check Out --:--`;
+        // document.getElementById('checkInInfo').innerHTML = `<i class="fas fa-check-circle"></i> Check In --:--`;
+        // document.getElementById('checkOutInfo').innerHTML = `<i class="fas fa-times-circle"></i> Check Out --:--`;
 
         // Data selfie dan elemen DOM
         let selfieData = null;
@@ -528,12 +222,14 @@
         const cameraPreview = document.getElementById('camera-preview');
         const selfieCanvas = document.getElementById('selfie-canvas');
         const selfiePreview = document.getElementById('selfie-preview');
-        const ambilSelfieBtn = document.getElementById('ambilSelfieBtn');
+        const ambilSelfieBtn = document.getElementById('ambilSelfieBtn')
+        const fileinput = document.getElementById('selfieInput');
         const kirimPresensiBtn = document.getElementById('kirimPresensiBtn');
         const fotoUlangBtn = document.getElementById('fotoUlangBtn');
         const initialView = document.getElementById('initial-view');
         const afterSelfieView = document.getElementById('after-selfie-view');
         const CheckInTime = document.getElementById('CheckInTime');
+        const CheckOutTime = document.getElementById('CheckOutTime');
         const modalBody = document.querySelector('.modal-body');
 
         function setCurrentTime() {
@@ -546,6 +242,11 @@
             if (CheckInTime) {
                 CheckInTime.textContent = timeString;
             }
+
+            if (CheckOutTime) {
+                CheckOutTime.textContent = timeString;
+            }
+
         }
 
         function startCamera() {
@@ -651,31 +352,48 @@
             }
         }
 
-        function checkIn(alasan = null, selfieData = null) {
-            const jam = new Date().toLocaleTimeString([], {
+        window.addEventListener('DOMContentLoaded', () => {
+            fetch('/siswa/presensi/hari-ini')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.jam_masuk) {
+                        checkIn(null, null, data.jam_masuk);
+                    }
+                    if (data.jam_keluar) {
+                        checkOut(null, null, data.jam_keluar);
+                    }
+                })
+                .catch(err => {
+                    console.error('Gagal ambil data presensi:', err);
+                });
+        });
+
+        function checkIn(alasan = null, selfieData = null, jam = null) {
+            const jamTampil = jam ?? new Date().toLocaleTimeString([], {
                 hour: '2-digit',
                 minute: '2-digit'
             });
+            document.getElementById('checkInInfo').innerHTML = `<i class="fas fa-check-circle"></i> Check In ${jamTampil}`;
+        }
 
-            document.getElementById('checkInBtn').innerHTML = `<i class="fas fa-check-circle"></i> Check In ${jam}`;
+        function checkOut(alasan = null, selfieData = null, jam = null) {
+            const jamTampil = jam ?? new Date().toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('checkOutInfo').innerHTML =
+                `<i class="fas fa-check-circle"></i> Check Out ${jamTampil}`;
+        }
 
-            const data = {
-                jam,
-                alasan,
-                selfie: selfieData,
-                lokasi: userLatLng ? {
-                    lat: userLatLng.lat,
-                    lng: userLatLng.lng
-                } : null
-            };
-
-            console.log("Data presensi:", data);
-            alert('Presensi berhasil dicatat!');
-
-            // TODO: fetch/axios ke controller Laravel
+        fileinput.onchange = () => {
+            selfieFile = fileinput.files[0];
+            if (selfieFile) {
+                document.getElementById('kirimPresensiBtn').style.display;
+            }
         }
 
         // Event listeners
+        let selfieFile = null;
         document.getElementById('requestCheckIn').addEventListener('click', () => {
             resetModalView();
             $('#selfieModal').modal('show');
@@ -704,33 +422,123 @@
 
         kirimPresensiBtn.addEventListener('click', () => {
             const diLuarArea = document.getElementById('alasanWrapper').style.display === 'block';
-            let alasan = null;
+            const now = new Date();
+            const batasMasuk = new Date();
+            batasMasuk.setHours(7, 30, 0); // Batas masuk jam 07:30
 
-            if (diLuarArea) {
+            let alasan = null;
+            let statusKehadiran = 'hadir';
+            let statusLokasi = 'dalam_area';
+
+            // Tentukan status berdasarkan waktu
+            if (now > batasMasuk) {
+                statusKehadiran = 'terlambat';
+            }
+
+            // Validasi alasan kalau di luar area
+            if (document.getElementById('alasanWrapper').style.display === 'block') {
                 alasan = document.getElementById('alasanText').value.trim();
                 if (!alasan) {
-                    alert("Isi alasan kenapa presensi di luar area!");
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Data Kurang!',
+                        text: 'Silakan masukkan alasan kamu.',
+                    });
                     return;
                 }
             }
 
+            // Fungsi bantu convert base64 ke File
+            function base64ToFile(base64Data, filename) {
+                const arr = base64Data.split(',');
+                const mime = arr[0].match(/:(.*?);/)[1];
+                const bstr = atob(arr[1]);
+                let n = bstr.length;
+                const u8arr = new Uint8Array(n);
+                while (n--) {
+                    u8arr[n] = bstr.charCodeAt(n);
+                }
+                return new File([u8arr], filename, {
+                    type: mime
+                });
+            }
+
+            // Validasi selfie + lokasi
+            if (!selfieData || !userLatLng) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Kurang!',
+                    text: 'Pastikan selfie dan lokasi terdeteksi',
+                });
+                return;
+            }
+
+            // Upload presensi
+            fetch(selfieData)
+                .then(res => res.blob())
+                .then(blob => {
+                    const formData = new FormData();
+                    const selfieBlob = base64ToFile(selfieData, 'selfie.jpg');
+                    formData.append('selfie', selfieBlob);
+                    formData.append('latitude', userLatLng.lat);
+                    formData.append('longitude', userLatLng.lng);
+                    formData.append('status_kehadiran', statusKehadiran);
+                    formData.append('status_lokasi', statusLokasi);
+                    if (alasan) formData.append('alasan', alasan);
+
+                    return fetch('/siswa/presensi/store', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
+                        },
+                        body: formData
+                    });
+                })
+
+                .then(res => res.json())
+                .then(data => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Presensi Berhasil!',
+                        text: `${data.message}`,
+                        footer: data.jam ? `Pada Pukul ${data.jam}` : '',
+                        timer: 4000,
+                        showConfirmButton: false
+                    });
+
+                    // Update tampilan info presensi
+                    if (data.type === 'masuk') {
+                        checkIn(null, selfieData, data.jam);
+                    } else {
+                        checkOut(null, selfieData, data.jam);
+                    }
+                })
+                .catch(err => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Presensi Gagal!',
+                        text: 'Coba lagi, mungkin ada masalah koneksi.',
+                    });
+                });
+
             $('#selfieModal').modal('hide');
-            checkIn(alasan, selfieData);
         });
+
 
         // Modal close event
         $('#selfieModal').on('hidden.bs.modal', () => {
             resetModalView();
         });
 
-        document.getElementById('checkOutBtn').addEventListener('click', () => {
+        document.getElementById('checkOutInfo').addEventListener('click', () => {
             const jam = new Date().toLocaleTimeString([], {
                 hour: '2-digit',
                 minute: '2-digit'
             });
-            document.getElementById('checkOutBtn').innerHTML =
-                `<i class="fas fa-times-circle"></i> Check Out ${jam}`;
-            console.log("Check out berhasil");
+            // document.getElementById('checkOutBtn').innerHTML =
+            //     `<i class="fas fa-times-circle"></i> Check Out ${jam}`;
+            // console.log("Check out berhasil");
         });
 
         function updateTime() {

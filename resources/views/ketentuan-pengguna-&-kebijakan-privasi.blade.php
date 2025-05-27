@@ -129,7 +129,7 @@
             border-radius: 25px;
             text-decoration: none;
             font-weight: bold;
-            margin-bottom: 20px;
+            margin-bottom: 1px;
             transition: transform 0.3s ease;
             position: relative;
             z-index: 2;
@@ -190,7 +190,7 @@
         main h1 {
             text-align: center;
             color: #2c5aa0;
-            font-size: 2.5em;
+            font-size: 2em !important;
             margin-bottom: 10px;
             font-weight: bold;
         }
@@ -293,8 +293,12 @@
 
         @media (max-width: 768px) {
             .main-title {
+                text-align: center !important;
                 font-size: 1.5em !important;
-                text-align: center;
+            }
+
+            main>p {
+                text-align: center !important;
             }
 
             .decorative-image.top-right {
