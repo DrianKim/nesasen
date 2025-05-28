@@ -55,7 +55,6 @@ class SiswaController extends Controller
 
     public function presensi_store(Request $request)
     {
-        // dd($request->all());
         $request->validate([
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
@@ -74,7 +73,6 @@ class SiswaController extends Controller
             'status_lokasi.in' => 'Status lokasi harus berupa salah satu dari: dalam_area, di_luar_area',
         ]);
 
-        // dd(auth()->user()->id);
         $siswaId = auth()->user()->siswa->id;
         $tanggal = now()->toDateString();
         $waktu = now()->toTimeString();
@@ -145,7 +143,6 @@ class SiswaController extends Controller
 
     public function izin_store(Request $request)
     {
-        // dd($request->all());
         $request->validate([
             'jenis_izin' => 'required',
             'tanggal' => 'required|date',
@@ -175,11 +172,6 @@ class SiswaController extends Controller
             'jenis_izin' => $request->jenis_izin,
             'keterangan' => $request->keterangan,
             'lampiran' => $pathLampiran,
-            // 'tanggal',
-            // 'siswa_id',
-            // 'jenis_absen',
-            // 'keterangan',
-            // 'lampiran'
         ]);
 
         return redirect()->back()->with('success', 'Izin berhasil diajukan');
@@ -211,7 +203,6 @@ class SiswaController extends Controller
             'title' => 'Kelas Saya',
             'siswa' => $siswa,
             'kelasKu' => $mapelKelasList,
-            // 'kelasKu' => MapelKelas::where('kelas_id', Auth::user()->siswa->kelas_id)->get(),
         );
         return view('siswa.kelasKu', $data);
     }
@@ -224,30 +215,35 @@ class SiswaController extends Controller
             ? Carbon::parse($request->input('tanggal'))
             : Carbon::now();
 
-        $namaHari = $selectedDate->locale('id')->isoFormat('dddd');
+        // $namaHari = $selectedDate->locale('id')->isoFormat('ddd');
 
         $mapelKelasIds = MapelKelas::where('kelas_id', $siswa->kelas->id)->pluck('id');
 
         $jadwalHariIni = Jadwal::whereIn('mapel_kelas_id', $mapelKelasIds)
-            ->where('hari', $namaHari)
+            ->where('tanggal')
             ->with(['mapelKelas.mata_pelajaran', 'mapelKelas.kelas'])
             ->orderBy('jam_mulai')
             ->get();
 
-        // ✅ INI bagian yang penting: bikin array 7 hari
+        // $weekdays = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
         $startOfWeek = $selectedDate->copy()->startOfWeek(Carbon::MONDAY);
         $daysOfWeek = [];
         for ($i = 0; $i < 7; $i++) {
-            $daysOfWeek[] = $startOfWeek->copy()->addDays($i);
+            $tanggal = $startOfWeek->copy()->addDays($i);
+            $monthName = $selectedDate->locale('id')->isoFormat('MMMM');
+            $daysOfWeek[] = [
+                'tanggal' => $tanggal,
+                'nama_hari' => $tanggal->locale('id')->isoFormat('ddd'),
+            ];
         }
 
-        // ✅ Pindahin return view ke luar loop
         $data = [
             'title' => 'Jadwal Pelajaran',
             'siswa' => $siswa,
             'jadwalHariIni' => $jadwalHariIni,
             'selectedDate' => $selectedDate,
-            'daysOfWeek' => $daysOfWeek
+            'daysOfWeek' => $daysOfWeek,
+            'monthName' => $monthName,
         ];
 
         return view('siswa.jadwal', $data);

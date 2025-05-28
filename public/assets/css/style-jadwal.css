@@ -1,0 +1,264 @@
+.jadwal-container {
+    position: relative;
+    padding-bottom: 80px;
+}
+
+.jadwal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+}
+
+.back-button a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.back-button i {
+    margin-right: 8px;
+}
+
+.semester-info {
+    background-color: #f0f7ff;
+    padding: 10px 15px;
+    text-align: center;
+}
+
+.semester-info h4 {
+    margin: 0;
+    color: #555;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.month-header {
+    background-color: #ff4b7d;
+    color: white;
+    padding: 12px 15px;
+    text-align: center;
+}
+
+.month-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.week-navigation {
+    display: flex;
+    background-color: #ff4b7d;
+    padding: 0 10px 15px;
+}
+
+.nav-arrow-prev {
+    margin-right: 20px;
+    display: flex;
+    align-items: center;
+    color: white;
+    padding: 0 5px;
+}
+
+.nav-arrow-next {
+    margin-left: 20px;
+    display: flex;
+    align-items: center;
+    color: white;
+    padding: 0 5px;
+}
+
+.nav-arrow-prev a {
+    color: white;
+}
+
+.nav-arrow-next a {
+    color: white;
+}
+
+.days-container {
+    display: flex;
+    flex: 1;
+    justify-content: space-between;
+}
+
+.day-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    padding: 5px 0;
+    width: 40px;
+}
+
+.day-item.active {
+    background-color: #333;
+    border-radius: 50%;
+}
+
+.day-name {
+    color: white;
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 3px;
+    font-weight: bold;
+}
+
+.days-container a {
+    text-decoration: none;
+}
+
+.day-number {
+    color: white;
+    font-size: 0.8rem;
+    text-align: center;
+    margin-bottom: 3px;
+    /* font-weight: bold; */
+}
+
+.current-date {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.date-text {
+    font-weight: 500;
+}
+
+.today-badge {
+    background-color: #e0f7ff;
+    color: #0099cc;
+    padding: 3px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+}
+
+.jadwal-list {
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.jadwal-item {
+    display: flex;
+    align-items: flex-start;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(31, 41, 55, 0.07);
+    padding: 18px 20px;
+    transition: box-shadow 0.2s;
+    border: 1px solid #f3f4f6;
+}
+
+.jadwal-item:hover {
+    box-shadow: 0 4px 20px rgba(31, 41, 55, 0.13);
+    border-color: #e0e7ef;
+}
+
+.waktu-container {
+    min-width: 72px;
+    margin-right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.waktu {
+    background: white;
+    color: black;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 1px 4px rgba(255, 75, 125, 0.10);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.mata-pelajaran-container {
+    flex: 1;
+    background: #d9e5ee;
+    border-radius: 10px;
+    padding: 10px 18px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* transition: background 5s; */
+}
+
+/* .mata-pelajaran-container.special {
+    background: linear-gradient(90deg, #fffbe6 60%, #fff7d6 100%);
+    box-shadow: 0 0 0 100px #ffb300 inset;
+} */
+
+.mata-pelajaran {
+    font-weight: 700;
+    font-size: 1.08rem;
+    margin-bottom: 4px;
+    color: #22223b;
+    letter-spacing: 0.2px;
+}
+
+.guru {
+    color: #5e6472;
+    font-size: 13.5px;
+    margin-bottom: 2px;
+    font-weight: 500;
+}
+
+.kelas {
+    color: #b0b4be;
+    font-size: 12.5px;
+    font-weight: 500;
+}
+
+.empty-jadwal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 0;
+}
+
+.empty-illustration {
+    width: 200px;
+    margin-bottom: 20px;
+}
+
+.empty-illustration img {
+    width: 100%;
+}
+
+.empty-text {
+    color: #999;
+    font-size: 14px;
+}
+
+.floating-button {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #1bc5bd;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.floating-button a {
+    color: white;
+    font-size: 24px;
+}

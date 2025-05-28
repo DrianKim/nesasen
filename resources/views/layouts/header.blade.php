@@ -38,7 +38,9 @@
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
+    <!-- Css Custom -->
     <link rel="stylesheet" href="{{ asset('assets/css/style-presensi.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style-jadwal.css') }}">
 
     <!-- Dashboard specific styles or scripts -->
     @stack('styles')

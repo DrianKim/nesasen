@@ -19,7 +19,7 @@
     <header>
         <div class="logo">
             <a href="{{ route('welcome') }}">
-                <img src="{{ asset('img/ls-loo.png') }}" alt="Nesasen Logo" />
+                <img src="{{ asset('img/ls-logo.png') }}" alt="Nesasen Logo" />
             </a>
         </div>
     </header>

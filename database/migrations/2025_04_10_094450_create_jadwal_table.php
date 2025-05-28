@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('jadwal', function (Blueprint $table) {
             $table->id();
             $table->foreignid('mapel_kelas_id')->constrained('mapel_kelas')->onDelete('cascade');
-            $table->string('hari');
+            $table->date('tanggal');
             $table->time('jam_mulai');
             $table->time('jam_selesai');
             $table->timestamps();
