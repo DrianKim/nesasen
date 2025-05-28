@@ -52,7 +52,7 @@
                                         <!-- Kelas Header -->
                                         <div class="mb-2 d-flex justify-content-between align-items-center">
                                             <h5 class="mb-0 card-title fw-bold text-dark">
-                                                {{ $item->mata_pelajaran->nama_mapel }}</h5>
+                                                {{ $item->mataPelajaran->nama_mapel }}</h5>
                                             <span class="badge bg-primary rounded-pill">
                                                 {{ $item->kelas->tingkat }}
                                                 {{ $item->kelas->jurusan->kode_jurusan }}

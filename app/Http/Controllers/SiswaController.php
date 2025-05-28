@@ -181,7 +181,7 @@ class SiswaController extends Controller
     {
         $siswa = Siswa::with('kelas')->find(Auth::user()->siswa->id);
 
-        $mapelKelasList = MapelKelas::with(['mata_pelajaran', 'guru.user', 'tugas.pengumpulan_tugas'])
+        $mapelKelasList = MapelKelas::with(['mataPelajaran', 'guru.user', 'tugas.pengumpulan_tugas'])
             ->where('kelas_id', $siswa->kelas_id)
             ->get()
             ->map(function ($item) use ($siswa) {
@@ -207,35 +207,49 @@ class SiswaController extends Controller
         return view('siswa.kelasKu', $data);
     }
 
-    public function index_jadwal(Request $request)
+    public function jadwal_index(Request $request)
     {
         $siswa = auth()->user()->siswa;
-
         $selectedDate = $request->input('tanggal')
             ? Carbon::parse($request->input('tanggal'))
             : Carbon::now();
 
-        // $namaHari = $selectedDate->locale('id')->isoFormat('ddd');
-
         $mapelKelasIds = MapelKelas::where('kelas_id', $siswa->kelas->id)->pluck('id');
 
         $jadwalHariIni = Jadwal::whereIn('mapel_kelas_id', $mapelKelasIds)
-            ->where('tanggal')
-            ->with(['mapelKelas.mata_pelajaran', 'mapelKelas.kelas'])
+            ->where('tanggal', $selectedDate->format('Y-m-d'))
+            ->with(['mapelKelas.mataPelajaran', 'mapelKelas.guru', 'mapelKelas.kelas'])
             ->orderBy('jam_mulai')
-            ->get();
+            ->get()
+            ->map(function ($jadwal) {
+                $now = Carbon::now();
+                $jadwalDate = Carbon::parse($jadwal->tanggal);
+                $jamMulai = $jadwalDate->copy()->setTimeFromTimeString($jadwal->jam_mulai);
+                $jamSelesai = $jadwalDate->copy()->setTimeFromTimeString($jadwal->jam_selesai);
 
-        // $weekdays = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+                if ($jadwalDate->isToday()) {
+                    $jadwal->is_selesai = $now->gt($jamSelesai);
+                    $jadwal->is_belum_selesai = $now->between($jamMulai, $jamSelesai);
+                } else {
+                    $jadwal->is_selesai = $jadwalDate->isPast();
+                    $jadwal->is_belum_selesai = false;
+                }
+
+                return $jadwal;
+            });
+
         $startOfWeek = $selectedDate->copy()->startOfWeek(Carbon::MONDAY);
         $daysOfWeek = [];
+
         for ($i = 0; $i < 7; $i++) {
             $tanggal = $startOfWeek->copy()->addDays($i);
-            $monthName = $selectedDate->locale('id')->isoFormat('MMMM');
             $daysOfWeek[] = [
                 'tanggal' => $tanggal,
                 'nama_hari' => $tanggal->locale('id')->isoFormat('ddd'),
             ];
         }
+
+        $monthName = $selectedDate->locale('id')->isoFormat('MMMM Y');
 
         $data = [
             'title' => 'Jadwal Pelajaran',
@@ -246,6 +260,74 @@ class SiswaController extends Controller
             'monthName' => $monthName,
         ];
 
+        if ($request->ajax()) {
+            return response()->json([
+                'jadwal' => $jadwalHariIni,
+                'selectedDate' => $selectedDate->translatedFormat('l, d F Y'),
+                'isToday' => $selectedDate->isToday()
+            ]);
+        }
+
         return view('siswa.jadwal', $data);
+    }
+
+    public function jadwal_perhari(Request $request)
+    {
+        $siswa = auth()->user()->siswa;
+        $selectedDate = $request->input('tanggal')
+            ? Carbon::parse($request->input('tanggal'))
+            : Carbon::now();
+
+        $mapelKelasIds = MapelKelas::where('kelas_id', $siswa->kelas->id)->pluck('id');
+
+        $jadwalHariIni = Jadwal::whereIn('mapel_kelas_id', $mapelKelasIds)
+            ->where('tanggal', $selectedDate->format('Y-m-d'))
+            ->with(['mapelKelas.mataPelajaran', 'mapelKelas.guru', 'mapelKelas.kelas'])
+            ->orderBy('jam_mulai')
+            ->get()
+            ->map(function ($jadwal) {
+                $now = Carbon::now();
+                $jadwalDate = Carbon::parse($jadwal->tanggal);
+                $jamMulai = $jadwalDate->copy()->setTimeFromTimeString($jadwal->jam_mulai);
+                $jamSelesai = $jadwalDate->copy()->setTimeFromTimeString($jadwal->jam_selesai);
+
+                if ($jadwalDate->isToday()) {
+                    $jadwal->is_selesai = $now->gt($jamSelesai);
+                    $jadwal->is_belum_selesai = $now->between($jamMulai, $jamSelesai);
+                } else {
+                    $jadwal->is_selesai = $jadwalDate->isPast();
+                    $jadwal->is_belum_selesai = false;
+                }
+
+                return $jadwal;
+            });
+
+        return response()->json([
+            'jadwal' => $jadwalHariIni,
+            'currentTime' => Carbon::now()->format('H:i:s')
+        ]);
+    }
+
+    public function jadwal_perminggu(Request $request)
+    {
+        $tanggal = Carbon::parse($request->tanggal);
+        $startOfWeek = $tanggal->startOfWeek(Carbon::MONDAY);
+        $daysOfWeek = [];
+
+        for ($i = 0; $i < 7; $i++) {
+            $day = $startOfWeek->copy()->addDays($i);
+            $daysOfWeek[] = [
+                'nama_hari' => $day->translatedFormat('D'),
+                'tanggal' => $day,
+            ];
+        }
+
+        $selectedDate = $tanggal;
+
+        $html = view('siswa.partials.days', compact('daysOfWeek', 'selectedDate'))->render();
+
+        return response()->json([
+            'daysHtml' => $html
+        ]);
     }
 }

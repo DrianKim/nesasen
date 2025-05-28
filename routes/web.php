@@ -96,7 +96,9 @@ Route::get('/siswa/presensi/hari-ini', [SiswaController::class, 'presensi_hari_i
     Route::get('siswa/kelasKu', [SiswaController::class, 'index_kelasKu'])->name('siswa.kelasKu.index');
 
     // jadwal
-    Route::get('siswa/jadwal', [SiswaController::class, 'index_jadwal'])->name('siswa.jadwal');
+    Route::get('siswa/jadwal', [SiswaController::class, 'jadwal_index'])->name('siswa.jadwal');
+    Route::get('siswa/jadwal/perhari', [SiswaController::class, 'jadwal_perhari'])->name('siswa.jadwal.perhari');
+    Route::get('siswa/jadwal/perminggu', [SiswaController::class, 'jadwal_perminggu'])->name('siswa.jadwal.perminggu');
 
     Route::middleware(['isAdmin'])->group(function () {
         // Dashboard

@@ -29,7 +29,7 @@
                 </a>
             </div>
 
-            <p class="mt-3 text-muted">Butuh bantuan? <a href="#" class="text-decoration-none">Hubungi Admin</a></p>
+            <p class="mt-3 text-muted">Butuh bantuan? <a href="https://wa.me/6287720405130" target="_blank">Hubungi Admin</a></p>
         </div>
     </div>
     @php $title = '404 - Halaman Tidak Ditemukan'; @endphp

@@ -12,7 +12,7 @@ class MapelKelas extends Model
         'kelas_id',
         'guru_id',
     ];
-    public function mata_pelajaran()
+    public function mataPelajaran()
     {
         return $this->belongsTo(MataPelajaran::class, 'mapel_id');
     }
