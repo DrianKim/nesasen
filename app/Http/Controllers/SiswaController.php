@@ -264,7 +264,8 @@ class SiswaController extends Controller
             return response()->json([
                 'jadwal' => $jadwalHariIni,
                 'selectedDate' => $selectedDate->translatedFormat('l, d F Y'),
-                'isToday' => $selectedDate->isToday()
+                'isToday' => $selectedDate->isToday(),
+                'monthName' => $monthName,
             ]);
         }
 

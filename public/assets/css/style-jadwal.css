@@ -24,7 +24,7 @@
 }
 
 .semester-info {
-    background-color: #f0f7ff;
+    background-color: #EBECEFFF;
     padding: 10px 15px;
     text-align: center;
 }
@@ -37,7 +37,7 @@
 }
 
 .month-header {
-    background-color: #ff4b7d;
+    background-color: #E33A6AFF;
     color: white;
     padding: 12px 15px;
     text-align: center;
@@ -85,6 +85,7 @@
 }
 
 .days-container {
+    /* background-color: blue; */
     display: flex;
     flex: 1;
     justify-content: space-between;
@@ -108,6 +109,7 @@
 
 .day-item.active {
     background-color: #333;
+    /* background-color: #E33A6AFF; */
     border-radius: 20px;
     transform: scale(1.05);
 }
@@ -189,41 +191,18 @@
 }
 
 .jadwal-item.completed {
-    /* border-left: 4px solid #28a745; */
     opacity: 0.88;
     background: #f8f9fa;
-    /* animation: glow-completed 2s ease-in-out infinite alternate; */
 }
 
 .jadwal-item.ongoing {
-    /* border-left: 4px solid #ffc107; */
     opacity: 0.88;
     background: #f8f9fa;
-    /* animation: glow-ongoing 2s ease-in-out infinite alternate; */
 }
 .jadwal-item.upcoming {
     opacity: 0.88;
     background: #f8f9fa;
-    /* animation: glow-ongoing 2s ease-in-out infinite alternate; */
 }
-
-/* @keyframes glow-completed {
-    from {
-        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.13), 0 2px 12px rgba(40, 167, 69, 0.10);
-    }
-    to {
-        box-shadow: 0 0 12px 4px rgba(40, 167, 69, 0.18), 0 4px 20px rgba(40, 167, 69, 0.18);
-    }
-}
-
-@keyframes glow-ongoing {
-    from {
-        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.15), 0 2px 12px rgba(255, 193, 7, 0.12);
-    }
-    to {
-        box-shadow: 0 0 12px 4px rgba(255, 193, 7, 0.22), 0 4px 20px rgba(255, 193, 7, 0.22);
-    }
-} */
 
 .jadwal-item.completed .mata-pelajaran-container {
     background: #e8f5e8;
@@ -300,7 +279,7 @@
 
 .status-upcoming {
     margin-top: 8px;
-    color: #1B1D1FFF;
+    color: #1b1d1fff;
     font-size: 1.2rem;
     animation: checkmark 0.75s ease-in-out;
 }

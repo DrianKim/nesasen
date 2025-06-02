@@ -18,7 +18,7 @@
 
         <!-- Tahun Ajaran dan Semester -->
         <div class="semester-info">
-            <h4>Tahun Ajaran 2024-2025 - Semester 2</h4>
+            <h4>Tahun Ajaran 2024-2025</h4>
         </div>
 
         <!-- Bulan dan Tahun -->
@@ -48,13 +48,13 @@
         <!-- Tanggal yang ditampilkan -->
         <div class="current-date">
             <div class="date-text" id="current-date-text">{{ $selectedDate->translatedFormat('l, d F Y') }}</div>
-            <div class="today-badge" id="today-badge" style="{{ $selectedDate->isToday() ? '' : 'display: none;' }}">Hari
-                Ini</div>
+            <div class="today-badge" id="today-badge" style="{{ $selectedDate->isToday() ? '' : 'display: none;' }}">
+                Hari Ini</div>
         </div>
 
         <!-- Loading indicator -->
         <div id="loading-indicator" style="display: none; text-align: center; padding: 20px;">
-            <i class="fas fa-spinner fa-spin"></i> Memuat jadwal...
+            <i class="fas fa-spinner fa-spin"></i> Memuat...
         </div>
 
         <!-- Daftar Jadwal -->
@@ -150,14 +150,15 @@
 
             let statusIcon = '';
             if (jadwal.is_selesai) {
-            statusIcon = '<div class="status-check"><i class="fas fa-check-circle"></i></div>';
+                statusIcon = '<div class="status-check"><i class="fas fa-check-circle"></i></div>';
             } else if (jadwal.is_belum_selesai) {
-            statusIcon = '<div class="status-ongoing"><i class="fas fa-clock"></i></div>';
+                statusIcon = '<div class="status-ongoing"><i class="fas fa-clock"></i></div>';
             } else {
-            statusIcon = '<div class="status-upcoming"><i class="fas fa-hourglass-start"></i></div>';
+                statusIcon = '<div class="status-upcoming"><i class="fas fa-hourglass-start"></i></div>';
             }
 
-            const ongoingSubjectClass = jadwal.is_belum_selesai ? 'belum-selesai' : (upcomingClass ? 'upcoming' : '');
+            const ongoingSubjectClass = jadwal.is_belum_selesai ? 'belum-selesai' : (upcomingClass ?
+                'upcoming' : '');
 
             const mapelKelas = jadwal.mapel_kelas;
             const mataPelajaran = mapelKelas?.mata_pelajaran;
@@ -177,13 +178,13 @@
                 </div>
                 <div class="mata-pelajaran-container ${ongoingSubjectClass}">
                     <div class="mata-pelajaran">
-                ${mataPelajaran ? mataPelajaran.nama_mapel : 'Mapel tidak ditemukan'}
+                ${mataPelajaran ? mataPelajaran.nama_mapel : '-'}
                 </div>
                     <div class="guru">
-                        ${guru ? guru.nama : 'Guru tidak ditemukan'}
+                        ${guru ? guru.nama : '-'}
                     </div>
                     <div class="kelas">
-                        ${kelas ? `${kelas.tingkat} ${jurusan?.kode_jurusan ?? ''} ${kelas.no_kelas}` : 'Kelas tidak ditemukan'}
+                        ${kelas ? `${kelas.tingkat} ${jurusan?.kode_jurusan ?? ''} ${kelas.no_kelas}` : '-'}
                     </div>
                 </div>
             </div>
@@ -249,6 +250,8 @@
             success: function(response) {
                 $('#current-date-text').text(response.selectedDate);
                 $('#today-badge').toggle(response.isToday);
+
+                $('#month-display').text(response.monthName);
 
                 updateJadwalDisplay(response.jadwal);
 
