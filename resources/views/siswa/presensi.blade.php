@@ -258,8 +258,8 @@
 
         function startCamera() {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                alert("Browser kamu tidak support kamera!");
-                return;
+            alert("Browser kamu tidak support kamera!");
+            return;
             }
 
             // Hide initial view and after selfie view, show camera
@@ -273,28 +273,30 @@
             ambilSelfieBtn.textContent = 'AMBIL FOTO';
             kirimPresensiBtn.style.display = 'none';
 
+            // Set video to square and mirror
+            cameraPreview.style.objectFit = 'cover';
+            cameraPreview.style.width = '320px';
+            cameraPreview.style.height = '320px';
+            cameraPreview.style.transform = 'scaleX(-1)'; // Mirror
+
             navigator.mediaDevices.getUserMedia({
-                    video: {
-                        facingMode: 'user',
-                        width: {
-                            ideal: 720
-                        },
-                        height: {
-                            ideal: 1280
-                        }
-                    },
-                    audio: false
-                })
-                .then(s => {
-                    stream = s;
-                    cameraPreview.srcObject = stream;
-                    cameraPreview.play();
-                })
-                .catch(err => {
-                    console.error('Error accessing camera:', err);
-                    alert('Tidak dapat mengakses kamera. Pastikan kamu memberikan izin kamera.');
-                    resetModalView();
-                });
+                video: {
+                facingMode: 'user',
+                width: { ideal: 720 },
+                height: { ideal: 720 }
+                },
+                audio: false
+            })
+            .then(s => {
+                stream = s;
+                cameraPreview.srcObject = stream;
+                cameraPreview.play();
+            })
+            .catch(err => {
+                console.error('Error accessing camera:', err);
+                alert('Tidak dapat mengakses kamera. Pastikan kamu memberikan izin kamera.');
+                resetModalView();
+            });
         }
 
         function takeSelfie() {
@@ -326,6 +328,12 @@
             selfiePreview.src = selfieData;
             selfiePreview.style.display = 'block';
 
+            // Mirror dan persegi
+            selfiePreview.style.objectFit = 'cover';
+            selfiePreview.style.width = '320px';
+            selfiePreview.style.height = '320px';
+            selfiePreview.style.transform = 'scaleX(-1)';
+
             const now = new Date();
             const jam = now.getHours().toString().padStart(2, '0') + ':' +
                 now.getMinutes().toString().padStart(2, '0') + ':' +
@@ -351,7 +359,6 @@
                 $('#CheckInTime').hide();
             }
 
-            console.log('Sudah Check In:', sudahCheckIn);
             // Tombol
             ambilSelfieBtn.style.display = 'none';
             kirimPresensiBtn.style.display = 'block';
