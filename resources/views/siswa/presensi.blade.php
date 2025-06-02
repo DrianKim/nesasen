@@ -78,8 +78,7 @@
                                 style="max-height: 150px;">
                         </div>
                         <h5 class="mb-2 modal-title" id="selfieModalLabel">Ketentuan Validasi</h5>
-                        <p class="mb-4 text-muted">Untuk menjaga keamanan dan integritas presensi, kami butuh selfie kamu
-                            ya.
+                        <p class="mb-4 text-muted">Buat verifikasi kehadiran, yuk ambil selfie kamu dulu
                         </p>
                     </div>
 
