@@ -202,7 +202,7 @@
 
                     const insideArea = sekolahPolygon.getBounds().contains(userLatLng);
                     document.getElementById('locationWarning').textContent = insideArea ?
-                        'Kamu berada di area presensi' : 'Kamu di luar area presensi';
+                        'Kamu berada di area presensi' : 'Kamu berada di luar area presensi';
                     document.getElementById('locationWarning').style.color = insideArea ? '#28a745' : '#dc3545';
                     document.getElementById('alasanWrapper').style.display = insideArea ? 'none' : 'block';
                 },
