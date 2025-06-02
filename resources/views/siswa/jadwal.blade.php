@@ -59,49 +59,7 @@
 
         <!-- Daftar Jadwal -->
         <div class="jadwal-list" id="jadwal-list">
-            @if ($jadwalHariIni->count() > 0)
-                @foreach ($jadwalHariIni as $jadwal)
-                    <div
-                        class="jadwal-item {{ $jadwal->is_selesai ? 'completed' : '' }} {{ $jadwal->is_belum_selesai ? 'ongoing' : '' }}">
-                        <div class="waktu-container">
-                            <div class="waktu">
-                                {{ \Carbon\Carbon::parse($jadwal->jam_mulai)->format('H:i') }}
-                                -
-                                {{ \Carbon\Carbon::parse($jadwal->jam_selesai)->format('H:i') }}
-                            </div>
-                            @if ($jadwal->is_selesai)
-                                <div class="status-check">
-                                    <i class="fas fa-check-circle"></i>
-                                </div>
-                            @elseif($jadwal->is_belum_selesai)
-                                <div class="status-ongoing">
-                                    <i class="fas fa-clock"></i>
-                                </div>
-                            @endif
-                        </div>
-                        <div class="mata-pelajaran-container {{ $jadwal->is_belum_selesai ? 'belum-selesai' : '' }}">
-                            <div class="mata-pelajaran">
-                                {{ $jadwal->mapelKelas->mataPelajaran->nama_mapel }}
-                            </div>
-                            <div class="guru">
-                                {{ $jadwal->mapelKelas->guru->nama }}
-                            </div>
-                            <div class="kelas">
-                                Kelas {{ $jadwal->mapelKelas->kelas->tingkat }}
-                                {{ $jadwal->mapelKelas->kelas->jurusan->kode_jurusan }}
-                                {{ $jadwal->mapelKelas->kelas->no_kelas }}
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            @else
-                <div class="empty-jadwal">
-                    <div class="empty-illustration">
-                        <img src="{{ asset('assets/img/not-found.png') }}" alt="Tidak ada jadwal">
-                    </div>
-                    <div class="empty-text">Tidak ada jadwal untuk hari ini</div>
-                </div>
-            @endif
+            @include('siswa.partials.jadwal-list')
         </div>
 
         <!-- Tombol Tambah Jadwal -->
@@ -149,6 +107,7 @@
     }
 
     function updateJadwalStatus() {
+        if (isLoading) return;
         $.ajax({
             url: '{{ route('siswa.jadwal.perhari') }}',
             method: 'GET',
@@ -163,6 +122,10 @@
             }
         });
     }
+
+    jadwalList.fadeOut(200, function() {
+        jadwalList.html(html).fadeIn(200);
+    })
 
     function updateJadwalDisplay(jadwalData) {
         const jadwalList = $('#jadwal-list');
@@ -183,18 +146,27 @@
         jadwalData.forEach(function(jadwal) {
             const completedClass = jadwal.is_selesai ? 'completed' : '';
             const ongoingClass = jadwal.is_belum_selesai ? 'ongoing' : '';
+            const upcomingClass = (!jadwal.is_selesai && !jadwal.is_belum_selesai) ? 'upcoming' : '';
 
             let statusIcon = '';
             if (jadwal.is_selesai) {
-                statusIcon = '<div class="status-check"><i class="fas fa-check-circle"></i></div>';
+            statusIcon = '<div class="status-check"><i class="fas fa-check-circle"></i></div>';
             } else if (jadwal.is_belum_selesai) {
-                statusIcon = '<div class="status-ongoing"><i class="fas fa-clock"></i></div>';
+            statusIcon = '<div class="status-ongoing"><i class="fas fa-clock"></i></div>';
+            } else {
+            statusIcon = '<div class="status-upcoming"><i class="fas fa-hourglass-start"></i></div>';
             }
 
-            const ongoingSubjectClass = jadwal.is_belum_selesai ? 'belum-selesai' : '';
+            const ongoingSubjectClass = jadwal.is_belum_selesai ? 'belum-selesai' : (upcomingClass ? 'upcoming' : '');
+
+            const mapelKelas = jadwal.mapel_kelas;
+            const mataPelajaran = mapelKelas?.mata_pelajaran;
+            const guru = mapelKelas?.guru;
+            const kelas = mapelKelas?.kelas;
+            const jurusan = kelas?.jurusan;
 
             html += `
-            <div class="jadwal-item ${completedClass} ${ongoingClass}">
+            <div class="jadwal-item ${completedClass} ${ongoingClass} ${upcomingClass}">
                 <div class="waktu-container">
                     <div class="waktu">
                         ${jadwal.jam_mulai.substring(0, 5)}
@@ -205,25 +177,24 @@
                 </div>
                 <div class="mata-pelajaran-container ${ongoingSubjectClass}">
                     <div class="mata-pelajaran">
-                        ${jadwal.mapel_kelas.mata_pelajaran.nama_mapel}
-                    </div>
+                ${mataPelajaran ? mataPelajaran.nama_mapel : 'Mapel tidak ditemukan'}
+                </div>
                     <div class="guru">
-                        ${jadwal.mapel_kelas.guru.nama}
+                        ${guru ? guru.nama : 'Guru tidak ditemukan'}
                     </div>
                     <div class="kelas">
-                        Kelas ${jadwal.mapel_kelas.kelas.tingkat}
-                        ${jadwal.mapel_kelas.kelas.jurusan.kode_jurusan}
-                        ${jadwal.mapel_kelas.kelas.no_kelas}
+                        ${kelas ? `${kelas.tingkat} ${jurusan?.kode_jurusan ?? ''} ${kelas.no_kelas}` : 'Kelas tidak ditemukan'}
                     </div>
                 </div>
             </div>
-        `;
+            `;
         });
 
         jadwalList.html(html);
     }
 
     function changeDate(date) {
+        let isLoading = false;
         currentDate = date;
         $('#current-selected-date').val(date);
 

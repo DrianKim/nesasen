@@ -218,7 +218,7 @@ class SiswaController extends Controller
 
         $jadwalHariIni = Jadwal::whereIn('mapel_kelas_id', $mapelKelasIds)
             ->where('tanggal', $selectedDate->format('Y-m-d'))
-            ->with(['mapelKelas.mataPelajaran', 'mapelKelas.guru', 'mapelKelas.kelas'])
+            ->with(['mapelKelas.mataPelajaran', 'mapelKelas.guru', 'mapelKelas.kelas.jurusan'])
             ->orderBy('jam_mulai')
             ->get()
             ->map(function ($jadwal) {
@@ -282,7 +282,7 @@ class SiswaController extends Controller
 
         $jadwalHariIni = Jadwal::whereIn('mapel_kelas_id', $mapelKelasIds)
             ->where('tanggal', $selectedDate->format('Y-m-d'))
-            ->with(['mapelKelas.mataPelajaran', 'mapelKelas.guru', 'mapelKelas.kelas'])
+            ->with(['mapelKelas.mataPelajaran', 'mapelKelas.guru', 'mapelKelas.kelas.jurusan'])
             ->orderBy('jam_mulai')
             ->get()
             ->map(function ($jadwal) {

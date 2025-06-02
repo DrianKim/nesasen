@@ -34,7 +34,7 @@ class Guru extends Model
         return $this->hasMany(Kelas::class);
     }
 
-    public function mapel_kelas()
+    public function mapelKelas()
     {
         return $this->hasOne(MapelKelas::class);
     }

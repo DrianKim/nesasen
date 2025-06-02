@@ -17,13 +17,19 @@
             <div id="map"></div>
 
             <!-- Check In/Out Info -->
-            <div class="check-buttons">
+            <div class="check-info">
                 <button id="checkInInfo" class="check-btn check-in active btn-sm">
                     <i class="fas fa-check-circle"></i> Check In --:--
                 </button>
                 <button id="checkOutInfo" class="check-btn check-out btn-sm">
                     <i class="fas fa-times-circle"></i> Check Out --:--
                 </button>
+                {{-- <span id="checkInInfo" class="check-btn check-in active btn-sm">
+                    <i class="fas fa-check-circle"></i> Check In --:--
+                </span>
+                <span id="checkOutInfo" class="check-btn check-out active btn-sm">
+                    <i class="fas fa-times-circle"></i> Check Out --:--
+                </span> --}}
             </div>
         </div>
 

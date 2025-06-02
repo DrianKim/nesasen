@@ -178,6 +178,8 @@
     border: 1px solid #f3f4f6;
     position: relative;
     overflow: hidden;
+    outline: 2px solid #e0e7ef;
+    outline-offset: 0px;
 }
 
 .jadwal-item:hover {
@@ -187,36 +189,56 @@
 }
 
 .jadwal-item.completed {
-    opacity: 0.7;
+    /* border-left: 4px solid #28a745; */
+    opacity: 0.88;
     background: #f8f9fa;
-    border-left: 4px solid #28a745;
+    /* animation: glow-completed 2s ease-in-out infinite alternate; */
 }
+
+.jadwal-item.ongoing {
+    /* border-left: 4px solid #ffc107; */
+    opacity: 0.88;
+    background: #f8f9fa;
+    /* animation: glow-ongoing 2s ease-in-out infinite alternate; */
+}
+.jadwal-item.upcoming {
+    opacity: 0.88;
+    background: #f8f9fa;
+    /* animation: glow-ongoing 2s ease-in-out infinite alternate; */
+}
+
+/* @keyframes glow-completed {
+    from {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.13), 0 2px 12px rgba(40, 167, 69, 0.10);
+    }
+    to {
+        box-shadow: 0 0 12px 4px rgba(40, 167, 69, 0.18), 0 4px 20px rgba(40, 167, 69, 0.18);
+    }
+}
+
+@keyframes glow-ongoing {
+    from {
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.15), 0 2px 12px rgba(255, 193, 7, 0.12);
+    }
+    to {
+        box-shadow: 0 0 12px 4px rgba(255, 193, 7, 0.22), 0 4px 20px rgba(255, 193, 7, 0.22);
+    }
+} */
 
 .jadwal-item.completed .mata-pelajaran-container {
     background: #e8f5e8;
 }
 
-.jadwal-item.ongoing {
-    border-left: 4px solid #ffc107;
-    background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
-    animation: glow 2s ease-in-out infinite alternate;
+.jadwal-item.ongoing .mata-pelajaran-container {
+    background: #fff8dfff;
 }
 
-@keyframes glow {
-    from {
-        box-shadow: 0 2px 12px rgba(255, 193, 7, 0.2);
-    }
-    to {
-        box-shadow: 0 4px 20px rgba(255, 193, 7, 0.4);
-    }
-}
-
-.mata-pelajaran-container.ongoing-subject {
-    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-    border: 1px solid #ffeaa7;
+.jadwal-item.upcoming .mata-pelajaran-container {
+    background: #f3f4f6;
 }
 
 .waktu-container {
+    background: #f3f6fa;
     min-width: 72px;
     margin-right: 20px;
     display: flex;
@@ -245,7 +267,7 @@
     margin-top: 8px;
     color: #28a745;
     font-size: 1.2rem;
-    animation: checkmark 0.5s ease-in-out;
+    animation: checkmark 0.75s ease-in-out;
 }
 
 @keyframes checkmark {
@@ -264,7 +286,7 @@
     margin-top: 8px;
     color: #ffc107;
     font-size: 1.2rem;
-    animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite, checkmark 0.75s ease-in-out;
 }
 
 @keyframes spin {
@@ -276,12 +298,19 @@
     }
 }
 
+.status-upcoming {
+    margin-top: 8px;
+    color: #1B1D1FFF;
+    font-size: 1.2rem;
+    animation: checkmark 0.75s ease-in-out;
+}
+
 .mata-pelajaran-container {
     flex: 1;
-    background: #d9e5ee;
+    background: #f3f6fa;
     border-radius: 10px;
     padding: 10px 18px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
     display: flex;
     flex-direction: column;
     justify-content: center;

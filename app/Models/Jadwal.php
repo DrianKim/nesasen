@@ -19,7 +19,7 @@ class Jadwal extends Model
     {
         return $this->belongsto(MapelKelas::class);
     }
-    public function Kelas()
+    public function kelas()
     {
         return $this->belongsto(Kelas::class);
     }

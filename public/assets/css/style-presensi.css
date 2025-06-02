@@ -42,7 +42,8 @@
     width: 100%;
 }
 
-.check-buttons {
+.check-info {
+    /* background-color: blue; */
     position: absolute;
     top: 20px;
     left: 50%;
@@ -57,15 +58,15 @@
 
 .check-btn {
     padding: 6px 12px;
+    /* background-color: #f5f5f5; */
+    /* color: #333; */
     font-size: 13px;
     border-radius: 6px;
     border: 1px solid #ccc;
-    background-color: #f5f5f5;
-    color: #333;
     cursor: default;
     font-weight: bold;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-    background-color: #fff;
+    background-color: white;
     color: #333;
     display: flex;
     align-items: center;
@@ -300,13 +301,13 @@
     gap: 6px;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); 
-    text-decoration: none; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    text-decoration: none;
 }
 
 .foto-ulang-btn:hover {
     background-color: #f1f3f5;
-    color: #c82333; 
+    color: #c82333;
     text-decoration: none;
 }
 
