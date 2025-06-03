@@ -24,7 +24,7 @@ class OtpController extends Controller
         try {
             Mail::raw("Kode OTP Anda adalah: $otp. Jangan bagikan ke siapapun kode ini", function ($message) use ($request) {
                 $message->to($request->email)
-                        ->subject('Kode OTP Pendaftaran');
+                        ->subject('Register - OTP');
             });
 
             return response()->json(['status' => 'success']);

@@ -11,6 +11,8 @@ use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\PengajarController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ForgotPasswordController;
+use Illuminate\Http\Request;
 
 // Landing Page
 Route::get('/', function () {
@@ -61,6 +63,23 @@ Route::post('/register/user', [RegisterController::class, 'simpanAkun'])->name('
 Route::post('/send-otp', [OtpController::class, 'kirimOtp'])->name('sendOtp');
 Route::post('/verifikasi-otp', [OtpController::class, 'verifikasiOtp'])->name('verifikasiOtp');
 
+// Forgot Password
+Route::get('/forgot-password', function (Request $request) {
+    $role = $request->query('role');
+
+    if ($role === 'admin') {
+        return redirect()->route('forgot.reset', ['role' => 'admin']);
+    } else {
+        return app(ForgotPasswordController::class)->showOtpPage($request);
+    }
+})->name('forgot.password');
+
+Route::post('/forgot/send-otp', [ForgotPasswordController::class, 'sendOtp'])->name('forgot.sendOtp');
+Route::post('/forgot/verify-otp', [ForgotPasswordController::class, 'verifyOtp'])->name('forgot.verifyOtp');
+
+Route::get('/reset-password', [ForgotPasswordController::class, 'showResetForm'])->name('forgot.reset');
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('forgot.reset.store');
+
 Route::middleware(['isLogin'])->group(function () {
 
     // profil
@@ -85,7 +104,7 @@ Route::middleware(['isLogin'])->group(function () {
 
     // presensi
     Route::get('siswa/presensi', [SiswaController::class, 'presensi_index'])->name('siswa.presensi');
-Route::get('/siswa/presensi/hari-ini', [SiswaController::class, 'presensi_hari_ini'])->name('siswa.presensi.hari_ini');
+    Route::get('/siswa/presensi/hari-ini', [SiswaController::class, 'presensi_hari_ini'])->name('siswa.presensi.hari_ini');
     Route::post('/siswa/presensi/store', [SiswaController::class, 'presensi_store'])->name('siswa.presensi.store');
 
     // izin

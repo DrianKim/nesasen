@@ -25,15 +25,15 @@ class RegisterController extends Controller
             'role' => 'required|in:siswa,guru',
         ]);
 
-            Session::put('register_nama', $request->nama);
-            Session::put('register_tanggal_lahir', $request->tanggal_lahir);
-            Session::put('register_no_hp', $request->no_hp);
-            Session::put('register_email', $request->email);
-            Session::put('register_role', $role);
+        Session::put('register_nama', $request->nama);
+        Session::put('register_tanggal_lahir', $request->tanggal_lahir);
+        Session::put('register_no_hp', $request->no_hp);
+        Session::put('register_email', $request->email);
+        Session::put('register_role', $role);
 
-            return redirect()->route('register.user', [
-                'role' => $role,
-                'email' => $request->email,
+        return redirect()->route('register.user', [
+            'role' => $role,
+            'email' => $request->email,
         ]);
     }
 
@@ -50,12 +50,7 @@ class RegisterController extends Controller
         $request->validate([
             'username' => 'required|unique:users,username',
             'password' => 'required|confirmed|min:6',
-        ], [
-            'username.required' => 'Username Tidak Boleh Kosong',
-            'username.unique' => 'Username Sudah Digunakan',
-            'password.required' => 'Password Tidak Boleh Kosong',
-        ]
-    );
+        ]);
 
         $role = Session::get('register_role');
         $email = Session::get('register_email');

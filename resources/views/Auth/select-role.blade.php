@@ -7,7 +7,7 @@
     <title>Pilih Peran</title>
     <link rel="stylesheet" href="{{ asset('assets/css/style-role.css') }}">
     <link href="{{ asset('img/favicon.png') }}" rel="icon">
-    <link href="{{ asset('enno/assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
+    <link href="{{ asset('img/favicon.png') }}" rel="apple-touch-icon">
 </head>
 
 <body>
@@ -18,9 +18,7 @@
     <!-- Header dengan logo -->
     <header>
         <div class="logo">
-            <a href="{{ route('welcome') }}">
-                <img src="{{ asset('img/ls-logo.png') }}" alt="Nesasen Logo" />
-            </a>
+            <img src="{{ asset('img/ls-logo.png') }}" alt="Nesasen Logo" />
         </div>
     </header>
 
@@ -61,9 +59,9 @@
     <!-- Sosial Media Links -->
     <footer>
         <div class="social-media">
-            <a href="https://www.youtube.com/@NesasCeren" target="_blank" style="color:black">YouTube</a>
-            <a href="https://www.instagram.com/officialsmkn1subang/" target="_blank" style="color:black">Instagram</a>
-            <a href="https://www.facebook.com/officialsmkn1subang/" target="_blank" style="color:black">Facebook</a>
+            <a href="https://www.youtube.com/@NesasCeren" target="_blank" style="color: black">YouTube</a>
+            <a href="https://www.instagram.com/officialsmkn1subang/" target="_blank" style="color: black">Instagram</a>
+            <a href="https://www.facebook.com/officialsmkn1subang/" target="_blank" style="color: black">Facebook</a>
         </div>
         <p>&copy; {{ date('Y') }} Made with ❤️ by R & P.</p>
     </footer>

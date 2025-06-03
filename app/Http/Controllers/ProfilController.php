@@ -95,7 +95,6 @@ class ProfilController extends Controller
             $profil->nip = $request->nip;
         }
 
-        // dd($request->profil);
         if ($request->hasFile('foto_profil')) {
             if ($profil->foto_profil && file_exists(public_path('foto_profil/' . $profil->foto_profil))) {
                 unlink(public_path('foto_profil/' . $profil->foto_profil));

@@ -1,0 +1,255 @@
+/* Auto-Hide Sidebar dengan Hover Effect */
+
+/* Sidebar Base Styles */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 224px;
+    height: 100vh;
+    z-index: 1000;
+    background: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Sidebar Auto-Hide States */
+.sidebar.auto-hide {
+    transform: translateX(-210px); /* Hanya sisakan 14px untuk hover trigger */
+    width: 224px;
+}
+
+.sidebar.auto-hide:hover,
+.sidebar.auto-hide.pinned {
+    transform: translateX(0);
+}
+
+/* Hover Trigger Area */
+.sidebar-trigger {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 20px;
+    height: 100vh;
+    z-index: 999;
+    background: transparent;
+    display: none;
+}
+
+.sidebar.auto-hide ~ .sidebar-trigger {
+    display: block;
+}
+
+/* Pin Button */
+.sidebar-pin-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    z-index: 10;
+}
+
+.sidebar-pin-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.sidebar-pin-btn.pinned {
+    background: rgba(255, 255, 255, 0.3);
+    color: #ffd700;
+}
+
+/* Sidebar Edge Indicator */
+.sidebar-edge {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 60px;
+    background: linear-gradient(180deg, transparent, rgba(255,255,255,0.3), transparent);
+    border-radius: 0 4px 4px 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar.auto-hide .sidebar-edge {
+    opacity: 1;
+}
+
+.sidebar.auto-hide:hover .sidebar-edge {
+    opacity: 0;
+}
+
+/* Content Wrapper Adjustments */
+#content-wrapper {
+    margin-left: 224px;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar.auto-hide ~ #content-wrapper {
+    margin-left: 14px; /* Space untuk sidebar yang tersembunyi */
+}
+
+@media (min-width: 768px) {
+    .sidebar {
+        display: block !important;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 224px;
+        height: 100vh;
+        z-index: 1000;
+    }
+
+    .bottom-navbar {
+        display: none !important;
+    }
+
+    #content-wrapper {
+        margin-left: 224px;
+    }
+
+    .main-content-area {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .sidebar {
+        display: none !important;
+    }
+
+    .siswa .bottom-navbar,
+    .guru .bottom-navbar {
+        display: flex !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border-top: 1px solid #e3e6f0;
+        z-index: 1000;
+        height: 60px;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    }
+
+    .admin .sidebar {
+        display: block !important;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .admin .sidebar.show {
+        transform: translateX(0);
+    }
+
+    #content-wrapper {
+        margin-left: 0;
+    }
+
+    .main-content-area {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+
+    .topbar {
+        padding: 0.5rem 1rem;
+    }
+
+    .topbar .d-none.d-sm-inline-block {
+        display: none !important;
+    }
+}
+
+.bottom-navbar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0.5rem 0;
+    background: #fff;
+    border-top: 1px solid #e3e6f0;
+}
+
+.bottom-navbar .nav-item {
+    flex: 1;
+    text-align: center;
+}
+
+.bottom-navbar .nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.25rem;
+    color: #858796;
+    text-decoration: none;
+    font-size: 0.75rem;
+    transition: color 0.3s ease;
+}
+
+.bottom-navbar .nav-link:hover,
+.bottom-navbar .nav-link.active {
+    color: #5a5c69;
+}
+
+.bottom-navbar .nav-link i {
+    font-size: 1.2rem;
+    margin-bottom: 0.25rem;
+}
+
+.dark-mode .bottom-navbar {
+    background: #2d3436;
+    border-top: 1px solid #4a5568;
+}
+
+.dark-mode .bottom-navbar .nav-link {
+    color: #a0aec0;
+}
+
+.dark-mode .bottom-navbar .nav-link:hover,
+.dark-mode .bottom-navbar .nav-link.active {
+    color: #cbd5e0;
+}
+
+@media (max-width: 767.98px) {
+    .admin #sidebarToggleTop {
+        display: block !important;
+    }
+}
+
+.sidebar,
+.bottom-navbar,
+#content-wrapper {
+    transition: all 0.3s ease;
+}
+
+.siswa .main-content-area,
+.guru .main-content-area {
+    padding-bottom: 80px;
+}
+
+@media (max-width: 576px) {
+    .bottom-navbar .nav-link {
+        font-size: 0.65rem;
+    }
+
+    .bottom-navbar .nav-link i {
+        font-size: 1rem;
+    }
+}
+
+
