@@ -198,7 +198,6 @@ class SiswaController extends Controller
                 return $item;
             });
 
-
         $data = array(
             'title' => 'Kelas Saya',
             'siswa' => $siswa,
@@ -234,9 +233,14 @@ class SiswaController extends Controller
                     $jadwal->is_selesai = $jadwalDate->isPast();
                     $jadwal->is_belum_selesai = false;
                 }
-
                 return $jadwal;
             });
+
+        $jadwalHariIni = $jadwalHariIni->sortby(function ($jadwal) {
+            if ($jadwal->is_belum_selesai) return 0;
+            if (!$jadwal->is_selesai) return 1;
+            return 2;
+        })->values();
 
         $startOfWeek = $selectedDate->copy()->startOfWeek(Carbon::MONDAY);
         $daysOfWeek = [];

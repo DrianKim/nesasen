@@ -34,7 +34,7 @@ class AuthController extends Controller
             // Cek role dari request URL
             if ($user->role->nama_role !== $request->role) {
                 Auth::logout();
-                return redirect()->back()->with('error', 'Role tidak sesuai, silakan login sesuai peran');
+                return redirect()->back()->with('error', 'Username atau Password salah');
             }
 
             // Redirect sesuai role_id

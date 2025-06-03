@@ -23,8 +23,8 @@
                         <div class="feature-icon red">
                             <i class="fas fa-clock"></i>
                         </div>
+                        <div class="feature-name">Presensi</div>
                     </a>
-                    <div class="feature-name">Presensi</div>
                 </div>
 
                 <!-- Feature 2: Izin -->

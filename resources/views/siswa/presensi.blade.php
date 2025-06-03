@@ -4,9 +4,11 @@
     <div class="presensi-container">
         <!-- Header with Back Button -->
         <div class="presensi-header">
-            <a href="{{ route('siswa.beranda') }}" class="back-button">
-                <i class="fas fa-arrow-left"></i> Presensi Online
-            </a>
+            <div class="back-button">
+                <a href="{{ route('siswa.beranda') }}" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Presensi Online
+                </a>
+            </div>
             <div class="history-button">
                 <i class="fas fa-history"></i>
             </div>
@@ -257,8 +259,8 @@
 
         function startCamera() {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            alert("Browser kamu tidak support kamera!");
-            return;
+                alert("Browser kamu tidak support kamera!");
+                return;
             }
 
             // Hide initial view and after selfie view, show camera
@@ -279,23 +281,27 @@
             cameraPreview.style.transform = 'scaleX(-1)'; // Mirror
 
             navigator.mediaDevices.getUserMedia({
-                video: {
-                facingMode: 'user',
-                width: { ideal: 720 },
-                height: { ideal: 720 }
-                },
-                audio: false
-            })
-            .then(s => {
-                stream = s;
-                cameraPreview.srcObject = stream;
-                cameraPreview.play();
-            })
-            .catch(err => {
-                console.error('Error accessing camera:', err);
-                alert('Tidak dapat mengakses kamera. Pastikan kamu memberikan izin kamera.');
-                resetModalView();
-            });
+                    video: {
+                        facingMode: 'user',
+                        width: {
+                            ideal: 720
+                        },
+                        height: {
+                            ideal: 720
+                        }
+                    },
+                    audio: false
+                })
+                .then(s => {
+                    stream = s;
+                    cameraPreview.srcObject = stream;
+                    cameraPreview.play();
+                })
+                .catch(err => {
+                    console.error('Error accessing camera:', err);
+                    alert('Tidak dapat mengakses kamera. Pastikan kamu memberikan izin kamera.');
+                    resetModalView();
+                });
         }
 
         function takeSelfie() {

@@ -4,9 +4,11 @@
     <div class="izin-container">
         <!-- Header with Back Button -->
         <div class="izin-header">
-            <a href="{{ route('siswa.beranda') }}" class="back-button">
-                <i class="fas fa-arrow-left"></i> Izin
-            </a>
+            <div class="back-button">
+                <a href="{{ route('siswa.beranda') }}">
+                    <i class="fas fa-arrow-left"></i> Izin
+                </a>
+            </div>
             <div class="history-button">
                 <i class="fas fa-history"></i>
             </div>
