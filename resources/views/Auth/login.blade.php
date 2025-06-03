@@ -22,6 +22,9 @@
         </div>
     </header>
 
+    @php
+        $role = session('login_role') ?? request('role');
+    @endphp
     <div class="login-box">
         <!-- Gambar Login -->
         <div class="image">
@@ -36,7 +39,9 @@
             <div class="signup-link">
                 <p>
                     Belum Memiliki Akun?
-                    <a href="{{ route('registerOtp') }}?role=" id="signup-link">Daftar Sekarang</a>
+                    @if ($role !== 'admin')
+                        <a href="{{ route('registerOtp', ['role' => $role]) }}" id="signup-link">Daftar Sekarang</a>
+                    @endif
                 </p>
             </div>
 
@@ -63,8 +68,19 @@
                     @enderror
                 </div>
 
+                <input type="hidden" name="role" id="login-role"
+                    value="{{ session('login_role') ?? request('role') }}">
+
                 <!-- Forgot Password -->
-                <a href="#" class="forgot-password">Lupa Password?</a>
+                {{-- <p style="color:red">ROLE: {{ request('role') ?? session('login_role') }}</p> --}}
+
+                @php
+                    $role = request('role') ?? session('login_role');
+                @endphp
+
+                <a href="{{ route('forgot.password', ['role' => $role]) }}" class="forgot-password">
+                    Lupa Password?
+                </a>
 
                 <div class="checkbox-group">
                     <input type="checkbox" id="privacy" />
@@ -74,7 +90,8 @@
                     </label>
                 </div>
 
-                <input type="hidden" name="role" id="roleInput" value="">
+                <input type="hidden" name="role" id="login-role"
+                    value="{{ request('role') ?? session('login_role') }}">
 
                 <button type="submit" id="login-button" disabled>LOGIN</button>
             </form>
@@ -87,31 +104,16 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Ambil role duluan
-            const urlParams = new URLSearchParams(window.location.search);
-            const role = urlParams.get("role");
+            const roleInput = document.getElementById("login-role");
+            const role = roleInput?.value ?? "siswa"; // fallback default
 
-            const roleInput = document.getElementById("roleInput");
-            if (roleInput) {
-                roleInput.value = role;
-            }
-
-            // Update link pendaftaran sesuai role
-            const signupAnchor = document.getElementById("signup-link");
-            if (signupAnchor && role !== "admin") {
-                signupAnchor.href = signupAnchor.href + role;
-            }
-
-            // Elements for heading, image and signup link
-            const loginImage = document.getElementById("login-image");
+            // Update heading & image
             const heading = document.getElementById("login-heading");
-            const signupLink = document.querySelector(".signup-link");
+            const loginImage = document.getElementById("login-image");
 
-            // Ganti heading, gambar, dan signup link sesuai role
             if (role === "admin") {
                 heading.textContent = "Login Admin Sekolah";
                 loginImage.src = loginImage.dataset.admin;
-                signupLink.style.display = "none";
             } else if (role === "guru") {
                 heading.textContent = "Login Guru";
                 loginImage.src = loginImage.dataset.guru;
@@ -120,25 +122,36 @@
                 loginImage.src = loginImage.dataset.murid;
             }
 
-            // Toggle Password Visibility
+            // Hilangkan link daftar
+            const signupLinkDiv = document.querySelector(".signup-link");
+            const signupAnchor = document.getElementById("signup-link");
+            if (role === "admin" && signupLinkDiv) {
+                signupLinkDiv.style.display = "none";
+            } else if (signupAnchor && role !== "admin") {
+                if (!signupAnchor.href.includes('role=')) {
+                    const separator = signupAnchor.href.includes('?') ? '&' : '?';
+                    signupAnchor.href += `${separator}role=${role}`;
+                }
+            }
+
+            // Toggle password visibility
             const togglePassword = document.querySelector("#toggle-password");
             const passwordInput = document.querySelector("#password");
-
             togglePassword.addEventListener("click", function() {
                 const type = passwordInput.type === "password" ? "text" : "password";
                 passwordInput.type = type;
                 this.querySelector("i").classList.toggle("fa-eye-slash");
             });
 
-            // Enable login button saat checkbox dicentang
             const checkbox = document.querySelector("#privacy");
             const loginButton = document.querySelector("#login-button");
-
             checkbox.addEventListener("change", function() {
                 loginButton.disabled = !this.checked;
             });
         });
     </script>
+
+
 
     <script src="{{ asset('sbadmin2/js/sb-admin-2.min.js') }}"></script>
     <script src="{{ asset('sweetalert2/dist/sweetalert2.all.min.js') }}"></script>

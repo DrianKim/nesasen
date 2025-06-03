@@ -46,10 +46,10 @@
             </a>
 
             <!-- Siswa -->
-            <a href="{{ url('login') }}?role=murid" class="card siswa">
+            <a href="{{ url('login') }}?role=siswa" class="card siswa">
                 <div class="card-content">
                     <h2>Siswa</h2>
-                    <p>Jika kamu murid NESAS yang CEREN, pilih yang ini</p>
+                    <p>Jika kamu siswa NESAS yang CEREN, pilih yang ini</p>
                 </div>
                 <img src="{{ asset('img/siswa-vector.png') }}" alt="Siswa" class="vector" />
             </a>

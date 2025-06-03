@@ -30,7 +30,7 @@
 
 
     <!-- ADMIN MENU -->
-    @if (auth()->user()->role_id == 1)
+    @if (auth()->check() && auth()->user()->role_id == 1)
         <!-- Heading -->
         <div class="sidebar-heading">
             Area Administrator
@@ -192,7 +192,7 @@
     @endif
 
     <!-- GURU/WALI KELAS MENU -->
-    @if (auth()->user()->role_id == 2 || auth()->user()->role_id == 3)
+    @if (auth()->check() && (auth()->user()->role_id == 2 || auth()->user()->role_id == 3))
         <div class="sidebar-heading">
             Area Pengajar
         </div>
@@ -250,7 +250,7 @@
         </li>
 
         <!-- Wali Kelas -->
-        @if (auth()->user()->role_id == 2)
+        @if (auth()->check() && auth()->user()->role_id == 2)
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
@@ -282,22 +282,24 @@
     @endif
 
     <!-- SISWA MENU -->
-    @if (auth()->user()->role_id == 4)
-        <!-- Divider -->
-        <hr class="sidebar-divider d-none d-md-block">
-        
-        <!-- Heading -->
-        <div class="sidebar-heading">
-            Area Siswa
-        </div>
+    @auth   
+        @if (auth()->check() && auth()->user()->role_id == 4)
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+            
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Area Siswa
+            </div>
 
-        <!-- Nav Item - Beranda -->
-        <li class="nav-item {{ $menuBeranda ?? '' }}">
-            <a class="py-2 nav-link" href="{{ route('siswa.beranda') }}">
-                <i class="fas fa-fw fa-home"></i>
-                <span>Beranda</span>
-            </a>
-        </li>
+            <!-- Nav Item - Beranda -->
+            <li class="nav-item {{ $menuBeranda ?? '' }}">
+                <a class="py-2 nav-link" href="{{ route('siswa.beranda') }}">
+                    <i class="fas fa-fw fa-home"></i>
+                    <span>Beranda</span>
+                </a>
+            </li>
+    @endauth
 
         <!-- Nav Item - Presensi -->
         <li class="nav-item {{ $menuPresensi ?? '' }}">

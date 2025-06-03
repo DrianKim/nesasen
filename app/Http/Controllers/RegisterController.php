@@ -13,7 +13,7 @@ class RegisterController extends Controller
 {
     public function simpanData(Request $request)
     {
-        $role = $request->role === 'murid' ? 'siswa' : $request->role;
+        $role = $request->role === 'siswa' ? 'siswa' : $request->role;
 
         $request->merge(['role' => $role]);
 

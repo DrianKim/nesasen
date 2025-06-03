@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Daftar</title>
+    <title>Forgot Password</title>
     <link rel="stylesheet" href="{{ asset('assets/css/style-register.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <link href="{{ asset('enno/assets/img/favicon.png') }}" rel="icon">
@@ -28,11 +28,11 @@
         <div class="image">
             <img src="{{ asset('img/siswa-vector.png') }}" id="role-image"
                 data-siswa="{{ asset('img/siswa-vector.png') }}" data-guru="{{ asset('img/guru-vector.png') }}"
-                alt="Gambar Peran" />
+                data-admin="{{ asset('img/atmin-vector.png') }}" alt="Gambar Peran" />
         </div>
         <div class="form-container">
-            <h2 id="role-title">Daftar Sebagai Siswa</h2>
-            <p>Masukkan email untuk verifikasi</p>
+            <h2 id="role-title">Reset Password Siswa</h2>
+            <p>Masukkan email untuk reset password</p>
 
             <form id="register-form">
                 <!-- Input Email -->
@@ -58,15 +58,15 @@
                 <!-- Success message -->
                 <div id="otp-success" class="success-message"></div>
 
-                <div class="checkbox-group">
+                {{-- <div class="checkbox-group">
                     <input type="checkbox" id="privacy" />
                     <label for="privacy">
                         Saya telah membaca dan menyetujui
                         <a href="#">Ketentuan Pengguna & Kebijakan Privasi</a>
                     </label>
-                </div>
+                </div> --}}
 
-                <button type="submit" id="register-button" disabled>DAFTAR</button>
+                <button type="submit" id="register-button" disabled>RESET</button>
             </form>
         </div>
     </div>
@@ -80,19 +80,13 @@
             const urlParams = new URLSearchParams(window.location.search);
             const role = urlParams.get("role");
 
-            if (role === "admin") {
-                alert("Admin tidak bisa mendaftar, silakan login.");
-                window.location.href = `/login?role=admin`;
-                return;
-            }
-
             const otpInputs = document.querySelectorAll(".otp-input");
             const registerButton = document.querySelector("#register-button");
             const sendOtpButton = document.querySelector("#send-otp");
-            const checkbox = document.querySelector("#privacy");
             const emailInput = document.getElementById("email");
             const otpError = document.getElementById("otp-error");
             const otpSuccess = document.getElementById("otp-success");
+
 
             // Autofill OTP logic
             otpInputs.forEach((input, index) => {
@@ -110,12 +104,12 @@
                 });
             });
 
-            checkbox.addEventListener("change", validateForm);
 
             function validateForm() {
                 const isOtpFilled = Array.from(otpInputs).every(i => i.value.length === 1);
-                registerButton.disabled = !(isOtpFilled && checkbox.checked);
+                registerButton.disabled = !isOtpFilled;
             }
+
 
             // Countdown & Kirim OTP
             let otpCooldown = false;
@@ -135,14 +129,15 @@
                 }
 
                 // Kirim OTP
-                fetch('/send-otp', {
+                fetch('/forgot/send-otp', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                         },
                         body: JSON.stringify({
-                            email
+                            email: email,
+                            role: role
                         })
                     })
                     .then(res => res.json())
@@ -151,7 +146,7 @@
                             alert("OTP berhasil dikirim ke email.");
                             startCountdown();
                         } else {
-                            alert("Gagal mengirim OTP.");
+                            alert("Silahkan masukkan email yang terdaftar di akun anda.");
                         }
                     })
                     .catch(err => {
@@ -177,13 +172,18 @@
                 }, 1000);
             }
 
+            console.log("Redirect to reset-password with:", {
+                email,
+                role
+            });
+
             // Validasi OTP saat submit
             registerButton.addEventListener("click", function(e) {
                 e.preventDefault();
                 const email = emailInput.value.trim();
                 const otp = Array.from(otpInputs).map(i => i.value).join("");
 
-                fetch('/verifikasi-otp', {
+                fetch('/forgot/verify-otp', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -198,12 +198,16 @@
 
                     .then(res => res.json())
                     .then(data => {
+                        // Bersihin error duluan
                         otpError.textContent = "";
                         clearTimeout(window.otpErrorTimeout);
 
                         if (data.status === "success") {
                             otpSuccess.textContent = "OTP valid!";
                             otpSuccess.style.color = "green";
+
+
+
                             clearTimeout(window.otpSuccessTimeout);
                             window.otpSuccessTimeout = setTimeout(() => {
                                 otpSuccess.textContent = "";
@@ -211,7 +215,7 @@
 
                             setTimeout(() => {
                                 window.location.href =
-                                    `/regist-data?role=${role}&email=${encodeURIComponent(email)}`;
+                                    `/reset-password?email=${encodeURIComponent(email)}&role=${role}`;
                             }, 1000);
                         } else if (data.status === "expired") {
                             otpError.textContent = "OTP sudah kadaluarsa. Silakan kirim ulang.";
@@ -240,11 +244,14 @@
             const roleTitle = document.getElementById("role-title");
 
             if (role === "siswa") {
-                roleTitle.textContent = "Daftar Sebagai Siswa";
+                roleTitle.textContent = "Reset Password Siswa";
                 roleImage.src = roleImage.dataset.siswa;
             } else if (role === "guru") {
-                roleTitle.textContent = "Daftar Sebagai Guru";
+                roleTitle.textContent = "Reset Password Guru";
                 roleImage.src = roleImage.dataset.guru;
+            } else if (role === "admin") {
+                roleTitle.textContent = "Reset Password Admin";
+                roleImage.src = roleImage.dataset.admin;
             }
 
             // Back button

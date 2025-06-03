@@ -153,6 +153,15 @@ h2 {
     color: #888;
 }
 
+.input-icon2 {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%); /* Menjaga ikon agar sejajar secara vertikal */
+    color: #888;
+    padding-top: 1.2rem;
+}
+
 .eye-icon {
     position: absolute;
     top: 50%;
@@ -161,6 +170,27 @@ h2 {
     transform: translateY(-50%);
     color: #888;
     cursor: pointer;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.checkbox-group input {
+    margin-right: 10px;
+}
+
+.checkbox-group label {
+    display: inline-block;
+    line-height: 1.4;
+}
+
+.success-message {
+    margin-top: 10px;
+    font-size: 14px;
 }
 
 .input-icon2 {

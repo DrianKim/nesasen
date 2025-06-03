@@ -69,11 +69,14 @@
                                 <span class="border-0 input-group-text bg-light">
                                     <i class="fas fa-venus-mars text-primary"></i>
                                 </span>
-                                <select name="jenis_kelamin" class="border-0 form-control bg-light">
-                                    <option value="{{ $profil->jenis_kelamin }}">{{ $profil->jenis_kelamin }}</option>
-                                    <option
-                                        value="{{ $profil->jenis_kelamin == 'Laki-laki' ? 'Perempuan' : 'Laki-laki' }}">
-                                        {{ $profil->jenis_kelamin == 'Laki-laki' ? 'Perempuan' : 'Laki-laki' }}
+                                <select name="jenis_kelamin"
+                                    class="border-0 form-control bg-light @error('jenis_kelamin') is-invalid @enderror">
+                                    <option disabled>Pilih Jenis Kelamin</option>
+                                    <option value="Laki-laki"
+                                        {{ $profil->jenis_kelamin == 'Laki-laki' ? 'selected' : '' }}>Laki-laki
+                                    </option>
+                                    <option value="Perempuan"
+                                        {{ $profil->jenis_kelamin == 'Perempuan' ? 'selected' : '' }}>Perempuan
                                     </option>
                                 </select>
                             </div>

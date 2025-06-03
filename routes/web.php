@@ -11,6 +11,8 @@ use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\PengajarController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ForgotPasswordController;
+use Illuminate\Http\Request;
 
 // Landing Page
 Route::get('/', function () {
@@ -23,9 +25,10 @@ Route::get('/pilih-role', function () {
 })->name('selectRole');
 
 // Login Page
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
+Route::get('/login', [AuthController::class, 'index'])->name('login');
+// Route::get('/login', function () {
+//     return view('auth.login');
+// })->name('login');
 
 // Regist OTP Page
 Route::get('/regist-otp', function () {
@@ -37,10 +40,6 @@ Route::get('/regist-data', function () {
     return view('auth.regist-data');
 })->name('registerData');
 
-// Regist User Page
-// Route::get('/regist-user', function () {
-//     return view('auth.regist-user');
-// })->name('registerUser');
 
 // Login
 Route::get('login', [AuthController::class, 'index'])->name('login');
@@ -55,6 +54,25 @@ Route::post('/register/user', [RegisterController::class, 'simpanAkun'])->name('
 // Otp
 Route::post('/send-otp', [OtpController::class, 'kirimOtp'])->name('sendOtp');
 Route::post('/verifikasi-otp', [OtpController::class, 'verifikasiOtp'])->name('verifikasiOtp');
+
+// Forgot Password
+Route::get('/forgot-password', function (Request $request) {
+    $role = $request->query('role');
+
+    if ($role === 'admin') {
+        return redirect()->route('forgot.reset', ['role' => 'admin']);
+    } else {
+        return app(ForgotPasswordController::class)->showOtpPage($request);
+    }
+})->name('forgot.password');
+
+Route::post('/forgot/send-otp', [ForgotPasswordController::class, 'sendOtp'])->name('forgot.sendOtp');
+Route::post('/forgot/verify-otp', [ForgotPasswordController::class, 'verifyOtp'])->name('forgot.verifyOtp');
+
+Route::get('/reset-password', [ForgotPasswordController::class, 'showResetForm'])->name('forgot.reset');
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('forgot.reset.store');
+
+
 
 Route::middleware(['isLogin'])->group(function () {
 
