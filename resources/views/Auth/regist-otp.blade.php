@@ -62,7 +62,7 @@
                     <input type="checkbox" id="privacy" />
                     <label for="privacy">
                         Saya telah membaca dan menyetujui
-                        <a href="#">Ketentuan Pengguna & Kebijakan Privasi</a>
+                        <a href="{{ route('ketentuan-pengguna-&-kebijakan-privasi') }}">Ketentuan Pengguna & Kebijakan Privasi</a>
                     </label>
                 </div>
 

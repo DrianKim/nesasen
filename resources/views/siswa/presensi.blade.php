@@ -1,6 +1,51 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="en">
 
-@section('content')
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Nesasen - Learning Management System for SMKN 1 Subang">
+    <meta name="author" content="Development Team">
+    <meta name="theme-color" content="#4e73df">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>Nesasen | {{ $title }}</title>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ asset('img/favicon.png') }}" type="image/x-icon">
+
+    <!-- Custom fonts for this template-->
+    <link href="{{ asset('sbadmin2/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="{{ asset('sbadmin2/css/sb-admin-2.min.css') }}" rel="stylesheet">
+
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+
+    <!-- PWA elements -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Nesasen">
+    <link rel="apple-touch-icon" href="{{ asset('images/icons/icon-152x152.png') }}">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <!-- Css Custom -->
+    <link rel="stylesheet" href="{{ asset('assets/css/style-presensi.css') }}">
+
+</head>
+
+@include('layouts.loading-page')
+
+<body>
     <div class="presensi-container">
         <!-- Header with Back Button -->
         <div class="presensi-header">
@@ -67,68 +112,11 @@
         </button>
     </div>
 
-    <!-- Modal Selfie Validation -->
-    <div class="modal fade" id="selfieModal" tabindex="-1" role="dialog" aria-labelledby="selfieModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="py-4 text-center modal-body">
-                    <!-- Initial View: Before taking selfie -->
-                    <div id="initial-view">
-                        <div class="mb-3 selfie-illustration">
-                            <img src="{{ asset('assets/img/selfie-illustration.png') }}" alt="Selfie Icon" class="img-fluid"
-                                style="max-height: 150px;">
-                        </div>
-                        <h5 class="mb-2 modal-title" id="selfieModalLabel">Ketentuan Validasi</h5>
-                        <p class="mb-4 text-muted">Buat verifikasi kehadiran, yuk ambil selfie kamu dulu
-                        </p>
-                    </div>
+    @include('siswa.modal.modal-selfie')
 
-                    <!-- Camera View -->
-                    <div id="camera-container" class="mb-3" style="display: none;">
-                        <video id="camera-preview" width="100%" autoplay></video>
-                        <canvas id="selfie-canvas" style="display: none;"></canvas>
-                    </div>
+    @include('layouts.footer-cr')
 
-                    <!-- After Selfie View: Match the design -->
-                    <div id="after-selfie-view" style="display: none;">
-                        <!-- Check In/Out Time Display -->
-                        <div class="mb-3 Check-in-header">
-                            <span class="Check-in-label" id="checkStatusLabel">
-                            </span>
-                            <span class="Check-in-time" id="CheckInTime" style="display: none;"></span>
-                            <span class="Check-out-time" id="CheckOutTime" style="display: none;"></span>
-                        </div>
-
-                        <!-- Selfie Preview with rounded corners and proper sizing -->
-                        <div class="mb-3 selfie-preview-container">
-                            <img id="selfie-preview" class="selfie-image" style="display: none;">
-                        </div>
-
-                        <!-- Selfie file -->
-                        <input type="file" id="selfieInput" accept="image/*" capture="user" hidden />
-
-                        <!-- Foto Ulang button -->
-                        <button id="fotoUlangBtn" class="mb-3 text-danger foto-ulang-btn">
-                            <i class="fas fa-camera"></i>
-                            Foto Ulang
-                        </button>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="action-buttons">
-                        <button id="ambilSelfieBtn" class="btn btn-primary btn-block btn-lg">
-                            AMBIL SELFIE
-                        </button>
-                        <button id="kirimPresensiBtn" class="btn btn-success btn-block btn-lg submit-btn"
-                            style="display: none;">
-                            SUBMIT CHECK IN
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    @include('layouts.footer')
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -671,4 +659,7 @@
             updateTime();
         });
     </script>
-@endsection
+
+</body>
+
+</html>

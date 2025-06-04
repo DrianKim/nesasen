@@ -1,11 +1,54 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="en">
 
-@section('content')
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Nesasen - Learning Management System for SMKN 1 Subang">
+    <meta name="author" content="Development Team">
+    <meta name="theme-color" content="#4e73df">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>Nesasen | {{ $title }}</title>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ asset('img/favicon.png') }}" type="image/x-icon">
+
+    <!-- Custom fonts for this template-->
+    <link href="{{ asset('sbadmin2/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="{{ asset('sbadmin2/css/sb-admin-2.min.css') }}" rel="stylesheet">
+
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+
+    <!-- PWA elements -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Nesasen">
+    <link rel="apple-touch-icon" href="{{ asset('images/icons/icon-152x152.png') }}">
+
+    <!-- Css Custom -->
+    <link rel="stylesheet" href="{{ asset('assets/css/style-izin.css') }}">
+
+</head>
+
+@include('layouts.loading-page')
+
+<body>
+
     <div class="izin-container">
         <!-- Header with Back Button -->
         <div class="izin-header">
             <div class="back-button">
-                <a href="{{ route('siswa.beranda') }}">
+                <a href="{{ route('siswa.beranda') }}" class="back-button">
                     <i class="fas fa-arrow-left"></i> Izin
                 </a>
             </div>
@@ -97,14 +140,14 @@
                     <div class="date-range-container">
                         <div class="date-input half">
                             <label class="form-label">Tanggal Mulai</label>
-                            <input type="text" name="tanggal_mulai" id="tanggal_mulai" placeholder="Pilih Tanggal"
-                                readonly class="form-control date-picker">
+                            <input type="text" name="tanggal_mulai" id="tanggal_mulai"
+                                placeholder="Pilih Tanggal" readonly class="form-control date-picker">
                             <i class="mt-2 fas fa-calendar-alt date-icon"></i>
                         </div>
                         <div class="date-input half">
                             <label class="form-label">Tanggal Selesai</label>
-                            <input type="text" name="tanggal_selesai" id="tanggal_selesai" placeholder="Pilih Tanggal"
-                                readonly class="form-control date-picker">
+                            <input type="text" name="tanggal_selesai" id="tanggal_selesai"
+                                placeholder="Pilih Tanggal" readonly class="form-control date-picker">
                             <i class="mt-2 fas fa-calendar-alt date-icon"></i>
                         </div>
                     </div>
@@ -168,309 +211,9 @@
         </div>
     </div>
 
-    <style>
-        .izin-container {
-            display: flex;
-            flex-direction: column;
-            background-color: #f0f7ff;
-            min-height: 100vh;
-        }
+    @include('layouts.footer-cr')
 
-        .izin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
-            background-color: #fff;
-        }
-
-        .back-button {
-            display: flex;
-            align-items: center;
-            font-size: 16px;
-            color: #333;
-            text-decoration: none;
-        }
-
-        .back-button i {
-            margin-right: 10px;
-        }
-
-        .history-button {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #f5f5f5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        .izin-form {
-            padding: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 16px;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .option-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .option-item {
-            position: relative;
-            height: 50px;
-        }
-
-        .option-input {
-            opacity: 0;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            cursor: pointer;
-            z-index: 3;
-        }
-
-        .option-label {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            width: 100%;
-            border-radius: 8px;
-            background-color: #fff;
-            color: #666;
-            font-size: 14px;
-            font-weight: 500;
-            border: 1px solid #ddd;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .option-input:checked+.option-label {
-            background: linear-gradient(to right, #ff7e5f, #feb47b);
-            color: #fff;
-            border: none;
-        }
-
-        @media (max-width: 768px) {
-            .option-item {
-                /* center the text */
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                text-align: center;
-
-                position: relative;
-                height: 50px;
-            }
-        }
-
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-
-        .toggle-input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .toggle-label {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
-        }
-
-        .toggle-label:before {
-            position: absolute;
-            content: "";
-            height: 20px;
-            width: 20px;
-            left: 2px;
-            bottom: 2px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        .toggle-input:checked+.toggle-label {
-            background-color: #4CAF50;
-        }
-
-        .toggle-input:checked+.toggle-label:before {
-            transform: translateX(26px);
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-            background-color: #f5f5f5;
-        }
-
-        .date-input {
-            position: relative;
-        }
-
-        .date-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #999;
-        }
-
-        .textarea {
-            resize: none;
-            min-height: 100px;
-        }
-
-        .date-range-container {
-            display: flex;
-            gap: 10px;
-        }
-
-        .half {
-            flex: 1;
-        }
-
-        .optional {
-            font-size: 12px;
-            color: #999;
-            font-weight: normal;
-        }
-
-        .upload-container {
-            border: 2px dashed #ddd;
-            border-radius: 8px;
-            padding: 40px 20px;
-            text-align: center;
-            background-color: #f9f9f9;
-            position: relative;
-        }
-
-        .file-input {
-            position: absolute;
-            width: 0;
-            height: 0;
-            opacity: 0;
-        }
-
-        .upload-label {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            cursor: pointer;
-            color: #666;
-        }
-
-        .upload-label i {
-            font-size: 20px;
-        }
-
-        .preview-container {
-            margin-top: 15px;
-            position: relative;
-            display: inline-block;
-        }
-
-        .image-preview {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 8px;
-            display: block;
-        }
-
-        .remove-image {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background-color: #ff5252;
-            color: white;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 10;
-        }
-
-        .file-info {
-            background-color: #f9f9fa;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-            text-align: center;
-            margin-top: 10px;
-            width: 100%;
-            max-width: 300px;
-        }
-
-        .file-info i {
-            font-size: 20px;
-            color: #6c757d;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .file-info #file-name {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 5px;
-            word-break: break-all;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .submit-button {
-            width: 100%;
-            padding: 15px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .submit-button:hover {
-            background-color: #45a049;
-        }
-    </style>
+    @include('layouts.footer')
 
     <script>
         $(document).ready(function() {
@@ -549,4 +292,6 @@
             });
         });
     </script>
-@endsection
+</body>
+
+</html>

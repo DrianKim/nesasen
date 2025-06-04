@@ -14,6 +14,7 @@ use App\Models\presensiSiswa;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Svg\Tag\Rect;
 
 class SiswaController extends Controller
 {
@@ -27,13 +28,20 @@ class SiswaController extends Controller
         return view('siswa.beranda', $data);
     }
 
-    public function presensi_index()
+    public function presensi_index(Request $request)
     {
+        $isMobile = $request->header('User-Agent') && preg_match('/Mobile|Android|iPhone|iPad|iPod/', $request->header('User-Agent'));
+
+        if ($request->has('mobile') && $request->mobile == 'true') {
+            $isMobile = true;
+        }
+
         $data = array(
             'title' => 'Presensi Siswa',
             'menuPresensi' => 'active',
             'siswa' => Siswa::all(),
             'presensiSiswa' => presensiSiswa::where('siswa_id', Auth::user()->id)->get(),
+            'isMobile' => $isMobile,
         );
         return view('siswa.presensi', $data);
     }
@@ -131,7 +139,7 @@ class SiswaController extends Controller
         }
     }
 
-    public function izin_index()
+    public function izin_index(Request $request)
     {
         $data = array(
             'title' => 'Izin Siswa',
@@ -253,6 +261,16 @@ class SiswaController extends Controller
             ];
         }
 
+        $startOfMonth = $selectedDate->copy()->startOfMonth();
+        $endOfMonth = $selectedDate->copy()->endOfMonth();
+        $daysOfMonth = [];
+        for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
+            $daysOfMonth[] = [
+                'nama_hari' => $date->translatedFormat('D'),
+                'tanggal' => $date->copy(),
+            ];
+        }
+
         $monthName = $selectedDate->locale('id')->isoFormat('MMMM Y');
 
         $data = [
@@ -261,6 +279,7 @@ class SiswaController extends Controller
             'jadwalHariIni' => $jadwalHariIni,
             'selectedDate' => $selectedDate,
             'daysOfWeek' => $daysOfWeek,
+            'daysOfMonth' => $daysOfMonth,
             'monthName' => $monthName,
         ];
 
@@ -329,10 +348,33 @@ class SiswaController extends Controller
 
         $selectedDate = $tanggal;
 
-        $html = view('siswa.partials.days', compact('daysOfWeek', 'selectedDate'))->render();
+        $html = view('siswa.partials.days_perminggu', compact('daysOfWeek', 'selectedDate'))->render();
 
         return response()->json([
             'daysHtml' => $html
+        ]);
+    }
+
+    public function jadwal_perbulan(Request $request)
+    {
+        $tanggal = Carbon::parse($request->tanggal);
+        $startOfMonth = $tanggal->copy()->startOfMonth();
+        $endOfMonth = $tanggal->copy()->endOfMonth();
+        $daysOfMonth = [];
+
+        for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
+            $daysOfMonth[] = [
+                'nama_hari' => $date->translatedFormat('D'),
+                'tanggal' => $date->copy(),
+            ];
+        }
+
+        $selectedDate = $tanggal;
+
+        $html = view('siswa.partials.days_perbulan', compact('daysOfMonth', 'selectedDate'))->render();
+
+        return response()->json([
+            'daysHtml' => $html,
         ]);
     }
 }

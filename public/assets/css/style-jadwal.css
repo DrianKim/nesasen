@@ -16,15 +16,19 @@
     text-decoration: none;
     color: #333;
     font-weight: 500;
-    font-size: 16px;
+    font-size: 1rem;
 }
 
 .back-button i {
     margin-right: 8px;
 }
 
+.calendar-button i {
+    color: #333;
+}
+
 .semester-info {
-    background-color: #EBECEFFF;
+    background-color: #ebecefff;
     padding: 10px 15px;
     text-align: center;
 }
@@ -33,11 +37,11 @@
     margin: 0;
     color: #555;
     font-weight: 500;
-    font-size: 14px;
+    font-size: 0.85rem;
 }
 
 .month-header {
-    background-color: #E33A6AFF;
+    background-color: #e33a6aff;
     color: white;
     padding: 12px 15px;
     text-align: center;
@@ -45,11 +49,11 @@
 
 .month-header h3 {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: bold;
 }
 
-.week-navigation {
+/* .week-navigation {
     display: flex;
     background-color: #ff4b7d;
     padding: 0 10px 15px;
@@ -82,6 +86,84 @@
 .nav-arrow-next a {
     color: white;
     text-decoration: none;
+} */
+
+.week-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ff4b7d;
+    padding: 10px 0 15px 0;
+    gap: 18px;
+}
+
+.week-arrow-prev,
+.week-arrow-next {
+    display: flex;
+    align-items: center;
+    color: white;
+    padding: 0 8px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: opacity 0.2s;
+}
+
+.week-arrow-prev:hover,
+.week-arrow-next:hover {
+    opacity: 0.8;
+}
+
+.week-arrow-prev {
+    margin-right: 10px;
+}
+
+.week-arrow-next {
+    margin-left: 10px;
+}
+
+.week-arrow-prev a,
+.week-arrow-next a {
+    color: white;
+    text-decoration: none;
+}
+
+.month-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ff4b7d;
+    padding: 10px 0 15px 0;
+    gap: 18px;
+}
+
+.month-arrow-prev,
+.month-arrow-next {
+    display: flex;
+    align-items: center;
+    color: white;
+    padding: 0 8px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: opacity 0.2s;
+}
+
+.month-arrow-prev:hover,
+.month-arrow-next:hover {
+    opacity: 0.8;
+}
+
+.month-arrow-prev {
+    margin-right: 10px;
+}
+
+.month-arrow-next {
+    margin-left: 10px;
+}
+
+.month-arrow-prev a,
+.month-arrow-next a {
+    color: white;
+    text-decoration: none;
 }
 
 .days-container {
@@ -89,6 +171,35 @@
     display: flex;
     flex: 1;
     justify-content: space-between;
+}
+
+.month-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    text-align: center;
+}
+
+.day-name {
+    font-weight: bold;
+    background: #ff4b7d;
+    padding: 8px;
+    border-radius: 6px;
+    color: white;
+}
+
+.day-cell {
+    padding: 10px 0;
+    border-radius: 6px;
+    background-color: #fefefe;
+    cursor: pointer;
+    border: 1px solid #eee;
+}
+
+.day-cell.active {
+    background-color: #ffebf0l;
+    color: #d0004c;
+    font-weight: bold;
 }
 
 .day-item {
@@ -101,6 +212,7 @@
     cursor: pointer;
     border-radius: 20px;
     transition: all 0.3s ease;
+    font-size: rem;
 }
 
 .day-item:hover {
@@ -112,11 +224,11 @@
     /* background-color: #E33A6AFF; */
     border-radius: 20px;
     transform: scale(1.05);
-}
+} */
 
 .day-name {
     color: white;
-    font-size: 1rem;
+    font-size: 0.9rem !important;
     text-align: center;
     margin-bottom: 3px;
     font-weight: bold;
@@ -124,7 +236,7 @@
 
 .day-number {
     color: white;
-    font-size: 0.8rem;
+    font-size: 0.8rem !important;
     text-align: center;
     margin-bottom: 3px;
 }
@@ -139,6 +251,30 @@
 
 .date-text {
     font-weight: 500;
+    font-size: 1rem;
+}
+
+
+@media (max-width: 767px) {
+    .day-name {
+        color: white;
+        font-size: 0.85rem !important;
+        text-align: center;
+        margin-bottom: 3px;
+        font-weight: bold;
+    }
+
+    .day-number {
+        color: white;
+        font-size: 0.75rem !important;
+        text-align: center;
+        margin-bottom: 3px;
+    }
+
+    .date-text {
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
 }
 
 .today-badge {

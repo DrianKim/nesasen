@@ -19,6 +19,13 @@ Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
+
+// Tampilan Mobile
+Route::post('/set-mobile-session', function (\Illuminate\Http\Request $request)  {
+    session(['is_mobile_device' => $request->is_mobile]);
+    return response()->json(['status' => 'ok']);
+});
+
 // Ketentuan Pengguana & Kebijakan Privasi
 Route::get('/ketentuan-pengguna-&-kebijakan-privasi', function () {
     return view('ketentuan-pengguna-&-kebijakan-privasi');
@@ -117,7 +124,8 @@ Route::middleware(['isLogin'])->group(function () {
     // jadwal
     Route::get('siswa/jadwal', [SiswaController::class, 'jadwal_index'])->name('siswa.jadwal');
     Route::get('siswa/jadwal/perhari', [SiswaController::class, 'jadwal_perhari'])->name('siswa.jadwal.perhari');
-    Route::get('siswa/jadwal/perminggu', [SiswaController::class, 'jadwal_perminggu'])->name('siswa.jadwal.perminggu');
+    Route::get('/siswa/jadwal/perminggu', [SiswaController::class, 'jadwal_perminggu'])->name('siswa.jadwal.perminggu');
+    Route::get('/siswa/jadwal/perbulan', [SiswaController::class, 'jadwal_perbulan'])->name('siswa.jadwal.perbulan');
 
     Route::middleware(['isAdmin'])->group(function () {
         // Dashboard

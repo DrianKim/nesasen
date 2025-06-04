@@ -86,7 +86,7 @@
                     <input type="checkbox" id="privacy" />
                     <label for="privacy">
                         Dengan login menggunakan username atau metode lain, saya setuju
-                        dengan <a href="#">Ketentuan Pengguna & Kebijakan Privasi</a>
+                        dengan <a href="{{ route('ketentuan-pengguna-&-kebijakan-privasi') }}">Ketentuan Pengguna & Kebijakan Privasi</a>
                     </label>
                 </div>
 
