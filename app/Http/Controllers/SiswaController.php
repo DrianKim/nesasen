@@ -359,14 +359,13 @@ class SiswaController extends Controller
     {
         $tanggal = Carbon::parse($request->tanggal);
         $startOfMonth = $tanggal->copy()->startOfMonth();
+        $startOfCalendar = $startOfMonth->startOfWeek(Carbon::MONDAY);
         $endOfMonth = $tanggal->copy()->endOfMonth();
-        $daysOfMonth = [];
 
-        for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
-            $daysOfMonth[] = [
-                'nama_hari' => $date->translatedFormat('D'),
-                'tanggal' => $date->copy(),
-            ];
+        $daysOfMonth = [];
+        for ($i = 0; $i < 42; $i++) {
+            $date = $startOfCalendar->copy()->addDays($i);
+            $daysOfMonth[] = ['tanggal' => $date];
         }
 
         $selectedDate = $tanggal;

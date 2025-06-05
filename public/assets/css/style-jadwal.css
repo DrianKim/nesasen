@@ -1,6 +1,17 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Nunito", sans-serif;
+    background-color: #f8f9fa;
+}
+
 .jadwal-container {
-    position: relative;
-    padding-bottom: 80px;
+    width: 100%;
+    overflow-x: hidden;
 }
 
 .jadwal-header {
@@ -8,6 +19,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 15px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .back-button a {
@@ -23,12 +36,25 @@
     margin-right: 8px;
 }
 
+.calendar-button {
+    /* background: #ff4b7d; */
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.calendar-button:hover {
+    /* background: #666; */
+}
+
 .calendar-button i {
-    color: #333;
+    color: black;
 }
 
 .semester-info {
-    background-color: #ebecefff;
+    background-color: #ebecef;
     padding: 10px 15px;
     text-align: center;
 }
@@ -41,204 +67,242 @@
 }
 
 .month-header {
-    background-color: #e33a6aff;
+    background-color: #e33a6a;
     color: white;
     padding: 12px 15px;
     text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .month-header h3 {
     margin: 0;
     font-size: 1rem;
     font-weight: bold;
+    flex: 1;
 }
 
-/* .week-navigation {
-    display: flex;
-    background-color: #ff4b7d;
-    padding: 0 10px 15px;
-}
-
-.nav-arrow-prev,
-.nav-arrow-next {
-    display: flex;
-    align-items: center;
+.month-nav-btn {
+    background: none;
+    border: none;
     color: white;
-    padding: 0 5px;
+    font-size: 1.2rem;
     cursor: pointer;
-    transition: opacity 0.2s;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
 }
 
-.nav-arrow-prev:hover,
-.nav-arrow-next:hover {
-    opacity: 0.8;
+.month-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
-.nav-arrow-prev {
-    margin-right: 20px;
-}
-
-.nav-arrow-next {
-    margin-left: 20px;
-}
-
-.nav-arrow-prev a,
-.nav-arrow-next a {
-    color: white;
-    text-decoration: none;
-} */
-
+/* Week Navigation */
 .week-navigation {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     background-color: #ff4b7d;
     padding: 10px 0 15px 0;
-    gap: 18px;
+    display: block;
+}
+
+.week-nav-flex {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 15px;
 }
 
 .week-arrow-prev,
 .week-arrow-next {
-    display: flex;
-    align-items: center;
     color: white;
-    padding: 0 8px;
     cursor: pointer;
     font-size: 1.2rem;
-    transition: opacity 0.2s;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
 }
 
 .week-arrow-prev:hover,
 .week-arrow-next:hover {
-    opacity: 0.8;
-}
-
-.week-arrow-prev {
-    margin-right: 10px;
-}
-
-.week-arrow-next {
-    margin-left: 10px;
-}
-
-.week-arrow-prev a,
-.week-arrow-next a {
-    color: white;
-    text-decoration: none;
-}
-
-.month-navigation {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #ff4b7d;
-    padding: 10px 0 15px 0;
-    gap: 18px;
-}
-
-.month-arrow-prev,
-.month-arrow-next {
-    display: flex;
-    align-items: center;
-    color: white;
-    padding: 0 8px;
-    cursor: pointer;
-    font-size: 1.2rem;
-    transition: opacity 0.2s;
-}
-
-.month-arrow-prev:hover,
-.month-arrow-next:hover {
-    opacity: 0.8;
-}
-
-.month-arrow-prev {
-    margin-right: 10px;
-}
-
-.month-arrow-next {
-    margin-left: 10px;
-}
-
-.month-arrow-prev a,
-.month-arrow-next a {
-    color: white;
-    text-decoration: none;
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .days-container {
-    /* background-color: blue; */
     display: flex;
-    flex: 1;
     justify-content: space-between;
+    flex: 1;
+    margin: 0 10px;
+    gap: 2px;
 }
 
-.month-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 6px;
-    text-align: center;
-}
-
-.day-name {
-    font-weight: bold;
-    background: #ff4b7d;
-    padding: 8px;
-    border-radius: 6px;
-    color: white;
-}
-
-.day-cell {
-    padding: 10px 0;
-    border-radius: 6px;
-    background-color: #fefefe;
-    cursor: pointer;
-    border: 1px solid #eee;
-}
-
-.day-cell.active {
-    background-color: #ffebf0l;
-    color: #d0004c;
-    font-weight: bold;
-}
-
-.day-item {
+.day-item-week {
     display: flex;
     flex-direction: column;
     align-items: center;
     color: white;
-    padding: 8px 5px;
-    width: 40px;
+    padding: 8px 4px;
+    min-width: 40px;
     cursor: pointer;
     border-radius: 20px;
     transition: all 0.3s ease;
-    font-size: rem;
+    flex: 1;
 }
 
-.day-item:hover {
+.day-item-week:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-.day-item.active {
-    background-color: #333;
-    /* background-color: #E33A6AFF; */
-    border-radius: 20px;
-    transform: scale(1.05);
-} */
-
-.day-name {
-    color: white;
-    font-size: 0.9rem !important;
-    text-align: center;
-    margin-bottom: 3px;
+.day-item-week.today {
+    background-color: #e0f7ff;
+    color: #0099cc;
     font-weight: bold;
 }
 
-.day-number {
+.day-item-week.active {
+    background-color: #333;
     color: white;
-    font-size: 0.8rem !important;
+    font-weight: bold;
+}
+
+.day-item-week.active.today {
+    background-color: #333;
+    color: white;
+    font-weight: bold;
+}
+
+/* .day-item-week.active.today {
+    background-color: #333;
+    color: white;
+} */
+
+.day-name-week {
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.day-number-week {
+    font-size: 0.8rem;
+}
+
+/* Month Navigation - Fix Grid Layout */
+.month-navigation {
+    background-color: #ff4b7d;
+    padding: 0;
+    display: none;
+    width: 100%;
+    overflow: hidden;
+}
+
+.month-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* Pastikan 7 kolom sama rata */
+    grid-template-rows: auto;
+    width: 265% !important;
+    box-sizing: border-box;
+}
+
+/* Day headers - 7 kolom pertama */
+.day-name {
+    font-weight: bold;
+    color: white;
+    padding: 12px 4px;
+    font-size: 0.8rem;
+    background-color: #ff4b7d;
     text-align: center;
-    margin-bottom: 3px;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    box-sizing: border-box;
+}
+
+.day-name:nth-child(7) {
+    border-right: none;
+}
+
+/* Alias untuk compatibility */
+.month-day-name {
+    font-weight: bold;
+    color: white;
+    padding: 12px 4px;
+    font-size: 0.8rem;
+    background-color: #ff4b7d;
+    text-align: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    box-sizing: border-box;
+}
+
+/* Day cells */
+.day-cell {
+    padding: 12px 4px;
+    background-color: #fefefe;
+    cursor: pointer;
+    border-right: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    box-sizing: border-box;
+}
+
+/* Hapus border kanan di kolom ke-7, 14, 21, dst */
+.day-cell:nth-child(7n) {
+    border-right: none;
+}
+
+.day-cell:hover {
+    background-color: #f0f0f0;
+}
+
+.day-cell.active {
+    background-color: #333;
+    color: white;
+    font-weight: bold;
+}
+
+.day-cell.today {
+    background-color: #e0f7ff;
+    color: #0099cc;
+    font-weight: bold;
+}
+
+.day-cell.active.today {
+    background-color: #333;
+    color: white;
+}
+
+.day-cell.other-month {
+    background-color: #e9ecef !important;
+    color: #b0b4be;
+}
+
+.day-cell.other-month:hover {
+    background-color: #f00f0;
+    opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+    .month-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr); /* Pastikan 7 kolom sama rata */
+        grid-template-rows: auto;
+        width: 100%;
+        min-width: 50%;
+        box-sizing: border-box;
+    }
+
+    .month-day-name {
+        padding: 8px 2px;
+        font-size: 0.7rem;
+    }
+
+    .day-cell {
+        padding: 8px 2px;
+        min-height: 35px;
+        font-size: 0.8rem;
+    }
 }
 
 .current-date {
@@ -247,34 +311,12 @@
     align-items: center;
     padding: 15px;
     border-bottom: 1px solid #eee;
+    background: white;
 }
 
 .date-text {
     font-weight: 500;
     font-size: 1rem;
-}
-
-
-@media (max-width: 767px) {
-    .day-name {
-        color: white;
-        font-size: 0.85rem !important;
-        text-align: center;
-        margin-bottom: 3px;
-        font-weight: bold;
-    }
-
-    .day-number {
-        color: white;
-        font-size: 0.75rem !important;
-        text-align: center;
-        margin-bottom: 3px;
-    }
-
-    .date-text {
-        font-weight: 500;
-        font-size: 0.9rem;
-    }
 }
 
 .today-badge {
@@ -290,9 +332,11 @@
     0% {
         box-shadow: 0 0 0 0 rgba(0, 153, 204, 0.4);
     }
+
     70% {
         box-shadow: 0 0 0 10px rgba(0, 153, 204, 0);
     }
+
     100% {
         box-shadow: 0 0 0 0 rgba(0, 153, 204, 0);
     }
@@ -335,6 +379,7 @@
     opacity: 0.88;
     background: #f8f9fa;
 }
+
 .jadwal-item.upcoming {
     opacity: 0.88;
     background: #f8f9fa;
@@ -389,9 +434,11 @@
     0% {
         transform: scale(0);
     }
+
     50% {
         transform: scale(1.2);
     }
+
     100% {
         transform: scale(1);
     }
@@ -408,6 +455,7 @@
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }
@@ -457,23 +505,26 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 30px 0;
+    padding: 40px 20px;
+    text-align: center;
 }
 
 .empty-illustration {
-    width: 200px;
+    width: 120px;
+    height: 120px;
     margin-bottom: 20px;
-}
-
-.empty-illustration img {
-    display: block;
-    max-width: 100%;
-    height: auto;
+    background: #f0f0f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: #ccc;
 }
 
 .empty-text {
     color: #999;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .floating-button {
@@ -490,6 +541,7 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     transition: all 0.3s ease;
     z-index: 1000;
+    cursor: pointer;
 }
 
 .floating-button:hover {
@@ -497,7 +549,7 @@
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
 
-.floating-button a {
+.floating-button i {
     color: white;
     font-size: 24px;
 }
@@ -505,6 +557,8 @@
 #loading-indicator {
     color: #666;
     font-size: 16px;
+    text-align: center;
+    padding: 20px;
 }
 
 #loading-indicator i {
@@ -513,22 +567,23 @@
 }
 
 @media (max-width: 768px) {
-    .jadwal-item {
-        padding: 14px 16px;
+    .day-item {
+        min-width: 35px;
+        padding: 6px 2px;
     }
 
-    .waktu-container {
-        min-width: 60px;
-        margin-right: 15px;
+    .day-name {
+        font-size: 0.7rem;
     }
 
-    .waktu {
-        padding: 8px 10px;
-        font-size: 0.9rem;
+    .day-number {
+        font-size: 0.75rem;
     }
 
-    .mata-pelajaran {
-        font-size: 1rem;
+    .day-cell {
+        padding: 8px 2px;
+        min-height: 35px;
+        font-size: 0.8rem;
     }
 
     .floating-button {
@@ -537,31 +592,4 @@
         width: 50px;
         height: 50px;
     }
-
-    .day-item {
-        width: 35px;
-        padding: 6px 3px;
-    }
-
-    .day-name,
-    .day-number {
-        font-size: 0.85rem;
-    }
-}
-
-.jadwal-item * {
-    transition: all 0.3s ease;
-}
-
-.jadwal-list::-webkit-scrollbar {
-    width: 4px;
-}
-
-.jadwal-list::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-.jadwal-list::-webkit-scrollbar-thumb {
-    background: #ff4b7d;
-    border-radius: 2px;
 }

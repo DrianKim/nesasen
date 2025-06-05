@@ -44,7 +44,7 @@
 @else
     <div class="empty-jadwal">
         <div class="empty-illustration">
-            <img src="{{ asset('assets/img/not-found.png') }}" alt="Tidak ada jadwal">
+            <img src="{{ asset('assets/img/not-foundd.png') }}" alt="Tidak ada jadwal">
         </div>
         <div class="empty-text">Tidak ada jadwal untuk hari ini</div>
     </div>

@@ -324,7 +324,7 @@
             // Mirror dan persegi
             selfiePreview.style.objectFit = 'cover';
             selfiePreview.style.width = '320px';
-            selfiePreview.style.height = '320px';
+            selfiePreview.style.height = '320px';   
             selfiePreview.style.transform = 'scaleX(-1)';
 
             const now = new Date();
