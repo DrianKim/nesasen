@@ -341,7 +341,7 @@ class SiswaController extends Controller
         for ($i = 0; $i < 7; $i++) {
             $day = $startOfWeek->copy()->addDays($i);
             $daysOfWeek[] = [
-                'nama_hari' => $day->translatedFormat('D'),
+                'nama_hari' => $day->locale('id')->translatedFormat('D'),
                 'tanggal' => $day,
             ];
         }

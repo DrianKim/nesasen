@@ -247,6 +247,11 @@ body {
     box-sizing: border-box;
 }
 
+.day-cell.disabled {
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
 /* Hapus border kanan di kolom ke-7, 14, 21, dst */
 .day-cell:nth-child(7n) {
     border-right: none;
@@ -286,7 +291,7 @@ body {
 @media (max-width: 768px) {
     .month-grid {
         display: grid;
-        grid-template-columns: repeat(7, 1fr); /* Pastikan 7 kolom sama rata */
+        grid-template-columns: repeat(7, 1fr);
         grid-template-rows: auto;
         width: 100%;
         min-width: 50%;

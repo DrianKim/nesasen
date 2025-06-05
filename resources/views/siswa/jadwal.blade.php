@@ -263,15 +263,18 @@
                     const isToday = this.isSameDay(currentDate, new Date());
 
                     let classes = 'day-cell';
-                    if (isActive) classes += 'active';
-                    if (isToday) classes += 'today';
-                    if (!isCurrentMonth) classes += 'other-month';
+                    if (isActive) classes += ' active';
+                    if (isToday) classes += ' today';
+                    if (!isCurrentMonth) classes += ' other-month disabled';
+
+                    // Jangan kasih onclick kalau other-month
+                    const clickHandler = isCurrentMonth ?
+                        `onclick="changeDate('${this.formatDateISO(currentDate)}'))"` : '';
 
                     html += `
-            <div class="${classes}" onclick="changeDate('${this.formatDateISO(currentDate)}')">
-                ${currentDate.getDate()}
-            </div>
-        `;
+                <div class="${classes}" ${clickHandler}>
+                    ${currentDate.getDate()}
+                </div>`;
                 }
 
                 // console.log('Generated HTML:', html);
