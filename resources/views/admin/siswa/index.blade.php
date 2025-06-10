@@ -10,23 +10,24 @@
                     <h2>Data Siswa SMKN 1 Subang</h2>
                     <div class="action-buttons">
                         @include('admin.siswa.modal-create')
+                        @include('admin.siswa.modal-import')
+                        @include('admin.siswa.modal-export')
                         <button class="btn btn-primary btn-circle" data-toggle="modal" data-target="#modalSiswaCreate">
-                            <i class="ml-2 fas fa-user-plus"></i>
+                            <i class="text-center fas fa-user-plus"></i>
                             <span class="button-label"></span>
                         </button>
-                        <form action="{{ route('siswa.import') }}" method="POST" enctype="multipart/form-data"
+                        {{-- <form action="{{ route('siswa.import') }}" method="POST" enctype="multipart/form-data"
                             id="importSiswaForm" class="d-inline">
                             @csrf
                             <input type="file" name="file" id="fileInput" accept=".xlsx,.xls" style="display: none;"
                                 onchange="document.getElementById('importSiswaForm').submit();">
-                            <button type="button" class="btn btn-success btn-circle"
-                                onclick="document.getElementById('fileInput').click();">
-                                <i class="ml-2 fas fa-file-import"></i>
-                                <span class="button-label"></span>
-                            </button>
-                        </form>
-                        <button type="button" class="btn btn-info btn-circle">
-                            <i class="ml-2 fas fa-file-export"></i>
+                        </form> --}}
+                        <button class="btn btn-success btn-circle" data-toggle="modal"data-target="#modalSiswaImport">
+                            <i class="text-center fas fa-file-import"></i>
+                            <span class="button-label"></span>
+                        </button>
+                        <button type="button" class="btn btn-info btn-circle" data-toggle="modal" data-target="#modalSiswaExport">
+                            <i class="text-center fas fa-file-export"></i>
                             <span class="button-label"></span>
                         </button>
                     </div>
@@ -116,8 +117,7 @@
 
                         <div class="bulk-actions">
                             <div class="bulk-buttons">
-                                <button type="button" class="btn btn-sm btn-outline-danger"
-                                    onclick="bulkAction('delete')">
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="bulkAction('delete')">
                                     <i class="fas fa-trash-alt"></i> Hapus
                                 </button>
                             </div>

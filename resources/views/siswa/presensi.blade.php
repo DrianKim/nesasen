@@ -204,10 +204,6 @@
             );
         }
 
-        // Tombol jam awal
-        // document.getElementById('checkInInfo').innerHTML = `<i class="fas fa-check-circle"></i> Check In --:--`;
-        // document.getElementById('checkOutInfo').innerHTML = `<i class="fas fa-times-circle"></i> Check Out --:--`;
-
         // Data selfie dan elemen DOM
         let selfieData = null;
         let stream = null;
@@ -242,7 +238,6 @@
             if (CheckOutTime) {
                 CheckOutTime.textContent = timeString;
             }
-
         }
 
         function startCamera() {
@@ -266,7 +261,7 @@
             cameraPreview.style.objectFit = 'cover';
             cameraPreview.style.width = '320px';
             cameraPreview.style.height = '320px';
-            cameraPreview.style.transform = 'scaleX(-1)'; // Mirror
+            cameraPreview.style.transform = 'scaleX(-1)';
 
             navigator.mediaDevices.getUserMedia({
                     video: {
@@ -324,7 +319,7 @@
             // Mirror dan persegi
             selfiePreview.style.objectFit = 'cover';
             selfiePreview.style.width = '320px';
-            selfiePreview.style.height = '320px';   
+            selfiePreview.style.height = '320px';
             selfiePreview.style.transform = 'scaleX(-1)';
 
             const now = new Date();
@@ -333,7 +328,7 @@
                 now.getSeconds().toString().padStart(2, '0');
 
             if (!sudahCheckIn) {
-                // CHECK IN
+                // check in
                 $('#checkStatusLabel')
                     .removeClass('checkout')
                     .addClass('checkin')
@@ -342,7 +337,7 @@
                 $('#CheckInTime').text(jam).show();
                 $('#CheckOutTime').hide();
             } else {
-                // CHECK OUT
+                // check out
                 $('#checkStatusLabel')
                     .removeClass('checkin')
                     .addClass('checkout')
@@ -392,7 +387,7 @@
             }
         }
 
-        // Ambil status presensi hari ini dari backend
+        // Ambil status presensi hari ini
         fetch("{{ route('siswa.presensi.hari_ini') }}")
             .then(res => res.json())
             .then(data => {
@@ -626,7 +621,6 @@
 
             $('#selfieModal').modal('hide');
         });
-
 
         // Modal close event
         $('#selfieModal').on('hidden.bs.modal', () => {

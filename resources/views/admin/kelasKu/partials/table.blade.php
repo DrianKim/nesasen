@@ -16,7 +16,7 @@
                 <td>
                     <input type="checkbox" name="selected_kelasKu[]" value="{{ $item->id }}">
                 </td>
-                <td>{{ $item->mata_pelajaran->nama_mapel ?? '-' }}</td>
+                <td>{{ $item->mataPelajaran->nama_mapel ?? '-' }}</td>
                 <td>{{ $item->kelas->tingkat . ' ' . $item->kelas->jurusan->kode_jurusan . ' ' . $item->kelas->no_kelas ?? '-' }}
                 <td>{{ $item->guru->nama ?? '-' }}</td>
                 </td>

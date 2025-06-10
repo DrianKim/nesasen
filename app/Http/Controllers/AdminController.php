@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Svg\Tag\Rect;
+use Carbon\Carbon;
 use App\Models\Guru;
 use App\Models\User;
 use App\Models\Kelas;
@@ -10,21 +11,25 @@ use App\Models\Siswa;
 use App\Models\walas;
 use App\Models\Jurusan;
 use App\Models\izinGuru;
+use Barryvdh\DomPDF\PDF;
 use App\Models\izinSiswa;
 use App\Models\MapelKelas;
+use App\Exports\GuruExport;
 use App\Models\absensiGuru;
 use Illuminate\Support\Str;
+use App\Exports\SiswaExport;
 use App\Imports\SiswaImport;
 use App\Models\absensiSiswa;
 use Illuminate\Http\Request;
 use App\Models\MataPelajaran;
+use App\Models\presensiSiswa;
 use Database\Seeders\GuruSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
 use Psy\CodeCleaner\FunctionContextPass;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 use function PHPUnit\Framework\returnSelf;
 
 class AdminController extends Controller
@@ -56,9 +61,33 @@ class AdminController extends Controller
 
     // public function store_walas() {}
 
-    private function generateUsernameFromName($namaLengkap)
+    private function parseExcelDate($dateString)
     {
-        $parts = explode(' ', strtolower($namaLengkap));
+        try {
+            // Try to parse dd/mm/yyyy format
+            if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', $dateString, $matches)) {
+                $day = str_pad($matches[1], 2, '0', STR_PAD_LEFT);
+                $month = str_pad($matches[2], 2, '0', STR_PAD_LEFT);
+                $year = $matches[3];
+
+                return Carbon::createFromFormat('d/m/Y', "{$day}/{$month}/{$year}");
+            }
+
+            // Try to parse if it's Excel serial date
+            if (is_numeric($dateString)) {
+                return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dateString);
+            }
+
+            // Try Carbon parse
+            return Carbon::parse($dateString);
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    private function generateUsernameFromName($nama)
+    {
+        $parts = explode(' ', strtolower($nama));
 
         $username = '';
         foreach ($parts as $part) {
@@ -77,6 +106,7 @@ class AdminController extends Controller
 
         return $username;
     }
+
 
     // umum kelas
     public function index_kelas(Request $request)
@@ -313,18 +343,35 @@ class AdminController extends Controller
 
     public function bulkAction_kelas(Request $request)
     {
-        $ids = $request->input('ids');
+        $ids = $request->input('selected_kelas');
+
         if (!$ids) {
             return redirect()->back()->with('error', 'Tidak Ada Data Yang Dipilih!');
         }
 
         foreach ($ids as $id) {
-            $kelas = Kelas::find($id)->get();
+            $kelas = Kelas::find($id);
 
             if ($kelas) {
-                if ($kelas->user) {
-                    $kelas->user->delete();
+
+                $walas = Walas::where('kelas_id', $kelas->id)->first();
+
+                if ($walas) {
+                    $walas = Walas::where('kelas_id', $kelas->id)->first();
+
+                    if ($walas) {
+                        $user = User::find($walas->user_id);
+                        if ($user) {
+                            $user->role_id = 3;
+                            $user->save();
+                        }
+                    }
+                    $walas->delete();
                 }
+
+                // if ($kelas->user) {
+                //     $kelas->user->delete();
+                // }
 
                 $kelas->delete();
             }
@@ -340,7 +387,7 @@ class AdminController extends Controller
         $sortBy = $request->input('sort_by');
         $sortDirection = $request->input('sort_direction', 'asc');
 
-        $query = MapelKelas::with('kelas.jurusan', 'mata_pelajaran', 'guru');
+        $query = MapelKelas::with('kelas.jurusan', 'mataPelajaran', 'guru');
 
         if ($search) {
             $searchTerm = strtolower(trim($search));
@@ -730,7 +777,7 @@ class AdminController extends Controller
 
     public function bulkAction_siswa(Request $request)
     {
-        $ids = $request->input('ids');
+        $ids = $request->input('selected_siswa');
         if (!$ids) {
             return redirect()->back()->with('error', 'Tidak Ada Data Yang Dipilih!');
         }
@@ -749,36 +796,287 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Siswa Berhasil Dihapus');
     }
 
+    public function download_template_siswa()
+    {
+        $fileName = 'template_import_siswa_' . date('Y-m-d') . '.xlsx';
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $spreadsheet->getProperties()
+            ->setCreator('SMKN 1 Subang')
+            ->setTitle('Template Import Siswa')
+            ->setDescription('Template untuk mengimpor data siswa');
+
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '198754'],
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000'],
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+            ],
+        ];
+
+        $headers = [
+            'NIS',
+            'Nama Siswa',
+            'Tgl. Lahir',
+            'No. HP',
+            'Email',
+        ];
+
+        $sheet->fromArray($headers, null, 'A1');
+
+        $sheet->getStyle('A1:E1')->applyFromArray($headerStyle);
+
+        $sheet->getColumnDimension('A')->setWidth(15);  // nis
+        $sheet->getColumnDimension('B')->setWidth(25);  // nama siswa
+        $sheet->getColumnDimension('C')->setWidth(15);  // tgl lahir
+        $sheet->getColumnDimension('D')->setWidth(20);  // no hp
+        $sheet->getColumnDimension('E')->setWidth(30);  // email
+
+        $exampleData = [
+            ['123456', 'sigma', '01/01/2000', '08123456789', 'sigma@gmail.com'],
+            ['123457', 'gyatrox', '01/01/2000', '08123456789', 'gyatrox@gmail.com'],
+        ];
+
+        $sheet->fromArray($exampleData, null, 'A2');
+
+        $sheet->getStyle('A2:E3')->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000'],
+                ]
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'f8f9fA'],
+            ],
+        ]);
+
+        $sheet->setCellValue('A5', 'Petunjuk:');
+        $sheet->setCellValue('A6', '1. Nis adalah Nomor Induk Siswa yang unik untuk setiap siswa');
+        $sheet->setCellValue('A7', '2. Nama Siswa harus diisi dengan nama lengkap siswa');
+        $sheet->setCellValue('A8', '3. Tanggal Lahir harus diisi dengan format dd/mm/yyyy (contoh: 22/09/2000)');
+        $sheet->setCellValue('A9', '4. No. HP harus diisi dengan nomor handphone yang valid');
+        $sheet->setCellValue('A10', '5. Email harus diisi dengan alamat email yang valid');
+        $sheet->setCellValue('A11', '6. Username akan otomatis dibuat berdasarkan nama siswa');
+        $sheet->setCellValue('A12', '7. Password akan otomatis dibuat berdasarkan tanggal lahir siswa (ddmmyyyy)');
+
+        $sheet->getStyle('A5')->getFont()->setBold(true)->setSize(13);
+        $sheet->getStyle('A6:A12')->getFont()->setItalic(true);
+
+        $sheet->getRowDimension(1)->setRowHeight(25);
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+            'Cache-Control' => 'cache, must-revalidate',
+            'Pragma' => 'public',
+        ]);
+    }
+
     public function import_siswa(Request $request)
     {
-        $file = $request->file('file');
-        $data = Excel::toArray([], $file);
-        $rows = array_slice($data[0], 1);
-        $imported = 0;
+        try {
+            $request->validate([
+                'file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
+                'kelas_id' => 'required|exists:kelas,id',
+            ], [
+                'file.required' => 'File Tidak Boleh Kosong',
+                'file.mimes' => 'File Harus Berformat XLSX, XLS, atau CSV',
+                'file.max' => 'Ukuran File Maksimal 2MB',
+                'kelas_id.required' => 'Kelas Tidak Boleh Kosong',
+                'kelas_id.exists' => 'Kelas Tidak Valid',
+            ]);
 
-        // dd($data);
-        foreach ($rows as $row) {
-            $nama = $row[0];
-            if (!empty($nama)) {
-                $username = $this->generateUsernameFromName($nama);
+            $file = $request->file('file');
+            $kelasId = $request->kelas_id;
 
-                $siswa = Siswa::create([
-                    'nama' => $nama,
-                    'kelas_id' => null,
-                ]);
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getPathname());
+            $worksheet = $spreadsheet->getActiveSheet();
+            $rows = $worksheet->toArray();
+            $headers = array_shift($rows);
 
-                User::create([
-                    'username' => $username,
-                    'password' => null,
-                    'siswa_id' => $siswa->id,
-                    'role_id' => 4,
-                ]);
+            $requiredHeaders = ['NIS', 'Nama Siswa', 'Tgl. Lahir', 'No. HP', 'Email'];
+            $headerMap = [];
 
-                $imported++;
+            foreach ($requiredHeaders as $required) {
+                $found = false;
+                foreach ($headers as $index => $header) {
+                    if (trim(strtoupper($header)) === strtoupper($required)) {
+                        $headerMap[$required] = $index;
+                        $found = true;
+                        break;
+                    }
+                }
+                if (!$found) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Kolom '{$required}' tidak ditemukan di file."
+                    ]);
+                }
             }
-        }
 
-        return back()->with('success', "Import siswa berhasil! Total $imported siswa.");
+            $successCount = 0;
+            $errorRows = [];
+            $duplicateNIS = [];
+
+            DB::beginTransaction();
+
+            foreach ($rows as $rowIndex => $row) {
+                $rowNumber = $rowIndex + 2;
+
+                try {
+
+                    if (empty(array_filter($row))) {
+                        continue;
+                    }
+
+                    $nis = trim($row[$headerMap['NIS']] ?? '');
+                    $nama = trim($row[$headerMap['Nama Siswa']] ?? '');
+                    $tanggalLahir = trim($row[$headerMap['Tgl. Lahir']] ?? '');
+                    $noHp = trim($row[$headerMap['No. HP']] ?? '');
+                    $email = trim($row[$headerMap['Email']] ?? '');
+
+                    if (!$nis || !$nama || !$tanggalLahir || !$noHp || !$email) {
+                        $errorRows[] = "Baris {$rowNumber}: Semua kolom wajib diisi.";
+                        continue;
+                    }
+
+                    if (Siswa::where('nis', $nis)->exists()) {
+                        $duplicateNIS[] = "Baris {$rowNumber} NIS '{$nis}' sudah terdaftar.";
+                        continue;
+                    }
+
+                    // Validasi NIS harus angka
+                    if (!is_numeric($nis)) {
+                        $errorRows[] = "Baris {$rowNumber}: NIS harus berupa angka";
+                        continue;
+                    }
+
+                    // Validasi nomor HP
+                    if (!preg_match('/^[0-9+\-\s]+$/', $noHp)) {
+                        $errorRows[] = "Baris {$rowNumber}: Format nomor HP tidak valid";
+                        continue;
+                    }
+
+                    $parsedDate = $this->parseExcelDate($tanggalLahir);
+                    if (!$parsedDate) {
+                        $errorRows[] = "Baris {$rowNumber}: Format tanggal lahir tidak valid (gunakan dd/mm/yyyy)";
+                        continue;
+                    }
+
+                    if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        $errorRows[] = "Baris {$rowNumber}: Format email tidak valid";
+                        continue;
+                    }
+
+                    $username = $this->generateUsernameFromName($nama);
+                    $password = $parsedDate->format('dmY');
+
+                    $user = User::create([
+                        'username' => $username,
+                        'role_id' => 4,
+                        'password' => Hash::make($password),
+                    ]);
+
+                    Siswa::create([
+                        'user_id' => $user->id,
+                        'nis' => $nis,
+                        'nama' => $nama,
+                        'kelas_id' => $kelasId,
+                        'tanggal_lahir' => $parsedDate,
+                        'no_hp' => $noHp,
+                        'email' => $email,
+                    ]);
+
+                    $successCount++;
+                } catch (\Exception $e) {
+                    $errorRows[] = "Baris {$rowNumber}: Terjadi kesalahan saat menyimpan data - " . $e->getMessage();
+                }
+            }
+
+            if ($successCount > 0) {
+                DB::commit();
+
+                $message = "Berhasil mengimpor {$successCount} data siswa.";
+                $errors = array_merge($errorRows, $duplicateNIS);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'imported_count' => $successCount,
+                    'errors' => !empty($errors) ? $errors : null,
+                ]);
+            } else {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada data yang berhasil diimpor.',
+                    'errors' => array_merge($errorRows,  $duplicateNIS),
+                ]);
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function export_siswa_pdf()
+    {
+        try {
+            $siswa = Siswa::with(['user.siswa', 'kelas.jurusan'])->orderBy('kelas_id', 'asc')->orderBy('nama', 'asc')->get();
+
+            $data = [
+                'title' => 'Data Siswa',
+                'siswa' => $siswa,
+                'exported_at' => now()->format('d-m-Y'),
+                'exported_at_time' => now()->format('d-m-Y H:i:s'),
+                'total_siswa' => $siswa->count(),
+            ];
+
+            $pdf = app('dompdf.wrapper');
+            $pdf->loadView('admin.siswa.export.pdf', $data);
+
+            $filename = 'data_siswa_' . date('Y-m-d_H-i-s') . '.pdf';
+
+            return $pdf->download($filename);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengekspor data ke pdf: ' . $e->getMessage());
+        }
+    }
+
+    public function export_siswa_xlsx()
+    {
+        try {
+            $filename = 'data_siswa_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+            return Excel::download(new SiswaExport, $filename);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengekspor data ke excel: ' . $e->getMessage());
+        }
     }
 
     // guru
@@ -911,6 +1209,7 @@ class AdminController extends Controller
         return view('admin.guru.edit', $data);
     }
 
+
     public function update_guru(Request $request, $id)
     {
         $guru = Guru::with('user')->findorfail($id);
@@ -966,7 +1265,7 @@ class AdminController extends Controller
 
     public function bulkAction_guru(Request $request)
     {
-        $ids = $request->input('ids');
+        $ids = $request->input('selected_guru');
         if (!$ids) {
             return redirect()->back()->with('error', 'Tidak Ada Data Yang Dipilih!');
         }
@@ -985,34 +1284,282 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Guru Berhasil Dihapus');
     }
 
+    public function download_template_guru()
+    {
+        $fileName = 'template_import_guru_' . date('Y-m-d') . '.xlsx';
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $spreadsheet->getProperties()
+            ->setCreator('SMKN 1 Subang')
+            ->setTitle('Template Import Guru')
+            ->setDescription('Template untuk mengimpor data guru');
+
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '198754'],
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000'],
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+            ],
+        ];
+
+        $headers = [
+            'NIP',
+            'Nama Guru',
+            'Tgl. Lahir',
+            'No. HP',
+            'Email',
+        ];
+
+        $sheet->fromArray($headers, null, 'A1');
+
+        $sheet->getStyle('A1:E1')->applyFromArray($headerStyle);
+
+        $sheet->getColumnDimension('A')->setWidth(15);  // nip
+        $sheet->getColumnDimension('B')->setWidth(25);  // nama guru
+        $sheet->getColumnDimension('C')->setWidth(15);  // tgl lahir
+        $sheet->getColumnDimension('D')->setWidth(20);  // no hp
+        $sheet->getColumnDimension('E')->setWidth(30);  // email
+
+        $exampleData = [
+            ['123456', 'sigma', '01/01/2000', '08123456789', 'sigma@gmail.com'],
+            ['123457', 'gyatrox', '01/01/2000', '08123456789', 'gyatrox@gmail.com'],
+        ];
+
+        $sheet->fromArray($exampleData, null, 'A2');
+
+        $sheet->getStyle('A2:E3')->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000'],
+                ]
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'f8f9fA'],
+            ],
+        ]);
+
+        $sheet->setCellValue('A5', 'Petunjuk:');
+        $sheet->setCellValue('A6', '1. Nip adalah Nomor Induk Pegawai yang unik untuk setiap guru');
+        $sheet->setCellValue('A7', '2. Nama Guru harus diisi dengan nama lengkap guru');
+        $sheet->setCellValue('A8', '3. Tanggal Lahir harus diisi dengan format dd/mm/yyyy (contoh: 22/09/2000)');
+        $sheet->setCellValue('A9', '4. No. HP harus diisi dengan nomor handphone yang valid');
+        $sheet->setCellValue('A10', '5. Email harus diisi dengan alamat email yang valid');
+        $sheet->setCellValue('A11', '6. Username akan otomatis dibuat berdasarkan nama guru');
+        $sheet->setCellValue('A12', '7. Password akan otomatis dibuat berdasarkan tanggal lahir guru (ddmmyyyy)');
+
+        $sheet->getStyle('A5')->getFont()->setBold(true)->setSize(13);
+        $sheet->getStyle('A6:A12')->getFont()->setItalic(true);
+
+        $sheet->getRowDimension(1)->setRowHeight(25);
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+            'Cache-Control' => 'cache, must-revalidate',
+            'Pragma' => 'public',
+        ]);
+    }
+
     public function import_guru(Request $request)
     {
-        $file = $request->file('file');
-        $data = Excel::toArray([], $file);
-        $rows = array_slice($data[0], 1);
-        $imported = 0;
+        try {
+            $request->validate([
+                'file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
+            ], [
+                'file.required' => 'File Tidak Boleh Kosong',
+                'file.mimes' => 'File Harus Berformat XLSX, XLS, atau CSV',
+                'file.max' => 'Ukuran File Maksimal 2MB',
+            ]);
 
-        foreach ($rows as $row) {
-            $nama = $row[0];
-            if (!empty($nama)) {
-                $username = $this->generateUsernameFromName($nama);
+            $file = $request->file('file');
 
-                $guru = Guru::create([
-                    'nama' => $nama,
-                ]);
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getPathname());
+            $worksheet = $spreadsheet->getActiveSheet();
+            $rows = $worksheet->toArray();
+            $headers = array_shift($rows);
 
-                User::create([
-                    'username' => $username,
-                    'password' => null,
-                    'guru_id' => $guru->id,
-                    'role_id' => 3,
-                ]);
+            $requiredHeaders = ['NIP', 'Nama Guru', 'Tgl. Lahir', 'No. HP', 'Email'];
+            $headerMap = [];
 
-                $imported++;
+            foreach ($requiredHeaders as $required) {
+                $found = false;
+                foreach ($headers as $index => $header) {
+                    if (trim(strtoupper($header)) === strtoupper($required)) {
+                        $headerMap[$required] = $index;
+                        $found = true;
+                        break;
+                    }
+                }
+                if (!$found) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Kolom '{$required}' tidak ditemukan di file."
+                    ]);
+                }
             }
-        }
 
-        return back()->with('success', "Import guru berhasil! Total: $imported guru.");
+            $successCount = 0;
+            $errorRows = [];
+            $duplicateNIP = [];
+
+            DB::beginTransaction();
+
+            foreach ($rows as $rowIndex => $row) {
+                $rowNumber = $rowIndex + 2;
+
+                try {
+
+                    if (empty(array_filter($row))) {
+                        continue;
+                    }
+
+                    $nip = trim($row[$headerMap['NIP']] ?? '');
+                    $nama = trim($row[$headerMap['Nama Guru']] ?? '');
+                    $tanggalLahir = trim($row[$headerMap['Tgl. Lahir']] ?? '');
+                    $noHp = trim($row[$headerMap['No. HP']] ?? '');
+                    $email = trim($row[$headerMap['Email']] ?? '');
+
+                    if (!$nip || !$nama || !$tanggalLahir || !$noHp || !$email) {
+                        $errorRows[] = "Baris {$rowNumber}: Semua kolom wajib diisi.";
+                        continue;
+                    }
+
+                    if (Guru::where('nip', $nip)->exists()) {
+                        $duplicateNIP[] = "Baris {$rowNumber} NIP '{$nip}' sudah terdaftar.";
+                        continue;
+                    }
+
+                    // Validasi NIS harus angka
+                    if (!is_numeric($nip)) {
+                        $errorRows[] = "Baris {$rowNumber}: NIP harus berupa angka";
+                        continue;
+                    }
+
+                    // Validasi nomor HP
+                    if (!preg_match('/^[0-9+\-\s]+$/', $noHp)) {
+                        $errorRows[] = "Baris {$rowNumber}: Format nomor HP tidak valid";
+                        continue;
+                    }
+
+                    $parsedDate = $this->parseExcelDate($tanggalLahir);
+                    if (!$parsedDate) {
+                        $errorRows[] = "Baris {$rowNumber}: Format tanggal lahir tidak valid (gunakan dd/mm/yyyy)";
+                        continue;
+                    }
+
+                    if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        $errorRows[] = "Baris {$rowNumber}: Format email tidak valid";
+                        continue;
+                    }
+
+                    $username = $this->generateUsernameFromName($nama);
+                    $password = $parsedDate->format('dmY');
+
+                    $user = User::create([
+                        'username' => $username,
+                        'role_id' => 3,
+                        'password' => Hash::make($password),
+                    ]);
+
+                    Guru::create([
+                        'user_id' => $user->id,
+                        'nip' => $nip,
+                        'nama' => $nama,
+                        'tanggal_lahir' => $parsedDate,
+                        'no_hp' => $noHp,
+                        'email' => $email,
+                    ]);
+
+                    $successCount++;
+                } catch (\Exception $e) {
+                    $errorRows[] = "Baris {$rowNumber}: Terjadi kesalahan saat menyimpan data - " . $e->getMessage();
+                }
+            }
+
+            if ($successCount > 0) {
+                DB::commit();
+
+                $message = "Berhasil mengimpor {$successCount} data guru.";
+                $errors = array_merge($errorRows, $duplicateNIP);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'imported_count' => $successCount,
+                    'errors' => !empty($errors) ? $errors : null,
+                ]);
+            } else {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada data yang berhasil diimpor.',
+                    'errors' => array_merge($errorRows,  $duplicateNIP),
+                ]);
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function export_guru_pdf()
+    {
+        try {
+            $guru = Guru::with(['user'])->orderBy('nama', 'asc')->get();
+
+            $data = [
+                'title' => 'Data Guru SMKN 1 Subang',
+                'guru' => $guru,
+                'exported_at' => now()->format('d-m-Y'),
+                'exported_at_time' => now()->format('d-m-Y H:i:s'),
+                'total_guru' => $guru->count(),
+            ];
+
+            $pdf = app('dompdf.wrapper');
+            $pdf->loadView('admin.guru.export.pdf', $data);
+
+            $filename = 'data_guru_' . date('Y-m-d_H-i-s') . '.pdf';
+
+            return $pdf->download($filename);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengekspor data ke pdf: ' . $e->getMessage());
+        }
+    }
+
+    public function export_guru_xlsx()
+    {
+        try {
+            $filename = 'data_guru_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+            return Excel::download(new GuruExport, $filename);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengekspor data ke excel: ' . $e->getMessage());
+        }
     }
 
     // umum jurusan
@@ -1332,7 +1879,7 @@ class AdminController extends Controller
         $filterBy = $request->input('filter_by');
         $sortDirection = $request->input('sort_direction', 'asc');
 
-        $query = absensiSiswa::with('siswa.kelas.jurusan');
+        $query = presensiSiswa::with('siswa.kelas.jurusan');
 
         // Filter
         if ($request->filled('kelas')) {
@@ -1391,7 +1938,7 @@ class AdminController extends Controller
         );
 
         $kelasFilter = Kelas::with('jurusan')->orderBy('tingkat')->orderBy('jurusan_id')->orderBy('no_kelas')->get();
-        $tanggalFilter = absensiSiswa::select('tanggal')->distinct()->orderBy('tanggal', 'desc')->pluck('tanggal');
+        $tanggalFilter = presensiSiswa::select('tanggal')->distinct()->orderBy('tanggal', 'desc')->pluck('tanggal');
 
         $data = [
             'title' => 'Presensi Siswa',

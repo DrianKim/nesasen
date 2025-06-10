@@ -161,6 +161,10 @@ Route::middleware(['isLogin'])->group(function () {
         Route::post('admin/siswa/update/{id}', [AdminController::class, 'update_siswa'])->name('admin_siswa.update');
         Route::delete('admin/siswa/destroy/{id}', [AdminController::class, 'destroy_siswa'])->name('admin_siswa.destroy');
         Route::delete('admin/siswa/bulk_action', [AdminController::class, 'bulkAction_siswa'])->name('admin_siswa.bulk_action');
+        Route::get('admin/siswa/template', [AdminController::class, 'download_template_siswa'])->name('admin_siswa.template');
+        Route::post('admin/siswa/import', [AdminController::class, 'import_siswa'])->name('admin_siswa.import');
+        Route::get('admin/siswa/export/pdf', [AdminController::class, 'export_siswa_pdf'])->name('admin_siswa.export.pdf');
+        Route::get('admin/siswa/export/xlsx', [AdminController::class, 'export_siswa_xlsx'])->name('admin_siswa.export.xlsx');
 
         // guru
         Route::get('admin/guru', [AdminController::class, 'index_guru'])->name('admin_guru.index');
@@ -171,6 +175,10 @@ Route::middleware(['isLogin'])->group(function () {
         Route::post('admin/guru/update/{id}', [AdminController::class, 'update_guru'])->name('admin_guru.update');
         Route::delete('admin/guru/destroy/{id}', [AdminController::class, 'destroy_guru'])->name('admin_guru.destroy');
         Route::delete('admin/guru/bulk_action', [AdminController::class, 'bulkAction_guru'])->name('admin_guru.bulk_action');
+        Route::get('admin/guru/template', [AdminController::class, 'download_template_guru'])->name('admin_guru.template');
+        Route::post('admin/guru/import', [AdminController::class, 'import_guru'])->name('admin_guru.import');
+        Route::get('admin/guru/export/pdf', [AdminController::class, 'export_guru_pdf'])->name('admin_guru.export.pdf');
+        Route::get('admin/guru/export/xlsx', [AdminController::class, 'export_guru_xlsx'])->name('admin_guru.export.xlsx');
 
         Route::get('admin/jadwal_pelajaran', [AdminController::class, 'index_jadwal_pelajaran'])->name('admin_jadwal_pelajaran.index');
 

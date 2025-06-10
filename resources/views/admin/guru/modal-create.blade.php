@@ -4,19 +4,21 @@
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header d-flex align-items-center"
-                style="background-color: #f5f5f5; border-bottom: 1px solid #ddd;">
+                style="background-color: #228DFFFF; border-bottom: 1px solid #228DFFFF;">
                 <div class="d-flex align-items-center">
-                    <div class="mr-3" style="background-color: #e0f7f5; border-radius: 50%; padding: 10px;">
+                    <div class="mr-3" style="background-color: #228DFFFF; border-radius: 50%; padding: 10px;">
                         <img src="{{ asset('assets\img\teacher.png') }}" alt="Guru Icon"
                             style="width: 40px; height: 40px;">
                     </div>
                     <div>
-                        <h5 class="modal-title" style="font-weight: 500" id="modalGuruCreateTitle">Tambahkan Data Guru
+                        <h5 class="modal-title" style="font-weight: 500; color: white" id="modalGuruCreateTitle">
+                            Tambahkan Data Guru
                         </h5>
-                        <p class="mb-0 text-muted" style="font-size: 0.85rem;">Pastikan data yang kamu input benar</p>
+                        <p class="mb-0" style="font-size: 0.85rem; color: white;">Pastikan data yang kamu input benar
+                        </p>
                     </div>
                 </div>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -119,9 +121,14 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                <button type="submit" class="btn btn-primary"
-                    style="background-color: #20B2AA; border-color: #20B2AA;">Simpan</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    Batal
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>
+                    Tambah
+                </button>
             </div>
             </form>
         </div>

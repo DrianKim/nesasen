@@ -1,219 +1,378 @@
-<!-- Modal Import -->
-<div class="modal fade" id="modalKelasImport" tabindex="-1" role="dialog" aria-labelledby="modalKelasImportTitle"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+<!-- Modal Import Siswa -->
+<div class="modal fade" id="modalSiswaImport" tabindex="-1" role="dialog" aria-labelledby="modalSiswaImportLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            <div class="modal-header d-flex align-items-center"
-                style="background-color: #f5f5f5; border-bottom: 1px solid #ddd;">
-                <div class="d-flex align-items-center">
-                    <div class="mr-3" style="background-color: #e0f7f5; border-radius: 50%; padding: 10px;">
-                        <img src="{{ asset('assets\img\classroom.png') }}" alt="Kelas Icon"
-                            style="width: 40px; height: 40px;">
-                    </div>
-                    <div>
-                        <h5 class="modal-title" style="font-weight: 500" id="modalKelasImportTitle">Import Data
-                            Kelas
-                        </h5>
-                        <p class="mb-0 text-muted" style="font-size: 0.85rem;">Disarankan untuk melakukan import data per kelas dengan format berikut</p>
-                    </div>
-                </div>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+            <div class="text-white modal-header bg-success">
+                <h5 class="modal-title" id="modalSiswaImportLabel">
+                    <i class="fas fa-file-import me-2"></i>
+                    Impor Data Siswa Sekaligus
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
-                <!-- Form Start -->
-                <form class="form-modal" id="formTambahKelas" action="{{ route('admin_kelas.store') }}" method="POST">
-                    @csrf
-                    <div class="row">
-                        <div class="col-md-6 form-group">
-                            <label for="tingkat">Tingkat</label>
-                            <select
-                                class="border rounded form-control border-opacity-30 @error('tingkat') is-invalid @enderror"
-                                name="tingkat">
-                                <option value="" disabled>---Pilih Tingkat---</option>
-                                <option value="X" {{ old('tingkat') == 'X' ? 'selected' : '' }}>X</option>
-                                <option value="XI" {{ old('tingkat') == 'XI' ? 'selected' : '' }}>XI</option>
-                                <option value="XII" {{ old('tingkat') == 'XII' ? 'selected' : '' }}>XII</option>
-                            </select>
-                            <small>
-                                @error('kode_mapel')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                            </small>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label for="no_kelas">No Kelas</label>
-                            <select
-                                class="border rounded form-control border-opacity-30 @error('no_kelas') is-invalid @enderror"
-                                name="no_kelas">
-                                <option value="" disabled>---Pilih No Kelas---</option>
-                                <option value="1" {{ old('no_kelas') == '1' ? 'selected' : '' }}>1</option>
-                                <option value="2" {{ old('no_kelas') == '2' ? 'selected' : '' }}>2</option>
-                                <option value="3" {{ old('no_kelas') == '3' ? 'selected' : '' }}>3</option>
-                                <option value="4" {{ old('no_kelas') == '4' ? 'selected' : '' }}>4</option>
-                            </select>
-                            <small>
-                                @error('kode_mapel')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                            </small>
+                <div class="row">
+                    <!-- Left side - Illustration -->
+                    <div class="col-md-4 d-flex align-items-center justify-content-center">
+                        <div class="import-illustration">
+                            <div class="illustration-container">
+                                <i class="mb-3 fas fa-file-excel fa-5x text-success"></i>
+                                <div class="upload-icon">
+                                    <i class="fas fa-upload fa-2x text-primary"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mb-3 form-group">
-                        <label for="jurusan">Jurusan</label>
-                        <select name="jurusan_id"
-                            class="border rounded form-control border-opacity-30 @error('jurusan_id') is-invalid @enderror"
-                            id="jurusan">
-                            <option value="" disabled>---Pilih Jurusan---</option>
-                            @foreach ($jurusanList as $jurusan)
-                                <option value="{{ $jurusan->id }}"
-                                    {{ old('jurusan_id') == $jurusan->id ? 'selected' : '' }}>
-                                    {{ $jurusan->nama_jurusan . ' (' . $jurusan->kode_jurusan . ')' }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <small>
-                            @error('kelas_id')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </small>
-                    </div>
+                    <!-- Right side - Content -->
+                    <div class="col-md-8">
+                        <p class="mb-4">Disarankan untuk melakukan impor data per kelas dengan format sebagai berikut</p>
 
-                    <div class="mb-3 form-group">
-                        <label for="guru">Guru <small class="text-muted">*Silahkan Pilih Guru Untuk Menjadi Wali
-                                Kelas (Opsional)</small></label>
-                        <select name="guru_id"
-                            class="border rounded form-control border-opacity-30 @error('guru_id') is-invalid @enderror"
-                            id="guru">
-                            <option value="" disabled>---Pilih Guru---</option>
-                            @foreach ($guruList as $guru)
-                                <option value="{{ $guru->id }} {{ old('guru_id') == $guru->id ? 'selected' : '' }}"
-                                    {{ old('guru_id') == $guru->id ? 'selected' : '' }}>
-                                    {{ $guru->nama }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <small>
-                            @error('guru_id')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </small>
-                    </div>
+                        <!-- Example Format -->
+                        <div class="mb-4">
+                            <h6>Contoh:</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-success">
+                                        <tr>
+                                            <th class="text-center">NISN</th>
+                                            <th class="text-center">Nama Siswa</th>
+                                            <th class="text-center">Tgl. Lahir</th>
+                                            <th class="text-center">No. HP</th>
+                                            <th class="text-center">Email</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="text-center">1234567</td>
+                                            <td>John Doe</td>
+                                            <td class="text-center">22/09/2000</td>
+                                            <td class="text-center">081200010002</td>
+                                            <td>johndoe@mail.com</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
 
-                    {{-- <div class="mb-3 form-group">
-                        <label for="tingkat">Tingkat</label>
-                        <input type="text"
-                            class="border rounded form-control border-opacity-30 @error('kode_mapel') is-invalid @enderror"
-                            id="kode_mapel" name="kode_mapel" value="{{ old('kode_mapel') }}">
-                        <small>
-                            @error('kode_mapel')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </small>
-                    </div> --}}
+                        <!-- Download Template Link -->
+                        <div class="mb-4">
+                            <a href="{{ route('admin_siswa.download_template') }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-download me-1"></i>
+                                Download Format
+                            </a>
+                        </div>
+
+                        <!-- Info Alerts -->
+                        <div class="mb-3 alert alert-info alert-sm">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Kamu juga bisa mengimpor data siswa beserta orang tua sekaligus dengan menggunakan format ini:</strong>
+                            <a href="{{ route('admin_siswa.download_template_with_parent') }}" class="text-decoration-underline">Download Format</a>
+                        </div>
+
+                        <div class="mb-3 alert alert-warning alert-sm">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Format tanggal lahir dd/mm/yyyy</strong><br>
+                            <small>Jika format tanggal lahir tidak sesuai maka data siswa tidak dapat diimpor.</small>
+                        </div>
+
+                        <div class="mb-4 alert alert-info alert-sm">
+                            <i class="fas fa-key me-2"></i>
+                            <strong>Siswa dapat langsung login menggunakan username dan password* dan wajib membuat password baru</strong><br>
+                            <small>*Password sementara siswa adalah tanggal lahir dengan format ddmmyyyy</small>
+                        </div>
+
+                        <!-- Form Import -->
+                        <form id="formImportSiswa" action="{{ route('admin_siswa.import') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+
+                            <!-- Class and Academic Year Selection -->
+                            <div class="mb-3 row">
+                                <div class="col-md-6">
+                                    <label for="import_kelas" class="form-label">Kelas:</label>
+                                    <select class="form-select" id="import_kelas" name="kelas_id" required>
+                                        <option value="">Pilih Kelas</option>
+                                        @foreach ($kelasFilter as $kelas)
+                                            <option value="{{ $kelas->id }}">
+                                                {{ $kelas->tingkat }} {{ $kelas->jurusan->kode_jurusan }} {{ $kelas->no_kelas }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="import_tahun_ajaran" class="form-label">Tahun Ajaran:</label>
+                                    <select class="form-select" id="import_tahun_ajaran" name="tahun_ajaran" required>
+                                        @foreach ($tahunAjaranFilter as $tahun)
+                                            <option value="{{ $tahun }}" {{ $tahun == date('Y') . '-' . (date('Y') + 1) ? 'selected' : '' }}>
+                                                {{ $tahun }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- File Upload -->
+                            <div class="mb-3">
+                                <label for="import_file" class="form-label">File:</label>
+                                <div class="file-upload-container">
+                                    <input type="file" class="form-control" id="import_file" name="file" accept=".xlsx,.xls" required>
+                                    <div class="mt-2 file-upload-info">
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Hanya mendukung format .xlsx dari Microsoft Excel
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <!-- Form End -->
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                <button type="submit" class="btn btn-primary"
-                    style="background-color: #20B2AA; border-color: #20B2AA;">Simpan</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    Batal
+                </button>
+                <button type="submit" form="formImportSiswa" class="btn btn-success" id="btnImport">
+                    <i class="fas fa-file-import me-1"></i>
+                    Simpan
+                </button>
             </div>
-            </form>
         </div>
     </div>
 </div>
 
-{{-- Script untuk menampilkan modal saat ada error --}}
-@if ($errors->any())
-    <script>
-        $(document).ready(function() {
-            $('#modalKelasImport').modal('show');
-        });
-    </script>
-@endif
-@if ($errors->any())
-    <script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops!',
-            text: 'Cek lagi data yang kamu isi, ada yang salah tuh.',
-            timer: 3000,
-            showConfirmButton: false
-        });
-    </script>
-@endif
+<style>
+.import-illustration {
+    text-align: center;
+    position: relative;
+}
 
-{{-- @if ($errors->any())
-    <script>
-        $(document).ready(function() {
-            // Buka modal kalau ada error validasi
-            $('#modalKelasImport').modal('show');
+.illustration-container {
+    position: relative;
+    display: inline-block;
+}
 
-            // Optional: Tampilkan error pake SweetAlert
+.upload-icon {
+    position: absolute;
+    bottom: -10px;
+    right: -20px;
+    background: white;
+    border-radius: 50%;
+    padding: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.alert-sm {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+.file-upload-container {
+    border: 2px dashed #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    transition: border-color 0.15s ease-in-out;
+}
+
+.file-upload-container:hover {
+    border-color: #86b7fe;
+}
+
+.file-upload-container.dragover {
+    border-color: #0d6efd;
+    background-color: #f8f9fa;
+}
+
+.table-success th {
+    background-color: #198754 !important;
+    color: white !important;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.modal-lg {
+    max-width: 900px;
+}
+
+/* Loading state for import button */
+.btn-loading {
+    position: relative;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    margin: auto;
+    border: 2px solid transparent;
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const importForm = document.getElementById('formImportSiswa');
+    const importButton = document.getElementById('btnImport');
+    const fileInput = document.getElementById('import_file');
+    const fileUploadContainer = document.querySelector('.file-upload-container');
+
+    // Handle form submission
+    importForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Validate form
+        if (!importForm.checkValidity()) {
+            e.stopPropagation();
+            importForm.classList.add('was-validated');
+            return;
+        }
+
+        // Show loading state
+        importButton.disabled = true;
+        importButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Mengimpor...';
+        importButton.classList.add('btn-loading');
+
+        // Create FormData
+        const formData = new FormData(importForm);
+
+        // Submit via AJAX
+        fetch(importForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Success
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: data.message || 'Data siswa berhasil diimpor',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+
+                // Close modal and reload page
+                $('#modalSiswaImport').modal('hide');
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+
+            } else {
+                // Error
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: data.message || 'Terjadi kesalahan saat mengimpor data',
+                    html: data.errors ? '<ul class="text-start">' + data.errors.map(err => `<li>${err}</li>`).join('') + '</ul>' : undefined
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
             Swal.fire({
                 icon: 'error',
-                title: 'Oops!',
-                html: `{!! implode('<br>', $errors->all()) !!}`,
-                confirmButtonColor: '#d33',
+                title: 'Gagal!',
+                text: 'Terjadi kesalahan sistem, silakan coba lagi'
             });
-        });
-    </script>
-@endif --}}
-
-{{-- @if ($errors->any())
-    <script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops!',
-            text: 'Cek lagi data yang kamu isi, ada yang salah tuh.',
-            timer: 3000,
-            showConfirmButton: false
-        });
-    </script>
-@endif --}}
-
-{{-- <script>
-    $(document).ready(function() {
-        $('#formTambahKelas').submit(function(e) {
-            e.preventDefault(); // Prevent the form from being submitted traditionally
-
-            let formData = new FormData(this); // Import FormData object for the form
-            $.ajax({
-                url: '{{ route('admin_mapel.store') }}', // Route tujuan
-                method: 'POST',
-                data: formData,
-                processData: false, // Don't process the data
-                contentType: false, // Don't set content type header
-                success: function(response) {
-                    if (response.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Kelas berhasil ditambahkan!',
-                            showConfirmButton: false,
-                            timer: 1500
-                        }).then(function() {
-                            location.reload(); // Reload page after success
-                        });
-                    }
-                },
-                error: function(xhr) {
-                    let errors = xhr.responseJSON.errors;
-                    let errorMessages = '';
-                    $.each(errors, function(key, value) {
-                        errorMessages += value[0] + "\n";
-                    });
-
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: errorMessages,
-                    });
-                }
-            });
+        })
+        .finally(() => {
+            // Reset button state
+            importButton.disabled = false;
+            importButton.innerHTML = '<i class="fas fa-file-import me-1"></i> Simpan';
+            importButton.classList.remove('btn-loading');
         });
     });
-</script> --}}
+
+    // File input change handler
+    fileInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            // Validate file type
+            const allowedTypes = [
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/vnd.ms-excel'
+            ];
+
+            if (!allowedTypes.includes(file.type)) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Format File Tidak Valid',
+                    text: 'Silakan pilih file Excel (.xlsx atau .xls)'
+                });
+                this.value = '';
+                return;
+            }
+
+            // Validate file size (max 5MB)
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            if (file.size > maxSize) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'File Terlalu Besar',
+                    text: 'Ukuran file maksimal 5MB'
+                });
+                this.value = '';
+                return;
+            }
+        }
+    });
+
+    // Drag and drop functionality
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        fileUploadContainer.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        fileUploadContainer.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        fileUploadContainer.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight(e) {
+        fileUploadContainer.classList.add('dragover');
+    }
+
+    function unhighlight(e) {
+        fileUploadContainer.classList.remove('dragover');
+    }
+
+    fileUploadContainer.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+
+        if (files.length > 0) {
+            fileInput.files = files;
+            fileInput.dispatchEvent(new Event('change'));
+        }
+    }
+
+    // Reset form when modal is closed
+    $('#modalSiswaImport').on('hidden.bs.modal', function() {
+        importForm.reset();
+        importForm.classList.remove('was-validated');
+    });
+});
+</script>

@@ -21,7 +21,7 @@ class SiswaController extends Controller
     public function beranda_index()
     {
         $data = array(
-            'title' => 'Data Siswa',
+            'title' => 'Beranda Siswa',
             'menuBeranda' => 'active',
             'siswa' => Siswa::all(),
         );

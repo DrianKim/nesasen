@@ -10,13 +10,20 @@
                     <h2>Data Kelas SMKN 1 Subang</h2>
                     <div class="action-buttons">
                         @include('admin.kelas.modal-create')
-                        <button type="button" class="btn btn-primary btn-circle" data-toggle="modal" data-target="#modalKelasCreate">
-                            <i class="ml-2 fas fa-plus"></i>
+                        <button type="button" class="btn btn-primary btn-circle" data-toggle="modal"
+                            data-target="#modalKelasCreate">
+                            <i class="text-center fas fa-plus"></i>
                             <span class="button-label"></span>
                         </button>
                         @include('admin.kelas.modal-import')
-                        <button type="button" class="btn btn-info btn-circle" data-toggle="modal" data-target="#modalKelasImport">
-                            <i class="ml-2 fas fa-file-import"></i>
+                        <button type="button" class="btn btn-info btn-circle" data-toggle="modal"
+                            data-target="#modalKelasImport">
+                            <i class="text-center fas fa-file-import"></i>
+                            <span class="button-label"></span>
+                        </button>
+                        <button type="button" class="btn btn-success btn-circle" data-toggle="modal"
+                            data-target="#modalKelasExport">
+                            <i class="text-center fas fa-file-export"></i>
                             <span class="button-label"></span>
                         </button>
                     </div>
@@ -73,7 +80,8 @@
                                     <label for="searchInput">Cari:</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" name="search" id="searchInput"
-                                            placeholder="Cari kelas atau nama wali kelas..." value="{{ request('search') }}">
+                                            placeholder="Cari kelas atau nama wali kelas..."
+                                            value="{{ request('search') }}">
                                         <button type="button" class="btn btn-primary" id="resetFilter">
                                             <i class="fas fa-sync-alt"></i>
                                         </button>
@@ -102,6 +110,7 @@
                 <div class="table-responsive">
                     <form id="bulk_form" action="{{ route('admin_kelas.bulk_action') }}" method="POST">
                         @csrf
+                        @method('DELETE')
                         <input type="hidden" name="bulk_action" id="bulk_action" value="">
 
                         <div class="bulk-actions">
@@ -130,6 +139,33 @@
             </div>
         </div>
     </div>
+
+
+    <script>
+        // Bulk actions function (tetap sama)
+        function bulkAction(action) {
+            const checkedBoxes = document.querySelectorAll('input[name="selected_kelas[]"]:checked');
+            if (checkedBoxes.length === 0) {
+                alert('Silahkan pilih kelas terlebih dahulu');
+                return;
+            }
+
+            if (action === 'delete' && !confirm('Anda yakin ingin menghapus kelas yang dipilih?')) {
+                return;
+            }
+
+            document.getElementById('bulk_action').value = action;
+            document.getElementById('bulk_form').submit();
+        }
+
+        // Toggle all checkboxes (tetap sama)
+        function toggleAll(source) {
+            const checkboxes = document.querySelectorAll('input[name="selected_kelas[]"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = source.checked;
+            });
+        }
+    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -294,29 +330,5 @@
             bindSortingEvents();
             bindPaginationEvents();
         });
-
-        // Bulk actions function (tetap sama)
-        function bulkAction(action) {
-            const checkedBoxes = document.querySelectorAll('input[name="selected_kelas[]"]:checked');
-            if (checkedBoxes.length === 0) {
-                alert('Silahkan pilih kelas terlebih dahulu');
-                return;
-            }
-
-            if (action === 'delete' && !confirm('Anda yakin ingin menghapus kelas yang dipilih?')) {
-                return;
-            }
-
-            document.getElementById('bulk_action').value = action;
-            document.getElementById('bulk_form').submit();
-        }
-
-        // Toggle all checkboxes (tetap sama)
-        function toggleAll(source) {
-            const checkboxes = document.querySelectorAll('input[name="selected_kelas[]"]');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = source.checked;
-            });
-        }
     </script>
 @endsection

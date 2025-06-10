@@ -28,8 +28,9 @@
                     <div class="row">
                         <div class="col-md-6 form-group">
                             <label for="nisn">NISN <small class="text-muted">(Opsional)</small></label>
-                            <input type="text" class="border rounded form-control border-opacity-30 @error('nisn') is-invalid @enderror" id="nisn"
-                                name="nisn" value="{{ old('nisn') }}">
+                            <input type="text"
+                                class="border rounded form-control border-opacity-30 @error('nisn') is-invalid @enderror"
+                                id="nisn" name="nisn" value="{{ old('nisn') }}">
                             <small>
                                 @error('nisn')
                                     <div class="text-danger">{{ $message }}</div>
@@ -38,8 +39,9 @@
                         </div>
                         <div class="col-md-6 form-group">
                             <label for="nis">NIS</label>
-                            <input type="text" class="border rounded form-control border-opacity-30 @error('nis') is-invalid @enderror" id="nis"
-                                name="nis" value="{{ old('nis') }}">
+                            <input type="text"
+                                class="border rounded form-control border-opacity-30 @error('nis') is-invalid @enderror"
+                                id="nis" name="nis" value="{{ old('nis') }}">
                             <small>
                                 @error('nis')
                                     <div class="text-danger">{{ $message }}</div>
@@ -50,8 +52,9 @@
 
                     <div class="mb-3 form-group">
                         <label for="nama">Nama Siswa</label>
-                        <input type="text" class="border rounded form-control border-opacity-30 @error('nama') is-invalid @enderror" id="nama"
-                            name="nama" value="{{ old('nama') }}">
+                        <input type="text"
+                            class="border rounded form-control border-opacity-30 @error('nama') is-invalid @enderror"
+                            id="nama" name="nama" value="{{ old('nama') }}">
                         <small>
                             @error('nama')
                                 <div class="text-danger">{{ $message }}</div>
@@ -61,8 +64,9 @@
 
                     <div class="mb-3 form-group">
                         <label for="username">Username</label>
-                        <input type="text" class="border rounded form-control border-opacity-30 @error('username') is-invalid @enderror" id="username"
-                            name="username" value="{{ old('username') }}">
+                        <input type="text"
+                            class="border rounded form-control border-opacity-30 @error('username') is-invalid @enderror"
+                            id="username" name="username" value="{{ old('username') }}">
                         <small>
                             @error('username')
                                 <div class="text-danger">{{ $message }}</div>
@@ -73,7 +77,8 @@
                     <div class="row">
                         <div class="col-md-6 form-group">
                             <label for="tanggal_lahir">Tanggal Lahir</label>
-                            <input type="date" class="border rounded form-control border-opacity-30 @error('tanggal_lahir') is-invalid @enderror"
+                            <input type="date"
+                                class="border rounded form-control border-opacity-30 @error('tanggal_lahir') is-invalid @enderror"
                                 id="tanggal_lahir" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}">
                             <small>
                                 @error('tanggal_lahir')
@@ -92,7 +97,8 @@
                                     </option>
                                 @endforeach
                             </select> --}}
-                            <select name="kelas_id" class="border rounded form-control border-opacity-30 @error('kelas_id') is-invalid @enderror"
+                            <select name="kelas_id"
+                                class="border rounded form-control border-opacity-30 @error('kelas_id') is-invalid @enderror"
                                 id="kelas">
                                 <option value="">-- Pilih Kelas --</option>
                                 @foreach ($kelasList as $kelas)
@@ -114,8 +120,9 @@
                     <div class="mb-3 row">
                         <div class="col-md-6 form-group">
                             <label for="no_hp">No HP</label>
-                            <input type="text" class="border rounded form-control border-opacity-30 @error('no_hp') is-invalid @enderror" id="no_hp"
-                                name="no_hp" placeholder="08xxxxxxxx" value="{{ old('no_hp') }}">
+                            <input type="text"
+                                class="border rounded form-control border-opacity-30 @error('no_hp') is-invalid @enderror"
+                                id="no_hp" name="no_hp" placeholder="08xxxxxxxx" value="{{ old('no_hp') }}">
                             <small>
                                 @error('no_hp')
                                     <div class="text-danger">{{ $message }}</div>
@@ -124,8 +131,9 @@
                         </div>
                         <div class="col-md-6 form-group">
                             <label for="email">Email</label>
-                            <input type="email" class="border rounded form-control border-opacity-30 @error('email') is-invalid @enderror" id="email"
-                                name="email" placeholder="xxx@gmail.com" value="{{ old('email') }}">
+                            <input type="email"
+                                class="border rounded form-control border-opacity-30 @error('email') is-invalid @enderror"
+                                id="email" name="email" placeholder="xxx@gmail.com" value="{{ old('email') }}">
                             <small>
                                 @error('email')
                                     <div class="text-danger">{{ $message }}</div>
@@ -155,9 +163,14 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                <button type="submit" class="btn btn-primary"
-                    style="background-color: #20B2AA; border-color: #20B2AA;">Simpan</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    Batal
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>
+                    Tambah
+                </button>
             </div>
             </form>
         </div>

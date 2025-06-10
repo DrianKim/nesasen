@@ -33,9 +33,9 @@
                                 class="border rounded form-control border-opacity-30 @error('tingkat') is-invalid @enderror"
                                 name="tingkat">
                                 <option value="" disabled>---Pilih Tingkat---</option>
-                                <option value="X" {{ old('tingkat') == 'X' ? 'selected' : '' }}>X</option>
-                                <option value="XI" {{ old('tingkat') == 'XI' ? 'selected' : '' }}>XI</option>
-                                <option value="XII" {{ old('tingkat') == 'XII' ? 'selected' : '' }}>XII</option>
+                                <option value="X">X</option>
+                                <option value="XI">XI</option>
+                                <option value="XII">XII</option>
                             </select>
                             <small>
                                 @error('kode_mapel')
@@ -49,10 +49,10 @@
                                 class="border rounded form-control border-opacity-30 @error('no_kelas') is-invalid @enderror"
                                 name="no_kelas">
                                 <option value="" disabled>---Pilih No Kelas---</option>
-                                <option value="1" {{ old('no_kelas') == '1' ? 'selected' : '' }}>1</option>
-                                <option value="2" {{ old('no_kelas') == '2' ? 'selected' : '' }}>2</option>
-                                <option value="3" {{ old('no_kelas') == '3' ? 'selected' : '' }}>3</option>
-                                <option value="4" {{ old('no_kelas') == '4' ? 'selected' : '' }}>4</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
                             </select>
                             <small>
                                 @error('kode_mapel')
@@ -69,8 +69,7 @@
                             id="jurusan">
                             <option value="" disabled>---Pilih Jurusan---</option>
                             @foreach ($jurusanList as $jurusan)
-                                <option value="{{ $jurusan->id }}"
-                                    {{ old('jurusan_id') == $jurusan->id ? 'selected' : '' }}>
+                                <option value="{{ $jurusan->id }}">
                                     {{ $jurusan->nama_jurusan . ' (' . $jurusan->kode_jurusan . ')' }}
                                 </option>
                             @endforeach
@@ -90,8 +89,7 @@
                             id="guru">
                             <option value="" disabled>---Pilih Guru---</option>
                             @foreach ($guruList as $guru)
-                                <option value="{{ $guru->id }} {{ old('guru_id') == $guru->id ? 'selected' : '' }}"
-                                    {{ old('guru_id') == $guru->id ? 'selected' : '' }}>
+                                <option value="{{ $guru->id }}">
                                     {{ $guru->nama }}
                                 </option>
                             @endforeach
@@ -127,7 +125,6 @@
     </div>
 </div>
 
-{{-- Script untuk menampilkan modal saat ada error --}}
 @if ($errors->any())
     <script>
         $(document).ready(function() {
@@ -146,74 +143,3 @@
         });
     </script>
 @endif
-
-{{-- @if ($errors->any())
-    <script>
-        $(document).ready(function() {
-            // Buka modal kalau ada error validasi
-            $('#modalKelasCreate').modal('show');
-
-            // Optional: Tampilkan error pake SweetAlert
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops!',
-                html: `{!! implode('<br>', $errors->all()) !!}`,
-                confirmButtonColor: '#d33',
-            });
-        });
-    </script>
-@endif --}}
-
-{{-- @if ($errors->any())
-    <script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops!',
-            text: 'Cek lagi data yang kamu isi, ada yang salah tuh.',
-            timer: 3000,
-            showConfirmButton: false
-        });
-    </script>
-@endif --}}
-
-{{-- <script>
-    $(document).ready(function() {
-        $('#formTambahKelas').submit(function(e) {
-            e.preventDefault(); // Prevent the form from being submitted traditionally
-
-            let formData = new FormData(this); // Create FormData object for the form
-            $.ajax({
-                url: '{{ route('admin_mapel.store') }}', // Route tujuan
-                method: 'POST',
-                data: formData,
-                processData: false, // Don't process the data
-                contentType: false, // Don't set content type header
-                success: function(response) {
-                    if (response.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Kelas berhasil ditambahkan!',
-                            showConfirmButton: false,
-                            timer: 1500
-                        }).then(function() {
-                            location.reload(); // Reload page after success
-                        });
-                    }
-                },
-                error: function(xhr) {
-                    let errors = xhr.responseJSON.errors;
-                    let errorMessages = '';
-                    $.each(errors, function(key, value) {
-                        errorMessages += value[0] + "\n";
-                    });
-
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: errorMessages,
-                    });
-                }
-            });
-        });
-    });
-</script> --}}
