@@ -6,9 +6,7 @@
             </th> --}}
             <th width="15%" class="sortable" data-column="Kelas">Kelas<i
                     class="fas fa-sort"></i></th>
-            <th width="15%" class="sortable" data-column="Absen Masuk">Check In<i
-                    class="fas fa-sort"></i></th>
-            <th width="15%" class="sortable" data-column="Absen Pulang">Check Out<i
+            <th width="15%" class="sortable" data-column="Total Siswa">Total Siswa<i
                     class="fas fa-sort"></i></th>
             <th width="15%" class="sortable" data-column="Hadir">Hadir<i
                     class="fas fa-sort"></i></th>
@@ -25,18 +23,12 @@
                 {{-- <td>
                     <input type="checkbox" name="selected_presensi_siswa[]" value="{{ $item->id }}">
                 </td> --}}
-                <td>X RPL 1</td>
-                <td>0</td>
-                <td>0</td>
-                <td>0</td>
-                <td>0</td>
-                <td>0</td>
-                {{-- <td>{{ $item['kelas'] ?? '-' }}</td>
-                <td>{{ $item['masuk'] ?? 0 }}</td>
-                <td>{{ $item['pulang'] ?? 0 }}</td>
-                <td>{{ $item['hadir'] ?? 0 }}</td>
-                <td>{{ $item['izin'] ?? 0 }}</td>
-                <td>{{ $item['sakit'] ?? 0 }}</td> --}}
+                <td>{{ $item['kelas'] }}</td>
+                <td>{{ $item['total_siswa'] ?? '-' }}</td>
+                <td>{{ $item['hadir'] ?? '-' }}</td>
+                <td>{{ $item['izin'] ?? '-' }}</td>
+                <td>{{ $item['sakit'] ?? '-' }}</td>
+                <td>{{ $item['alpa'] ?? '-' }}</td>
                 <td class="text-center">
                     <div class="action-buttons">
                         {{-- <button type="button" class="btn btn-sm btn-outline-primary"

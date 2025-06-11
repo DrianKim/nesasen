@@ -40,4 +40,9 @@ class Siswa extends Model
     {
         return $this->hasMany(izinSiswa::class);
     }
+
+    public function presensiSiswa()
+    {
+        return $this->hasMany(PresensiSiswa::class);
+    }
 }

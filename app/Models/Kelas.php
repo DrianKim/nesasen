@@ -18,9 +18,15 @@ class Kelas extends Model
     {
         return $this->belongsTo(User::class);
     }
+    
     public function jurusan()
     {
         return $this->belongsTo(Jurusan::class);
+    }
+
+    public function guru()
+    {
+        return $this->belongsTo(Guru::class);
     }
 
     public function siswa()

@@ -6,7 +6,7 @@
             <div class="text-white modal-header bg-success">
                 <h5 class="modal-title" id="modalSiswaImportLabel">
                     <i class="fas fa-file-import me-2"></i>
-                    Impor Data Siswa Sekaligus
+                    Impor Data Siswa
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white;">
                     <span aria-hidden="true">&times;</span>
@@ -270,7 +270,7 @@
                             title: 'Berhasil!',
                             text: data.message || 'Data siswa berhasil diimpor',
                             showConfirmButton: false,
-                            timer: 2000
+                            timer: 3000
                         });
 
                         // Close modal and reload page

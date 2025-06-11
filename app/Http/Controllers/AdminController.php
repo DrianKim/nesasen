@@ -17,6 +17,7 @@ use App\Models\MapelKelas;
 use App\Exports\GuruExport;
 use App\Models\absensiGuru;
 use Illuminate\Support\Str;
+use App\Exports\KelasExport;
 use App\Exports\SiswaExport;
 use App\Imports\SiswaImport;
 use App\Models\absensiSiswa;
@@ -377,6 +378,347 @@ class AdminController extends Controller
             }
         }
         return redirect()->back()->with('success', 'Kelas Berhasil Dihapus');
+    }
+
+    public function download_template_kelas()
+    {
+        $fileName = 'template_import_kelas_' . date('Y-m-d') . '.xlsx';
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $spreadsheet->getProperties()
+            ->setCreator('SMKN 1 Subang')
+            ->setTitle('Template Import Kelas')
+            ->setDescription('Template untuk mengimpor data kelas ke dalam sistem.');
+
+        $headersStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFFFF'],
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['argb' => '198754'],
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['argb' => '0000000'],
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+            ],
+        ];
+
+        $headers = [
+            'Tingkat',
+            'Nama Jurusan',
+            'Kode Jurusan',
+            'No Kelas',
+            'Wali Kelas (Opsional)',
+        ];
+
+        $sheet->fromArray(($headers), null, 'A1');
+        $sheet->getStyle('A1:E1')->applyFromArray($headersStyle);
+
+        $sheet->getColumnDimension('A')->setWidth(10);
+        $sheet->getColumnDimension('B')->setWidth(20);
+        $sheet->getColumnDimension('C')->setWidth(15);
+        $sheet->getColumnDimension('D')->setWidth(10);
+        $sheet->getColumnDimension('E')->setWidth(20);
+
+        $exampleData = [
+            ['X', 'Teknik Komputer Jaringan', 'TKJ', '1', 'Giga ngga'],
+            ['X', 'Rekayasa Perangkat Lunak', 'RPL', '2', 'Mi bombo'],
+        ];
+
+        $sheet->fromArray($exampleData, null, 'A2');
+        $sheet->getStyle('A2:E3')->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => '0000000'],
+                ]
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'f8f9fa'],
+            ],
+        ]);
+
+        $sheet->setCellValue('A5', 'Petunjuk:');
+        $sheet->setCellValue('A6', '1. Isi kolom "Tingkat" dengan X, XI, atau XII.');
+        $sheet->setCellValue('A7', '2. Isi kolom "Nama Jurusan" dengan nama jurusan yang sesuai.');
+        $sheet->setCellValue('A8', '3. Isi kolom "Kode Jurusan" dengan kode jurusan yang sesuai.');
+        $sheet->setCellValue('A9', '4. Isi kolom "No Kelas" dengan nomor kelas yang sesuai.');
+        $sheet->setCellValue('A10', '5. Kolom "Wali Kelas" bersifat opsional, isi dengan nama guru yang sudah terdaftar di sistem.');
+
+        $sheet->getStyle('A5')->getFont()->setBold(true)->setSize(13);
+        $sheet->getStyle('A6:A10')->getFont()->setItalic(true);
+
+        $sheet->getRowDimension(1)->setRowHeight(25);
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+            'Cache-Control' => 'cache, must-revalidate',
+            'Pragma' => 'public',
+        ]);
+    }
+
+    public function import_kelas(Request $request)
+    {
+        try {
+            // dd($request->all());
+            $request->validate([
+                'file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
+            ], [
+                'file.required' => 'File Tidak Boleh Kosong',
+                'file.file' => 'File Harus Berupa File',
+                'file.mimes' => 'File Harus Berformat XLSX, XLS, atau CSV',
+                'file.max' => 'Ukuran File Maksimal 2MB',
+            ]);
+
+            $file = $request->file('file');
+
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getRealPath());
+            $worksheet = $spreadsheet->getActiveSheet();
+            $rows = $worksheet->toArray();
+            $headers = array_shift($rows);
+
+            $requiredHeaders = [
+                'Tingkat',
+                'Nama Jurusan',
+                'Kode Jurusan',
+                'No Kelas',
+            ];
+            $optionalHeaders = [
+                'Wali Kelas',
+            ];
+            $headerMap = [];
+
+            foreach ($requiredHeaders as $required) {
+                $found = false;
+                foreach ($headers as $index => $header) {
+                    if (trim(strtoupper($header)) === strtoupper(($required))) {
+                        $headerMap[$required] = $index;
+                        $found = true;
+                        break;
+                    }
+                }
+
+                if (!$found) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Kolom {$required} tidak ditemukan dalam file."
+                    ]);
+                }
+            }
+
+            foreach ($optionalHeaders as $optional) {
+                $found = false;
+                foreach ($headers as $index => $header) {
+                    if (trim(strtoupper($header)) === strtoupper(($optional))) {
+                        $headerMap[$optional] = $index;
+                        $found = true;
+                        break;
+                    }
+                }
+            }
+
+            $successCount = 0;
+            $errorRows = [];
+
+            DB::beginTransaction();
+
+            foreach ($rows as $rowIndex => $row) {
+                $rowNumber = $rowIndex + 2;
+
+                try {
+
+                    if (empty(array_filter($row))) {
+                        continue;
+                    }
+
+                    $tingkat = trim($row[$headerMap['Tingkat']] ?? '');
+                    $namaJurusan = trim($row[$headerMap['Nama Jurusan']] ?? '');
+                    $kodeJurusan = trim($row[$headerMap['Kode Jurusan']] ?? '');
+                    $noKelas = trim($row[$headerMap['No Kelas']] ?? '');
+
+                    $waliNama = isset($headerMap['Wali Kelas']) ? trim($row[$headerMap['Wali Kelas']] ?? '') : null;
+
+                    // dd($tingkat, $namaJurusan, $kodeJurusan, $noKelas, $waliNama);
+
+                    if (!$tingkat || !$namaJurusan || !$kodeJurusan || !$noKelas) {
+                        $missing = [];
+                        if (!$tingkat) $missing[] = "Tingkat";
+                        if (!$namaJurusan) $missing[] = "Nama Jurusan";
+                        if (!$kodeJurusan) $missing[] = "Kode Jurusan";
+                        if (!$noKelas) $missing[] = "No Kelas";
+                        $errorRows[] = "Baris {$rowNumber}: Kolom " . implode(', ', $missing) . " tidak boleh kosong.";
+                        continue;
+                    }
+
+                    if (!in_array($tingkat, ['X', 'XI', 'XII'])) {
+                        $errorRows[] = "Baris {$rowNumber}: Tingkat harus X, XI, atau XII.";
+                        continue;
+                    }
+
+                    if (!preg_match('/^[1-9]$/', $noKelas)) {
+                        $errorRows[] = "Baris {$rowNumber}: No Kelas harus 1, 2, 3, dst.";
+                        continue;
+                    }
+
+                    $jurusan = Jurusan::where('nama_jurusan', $namaJurusan)
+                        ->orWhere('kode_jurusan', $kodeJurusan)
+                        ->first();
+
+                    if ($jurusan && $jurusan->nama_jurusan !== $namaJurusan) {
+                        $errorRows[] = "Baris {$rowNumber}: Jurusan dengan nama '{$namaJurusan}' sudah ada dengan kode '{$jurusan->kode_jurusan}'.";
+                        continue;
+                    }
+
+                    // cek jika nama guru wali kelas sudah ada
+                    if ($waliNama) {
+                        $guru = Guru::where('nama', 'LIKE', '%' . $waliNama . '%')->first();
+                        if (!$guru) {
+                            $errorRows[] = "Baris {$rowNumber}: Guru dengan nama '{$waliNama}' tidak ditemukan.";
+                            continue;
+                        }
+                        // Cek jika guru sudah menjadi wali kelas di kelas lain pada tahun ajaran yang sama
+                        $sudahWali = Walas::where('user_id', $guru->user_id)
+                            ->whereHas('kelas', function ($q) {
+                                $q->where('tahun_ajaran', date('Y'));
+                            })
+                            ->exists();
+                        if ($sudahWali) {
+                            $errorRows[] = "Baris {$rowNumber}: Guru dengan nama '{$waliNama}' sudah menjadi wali kelas di kelas lain pada tahun ajaran ini.";
+                            continue;
+                        }
+                    }
+
+                    $kelasExists = Kelas::where([
+                        'tingkat' => $tingkat,
+                        'jurusan_id' => $jurusan->id,
+                        'no_kelas' => $noKelas,
+                        'tahun_ajaran' => date('Y'),
+                    ])->exists();
+
+                    if ($kelasExists) {
+                        $errorRows[] = "Baris {$rowNumber}: Kelas {$tingkat} {$namaJurusan} {$noKelas} sudah ada.";
+                        continue;
+                    }
+
+
+                    $jurusan = Jurusan::firstOrCreate(
+                        ['nama_jurusan' => $namaJurusan],
+                        ['kode_jurusan' => $kodeJurusan],
+                    );
+
+                    $kelas = Kelas::create([
+                        'tingkat' => $tingkat,
+                        'jurusan_id' => $jurusan->id,
+                        'no_kelas' => $noKelas,
+                        'tahun_ajaran' => date('Y'),
+                    ]);
+
+                    if ($waliNama) {
+                        $guru = Guru::where('nama', 'LIKE', '%' . $waliNama . '%')->first();
+                        if ($guru) {
+                            Walas::create([
+                                'user_id' => $guru->user_id,
+                                'kelas_id' => $kelas->id,
+                            ]);
+
+                            $guru->user->update([
+                                'role_id' => 2,
+                            ]);
+                        } else {
+                            $errorRows[] = "Baris {$rowNumber}: Guru dengan nama '{$waliNama}' tidak ditemukan.";
+                        }
+                    }
+
+                    $successCount++;
+                } catch (\Exception $e) {
+                    $errorRows[] = "Baris {$rowNumber}: Terjadi kesalahan saat memproses data - " . $e->getMessage();
+                }
+            }
+
+            if ($successCount > 0) {
+                DB::commit();
+
+                $message = "Berhasil mengimpor {$successCount} data kelas.";
+                $errors = array_merge($errorRows);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'errors' => !empty($errors) ? $errors : null,
+                ]);
+            } else {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada data yang berhasil diimpor.',
+                    'errors' => array_merge($errorRows),
+                ]);
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan:' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function export_kelas_pdf()
+    {
+        try {
+            $kelas = Kelas::with(['jurusan', 'walas.user.guru'])
+                ->join('jurusan', 'kelas.jurusan_id', '=', 'jurusan.id')
+                ->select('kelas.*')
+                ->orderBy('tingkat', 'asc')
+                ->orderBy('jurusan.nama_jurusan', 'asc')
+                ->orderBy('no_kelas', 'asc')
+                ->get();
+
+            $data = [
+                'title' => 'Data Kelas',
+                'kelas' => $kelas,
+                'exported_at' => Carbon::now()->format('d-m-Y'),
+                'exported_at_time' => Carbon::now()->format('d-m-Y H:i:s'),
+                'total_kelas' => $kelas->count(),
+            ];
+
+            $pdf = app('dompdf.wrapper');
+            $pdf->loadView('admin.kelas.export.pdf', $data);
+
+            $fileName = 'data_kelas_' . date('Y-m-d_H-i-s') . '.pdf';
+
+            return $pdf->download($fileName);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengekspor data ke pdf: ' . $e->getMessage());
+        }
+    }
+
+    public function export_kelas_xlsx()
+    {
+        try {
+            $fileName = 'data_kelas_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+            return Excel::download(new KelasExport(), $fileName);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengekspor data ke Excel: ' . $e->getMessage());
+        }
     }
 
     // umum kelasKu
@@ -1060,9 +1402,9 @@ class AdminController extends Controller
             $pdf = app('dompdf.wrapper');
             $pdf->loadView('admin.siswa.export.pdf', $data);
 
-            $filename = 'data_siswa_' . date('Y-m-d_H-i-s') . '.pdf';
+            $fileName = 'data_siswa_' . date('Y-m-d_H-i-s') . '.pdf';
 
-            return $pdf->download($filename);
+            return $pdf->download($fileName);
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Gagal mengekspor data ke pdf: ' . $e->getMessage());
         }
@@ -1512,6 +1854,7 @@ class AdminController extends Controller
                 ]);
             } else {
                 DB::rollBack();
+
                 return response()->json([
                     'success' => false,
                     'message' => 'Tidak ada data yang berhasil diimpor.',
@@ -1520,6 +1863,7 @@ class AdminController extends Controller
             }
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
@@ -1874,6 +2218,7 @@ class AdminController extends Controller
     // presensi siswa
     public function index_presensi_siswa(Request $request)
     {
+        $tanggal = $request->input('tanggal', date('Y-m-d'));
         $perPage = $request->input('perPage', 10);
         $sortBy = $request->input('sort_by');
         $filterBy = $request->input('filter_by');
@@ -1914,35 +2259,43 @@ class AdminController extends Controller
         $presensi_raw = $query->paginate($perPage)->withQueryString();
 
         // Map data
-        $presensi_siswa = $presensi_raw->getCollection()->transform(function ($item) {
-            $kelas = optional($item->siswa->kelas);
-            $jurusan = optional($kelas->jurusan);
+        // $presensi_siswa = $presensi_raw->getCollection()->transform(function ($item) {
+        //     $kelas = optional($item->siswa->kelas);
+        //     $jurusan = optional($kelas->jurusan);
+
+        $kelasList = Kelas::with(['jurusan', 'siswa.presensiSiswa' => function ($query) use ($tanggal) {
+            $query->where('tanggal', $tanggal);
+        }])->get();
+
+        $rekapPresensi = $kelasList->map(function ($kelas) {
+            $siswa = $kelas->siswa;
+            $presensi = $siswa->flatMap->presensiSiswa;
 
             return [
-                'id' => $item->id,
-                'kelas' => $kelas ? $kelas->tingkat . ' ' . $jurusan->kode_jurusan . ' ' . $kelas->no_kelas : '-',
-                'masuk' => $item->absen_masuk,
-                'pulang' => $item->absen_pulang,
-                'hadir' => $item->hadir,
-                'izin' => $item->izin,
-                'sakit' => $item->sakit,
+                'kelas' => $kelas ? $kelas->tingkat . ' ' . $kelas->jurusan->kode_jurusan . ' ' . $kelas->no_kelas : '-',
+                'total_siswa' => $siswa->count(),
+                'hadir' => $presensi->where('status_kehadiran', 'hadir')->count(),
+                'izin' => $presensi->where('status_kehadiran', 'izin')->count(),
+                'sakit' => $presensi->where('status_kehadiran', 'sakit')->count(),
+                'alpa' => $siswa->count() - $presensi->count(),
             ];
         });
 
-        $presensi_siswa = new \Illuminate\Pagination\LengthAwarePaginator(
-            $presensi_siswa,
-            $presensi_raw->total(),
-            $presensi_raw->perPage(),
-            $presensi_raw->currentPage(),
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
+        // $presensi_siswa = new \Illuminate\Pagination\LengthAwarePaginator(
+        //     $presensi_siswa,
+        //     $presensi_raw->total(),
+        //     $presensi_raw->perPage(),
+        //     $presensi_raw->currentPage(),
+        //     ['path' => request()->url(), 'query' => request()->query()]
+        // );
 
         $kelasFilter = Kelas::with('jurusan')->orderBy('tingkat')->orderBy('jurusan_id')->orderBy('no_kelas')->get();
         $tanggalFilter = presensiSiswa::select('tanggal')->distinct()->orderBy('tanggal', 'desc')->pluck('tanggal');
 
         $data = [
             'title' => 'Presensi Siswa',
-            'presensi_siswa' => $presensi_siswa,
+            'presensi_siswa' => $rekapPresensi,
+            'kelasList' => $kelasList,
             'kelasFilter' => $kelasFilter,
             'tanggalFilter' => $tanggalFilter,
         ];

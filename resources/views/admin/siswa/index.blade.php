@@ -16,17 +16,12 @@
                             <i class="text-center fas fa-user-plus"></i>
                             <span class="button-label"></span>
                         </button>
-                        {{-- <form action="{{ route('siswa.import') }}" method="POST" enctype="multipart/form-data"
-                            id="importSiswaForm" class="d-inline">
-                            @csrf
-                            <input type="file" name="file" id="fileInput" accept=".xlsx,.xls" style="display: none;"
-                                onchange="document.getElementById('importSiswaForm').submit();">
-                        </form> --}}
                         <button class="btn btn-success btn-circle" data-toggle="modal"data-target="#modalSiswaImport">
                             <i class="text-center fas fa-file-import"></i>
                             <span class="button-label"></span>
                         </button>
-                        <button type="button" class="btn btn-info btn-circle" data-toggle="modal" data-target="#modalSiswaExport">
+                        <button type="button" class="btn btn-info btn-circle" data-toggle="modal"
+                            data-target="#modalSiswaExport">
                             <i class="text-center fas fa-file-export"></i>
                             <span class="button-label"></span>
                         </button>

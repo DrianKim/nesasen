@@ -1,12 +1,12 @@
-<!-- Modal Import Kelas -->
-<div class="modal fade" id="modalKelasImport" tabindex="-1" role="dialog" aria-labelledby="modalKelasImportLabel"
+<!-- Modal Export Kelas -->
+<div class="modal fade" id="modalKelasExport" tabindex="-1" role="dialog" aria-labelledby="modalKelasExportLabel"
     aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="text-white modal-header bg-success">
-                <h5 class="modal-title" id="modalKelasImportLabel">
-                    <i class="fas fa-file-import me-2"></i>
-                    Impor Data Kelas
+                <h5 class="modal-title" id="modalKelasExportLabel">
+                    <i class="fas fa-file-export me-2"></i>
+                    Export Data Kelas
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white;">
                     <span aria-hidden="true">&times;</span>
@@ -29,76 +29,25 @@
 
                     <!-- Right side - Content -->
                     <div class="col-md-8">
-                        <p class="mb-4">Disarankan untuk melakukan impor data kelas dengan format sebagai berikut
+                        <p class="mb-4">Pilih salah satu format sesuai kebutuhan Anda!
                         </p>
 
-                        <!-- Example Format -->
-                        <div class="mb-4">
-                            <h6>Contoh:</h6>
-                            <div class="table-responsive">
-                                <table class="table table-sm table-bordered">
-                                    <thead class="table-success">
-                                        <tr>
-                                            <th class="text-center">Tingkat</th>
-                                            <th class="text-center">Nama Jurusan</th>
-                                            <th class="text-center">Kode Jurusan</th>
-                                            <th class="text-center">No Kelas</th>
-                                            <th class="text-center">Wali Kelas</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="text-center">X</td>
-                                            <td class="text-center">Rekayasa Perangkat Lunak</td>
-                                            <td class="text-center">RPL</td>
-                                            <td class="text-center">1</td>
-                                            <td class="text-center">Mi bombo</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
                         <!-- Download Template Link -->
-                        <div class="mb-4">
-                            <a href="{{ route('admin_kelas.template') }}" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-download me-1"></i>
-                                Download Format
+                        <div class="mb-4 col-md-6">
+                            <a href="{{ route('admin_kelas.export.pdf') }}" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-file-pdf"></i>
+                                .pdf
+                            </a>
+                            <a href="{{ route('admin_kelas.export.xlsx') }}" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-file-excel"></i>
+                                .excel
                             </a>
                         </div>
-
-                        <!-- Info Alerts -->
-                        <div class="mb-3 alert alert-sm alert-info">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Nama guru wali kelas harus sesuai dengan nama yang terdaftar di sistem,
-                            dan bersifat opsional.
-                        </div>
-
-                        <div class="mb-3 alert alert-sm alert-warning">
-                            <i class="fas fa-exclamation-triangle me-1"></i>
-                            Pastikan file yang diunggah sesuai dengan format yang telah disediakan.
-                        </div>
-
-                        <!-- Form Import -->
-                        <form id="formImportKelas" action="{{ route('admin_kelas.import') }}" method="POST"
+                        <!-- Form Export -->
+                        {{-- <form id="formExportKelas" action="{{ route('admin_kelas.export') }}" method="POST"
                             enctype="multipart/form-data">
                             @csrf
-
-                            <!-- File Upload -->
-                            <div class="mb-3">
-                                <label for="import_file" class="form-label">File:</label>
-                                <div class="file-upload-container">
-                                    <input type="file" class="form-control" id="import_file" name="file"
-                                        accept=".xlsx,.xls" required>
-                                    <div class="mt-2 file-upload-info">
-                                        <small class="text-muted">
-                                            <i class="fas fa-info-circle me-1"></i>
-                                            Hanya mendukung format .xlsx dari Microsoft Excel
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
+                        </form> --}}
                     </div>
                 </div>
             </div>
@@ -107,10 +56,6 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                     <i class="fas fa-times me-1"></i>
                     Batal
-                </button>
-                <button type="submit" form="formImportKelas" class="btn btn-success" id="btnImport">
-                    <i class="fas fa-file-import me-1"></i>
-                    Simpan
                 </button>
             </div>
         </div>
@@ -200,8 +145,8 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const importForm = document.getElementById('formImportKelas');
-        const importButton = document.getElementById('btnImport');
+        const importForm = document.getElementById('formExportKelas');
+        const importButton = document.getElementById('btnExport');
         const fileInput = document.getElementById('import_file');
         const fileUploadContainer = document.querySelector('.file-upload-container');
 
@@ -241,11 +186,11 @@
                             title: 'Berhasil!',
                             text: data.message || 'Data kelas berhasil diimpor',
                             showConfirmButton: false,
-                            timer: 3000
+                            timer: 2000
                         });
 
                         // Close modal and reload page
-                        $('#modalKelasImport').modal('hide');
+                        $('#modalKelasExport').modal('hide');
                         setTimeout(() => {
                             location.reload();
                         }, 2000);
@@ -352,7 +297,7 @@
         }
 
         // Reset form when modal is closed
-        $('#modalKelasImport').on('hidden.bs.modal', function() {
+        $('#modalKelasExport').on('hidden.bs.modal', function() {
             importForm.reset();
             importForm.classList.remove('was-validated');
         });

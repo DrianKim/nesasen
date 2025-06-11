@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\Siswa;
+use App\Models\Kelas;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
@@ -14,27 +14,27 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
-class SiswaExport implements FromArray, WithStyles, WithTitle, WithColumnWidths
+class KelasExport implements FromArray, WithStyles, WithTitle, WithColumnWidths
 {
     /**
      * @return \Illuminate\Support\Collection
      */
 
-    protected $siswa;
-    protected $totalSiswa;
+    protected $kelas;
+    protected $totalKelas;
     protected $exportedAt;
+
 
     public function __construct()
     {
-        $this->siswa = Siswa::with(['user', 'kelas.jurusan'])
-            ->join('kelas', 'siswa.kelas_id', '=', 'kelas.id')
+        $this->kelas = Kelas::with(['jurusan', 'walas.user.guru'])
             ->join('jurusan', 'kelas.jurusan_id', '=', 'jurusan.id')
-            ->orderBy('kelas.tingkat', 'asc')
+            ->select('kelas.*')
+            ->orderBy('tingkat', 'asc')
             ->orderBy('jurusan.nama_jurusan', 'asc')
-            ->orderBy('siswa.nama', 'asc')
-            ->select('siswa.*')
+            ->orderBy('no_kelas', 'asc')
             ->get();
-        $this->totalSiswa = $this->siswa->count();
+        $this->totalKelas = $this->kelas->count();
         $this->exportedAt = now()->format('d-m-Y H:i:s');
     }
 
@@ -43,30 +43,16 @@ class SiswaExport implements FromArray, WithStyles, WithTitle, WithColumnWidths
         $data = [];
         $data[] = [
             'No',
-            'NISN',
-            'NIS',
             'Kelas',
-            'Nama Siswa',
-            'Tgl. Lahir',
-            'No. HP',
-            'Email',
-            'Jenis Kelamin',
-            'Alamat',
+            'Wali Kelas',
         ];
 
         $no = 1;
-        foreach ($this->siswa as $siswa) {
+        foreach ($this->kelas as $kelas) {
             $data[] = [
                 $no++,
-                $siswa->nisn,
-                $siswa->nis,
-                $siswa->nama,
-                $siswa->kelas ? ($siswa->kelas->tingkat . ' ' . $siswa->kelas->jurusan->kode_jurusan . ' ' . $siswa->kelas->no_kelas) : '-',
-                $siswa->tanggal_lahir ? date('d/m/Y', strtotime($siswa->tanggal_lahir)) : '-',
-                $siswa->no_hp ?? '-',
-                $siswa->email ?? '-',
-                $siswa->jenis_kelamin ?? '-',
-                $siswa->alamat ?? '-',
+                $kelas ? $kelas->tingkat . ' ' . $kelas->jurusan->kode_jurusan . ' ' . $kelas->no_kelas : '-',
+                $kelas->walas->user->guru->nama ?? '-',
             ];
         }
 
@@ -82,7 +68,10 @@ class SiswaExport implements FromArray, WithStyles, WithTitle, WithColumnWidths
         return [
             1 => [
                 'font' => ['bold' => true],
-                'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
@@ -93,9 +82,18 @@ class SiswaExport implements FromArray, WithStyles, WithTitle, WithColumnWidths
                     'startColor' => ['argb' => 'FFCCCCCC'],
                 ],
             ],
-            'A1:H1' => [
+            'B' => [
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+            ],
+            'A1:C1' => [
                 'font' => ['bold' => true],
-                'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
             ],
         ];
     }
@@ -104,20 +102,18 @@ class SiswaExport implements FromArray, WithStyles, WithTitle, WithColumnWidths
     {
         return [
             'A' => 5,
-            'B' => 15,
-            'C' => 15,
-            'D' => 20,
-            'E' => 30,
-            'F' => 15,
-            'G' => 15,
-            'H' => 25,
-            'I' => 15,
-            'J' => 30,
+            'B' => 20,
+            'C' => 20,
         ];
     }
 
     public function title(): string
     {
-        return 'Data Siswa';
+        return 'Data Kelas';
+    }
+
+    public function collection()
+    {
+        return Kelas::all();
     }
 }

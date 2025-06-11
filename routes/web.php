@@ -14,6 +14,11 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ForgotPasswordController;
 use Illuminate\Http\Request;
 
+//coba
+// Route::get('/coba', function () {
+//     return view('coba/coba');
+// })->name('coba');
+
 // Landing Page
 Route::get('/', function () {
     return view('welcome');
@@ -21,7 +26,7 @@ Route::get('/', function () {
 
 
 // Tampilan Mobile
-Route::post('/set-mobile-session', function (\Illuminate\Http\Request $request)  {
+Route::post('/set-mobile-session', function (\Illuminate\Http\Request $request) {
     session(['is_mobile_device' => $request->is_mobile]);
     return response()->json(['status' => 'ok']);
 });
@@ -140,6 +145,10 @@ Route::middleware(['isLogin'])->group(function () {
         Route::post('admin/kelas/update/{id}', [AdminController::class, 'update_kelas'])->name('admin_kelas.update');
         Route::delete('admin/kelas/destroy/{id}', [AdminController::class, 'destroy_kelas'])->name('admin_kelas.destroy');
         Route::delete('admin/kelas/bulk_action', [AdminController::class, 'bulkAction_kelas'])->name('admin_kelas.bulk_action');
+        Route::get('admin/kelas/template', [AdminController::class, 'download_template_kelas'])->name('admin_kelas.template');
+        Route::post('admin/kelas/import', [AdminController::class, 'import_kelas'])->name('admin_kelas.import');
+        Route::get('admin/kelas/export/pdf', [AdminController::class, 'export_kelas_pdf'])->name('admin_kelas.export.pdf');
+        Route::get('admin/kelas/export/xlsx', [AdminController::class, 'export_kelas_xlsx'])->name('admin_kelas.export.xlsx');
 
         // umum kelasKu
         Route::get('admin/kelasKu', [AdminController::class, 'index_kelasKu'])->name('admin_kelasKu.index');
