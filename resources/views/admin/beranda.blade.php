@@ -99,10 +99,16 @@
             <!-- End of Nav -->
 
             <div class="news">
-                <iframe src="https://www.instagram.com/p/DJWiNpzSK2i/embed" width="100%" height="335"
+                <iframe src="https://www.instagram.com/reel/DHe7asDy6ob/embed" width="100%" height="335"
                     frameborder="0" scrolling="no" allowtransparency="true">
                 </iframe>
             </div>
+
+            {{-- <div class="news">
+                <iframe src="https://www.instagram.com/p/DJWiNpzSK2i/embed" width="100%" height="335"
+                    frameborder="0" scrolling="no" allowtransparency="true">
+                </iframe>
+            </div> --}}
 
             <div class="reminders">
                 <div class="header">
