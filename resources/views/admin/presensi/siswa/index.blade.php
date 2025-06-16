@@ -93,8 +93,7 @@
                                         <div class="form-group">
                                             <label for="perPage">Tampilkan:</label>
                                             <select class="form-select" id="perPage" name="perPage">
-                                                <option value="10"
-                                                    {{ request('perPage', 10) == 10 ? 'selected' : '' }}>
+                                                <option value="10" {{ request('perPage', 10) == 10 ? 'selected' : '' }}>
                                                     10</option>
                                                 <option value="25" {{ request('perPage') == 25 ? 'selected' : '' }}>25
                                                 </option>

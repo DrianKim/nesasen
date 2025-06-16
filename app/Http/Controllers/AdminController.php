@@ -20,18 +20,20 @@ use Illuminate\Support\Str;
 use App\Exports\KelasExport;
 use App\Exports\SiswaExport;
 use App\Imports\SiswaImport;
-use App\Models\absensiSiswa;
 use Illuminate\Http\Request;
 use App\Models\MataPelajaran;
 use App\Models\presensiSiswa;
+use App\Exports\JurusanExport;
 use Database\Seeders\GuruSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Exports\MataPelajaranExport;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
 use Psy\CodeCleaner\FunctionContextPass;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use function PHPUnit\Framework\returnSelf;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class AdminController extends Controller
 {
@@ -116,7 +118,7 @@ class AdminController extends Controller
         $tahunAjaran = $request->input('tahun_ajaran');
         $search = $request->input('search');
         $perPage = $request->input('perPage', 10);
-        $sortBy = $request->input('sort_by');
+        $sortBy = $request->input('sort_by', null);
         $sortDirection = $request->input('sort_direction', 'asc');
 
         $query = Kelas::with(['jurusan', 'walas.user.guru', 'siswa']);
@@ -147,11 +149,11 @@ class AdminController extends Controller
         if ($sortBy) {
             switch ($sortBy) {
                 case 'Nama Kelas':
-                    $query->orderByRaw("tingkat $sortDirection")
-                        ->orderByRaw("no_kelas $sortDirection")
-                        ->join('jurusan', 'kelas.jurusan_id', '=', 'jurusan.id')
-                        ->orderBy('jurusan.nama_jurusan', $sortDirection)
-                        ->select('kelas.*');
+                    $query->with('jurusan')
+                        ->orderBy('tingkat', $sortDirection)
+                        ->orderBy(Jurusan::select('nama_jurusan')
+                            ->whereColumn('jurusan.id', 'kelas.jurusan_id'), $sortDirection)
+                        ->orderBy('no_kelas', $sortDirection);
                     break;
 
                 case 'Wali Kelas':
@@ -177,17 +179,32 @@ class AdminController extends Controller
         $kelas = $query->paginate($perPage)->withQueryString();
 
         $tahunAjaranFilter = Kelas::select('tahun_ajaran')->distinct()->pluck('tahun_ajaran');
-        $guruWalasIds = Walas::pluck('user_id');
+        $guruWalasIds = Walas::pluck('user_id')->toArray();
+        $walasMap = Walas::pluck('user_id', 'kelas_id')->toArray();
+
+        $guruListCreate = Guru::whereHas('user', function ($query) use ($guruWalasIds) {
+            $query->whereNotIn('id', $guruWalasIds);
+        })->get();
+
+        $currentWalasGuruIds = collect($kelas->items())->map(function ($kelasItem) {
+            return $kelasItem->walas?->user_id;
+        })->filter()->unique()->toArray();
+
+        $excludedUserIds = array_diff($guruWalasIds, $currentWalasGuruIds);
+
+        $guruListEdit = Guru::whereHas('user', function ($query) use ($excludedUserIds) {
+            $query->whereNotIn('id', $excludedUserIds);
+        })->get();
 
         $data = [
             'title' => 'Daftar Kelas',
             'menuAdmin' => 'active',
             'jurusanList' => Jurusan::all(),
-            'guruList' => Guru::whereHas('user', function ($query) use ($guruWalasIds) {
-                $query->whereNotIn('id', $guruWalasIds);
-            })->get(),
+            'guruListCreate' => $guruListCreate,
+            'guruListEdit' => $guruListEdit,
             'kelas' => $kelas,
             'tahunAjaranFilter' => $tahunAjaranFilter,
+            'walasMap' => $walasMap,
         ];
 
         if ($request->ajax()) {
@@ -202,6 +219,7 @@ class AdminController extends Controller
 
     public function create_kelas()
     {
+
         $data = array(
             'title' => 'Tambah Kelas',
             'menuAdmin' => 'active',
@@ -214,27 +232,28 @@ class AdminController extends Controller
 
     public function store_kelas(Request $request)
     {
+        // dd($request->all());
         $request->validate([
-            'tingkat' => 'required|in:X,XI,XII',
-            'jurusan_id' => 'required|exists:jurusan,id',
-            'no_kelas' => 'required',
-            'guru_id' => 'nullable|exists:guru,id',
+            'create_tingkat' => 'required|in:X,XI,XII',
+            'create_jurusan_id' => 'required|exists:jurusan,id',
+            'create_no_kelas' => 'required',
+            'create_guru_id' => 'nullable|exists:guru,id',
         ], [
-            'tingkat.required' => 'Tingkat Tidak Boleh Kosong',
-            'tingkat.in' => 'Tingkat Tidak Valid',
-            'jurusan_id.required' => 'Jurusan Tidak Boleh Kosong',
-            'no_kelas' => 'No Kelas Tidak Boleh Kosong',
+            'create_tingkat.required' => 'Tingkat Tidak Boleh Kosong',
+            'create_tingkat.in' => 'Tingkat Tidak Valid',
+            'create_jurusan_id.required' => 'Jurusan Tidak Boleh Kosong',
+            'create_no_kelas.required' => 'No Kelas Tidak Boleh Kosong',
         ]);
 
         try {
             $kelas = Kelas::create([
-                'tingkat' => $request->tingkat,
-                'jurusan_id' => $request->jurusan_id,
-                'no_kelas' => $request->no_kelas,
+                'tingkat' => $request->create_tingkat,
+                'jurusan_id' => $request->create_jurusan_id,
+                'no_kelas' => $request->create_no_kelas,
             ]);
 
-            if ($request->guru_id) {
-                $guru = Guru::findOrFail($request->guru_id);
+            if ($request->create_guru_id) {
+                $guru = Guru::findOrFail($request->create_guru_id);
 
                 $user = $guru->user;
 
@@ -265,7 +284,6 @@ class AdminController extends Controller
             'kelas' => $kelas,
             'jurusanList' => Jurusan::all(),
             'guruList' => User::where('role_id', 3)->with('guru')->get(),
-            'selectedWalas' => Walas::where('kelas_id', $id)->value('user_id'),
         );
 
         return view('admin.kelas.edit', $data);
@@ -274,52 +292,60 @@ class AdminController extends Controller
     public function update_kelas(Request $request, $id)
     {
         $request->validate([
-            'tingkat' => 'required|in:X,XI,XII',
-            'jurusan_id' => 'required|exists:jurusan,id',
-            'no_kelas' => 'required|in:1,2,3,4',
-            'guru_id' => 'required|exists:users,id',
+            'edit_tingkat' => 'required|in:X,XI,XII',
+            'edit_jurusan_id' => 'required|exists:jurusan,id',
+            'edit_no_kelas' => 'required|in:1,2,3,4',
+            'edit_guru_id' => 'nullable|exists:users,id',
+        ], [
+            'edit_tingkat.required' => 'Tingkat Tidak Boleh Kosong',
+            'edit_tingkat.in' => 'Tingkat Tidak Valid',
+            'edit_jurusan_id.required' => 'Jurusan Tidak Boleh Kosong',
+            'edit_no_kelas.required' => 'No Kelas Tidak Boleh Kosong',
         ]);
-
-        // $walasLama = Walas::where('kelas_id', $id)->first();
-        // if ($walasLama) {
-        //     $userLama = User::find($walasLama->user_id);
-        //     if ($userLama) {
-        //         $userLama->role_id = 3;
-        //         $userLama->save();
-        //     }
-        // }
 
         DB::transaction(function () use ($request, $id) {
             $kelas = Kelas::findOrFail($id);
 
             $kelas->update([
-                'tingkat' => $request->tingkat,
-                'jurusan_id' => $request->jurusan_id,
-                'no_kelas' => $request->no_kelas,
+                'tingkat' => $request->edit_tingkat,
+                'jurusan_id' => $request->edit_jurusan_id,
+                'no_kelas' => $request->edit_no_kelas,
             ]);
 
             $walasLama = Walas::where('kelas_id', $id)->first();
-            if ($walasLama && $walasLama->user_id != $request->guru_id) {
-                $userLama = User::find($walasLama->user_id);
-                if ($userLama) {
-                    $userLama->role_id = 3;
-                    $userLama->save();
+
+            if ($request->edit_guru_id) {
+                if ($walasLama && $walasLama->user_id != $request->edit_guru_id) {
+                    $userLama = User::find($walasLama->user_id);
+                    if ($userLama) {
+                        $userLama->role_id = 3;
+                        $userLama->save();
+                    }
                 }
-            }
 
-            Walas::updateOrCreate(
-                ['kelas_id' => $id],
-                ['user_id' => $request->guru_id]
-            );
+                Walas::updateOrCreate(
+                    ['kelas_id' => $id],
+                    ['user_id' => $request->edit_guru_id]
+                );
 
-            $userBaru = User::find($request->guru_id);
-            if ($userBaru) {
-                $userBaru->role_id = 2;
-                $userBaru->save();
+                $userBaru = User::find($request->edit_guru_id);
+                if ($userBaru) {
+                    $userBaru->role_id = 2;
+                    $userBaru->save();
+                }
+            } else {
+                if ($walasLama) {
+                    $userLama = User::find($walasLama->user_id);
+                    if ($userLama) {
+                        $userLama->role_id = 3;
+                        $userLama->save();
+                    }
+                    $walasLama->delete();
+                }
             }
         });
 
-        return redirect()->route('admin_index_kelas.index')->with('success', 'Kelas berhasil diperbarui!');
+        return redirect()->route('admin_kelas.index')->with('success', 'Kelas berhasil diperbarui!');
     }
 
     public function destroy_kelas($id)
@@ -418,7 +444,7 @@ class AdminController extends Controller
             'Nama Jurusan',
             'Kode Jurusan',
             'No Kelas',
-            'Wali Kelas (Opsional)',
+            'Wali Kelas',
         ];
 
         $sheet->fromArray(($headers), null, 'A1');
@@ -593,14 +619,16 @@ class AdminController extends Controller
                             $errorRows[] = "Baris {$rowNumber}: Guru dengan nama '{$waliNama}' tidak ditemukan.";
                             continue;
                         }
-                        // Cek jika guru sudah menjadi wali kelas di kelas lain pada tahun ajaran yang sama
-                        $sudahWali = Walas::where('user_id', $guru->user_id)
-                            ->whereHas('kelas', function ($q) {
-                                $q->where('tahun_ajaran', date('Y'));
-                            })
+                        // Cek jika guru sudah menjadi wali kelas di kelas lain
+                        $sudahWali = User::where('id', $guru->user_id)
+                            ->where('role_id', 2)
                             ->exists();
-                        if ($sudahWali) {
-                            $errorRows[] = "Baris {$rowNumber}: Guru dengan nama '{$waliNama}' sudah menjadi wali kelas di kelas lain pada tahun ajaran ini.";
+                        // Cek jika guru sudah menjadi wali kelas di kelas lain
+                        $sudahWalii = User::where('id', $guru->user_id)
+                            ->where('role_id', 2)
+                            ->exists();
+                        if ($sudahWali || $sudahWalii) {
+                            $errorRows[] = "Baris {$rowNumber}: Guru dengan nama '{$waliNama}' sudah menjadi wali kelas di kelas lain.";
                             continue;
                         }
                     }
@@ -613,7 +641,7 @@ class AdminController extends Controller
                     ])->exists();
 
                     if ($kelasExists) {
-                        $errorRows[] = "Baris {$rowNumber}: Kelas {$tingkat} {$namaJurusan} {$noKelas} sudah ada.";
+                        $errorRows[] = "Baris {$rowNumber}: Kelas {$tingkat} {$kodeJurusan} {$noKelas} sudah ada.";
                         continue;
                     }
 
@@ -907,22 +935,52 @@ class AdminController extends Controller
         }
 
         if ($sortBy) {
-            $columnMap = [
-                // 'NISN' => 'nisn',
-                'NIS' => 'nis',
-                'Nama Siswa' => 'nama',
-                'No. HP' => 'no_hp',
-                'Kelas' => 'kelas_id'
-            ];
+            switch ($sortBy) {
+                case 'Nisn':
+                    $query->orderBy('nisn', $sortDirection);
+                    break;
 
-            // dd($sortBy, $columnMap[$sortBy] ?? null);
+                case 'Nis':
+                    $query->orderBy('nis', $sortDirection);
+                    break;
 
-            if (isset($columnMap[$sortBy])) {
-                $query->orderBy($columnMap[$sortBy], $sortDirection);
-            } else {
-                $query->orderBy('kelas_id', 'asc')->orderBy('nama', 'asc');
+                case 'Nama Siswa':
+                    $query->orderBy('nama', $sortDirection);
+                    break;
+
+                case 'No. HP':
+                    $query->orderBy('no_hp', $sortDirection);
+                    break;
+
+                case 'Kelas':
+                    $query->join('kelas', 'siswa.kelas_id', '=', 'kelas.id')
+                        ->join('jurusan', 'kelas.jurusan_id', '=', 'jurusan.id')
+                        ->orderByRaw("tingkat $sortDirection")
+                        ->orderBy('jurusan.nama_jurusan', $sortDirection)
+                        ->orderByRaw("no_kelas $sortDirection")
+                        ->select('siswa.*');
+                    break;
+
+                default:
+                    $query->orderBy('kelas_id', 'asc')->orderBy('nama', 'asc');
+                    break;
             }
         }
+        // if ($sortBy) {
+        //     $columnMap = [
+        //         // 'NISN' => 'nisn',
+        //         'NIS' => 'nis',
+        //         'Nama Siswa' => 'nama',
+        //         'No. HP' => 'no_hp',
+        //         'Kelas' => 'kelas_id'
+        //     ];
+
+        //     if (isset($columnMap[$sortBy])) {
+        //         $query->orderBy($columnMap[$sortBy], $sortDirection);
+        //     } else {
+        //         $query->orderBy('kelas_id', 'asc')->orderBy('nama', 'asc');
+        //     }
+        // }
 
         $siswa = $query->paginate($perPage)->withQueryString();
 
@@ -962,54 +1020,55 @@ class AdminController extends Controller
     {
         // dd($request->all());
         $validated = $request->validate([
-            'nisn' => 'nullable|numeric|digits_between:8,10|unique:siswa,nisn',
-            'nis' => 'required|numeric|digits_between:4,10|unique:siswa,nis',
-            'nama' => 'required|string|max:255',
-            'username' => 'required|unique:users,username',
-            'tanggal_lahir' => 'required|date',
-            'kelas_id' => 'required|exists:kelas,id',
-            'no_hp' => 'required|digits_between:10,15',
-            'email' => 'required|email|max:255',
+            'create_nisn' => 'nullable|numeric|digits_between:8,10|unique:siswa,nisn',
+            'create_nis' => 'required|numeric|digits_between:4,10|unique:siswa,nis',
+            'create_nama' => 'required|string|max:255',
+            'create_username' => 'required|unique:users,username',
+            'create_tanggal_lahir' => 'required|date',
+            'create_kelas_id' => 'required|exists:kelas,id',
+            'create_no_hp' => 'required|digits_between:10,15',
+            'create_email' => 'required|email|max:255',
         ], [
-            'nisn.required' => 'NISN Tidak Boleh Kosong',
-            'nisn.numeric' => 'NISN Harus Angka',
-            'nisn.digits_between' => 'NISN Harus Antara 8-10 Digit',
-            'nisn.unique' => 'NISN Sudah Digunakan',
-            'nis.numeric' => 'NIS Harus Angka',
-            'nis.digits_between' => 'NIS Harus Antara 4-10 Digit',
-            'nis.unique' => 'NIS Sudah Digunakan',
-            'nama.required' => 'Nama Tidak Boleh Kosong',
-            'username.required' => 'Username Tidak Boleh Kosong',
-            'username.unique' => 'Username Sudah Digunakan',
-            'tanggal_lahir.required' => 'Tanggal Lahir Tidak Boleh Kosong',
-            'tanggal_lahir.date' => 'Tanggal Lahir Tidak Valid',
-            'kelas_id.required' => 'Kelas Tidak Boleh Kosong',
-            'kelas_id.exists' => 'Kelas Tidak Valid',
-            'no_hp.required' => 'No HP Tidak Boleh Kosong',
-            'no_hp.digits_between' => 'No HP Harus Antara 10-15 Digit',
-            'email.required' => 'Email Tidak Boleh Kosong',
-            'email.email' => 'Email Tidak Valid',
-            'email.max' => 'Email Terlalu Panjang',
+            'create_nisn.required' => 'NISN Tidak Boleh Kosong',
+            'create_nisn.numeric' => 'NISN Harus Angka',
+            'create_nisn.digits_between' => 'NISN Harus Antara 8-10 Digit',
+            'create_nisn.unique' => 'NISN Sudah Digunakan',
+            'create_nis.required' => 'NIS Tidak Boleh Kosong',
+            'create_nis.numeric' => 'NIS Harus Angka',
+            'create_nis.digits_between' => 'NIS Harus Antara 4-10 Digit',
+            'create_nis.unique' => 'NIS Sudah Digunakan',
+            'create_nama.required' => 'Nama Tidak Boleh Kosong',
+            'create_username.required' => 'Username Tidak Boleh Kosong',
+            'create_username.unique' => 'Username Sudah Digunakan',
+            'create_tanggal_lahir.required' => 'Tanggal Lahir Tidak Boleh Kosong',
+            'create_tanggal_lahir.date' => 'Tanggal Lahir Tidak Valid',
+            'create_kelas_id.required' => 'Kelas Tidak Boleh Kosong',
+            'create_kelas_id.exists' => 'Kelas Tidak Valid',
+            'create_no_hp.required' => 'No HP Tidak Boleh Kosong',
+            'create_no_hp.digits_between' => 'No HP Harus Antara 10-15 Digit',
+            'create_email.required' => 'Email Tidak Boleh Kosong',
+            'create_email.email' => 'Email Tidak Valid',
+            'create_email.max' => 'Email Terlalu Panjang',
         ]);
 
         try {
-            $password = date('dmY', strtotime($validated['tanggal_lahir']));
+            $password = date('dmY', strtotime($validated['create_tanggal_lahir']));
 
             $user = User::create([
-                'username' => $request->username,
+                'username' => $request->create_username,
                 'role_id' => 4,
                 'password' => Hash::make($password),
             ]);
 
             Siswa::create([
                 'user_id' => $user->id,
-                'nisn' => $request->nisn,
-                'nis' => $request->nis,
-                'nama' => $request->nama,
-                'kelas_id' => $request->kelas_id,
-                'tanggal_lahir' => $request->tanggal_lahir,
-                'no_hp' => $request->no_hp,
-                'email' => $request->email,
+                'nisn' => $request->create_nisn,
+                'nis' => $request->create_nis,
+                'nama' => $request->create_nama,
+                'kelas_id' => $request->create_kelas_id,
+                'tanggal_lahir' => $request->create_tanggal_lahir,
+                'no_hp' => $request->create_no_hp,
+                'email' => $request->create_email,
             ]);
 
             return redirect()->route('admin_siswa.index')->with('success', 'Siswa berhasil ditambahkan!');
@@ -1070,38 +1129,81 @@ class AdminController extends Controller
 
     public function update_siswa(Request $request, $id)
     {
-        $siswa = Siswa::with('user')->findorfail($id);
-
-        $siswa->update(array_filter([
-            'nama' => $request->nama,
-            'kelas_id' => $request->kelas_id,
-            'nis' => $request->nis,
-            'tanggal_lahir' => $request->tanggal_lahir,
-            'no_hp' => $request->no_hp,
-            'email' => $request->email,
-            'jenis_kelamin' => $request->jenis_kelamin,
-            'alamat' => $request->alamat,
-        ]));
+        $siswa = Siswa::with('user')->findOrFail($id);
 
         $user = $siswa->user;
 
-        if ($user) {
-            $user->update(array_filter([
-                'username' => $request->username,
-                'password' => $request->password ? bcrypt($request->password) : null,
-            ]));
+        // dd($request->all());
 
-            return redirect()->route('admin_siswa.index')->with('success', 'Data Siswa Berhasil Diedit');
+        $request->validate([
+            'edit_nisn' => 'nullable|numeric|digits_between:8,10|unique:siswa,nisn,' . $id,
+            'edit_nis' => 'required|numeric|digits_between:4,10|unique:siswa,nis,' . $id,
+            'edit_nama' => 'required|string|max:255',
+            'edit_username' => 'required|unique:users,username,' . ($user ? $user->id : 'NULL'),
+            'edit_tanggal_lahir' => 'required|date',
+            'edit_kelas_id' => 'required|exists:kelas,id',
+            'edit_no_hp' => 'required|digits_between:10,15',
+            'edit_email' => 'required|email|max:255',
+            'edit_jenis_kelamin' => 'nullable|in:L,P',
+            'edit_alamat' => 'nullable|string|max:255',
+            // 'current_password' => 'nullable|required_with:new_password|current_password:web',
+            'new_password' => 'nullable|min:5|same:password_confirmation',
+            'password_confirmation' => 'nullable|required_with:new_password|same:new_password',
+        ], [
+            'edit_nisn.required' => 'NISN Tidak Boleh Kosong',
+            'edit_nisn.numeric' => 'NISN Harus Angka',
+            'edit_nisn.digits_between' => 'NISN Harus Antara 8-10 Digit',
+            'edit_nisn.unique' => 'NISN Sudah Digunakan',
+            'edit_nis.required' => 'NIS Tidak Boleh Kosong',
+            'edit_nis.numeric' => 'NIS Harus Angka',
+            'edit_nis.digits_between' => 'NIS Harus Antara 4-10 Digit',
+            'edit_nis.unique' => 'NIS Sudah Digunakan',
+            'edit_nama.required' => 'Nama Tidak Boleh Kosong',
+            'edit_username.required' => 'Username Tidak Boleh Kosong',
+            'edit_username.unique' => 'Username Sudah Digunakan',
+            'edit_tanggal_lahir.required' => 'Tanggal Lahir Tidak Boleh Kosong',
+            'edit_tanggal_lahir.date' => 'Tanggal Lahir Tidak Valid',
+            'edit_kelas_id.required' => 'Kelas Tidak Boleh Kosong',
+            'edit_kelas_id.exists' => 'Kelas Tidak Valid',
+            'edit_no_hp.required' => 'No HP Tidak Boleh Kosong',
+            'edit_no_hp.digits_between' => 'No HP Harus Antara 10-15 Digit',
+            'edit_email.required' => 'Email Tidak Boleh Kosong',
+            'edit_email.email' => 'Email Tidak Valid',
+            'edit_email.max' => 'Email Terlalu Panjang',
+            'current_password.required_with' => 'Password lama harus diisi jika ingin mengganti password.',
+            'current_password.current_password' => 'Password lama tidak sesuai.',
+            'new_password.min' => 'Password baru minimal 5 karakter.',
+            'new_password.different' => 'Password baru tidak boleh sama dengan password lama.',
+            'new_password.same' => 'Konfirmasi password tidak cocok.',
+            'password_confirmation.required_with' => 'Konfirmasi password harus diisi.',
+            'password_confirmation.same' => 'Konfirmasi password tidak cocok.',
+        ]);
+
+        $siswa->update(array_filter([
+            'nama' => $request->edit_nama,
+            'kelas_id' => $request->edit_kelas_id,
+            'nis' => $request->edit_nis,
+            'nisn' => $request->edit_nisn,
+            'tanggal_lahir' => $request->edit_tanggal_lahir,
+            'no_hp' => $request->edit_no_hp,
+            'email' => $request->edit_email,
+            'jenis_kelamin' => $request->edit_jenis_kelamin,
+            'alamat' => $request->edit_alamat,
+        ]));
+
+        if ($user) {
+            $userData = [
+                'username' => $request->edit_username,
+            ];
+
+            if ($request->filled('new_password')) {
+                $userData['password'] = Hash::make($request->new_password);
+            }
+
+            $user->update($userData);
         }
 
-        // $user->save();
-        // $request->validate([
-        //     'username' => 'nullable|min:3',
-        //     'password' => 'nullable|min:5',
-        // ], [
-        //     'username.min' => 'Minimal 3 Karakter',
-        //     'password.min' => 'Minimal 5 Karakter',
-        // ]);
+        return redirect()->route('admin_siswa.index')->with('success', 'Data Siswa Berhasil Diedit');
     }
 
     public function destroy_siswa($id)
@@ -1488,49 +1590,49 @@ class AdminController extends Controller
     public function store_guru(Request $request)
     {
         // dd($request->all());
-        $validated = $request->validate([
-            'nip' => 'required|string|unique:guru,nip',
-            'nama' => 'required|string|max:255',
-            'username' => 'required|unique:users,username',
-            'tanggal_lahir' => 'required|date',
-            'no_hp' => 'required|digits_between:10,15',
-            'email' => 'required|email|max:255',
+        $request->validate([
+            'create_nip' => 'required|string|unique:guru,nip',
+            'create_nama' => 'required|string|max:255',
+            'create_username' => 'required|unique:users,username',
+            'create_tanggal_lahir' => 'required|date',
+            'create_no_hp' => 'required|digits_between:10,15',
+            'create_email' => 'required|email|max:255',
         ], [
-            'nip.required' => 'NIP Tidak Boleh Kosong',
-            'nip.unique' => 'NIP Sudah Digunakan',
+            'create_nip.required' => 'NIP Tidak Boleh Kosong',
+            'create_nip.unique' => 'NIP Sudah Digunakan',
 
-            'nama.required' => 'Nama Tidak Boleh Kosong',
+            'create_nama.required' => 'Nama Tidak Boleh Kosong',
 
-            'username.required' => 'Username Tidak Boleh Kosong',
-            'username.unique' => 'Username Sudah Digunakan',
+            'create_username.required' => 'Username Tidak Boleh Kosong',
+            'create_username.unique' => 'Username Sudah Digunakan',
 
-            'tanggal_lahir.required' => 'Tanggal Lahir Tidak Boleh Kosong',
-            'tanggal_lahir.date' => 'Tanggal Lahir Tidak Valid',
+            'create_tanggal_lahir.required' => 'Tanggal Lahir Tidak Boleh Kosong',
+            'create_tanggal_lahir.date' => 'Tanggal Lahir Tidak Valid',
 
-            'no_hp.required' => 'No HP Tidak Boleh Kosong',
-            'no_hp.digits_between' => 'No HP Harus Antara 10-15 Digit',
+            'create_no_hp.required' => 'No HP Tidak Boleh Kosong',
+            'create_no_hp.digits_between' => 'No HP Harus Antara 10-15 Digit',
 
-            'email.required' => 'Email Tidak Boleh Kosong',
-            'email.email' => 'Email Tidak Valid',
+            'create_email.required' => 'Email Tidak Boleh Kosong',
+            'create_email.email' => 'Email Tidak Valid',
         ]);
 
         try {
 
-            $password = date('dmY', strtotime($request->tanggal_lahir));
+            $password = date('dmY', strtotime($request->create_tanggal_lahir));
 
             $user = User::create([
-                'username' => $request->username,
+                'username' => $request->create_username,
                 'role_id' => 3,
                 'password' => Hash::make($password),
             ]);
 
             Guru::create([
                 'user_id' => $user->id,
-                'nip' => $request->nip,
-                'nama' => $request->nama,
-                'tanggal_lahir' => $request->tanggal_lahir,
-                'no_hp' => $request->no_hp,
-                'email' => $request->email,
+                'nip' => $request->create_nip,
+                'nama' => $request->create_nama,
+                'tanggal_lahir' => $request->create_tanggal_lahir,
+                'no_hp' => $request->create_no_hp,
+                'email' => $request->create_email,
             ]);
 
             return redirect()->route('admin_guru.index')->with('success', 'Guru berhasil ditambahkan!');
@@ -1554,42 +1656,65 @@ class AdminController extends Controller
 
     public function update_guru(Request $request, $id)
     {
-        $guru = Guru::with('user')->findorfail($id);
-
-        $guru->update(array_filter([
-            'nama' => $request->nama,
-            'nip' => $request->nip,
-            'tanggal_lahir' => $request->tanggal_lahir,
-            'no_hp' => $request->no_hp,
-            'email' => $request->email,
-            'jenis_kelamin' => $request->jenis_kelamin,
-            'alamat' => $request->alamat,
-        ]));
-
+        $guru = Guru::with('user')->findOrFail($id);
         $user = $guru->user;
 
-        if ($request->filled('new_password') && $request->filled('current_password')) {
-            if (Hash::check($request->new_password, $user->password)) {
-                return back()->withErrors(['new_password' => 'Password baru tidak boleh sama dengan password lama'])->withInput();
-            }
-        }
+        $request->validate([
+            'edit_nip' => 'required|string|unique:guru,nip,' . $id,
+            'edit_nama' => 'required|string|max:255',
+            'edit_username' => 'required|unique:users,username,' . ($user ? $user->id : 'NULL'),
+            'edit_tanggal_lahir' => 'required|date',
+            'edit_no_hp' => 'required|digits_between:10,15',
+            'edit_email' => 'required|email|max:255',
+            'edit_jenis_kelamin' => 'nullable|in:L,P',
+            'edit_alamat' => 'nullable|string|max:255',
+            // 'current_password' => 'nullable|required_with:new_password|current_password:web',
+            'new_password' => 'nullable|min:5|same:password_confirmation',
+            'password_confirmation' => 'nullable|required_with:new_password|same:new_password',
+        ], [
+            'edit_nip.required' => 'NIP Tidak Boleh Kosong',
+            'edit_nip.unique' => 'NIP Sudah Digunakan',
+            'edit_nama.required' => 'Nama Tidak Boleh Kosong',
+            'edit_username.required' => 'Username Tidak Boleh Kosong',
+            'edit_username.unique' => 'Username Sudah Digunakan',
+            'edit_tanggal_lahir.required' => 'Tanggal Lahir Tidak Boleh Kosong',
+            'edit_tanggal_lahir.date' => 'Tanggal Lahir Tidak Valid',
+            'edit_no_hp.required' => 'No HP Tidak Boleh Kosong',
+            'edit_no_hp.digits_between' => 'No HP Harus Antara 10-15 Digit',
+            'edit_email.required' => 'Email Tidak Boleh Kosong',
+            'edit_email.email' => 'Email Tidak Valid',
+            'current_password.required_with' => 'Password lama harus diisi jika ingin mengganti password.',
+            'current_password.current_password' => 'Password lama tidak sesuai.',
+            'new_password.min' => 'Password baru minimal 5 karakter.',
+            'new_password.different' => 'Password baru tidak boleh sama dengan password lama.',
+            'new_password.same' => 'Konfirmasi password tidak cocok.',
+            'password_confirmation.required_with' => 'Konfirmasi password harus diisi.',
+            'password_confirmation.same' => 'Konfirmasi password tidak cocok.',
+        ]);
 
-        if ($request->filled('new_password')) {
-            DB::table('users')->where('id', $user->id)->update([
-                'password' => Hash::make($request->new_password)
-            ]);
+        $guru->update(array_filter([
+            'nama' => $request->edit_nama,
+            'nip' => $request->edit_nip,
+            'tanggal_lahir' => $request->edit_tanggal_lahir,
+            'no_hp' => $request->edit_no_hp,
+            'email' => $request->edit_email,
+            'jenis_kelamin' => $request->edit_jenis_kelamin,
+            'alamat' => $request->edit_alamat,
+        ]));
+
+        if ($user) {
+            $userData = [
+                'username' => $request->edit_username,
+            ];
+
+            if ($request->filled('new_password')) {
+                $userData['password'] = Hash::make($request->new_password);
+            }
+
+            $user->update($userData);
         }
 
         return redirect()->route('admin_guru.index')->with('success', 'Data Guru Berhasil Diedit');
-
-        // $user->save();
-        // $request->validate([
-        //     'username' => 'nullable|min:3',
-        //     'password' => 'nullable|min:5',
-        // ], [
-        //     'username.min' => 'Minimal 3 Karakter',
-        //     'password.min' => 'Minimal 5 Karakter',
-        // ]);
     }
 
     public function destroy_guru($id)
@@ -1938,18 +2063,18 @@ class AdminController extends Controller
         }
 
         if ($sortBy) {
-            $columnMap = [
-                // 'NISN' => 'nisn',
-                'Nama Jurusan' => 'nama_jurusan',
-                'Kode Jurusan' => 'kode_jurusan',
-            ];
+            switch ($sortBy) {
+                case 'Nama Jurusan':
+                    $query->orderBy('nama_jurusan', $sortDirection);
+                    break;
 
-            // dd($sortBy, $columnMap[$sortBy] ?? null);
+                case 'Kode Jurusaan':
+                    $query->orderBy('kode_jurusan', $sortDirection);
+                    break;
 
-            if (isset($columnMap[$sortBy])) {
-                $query->orderBy($columnMap[$sortBy], $sortDirection);
-            } else {
-                $query->orderBy('nama_jurusan', 'asc')->orderBy('kode_jurusan', 'asc');
+                default:
+                    $query->orderBy('nama_jurusan', 'asc')->orderBy('kode_jurusan', 'asc');
+                    break;
             }
         }
 
@@ -2069,6 +2194,251 @@ class AdminController extends Controller
             $jurusan->delete();
         }
         return redirect()->back()->with('success', 'Jurusan Berhasil Dihapus');
+    }
+
+    public function download_template_jurusan()
+    {
+        $fileName = 'template_import_jurusan_' . date('Y-m-d') . '.xlsx';
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $spreadsheet->getProperties()
+            ->setCreator('SMKN 1 Subang')
+            ->setTitle('Template Import Jurusan')
+            ->setDescription('Template untuk mengimpor data jurusan ke dalam sistem.');
+
+        $headersStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFFFF'],
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['argb' => '198754'],
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['argb' => '0000000'],
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+            ],
+        ];
+
+        $headers = [
+            'Nama Jurusan',
+            'Kode Jurusan',
+        ];
+
+        $sheet->fromArray(($headers), null, 'A1');
+        $sheet->getStyle('A1:B1')->applyFromArray($headersStyle);
+
+        $sheet->getColumnDimension('A')->setWidth(25);
+        $sheet->getColumnDimension('B')->setWidth(15);
+
+        $exampleData = [
+            ['Teknik Komputer Jaringan', 'TKJ'],
+            ['Rekayasa Perangkat Lunak', 'RPL'],
+        ];
+
+        $sheet->fromArray($exampleData, null, 'A2');
+        $sheet->getStyle('A2:B3')->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => '0000000'],
+                ]
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'f8f9fa'],
+            ],
+        ]);
+
+        $sheet->getStyle('B2:B3')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        $sheet->setCellValue('A5', 'Petunjuk:');
+        $sheet->setCellValue('A6', '2. Isi kolom "Nama Jurusan" dengan nama jurusan yang sesuai.');
+        $sheet->setCellValue('A7', '3. Isi kolom "Kode Jurusan" dengan kode jurusan yang sesuai.');
+
+        $sheet->getStyle('A5')->getFont()->setBold(true)->setSize(13);
+        $sheet->getStyle('A6:A7')->getFont()->setItalic(true);
+
+        $sheet->getRowDimension(1)->setRowHeight(25);
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+            'Cache-Control' => 'cache, must-revalidate',
+            'Pragma' => 'public',
+        ]);
+    }
+
+    public function import_jurusan(Request $request)
+    {
+        try {
+            // dd($request->all());
+            $request->validate([
+                'file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
+            ], [
+                'file.required' => 'File Tidak Boleh Kosong',
+                'file.file' => 'File Harus Berupa File',
+                'file.mimes' => 'File Harus Berformat XLSX, XLS, atau CSV',
+                'file.max' => 'Ukuran File Maksimal 2MB',
+            ]);
+
+            $file = $request->file('file');
+
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getRealPath());
+            $worksheet = $spreadsheet->getActiveSheet();
+            $rows = $worksheet->toArray();
+            $headers = array_shift($rows);
+
+            $requiredHeaders = [
+                'Nama Jurusan',
+                'Kode Jurusan',
+            ];
+
+            $headerMap = [];
+
+            foreach ($requiredHeaders as $required) {
+                $found = false;
+                foreach ($headers as $index => $header) {
+                    if (trim(strtoupper($header)) === strtoupper(($required))) {
+                        $headerMap[$required] = $index;
+                        $found = true;
+                        break;
+                    }
+                }
+
+                if (!$found) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Kolom {$required} tidak ditemukan dalam file."
+                    ]);
+                }
+            }
+
+            $successCount = 0;
+            $errorRows = [];
+
+            DB::beginTransaction();
+
+            foreach ($rows as $rowIndex => $row) {
+                $rowNumber = $rowIndex + 2;
+
+                try {
+
+                    if (empty(array_filter($row))) {
+                        continue;
+                    }
+
+                    $namaJurusan = trim($row[$headerMap['Nama Jurusan']] ?? '');
+                    $kodeJurusan = trim($row[$headerMap['Kode Jurusan']] ?? '');
+
+                    if (!$namaJurusan || !$kodeJurusan) {
+                        $missing = [];
+                        if (!$namaJurusan) $missing[] = "Nama Jurusan";
+                        if (!$kodeJurusan) $missing[] = "Kode Jurusan";
+                        $errorRows[] = "Baris {$rowNumber}: Kolom " . implode(', ', $missing) . " tidak boleh kosong.";
+                        continue;
+                    }
+
+                    $jurusan = Jurusan::where('nama_jurusan', $namaJurusan)
+                        ->orWhere('kode_jurusan', $kodeJurusan)
+                        ->first();
+
+                    if ($jurusan && $jurusan->nama_jurusan !== $namaJurusan) {
+                        $errorRows[] = "Baris {$rowNumber}: Jurusan dengan nama '{$namaJurusan}' sudah ada dengan kode '{$jurusan->kode_jurusan}'.";
+                        continue;
+                    }
+
+                    if ($jurusan && $jurusan->kode_jurusan !== $kodeJurusan) {
+                        $errorRows[] = "Baris {$rowNumber}: Kode jurusan '{$kodeJurusan}' sudah digunakan untuk jurusan '{$jurusan->nama_jurusan}'.";
+                        continue;
+                    }
+
+                    $jurusan = Jurusan::create([
+                        'nama_jurusan' => $namaJurusan,
+                        'kode_jurusan' => $kodeJurusan,
+                    ]);
+
+                    $successCount++;
+                } catch (\Exception $e) {
+                    $errorRows[] = "Baris {$rowNumber}: Terjadi kesalahan saat memproses data - " . $e->getMessage();
+                }
+            }
+
+            if ($successCount > 0) {
+                DB::commit();
+
+                $message = "Berhasil mengimpor {$successCount} data jurusan.";
+                $errors = array_merge($errorRows);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'errors' => !empty($errors) ? $errors : null,
+                ]);
+            } else {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada data yang berhasil diimpor.',
+                    'errors' => array_merge($errorRows),
+                ]);
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan:' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function export_jurusan_pdf()
+    {
+        try {
+            $jurusan = Jurusan::all();
+
+            $data = [
+                'title' => 'Data Jurusan',
+                'jurusan' => $jurusan,
+                'exported_at' => Carbon::now()->format('d-m-Y'),
+                'exported_at_time' => Carbon::now()->format('d-m-Y H:i:s'),
+                'total_jurusan' => $jurusan->count(),
+            ];
+
+            $pdf = app('dompdf.wrapper');
+            $pdf->loadView('admin.jurusan.export.pdf', $data);
+
+            $fileName = 'data_jurusan_' . date('Y-m-d_H-i-s') . '.pdf';
+
+            return $pdf->download($fileName);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengekspor data ke pdf: ' . $e->getMessage());
+        }
+    }
+
+    public function export_jurusan_xlsx()
+    {
+        try {
+            $fileName = 'data_jurusan_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+            return Excel::download(new JurusanExport(), $fileName);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengekspor data ke Excel: ' . $e->getMessage());
+        }
     }
 
     // umum mapel
@@ -2215,10 +2585,254 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Mapel Berhasil Dihapus');
     }
 
+    public function download_template_mapel()
+    {
+        $fileName = 'template_import_mapel_' . date('Y-m-d') . '.xlsx';
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $spreadsheet->getProperties()
+            ->setCreator('SMKN 1 Subang')
+            ->setTitle('Template Import Mapel')
+            ->setDescription('Template untuk mengimpor data mapel ke dalam sistem.');
+
+        $headersStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFFFF'],
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['argb' => '198754'],
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['argb' => '0000000'],
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+            ],
+        ];
+
+        $headers = [
+            'Nama Mapel',
+            'Kode Mapel',
+        ];
+
+        $sheet->fromArray(($headers), null, 'A1');
+        $sheet->getStyle('A1:B1')->applyFromArray($headersStyle);
+
+        $sheet->getColumnDimension('A')->setWidth(25);
+        $sheet->getColumnDimension('B')->setWidth(15);
+
+        $exampleData = [
+            ['Bahasa Indonesia', 'B. Indonesia'],
+            ['Projek Penguatan Profil Pelajar Pancasila', 'P5'],
+        ];
+
+        $sheet->fromArray($exampleData, null, 'A2');
+        $sheet->getStyle('A2:B3')->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => '0000000'],
+                ]
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'f8f9fa'],
+            ],
+        ]);
+
+        $sheet->getStyle('B2:B3')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        $sheet->setCellValue('A5', 'Petunjuk:');
+        $sheet->setCellValue('A6', '2. Isi kolom "Nama Mapel" dengan nama jurusan yang sesuai.');
+        $sheet->setCellValue('A7', '3. Isi kolom "Kode Mapel" dengan kode jurusan yang sesuai.');
+
+        $sheet->getStyle('A5')->getFont()->setBold(true)->setSize(13);
+        $sheet->getStyle('A6:A7')->getFont()->setItalic(true);
+
+        $sheet->getRowDimension(1)->setRowHeight(25);
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+            'Cache-Control' => 'cache, must-revalidate',
+            'Pragma' => 'public',
+        ]);
+    }
+
+    public function import_mapel(Request $request)
+    {
+        try {
+            // dd($request->all());
+            $request->validate([
+                'file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
+            ], [
+                'file.required' => 'File Tidak Boleh Kosong',
+                'file.file' => 'File Harus Berupa File',
+                'file.mimes' => 'File Harus Berformat XLSX, XLS, atau CSV',
+                'file.max' => 'Ukuran File Maksimal 2MB',
+            ]);
+
+            $file = $request->file('file');
+
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getRealPath());
+            $worksheet = $spreadsheet->getActiveSheet();
+            $rows = $worksheet->toArray();
+            $headers = array_shift($rows);
+
+            $requiredHeaders = [
+                'Nama Mapel',
+                'Kode Mapel',
+            ];
+
+            $headerMap = [];
+
+            foreach ($requiredHeaders as $required) {
+                $found = false;
+                foreach ($headers as $index => $header) {
+                    if (trim(strtoupper($header)) === strtoupper(($required))) {
+                        $headerMap[$required] = $index;
+                        $found = true;
+                        break;
+                    }
+                }
+
+                if (!$found) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Kolom {$required} tidak ditemukan dalam file."
+                    ]);
+                }
+            }
+
+            $successCount = 0;
+            $errorRows = [];
+
+            DB::beginTransaction();
+
+            foreach ($rows as $rowIndex => $row) {
+                $rowNumber = $rowIndex + 2;
+
+                try {
+
+                    if (empty(array_filter($row))) {
+                        continue;
+                    }
+
+                    $namaMapel = trim($row[$headerMap['Nama Mapel']] ?? '');
+                    $kodeMapel = trim($row[$headerMap['Kode Mapel']] ?? '');
+
+                    if (!$namaMapel || !$kodeMapel) {
+                        $missing = [];
+                        if (!$namaMapel) $missing[] = "Nama Mapel";
+                        if (!$kodeMapel) $missing[] = "Kode Mapel";
+                        $errorRows[] = "Baris {$rowNumber}: Kolom " . implode(', ', $missing) . " tidak boleh kosong.";
+                        continue;
+                    }
+
+                    $mapel = MataPelajaran::where('nama_mapel', $namaMapel)
+                        ->orWhere('kode_mapel', $kodeMapel)
+                        ->first();
+
+                    if ($mapel && $mapel->nama_mapel !== $namaMapel) {
+                        $errorRows[] = "Baris {$rowNumber}: Mapel dengan nama '{$namaMapel}' sudah ada dengan kode '{$mapel->kode_mapel}'.";
+                        continue;
+                    }
+
+                    if ($mapel && $mapel->kode_mapel !== $kodeMapel) {
+                        $errorRows[] = "Baris {$rowNumber}: Kode mapel '{$kodeMapel}' sudah digunakan untuk mapel '{$mapel->nama_mapel}'.";
+                        continue;
+                    }
+
+                    $mapel = MataPelajaran::create([
+                        'nama_mapel' => $namaMapel,
+                        'kode_mapel' => $kodeMapel,
+                    ]);
+
+                    $successCount++;
+                } catch (\Exception $e) {
+                    $errorRows[] = "Baris {$rowNumber}: Terjadi kesalahan saat memproses data - " . $e->getMessage();
+                }
+            }
+
+            if ($successCount > 0) {
+                DB::commit();
+
+                $message = "Berhasil mengimpor {$successCount} data mapel.";
+                $errors = array_merge($errorRows);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'errors' => !empty($errors) ? $errors : null,
+                ]);
+            } else {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada data yang berhasil diimpor.',
+                    'errors' => array_merge($errorRows),
+                ]);
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan:' . $e->getMessage(),
+            ]);
+        }
+    }
+
+        public function export_mapel_pdf()
+    {
+        try {
+            $mapel = MataPelajaran::all();
+
+            $data = [
+                'title' => 'Data Mapel',
+                'mapel' => $mapel,
+                'exported_at' => Carbon::now()->format('d-m-Y'),
+                'exported_at_time' => Carbon::now()->format('d-m-Y H:i:s'),
+                'total_mapel' => $mapel->count(),
+            ];
+
+            $pdf = app('dompdf.wrapper');
+            $pdf->loadView('admin.mapel.export.pdf', $data);
+
+            $fileName = 'data_mapel_' . date('Y-m-d_H-i-s') . '.pdf';
+
+            return $pdf->download($fileName);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengekspor data ke pdf: ' . $e->getMessage());
+        }
+    }
+
+    public function export_mapel_xlsx()
+    {
+        try {
+            $fileName = 'data_mapel_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+            return Excel::download(new MataPelajaranExport(), $fileName);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengekspor data ke Excel: ' . $e->getMessage());
+        }
+    }
+
     // presensi siswa
     public function index_presensi_siswa(Request $request)
     {
-        $tanggal = $request->input('tanggal', date('Y-m-d'));
         $perPage = $request->input('perPage', 10);
         $sortBy = $request->input('sort_by');
         $filterBy = $request->input('filter_by');
@@ -2259,43 +2873,35 @@ class AdminController extends Controller
         $presensi_raw = $query->paginate($perPage)->withQueryString();
 
         // Map data
-        // $presensi_siswa = $presensi_raw->getCollection()->transform(function ($item) {
-        //     $kelas = optional($item->siswa->kelas);
-        //     $jurusan = optional($kelas->jurusan);
-
-        $kelasList = Kelas::with(['jurusan', 'siswa.presensiSiswa' => function ($query) use ($tanggal) {
-            $query->where('tanggal', $tanggal);
-        }])->get();
-
-        $rekapPresensi = $kelasList->map(function ($kelas) {
-            $siswa = $kelas->siswa;
-            $presensi = $siswa->flatMap->presensiSiswa;
-
+        $presensi_grouped = $presensi_raw->getCollection()->groupBy(function ($item) {
+            $kelas = optional($item->siswa->kelas);
+            $jurusan = optional($kelas->jurusan);
+            return $kelas ? $kelas->tingkat . ' ' . $jurusan->kode_jurusan . ' ' . $kelas->no_kelas : '-';
+        })->map(function ($group, $kelasNama) {
             return [
-                'kelas' => $kelas ? $kelas->tingkat . ' ' . $kelas->jurusan->kode_jurusan . ' ' . $kelas->no_kelas : '-',
-                'total_siswa' => $siswa->count(),
-                'hadir' => $presensi->where('status_kehadiran', 'hadir')->count(),
-                'izin' => $presensi->where('status_kehadiran', 'izin')->count(),
-                'sakit' => $presensi->where('status_kehadiran', 'sakit')->count(),
-                'alpa' => $siswa->count() - $presensi->count(),
+                'kelas' => $kelasNama,
+                'total_siswa' => $group->count(),
+                'hadir' => $group->where('status_kehadiran', 'hadir')->count(),
+                'izin' => $group->where('status_kehadiran', 'izin')->count(),
+                'sakit' => $group->where('status_kehadiran', 'sakit')->count(),
+                'ids' => $group->pluck('id')->toArray(),
             ];
-        });
+        })->values();
 
-        // $presensi_siswa = new \Illuminate\Pagination\LengthAwarePaginator(
-        //     $presensi_siswa,
-        //     $presensi_raw->total(),
-        //     $presensi_raw->perPage(),
-        //     $presensi_raw->currentPage(),
-        //     ['path' => request()->url(), 'query' => request()->query()]
-        // );
+        $presensi_siswa = new \Illuminate\Pagination\LengthAwarePaginator(
+            $presensi_grouped,
+            $presensi_raw->total(),
+            $presensi_raw->perPage(),
+            $presensi_raw->currentPage(),
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         $kelasFilter = Kelas::with('jurusan')->orderBy('tingkat')->orderBy('jurusan_id')->orderBy('no_kelas')->get();
         $tanggalFilter = presensiSiswa::select('tanggal')->distinct()->orderBy('tanggal', 'desc')->pluck('tanggal');
 
         $data = [
             'title' => 'Presensi Siswa',
-            'presensi_siswa' => $rekapPresensi,
-            'kelasList' => $kelasList,
+            'presensi_siswa' => $presensi_siswa,
             'kelasFilter' => $kelasFilter,
             'tanggalFilter' => $tanggalFilter,
         ];

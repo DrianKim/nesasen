@@ -13,6 +13,6 @@ class DashboardController extends Controller
             'title' => 'Dashboard',
             'menuDashboard' => 'active',
         );
-        return view('dashboard', $data);
+        return view('admin.beranda', $data);
     }
 }

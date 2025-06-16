@@ -1,42 +1,45 @@
-<table class="table table-hover">
+<table class="data-kelas-table">
     <thead>
         <tr>
-            <th width="3%">
-                <input type="checkbox" onclick="toggleAll(this)">
-            </th>
-            <th width="10%" class="sortable" data-column="NISN">NISN <i class="fas fa-sort"></i></th>
-            <th width="10%" class="sortable" data-column="NIS">NIS <i class="fas fa-sort"></i></th>
-            <th width="30%" class="sortable" data-column="Nama Siswa">Nama Siswa <i class="fas fa-sort"></i></th>
-            <th width="15%" class="sortable" data-column="No. HP">No. HP <i class="fas fa-sort"></i></th>
-            <th width="15%" class="sortable" data-column="Kelas">Kelas <i class="fas fa-sort"></i></th>
-            <th class="text-center" width="12%">Action</th>
+            <th width="2%"><input type="checkbox" id="select-all" class="item-checkbox-all"></th>
+            <th class="sortable" data-column="NISN" width="10%">NISN <i class="fa-solid fa-sort"
+                    style="margin-left: 4px"></i></th>
+            <th class="sortable" data-column="NIS" width="10%">NIS <i class="fa-solid fa-sort"
+                    style="margin-left: 4px"></i></th>
+            <th class="sortable" data-column="Nama Siswa" width="30%">Nama Siswa<i class="fa-solid fa-sort"
+                    style="margin-left: 4px"></i></th>
+            <th class="sortable" data-column="No. HP" width="15%">No. HP<i class="fa-solid fa-sort"
+                    style="margin-left: 4px"></i></th>
+            <th class="sortable" data-column="Kelas" width="15%">Kelas<i class="fa-solid fa-sort"
+                    style="margin-left: 4px"></i></th>
+            <th width="12%">Action</th>
         </tr>
     </thead>
     <tbody>
         @forelse ($siswa as $item)
-            <tr id="row-{{ $item->id }}">
+            <tr>
                 <td>
-                    <input type="checkbox" name="selected_siswa[]" value="{{ $item->id }}">
+                    <input type="checkbox" name="selected_siswa[]" class="item-checkbox" value="{{ $item->id }}">
                 </td>
-                <td class="editable-cell" data-field="nisn">{{ $item->nisn ?? '-' }}</td>
-                <td class="editable-cell" data-field="nis">{{ $item->nis ?? '-' }}</td>
-                <td class="editable-cell" data-field="nama">{{ $item->nama ?? '-' }}</td>
-                <td class="editable-cell" data-field="no_hp">{{ $item->no_hp ?? '-' }}</td>
+                <td data-field="nisn">{{ $item->nisn ?? '-' }}</td>
+                <td data-field="nis">{{ $item->nis ?? '-' }}</td>
+                <td data-field="nama">{{ $item->nama ?? '-' }}</td>
+                <td data-field="no_hp">{{ $item->no_hp ?? '-' }}</td>
                 <td>{{ $item->kelas ? $item->kelas->tingkat . ' ' . $item->kelas->jurusan->kode_jurusan . ' ' . $item->kelas->no_kelas : '-' }}
                 </td>
-                <td class="text-center">
-                    <div class="action-buttons">
-                        <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal"
-                            data-target="#modalSiswaShow{{ $item->id }}">
-                            <i class="fas fa-edit"></i>
+                <div class="action-buttons">
+                    <td>
+                        @include('admin.siswa.modal.edit', ['id' => $item->id, 'siswa' => $item])
+                        <button class="btn-edit" onclick="openModalEdit('modalSiswaEdit{{ $item->id }}')">
+                            <span class="material-icons-sharp">edit</span>
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal"
-                            data-target="#modalSiswaDestroy{{ $item->id }}">
-                            <i class="fas fa-trash"></i>
+                        <button class="btn-delete" data-toggle="modal"
+                            data-target="#modalKelasDestroy{{ $item->id }}">
+                            <span class="material-icons-sharp">delete</span>
                         </button>
-                    </div>
-                    @include('admin.siswa.modal')
-                </td>
+                    </td>
+                </div>
+                {{-- @include('admin.siswa.modal') --}}
             </tr>
         @empty
             <tr>
@@ -44,7 +47,7 @@
                     <div class="empty-state">
                         <img src="{{ asset('assets\img\not-found.png') }}" alt="No Data" width="120">
                         <p>Tidak ada data siswa yang ditemukan</p>
-                        @include('admin.siswa.modal-create')
+                        {{-- @include('admin.siswa.modal-create') --}}
                         <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
                             data-target="#modalSiswaCreate">
                             <i class="mr-1 fas fa-plus"></i> Tambah Siswa

@@ -24,7 +24,6 @@ class KelasExport implements FromArray, WithStyles, WithTitle, WithColumnWidths
     protected $totalKelas;
     protected $exportedAt;
 
-
     public function __construct()
     {
         $this->kelas = Kelas::with(['jurusan', 'walas.user.guru'])

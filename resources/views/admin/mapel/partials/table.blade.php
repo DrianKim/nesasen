@@ -1,11 +1,11 @@
-<table class="table table-hover">
+<table class="data-kelas-table">
     <thead>
         <tr>
-            <th width="3%">
-                <input type="checkbox" onclick="toggleAll(this)">
-            </th>
-            <th width="30%" class="sortable" data-column="Nama Mapel">Nama Mapel<i class="fas fa-sort"></i></th>
-            <th width="30%" class="sortable" data-column="Kode Mapel">Kode Mapel<i class="fas fa-sort"></i></th>
+            <th width="2%"><input type="checkbox" id="select-all" class="item-checkbox-all"></th>
+            <th width="30%" class="sortable" data-column="Nama Mapel">Nama Mapel<i class="fas fa-sort"
+                    style="margin-left: 4px"></i></th>
+            <th width="30%" class="sortable" data-column="Kode Mapel">Kode Mapel<i class="fas fa-sort"
+                    style="margin-left: 4px"></i></th>
             <th class="text-center" width="12%">Action</th>
         </tr>
     </thead>
@@ -13,20 +13,20 @@
         @forelse ($mapel as $item)
             <tr>
                 <td>
-                    <input type="checkbox" name="selected_mapel[]" value="{{ $item->id }}">
+                    <input type="checkbox" name="selected_mapel[]" class="item-checkbox" value="{{ $item->id }}">
                 </td>
                 <td>{{ $item->nama_mapel ?? '-' }}
                 <td>{{ $item->kode_mapel ?? '-' }}</td>
                 </td>
                 <td class="text-center">
                     <div class="action-buttons">
-                        <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal"
-                            data-target="#modalMapelShow{{ $item->id }}">
-                            <i class="fas fa-edit"></i>
+                        @include('admin.mapel.modal.edit', ['id' => $item->id, 'mapel' => $item])
+                        <button type="button" class="btn-edit"
+                            onclick="openModalEdit('modalMapelEdit{{ $item->id }}')">
+                            <span class="material-icons-sharp">edit</span>
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal"
-                            data-target="#modalMapelDestroy{{ $item->id }}">
-                            <i class="fas fa-trash"></i>
+                        <button class="btn-delete" data-toggle="modal" data-target="#modalMapeltroy{{ $item->id }}">
+                            <span class="material-icons-sharp">delete</span>
                         </button>
                     </div>
                     @include('admin.mapel.modal')

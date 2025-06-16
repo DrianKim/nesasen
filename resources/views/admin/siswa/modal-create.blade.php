@@ -88,15 +88,6 @@
                         </div>
                         <div class="col-md-6 form-group">
                             <label for="kelas">Kelas</label>
-                            {{-- <select class="border rounded form-control border-opacity-30" id="kelas" name="kelas_id"
-                                required>
-                                <option value="">Pilih Kelas</option>
-                                @foreach ($kelasList as $kelas)
-                                    <option value="{{ $kelas->id }}">
-                                        {{ $kelas->tingkat . ' ' . $kelas->jurusan->kode_jurusan . ' ' . $kelas->no_kelas }}
-                                    </option>
-                                @endforeach
-                            </select> --}}
                             <select name="kelas_id"
                                 class="border rounded form-control border-opacity-30 @error('kelas_id') is-invalid @enderror"
                                 id="kelas">

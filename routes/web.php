@@ -134,7 +134,7 @@ Route::middleware(['isLogin'])->group(function () {
 
     Route::middleware(['isAdmin'])->group(function () {
         // Dashboard
-        Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('admin/beranda', [DashboardController::class, 'index'])->name('admin.index');
 
         // umum kelas
         Route::get('admin/kelas', [AdminController::class, 'index_kelas'])->name('admin_kelas.index');
@@ -200,6 +200,10 @@ Route::middleware(['isLogin'])->group(function () {
         Route::post('admin/jurusan/update/{id}', [AdminController::class, 'update_jurusan'])->name('admin_jurusan.update');
         Route::delete('admin/jurusan/destroy/{id}', [AdminController::class, 'destroy_jurusan'])->name('admin_jurusan.destroy');
         Route::delete('admin/jurusan/bulk_action', [AdminController::class, 'bulkAction_jurusan'])->name('admin_jurusan.bulk_action');
+        Route::get('admin/jurusan/template', [AdminController::class, 'download_template_jurusan'])->name('admin_jurusan.template');
+        Route::post('admin/jurusan/import', [AdminController::class, 'import_jurusan'])->name('admin_jurusan.import');
+        Route::get('admin/jurusan/export/pdf', [AdminController::class, 'export_jurusan_pdf'])->name('admin_jurusan.export.pdf');
+        Route::get('admin/jurusan/export/xlsx', [AdminController::class, 'export_jurusan_xlsx'])->name('admin_jurusan.export.xlsx');
 
         // umum mapel
         Route::get('admin/mapel', [AdminController::class, 'index_mapel'])->name('admin_mapel.index');
@@ -210,10 +214,14 @@ Route::middleware(['isLogin'])->group(function () {
         Route::post('admin/mapel/update/{id}', [AdminController::class, 'update_mapel'])->name('admin_mapel.update');
         Route::delete('admin/mapel/destroy/{id}', [AdminController::class, 'destroy_mapel'])->name('admin_mapel.destroy');
         Route::delete('admin/mapel/bulk_action', [AdminController::class, 'bulkAction_mapel'])->name('admin_mapel.bulk_action');
+        Route::get('admin/mapel/template', [AdminController::class, 'download_template_mapel'])->name('admin_mapel.template');
+        Route::post('admin/mapel/import', [AdminController::class, 'import_mapel'])->name('admin_mapel.import');
+        Route::get('admin/mapel/export/pdf', [AdminController::class, 'export_mapel_pdf'])->name('admin_mapel.export.pdf');
+        Route::get('admin/mapel/export/xlsx', [AdminController::class, 'export_mapel_xlsx'])->name('admin_mapel.export.xlsx');
 
         // presensi siswa
         Route::get('admin/presensi/siswa', [AdminController::class, 'index_presensi_siswa'])->name('admin_presensi_siswa.index');
-        Route::get('admin/presensi/siswa/filter', [AdminController::class, 'index_presensi_siswa'])->name('admin_presensi_siswa.filter');
+        Route::get('admin/presensi/siswa/filter', [AdminController::class, 'index_presensi_siswa'])->name('admin_presensi_siswa.filter' );
         Route::get('admin/presensi/siswa/create', [AdminController::class, 'create_presensi_siswa'])->name('admin_presensi_siswa.create');
         Route::post('admin/presensi/siswa/store', [AdminController::class, 'store_presensi_siswa'])->name('admin_presensi_siswa.store');
         Route::get('admin/presensi/siswa/edit/{id}', [AdminController::class, 'edit_presensi_siswa'])->name('admin_presensi_siswa.edit');

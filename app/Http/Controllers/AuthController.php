@@ -45,7 +45,7 @@ class AuthController extends Controller
 
             // Redirect sesuai role_id
             if ($user->role_id == 1) {
-                return redirect()->route('dashboard')->with('success', 'Anda Berhasil Login');
+                return redirect()->route('admin.index')->with('success', 'Anda Berhasil Login');
             } elseif ($user->role_id == 2 || $user->role_id == 3) {
                 return redirect()->route('dashboard')->with('success', 'Anda Berhasil Login');
             } elseif ($user->role_id == 4) {
