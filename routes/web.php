@@ -133,8 +133,10 @@ Route::middleware(['isLogin'])->group(function () {
     Route::get('/siswa/jadwal/perbulan', [SiswaController::class, 'jadwal_perbulan'])->name('siswa.jadwal.perbulan');
 
     Route::middleware(['isAdmin'])->group(function () {
-        // Dashboard
+        // beranda
         Route::get('admin/beranda', [DashboardController::class, 'index'])->name('admin.index');
+
+        Route::get('admin/pengumuman', [DashboardController::class, 'index_pengumuman'])->name('admin_pengumuman.index');
 
         // umum kelas
         Route::get('admin/kelas', [AdminController::class, 'index_kelas'])->name('admin_kelas.index');

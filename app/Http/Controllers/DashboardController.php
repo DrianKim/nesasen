@@ -10,9 +10,18 @@ class DashboardController extends Controller
     public function index()
     {
         $data = array(
-            'title' => 'Dashboard',
+            'title' => 'Beranda',
             'menuDashboard' => 'active',
         );
         return view('admin.beranda', $data);
+    }
+
+    public function index_pengumuman() {
+        $data = array(
+            'title' => 'Pengumuman',
+            'menuPengumuman' => 'active',
+        );
+
+        return view('admin.pengumuman', $data);
     }
 }

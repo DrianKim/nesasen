@@ -67,18 +67,19 @@
                         </div>
                     </div>
 
-                    <!-- Loading Indicator -->
-                    <div id="loading-indicator" style="display:none;">
-                        <div class="my-3 d-flex justify-content-center">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
 
                 <!-- Table Section -->
-                <div class="table-responsive">
+                <div class="table-responsive" style="position: relative;">
+                    <!-- Loading Indicator -->
+                    <div id="loading-indicator" style="display:none;" class="loading-overlay-table">
+                        <div class="my-3 d-flex justify-content-center spinner-wrapper">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="loading-text">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
                     {{-- <form id="bulk_form" action="{{ route('admin_kelas.bulk_action') }}" method="POST"> --}}
                     {{-- @csrf --}}
                     <input type="hidden" name="bulk_action" id="bulk_action" value="">
@@ -338,6 +339,7 @@
             let searchTimer;
             let currentRequest = null;
 
+
             function getFilterData() {
                 const data = new URLSearchParams();
 
@@ -353,8 +355,9 @@
 
             // Function to load data via AJAX
             function loadData() {
+                // document.getElementById('loading-indicator').style.display = 'flex';
                 // Show loading indicator
-                loadingIndicator.style.display = 'block';
+                loadingIndicator.style.display = 'flex';
 
                 // If there's a pending request, abort it
                 if (currentRequest) {
