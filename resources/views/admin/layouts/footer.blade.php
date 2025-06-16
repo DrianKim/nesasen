@@ -23,21 +23,51 @@
     const sideMenu = document.querySelector("aside");
     const menuBtn = document.getElementById("menu-btn");
     const closeBtn = document.getElementById("close-btn");
-
     const darkMode = document.querySelector(".dark-mode");
 
-    menuBtn.addEventListener("click", () => {
-        sideMenu.style.display = "block";
-    });
+    menuBtn?.addEventListener("click", () => (sideMenu.style.display = "block"));
+    closeBtn?.addEventListener("click", () => (sideMenu.style.display = "none"));
 
-    closeBtn.addEventListener("click", () => {
-        sideMenu.style.display = "none";
-    });
-
-    darkMode.addEventListener("click", () => {
+    // Saat toggle diklik
+    darkMode?.addEventListener("click", () => {
         document.body.classList.toggle("dark-mode-variables");
-        darkMode.querySelector("span:nth-child(1)").classList.toggle("active");
-        darkMode.querySelector("span:nth-child(2)").classList.toggle("active");
+
+        const isDark = document.body.classList.contains("dark-mode-variables");
+        localStorage.setItem("darkMode", isDark ? "true" : "false");
+
+        darkMode.querySelector("span:nth-child(1)")?.classList.toggle("active");
+        darkMode.querySelector("span:nth-child(2)")?.classList.toggle("active");
+    });
+
+    if (localStorage.getItem("darkMode") === "true") {
+        document.body.classList.add("dark-mode-variables");
+
+        const lightIcon = document.querySelector(".dark-mode span:nth-child(1)");
+        const darkIcon = document.querySelector(".dark-mode span:nth-child(2)");
+
+        lightIcon?.classList.remove("active");
+        darkIcon?.classList.add("active");
+    }
+</script>
+
+<script>
+    document.getElementById('logout-btn').addEventListener('click', function(e) {
+        e.preventDefault(); // Mencegah aksi default
+        Swal.fire({
+            title: 'Apakah Anda yakin ingin logout?',
+            text: "Anda akan keluar dari sesi saat ini.",
+            icon: 'warning',
+            showCancelButton: true,
+            iconColor: '#e7586e',
+            confirmButtonColor: '#e7586e',
+            cancelButtonColor: '#43c6c9',
+            confirmButtonText: 'Ya, logout!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "{{ route('logout') }}"; // Redirect ke route logout
+            }
+        });
     });
 </script>
 
@@ -47,6 +77,8 @@
             icon: 'success',
             title: 'Sukses',
             text: '{{ session('success') }}',
+            confirmButtonColor: '#43c6c9',
+
         });
     </script>
 @endif
@@ -57,6 +89,7 @@
             icon: 'error',
             title: 'Gagal',
             text: '{{ session('error') }}',
+            confirmButtonColor: '#43c6c9',
         });
     </script>
 @endif

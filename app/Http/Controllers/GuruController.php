@@ -2,30 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Middleware\isLogin;
 use Carbon\Carbon;
-use App\Models\Siswa;
+use App\Models\Guru;
 use App\Models\Jadwal;
-use App\Models\izinSiswa;
+use App\Models\izinGuru;
 use App\Models\MapelKelas;
-use Illuminate\Support\Str;
+use App\Models\presensiGuru;
 use Illuminate\Http\Request;
-use App\Models\presensiSiswa;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use Svg\Tag\Rect;
 
-class SiswaController extends Controller
+class GuruController extends Controller
 {
     public function beranda_index()
     {
         $data = array(
-            'title' => 'Beranda Siswa',
+            'title' => 'Beranda Guru',
             'menuBeranda' => 'active',
-            'siswa' => Siswa::all(),
+            'guru' => Guru::all(),
         );
-        return view('siswa.beranda', $data);
+        return view('guru.beranda', $data);
     }
 
     public function presensi_index(Request $request)
@@ -37,21 +32,21 @@ class SiswaController extends Controller
         }
 
         $data = array(
-            'title' => 'Presensi Siswa',
+            'title' => 'Presensi Guru',
             'menuPresensi' => 'active',
-            'siswa' => Siswa::all(),
-            'presensiSiswa' => presensiSiswa::where('siswa_id', Auth::user()->id)->get(),
+            'guru' => Guru::all(),
+            'presensiGuru' => presensiGuru::where('guru_id', Auth::user()->id)->get(),
             'isMobile' => $isMobile,
         );
-        return view('siswa.presensi', $data);
+        return view('guru.presensi', $data);
     }
 
     public function presensi_hari_ini()
     {
-        $siswaId = auth()->user()->siswa->id;
+        $guruId = auth()->user()->guru->id;
         $tanggal = now()->toDateString();
 
-        $presensi = presensiSiswa::where('siswa_id', $siswaId)
+        $presensi = presensiGuru::where('guru_id', $guruId)
             ->where('tanggal', $tanggal)
             ->first();
 
@@ -61,18 +56,19 @@ class SiswaController extends Controller
         ]);
     }
 
+
     public function presensi_reminder()
     {
         $user = auth()->user();
 
-        if ($user->role_id != 4 || !$user->siswa) {
+        if ($user->role_id != 3 || !$user->guru) {
             return response()->json(['error', 'Akses Ditolak'], 403);
         }
 
-        $siswaId = $user->siswa->id;
+        $guruId = $user->guru->id;
         $tanggal = now()->toDateString();
 
-        $presensi = presensiSiswa::where('siswa_id', $siswaId)
+        $presensi = presensiGuru::where('guru_id', $guruId)
             ->where('tanggal', $tanggal)
             ->first();
 
@@ -101,7 +97,7 @@ class SiswaController extends Controller
             'status_lokasi.in' => 'Status lokasi harus berupa salah satu dari: dalam_area, di_luar_area',
         ]);
 
-        $siswaId = auth()->user()->siswa->id;
+        $guruId = auth()->user()->guru->id;
         $tanggal = now()->toDateString();
         $waktu = now()->toTimeString();
         $alasan = $request->alasan ?? null;
@@ -116,7 +112,7 @@ class SiswaController extends Controller
             $fotoPath = $request->file('selfie')->store('presensi_foto', 'public');
         }
 
-        $presensi = presensiSiswa::where('siswa_id', $siswaId)
+        $presensi = presensiGuru::where('guru_id', $guruId)
             ->where('tanggal', $tanggal)->first();
 
         $status_kehadiran = $request->status_kehadiran;
@@ -127,8 +123,8 @@ class SiswaController extends Controller
         }
 
         if (!$presensi) {
-            presensiSiswa::create([
-                'siswa_id' => $siswaId,
+            presensiGuru::create([
+                'guru_id' => $guruId,
                 'tanggal' => $tanggal,
                 'jam_masuk' => $waktu,
                 'foto_masuk' => $fotoPath,
@@ -162,11 +158,11 @@ class SiswaController extends Controller
     public function izin_index(Request $request)
     {
         $data = array(
-            'title' => 'Izin Siswa',
-            'siswa' => Siswa::all(),
-            'izinSiswa' => izinSiswa::where('siswa_id', Auth::user()->id)->get(),
+            'title' => 'Izin Guru',
+            'guru' => Guru::all(),
+            'izinGuru' => izinGuru::where('guru_id', Auth::user()->id)->get(),
         );
-        return view('siswa.izin', $data);
+        return view('guru.izin', $data);
     }
 
     public function izin_store(Request $request)
@@ -194,9 +190,9 @@ class SiswaController extends Controller
             $pathLampiran = $lampiran->store('lampiran_izin', 'public');
         }
 
-        izinSiswa::create([
+        izinGuru::create([
             'tanggal' => $tanggal,
-            'siswa_id' => Auth::user()->siswa->id,
+            'guru_id' => Auth::user()->guru->id,
             'jenis_izin' => $request->jenis_izin,
             'keterangan' => $request->keterangan,
             'lampiran' => $pathLampiran,
@@ -205,43 +201,14 @@ class SiswaController extends Controller
         return redirect()->back()->with('success', 'Izin berhasil diajukan');
     }
 
-    public function index_kelasKu()
-    {
-        $siswa = Siswa::with('kelas')->find(Auth::user()->siswa->id);
-
-        $mapelKelasList = MapelKelas::with(['mataPelajaran', 'guru.user', 'tugas.pengumpulan_tugas'])
-            ->where('kelas_id', $siswa->kelas_id)
-            ->get()
-            ->map(function ($item) use ($siswa) {
-                $jumlahTugas = $item->tugas->count();
-
-                $tugasSelesai = $item->tugas->flatMap(function ($tugas) use ($siswa) {
-                    return $tugas->pengumpulan_tugas->where('siswa_id', $siswa->id)->where('status', 'Sudah Dikerjakan');
-                })->count();
-
-                $item->jumlahTugas = $jumlahTugas;
-                $item->tugasSelesai = $tugasSelesai;
-                $item->progress = $jumlahTugas > 0 ? round(($tugasSelesai / $jumlahTugas) * 100) : 0;
-
-                return $item;
-            });
-
-        $data = array(
-            'title' => 'Kelas Saya',
-            'siswa' => $siswa,
-            'kelasKu' => $mapelKelasList,
-        );
-        return view('siswa.kelasKu', $data);
-    }
-
     public function jadwal_index(Request $request)
     {
-        $siswa = auth()->user()->siswa;
+        $guru = auth()->user()->guru;
         $selectedDate = $request->input('tanggal')
             ? Carbon::parse($request->input('tanggal'))
             : Carbon::now();
 
-        $mapelKelasIds = MapelKelas::where('kelas_id', $siswa->kelas->id)->pluck('id');
+        $mapelKelasIds = MapelKelas::where('guru_id', $guru->id)->pluck('id');
 
         $jadwalHariIni = Jadwal::whereIn('mapel_kelas_id', $mapelKelasIds)
             ->where('tanggal', $selectedDate->format('Y-m-d'))
@@ -295,7 +262,7 @@ class SiswaController extends Controller
 
         $data = [
             'title' => 'Jadwal Pelajaran',
-            'siswa' => $siswa,
+            'guru' => $guru,
             'jadwalHariIni' => $jadwalHariIni,
             'selectedDate' => $selectedDate,
             'daysOfWeek' => $daysOfWeek,
@@ -312,17 +279,17 @@ class SiswaController extends Controller
             ]);
         }
 
-        return view('siswa.jadwal', $data);
+        return view('guru.jadwal', $data);
     }
 
     public function jadwal_perhari(Request $request)
     {
-        $siswa = auth()->user()->siswa;
+        $guru = auth()->user()->guru;
         $selectedDate = $request->input('tanggal')
             ? Carbon::parse($request->input('tanggal'))
             : Carbon::now();
 
-        $mapelKelasIds = MapelKelas::where('kelas_id', $siswa->kelas->id)->pluck('id');
+        $mapelKelasIds = MapelKelas::where('guru_id', $guru->kelas->id)->pluck('id');
 
         $jadwalHariIni = Jadwal::whereIn('mapel_kelas_id', $mapelKelasIds)
             ->where('tanggal', $selectedDate->format('Y-m-d'))
@@ -368,7 +335,7 @@ class SiswaController extends Controller
 
         $selectedDate = $tanggal;
 
-        $html = view('siswa.partials.days_perminggu', compact('daysOfWeek', 'selectedDate'))->render();
+        $html = view('guru.partials.days_perminggu', compact('daysOfWeek', 'selectedDate'))->render();
 
         return response()->json([
             'daysHtml' => $html
@@ -390,7 +357,7 @@ class SiswaController extends Controller
 
         $selectedDate = $tanggal;
 
-        $html = view('siswa.partials.days_perbulan', compact('daysOfMonth', 'selectedDate'))->render();
+        $html = view('guru.partials.days_perbulan', compact('daysOfMonth', 'selectedDate'))->render();
 
         return response()->json([
             'daysHtml' => $html,

@@ -1,9 +1,11 @@
 <?php
 
+use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OtpController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GuruController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\WalasController;
@@ -12,7 +14,6 @@ use App\Http\Controllers\PengajarController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ForgotPasswordController;
-use Illuminate\Http\Request;
 
 //coba
 // Route::get('/coba', function () {
@@ -117,6 +118,7 @@ Route::middleware(['isLogin'])->group(function () {
     // presensi
     Route::get('siswa/presensi', [SiswaController::class, 'presensi_index'])->name('siswa.presensi');
     Route::get('/siswa/presensi/hari-ini', [SiswaController::class, 'presensi_hari_ini'])->name('siswa.presensi.hari_ini');
+    Route::get('/siswa/presensi-reminder', [SiswaController::class, 'presensi_reminder'])->name('siswa.presensi.reminder');
     Route::post('/siswa/presensi/store', [SiswaController::class, 'presensi_store'])->name('siswa.presensi.store');
 
     // izin
@@ -131,6 +133,32 @@ Route::middleware(['isLogin'])->group(function () {
     Route::get('siswa/jadwal/perhari', [SiswaController::class, 'jadwal_perhari'])->name('siswa.jadwal.perhari');
     Route::get('/siswa/jadwal/perminggu', [SiswaController::class, 'jadwal_perminggu'])->name('siswa.jadwal.perminggu');
     Route::get('/siswa/jadwal/perbulan', [SiswaController::class, 'jadwal_perbulan'])->name('siswa.jadwal.perbulan');
+
+
+
+
+    // guru
+    // beranda
+    Route::get('guru/beranda', [GuruController::class, 'beranda_index'])->name('guru.beranda');
+
+    // presensi
+    Route::get('guru/presensi', [GuruController::class, 'presensi_index'])->name('guru.presensi');
+    Route::get('/guru/presensi/hari-ini', [GuruController::class, 'presensi_hari_ini'])->name('guru.presensi.hari_ini');
+    Route::get('/guru/presensi-reminder', [GuruController::class, 'presensi_reminder'])->name('guru.presensi.reminder');
+    Route::post('/guru/presensi/store', [GuruController::class, 'presensi_store'])->name('guru.presensi.store');
+
+    // izin
+    Route::get('guru/izin', [GuruController::class, 'izin_index'])->name('guru.izin');
+    Route::post('guru/izin/store', [GuruController::class, 'izin_store'])->name('guru.izin.store');
+
+    // kelasKu
+    Route::get('guru/kelasKu', [GuruController::class, 'index_kelasKu'])->name('guru.kelasKu.index');
+
+    // jadwal
+    Route::get('guru/jadwal', [GuruController::class, 'jadwal_index'])->name('guru.jadwal');
+    Route::get('guru/jadwal/perhari', [GuruController::class, 'jadwal_perhari'])->name('guru.jadwal.perhari');
+    Route::get('/guru/jadwal/perminggu', [GuruController::class, 'jadwal_perminggu'])->name('guru.jadwal.perminggu');
+    Route::get('/guru/jadwal/perbulan', [GuruController::class, 'jadwal_perbulan'])->name('guru.jadwal.perbulan');
 
     Route::middleware(['isAdmin'])->group(function () {
         // beranda
@@ -223,7 +251,7 @@ Route::middleware(['isLogin'])->group(function () {
 
         // presensi siswa
         Route::get('admin/presensi/siswa', [AdminController::class, 'index_presensi_siswa'])->name('admin_presensi_siswa.index');
-        Route::get('admin/presensi/siswa/filter', [AdminController::class, 'index_presensi_siswa'])->name('admin_presensi_siswa.filter' );
+        Route::get('admin/presensi/siswa/filter', [AdminController::class, 'index_presensi_siswa'])->name('admin_presensi_siswa.filter');
         Route::get('admin/presensi/siswa/create', [AdminController::class, 'create_presensi_siswa'])->name('admin_presensi_siswa.create');
         Route::post('admin/presensi/siswa/store', [AdminController::class, 'store_presensi_siswa'])->name('admin_presensi_siswa.store');
         Route::get('admin/presensi/siswa/edit/{id}', [AdminController::class, 'edit_presensi_siswa'])->name('admin_presensi_siswa.edit');

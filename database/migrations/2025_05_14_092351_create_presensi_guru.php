@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('presensi_siswa', function (Blueprint $table) {
+        Schema::create('presensi_guru', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('siswa_id')->constrained('siswa')->onDelete('cascade');
+            $table->foreignId('guru_id')->constrained('guru')->onDelete('cascade');
             $table->date('tanggal');
             $table->time('jam_masuk')->nullable();
             $table->time('jam_keluar')->nullable();
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->enum('status_lokasi', ['dalam_area', 'di_luar_area'])->default('dalam_area');
             $table->timestamps();
 
-            $table->index(['siswa_id', 'tanggal']);
+            $table->index(['guru_id', 'tanggal']);
             $table->index('tanggal');
         });
     }
@@ -36,6 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('presensi_siswa');
+        Schema::dropIfExists('presensi_guru');
     }
 };

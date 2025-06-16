@@ -1,7 +1,7 @@
 <!-- Sidebar -->
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled" id="accordionSidebar">
     <!-- Sidebar - Brand -->
-    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
         <div class="sidebar-brand-icon">
             {{-- <img src="{{ asset('assets\img\nesasen Landscape Logo.png') }}" alt="nesasen icon" width="150px" height="50px"> --}}
             {{-- <img src="{{ asset('assets\img\smeapng.png') }}" alt="SMEA icon" width="50px" height="50px"> --}}
@@ -197,11 +197,19 @@
             Area Pengajar
         </div>
 
-        <!-- Nav Item - Profil -->
-        <li class="nav-item {{ $menuProfil ?? '' }}">
-            <a class="py-2 nav-link" href="{{ route('profil.index') }}">
-                <i class="fas fa-fw fa-user-circle"></i>
-                <span>Profil Saya</span>
+        <!-- Nav Item - Beranda -->
+        <li class="nav-item {{ $menuBeranda ?? '' }}">
+            <a class="py-2 nav-link" href="{{ route('guru.beranda') }}">
+                <i class="fas fa-fw fa-home"></i>
+                <span>Beranda</span>
+            </a>
+        </li>
+
+        <!-- Nav Item - Presensi -->
+        <li class="nav-item {{ $menuPresensi ?? '' }}">
+            <a class="py-2 nav-link" href="{{ route('guru.presensi') }}">
+                <i class="fas fa-fw fa-user-check"></i>
+                <span>Presensi</span>
             </a>
         </li>
 
@@ -273,12 +281,20 @@
                             <i class="fas fa-pen fa-sm me-1"></i> Rekap Presensi
                         </a>
                         {{-- <a class="collapse-item" href="#">
-                        <i class="fas fa-user-check fa-sm me-1"></i> Presensi Siswa
-                    </a> --}}
+                    <i class="fas fa-user-check fa-sm me-1"></i> Presensi Siswa
+                </a> --}}
                     </div>
                 </div>
             </li>
         @endif
+        
+        <!-- Nav Item - Profil -->
+        <li class="nav-item {{ $menuProfil ?? '' }}">
+            <a class="py-2 nav-link" href="{{ route('profil.index') }}">
+                <i class="fas fa-fw fa-user-circle"></i>
+                <span>Profil Saya</span>
+            </a>
+        </li>
     @endif
 
     <!-- SISWA MENU -->

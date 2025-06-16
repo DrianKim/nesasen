@@ -50,7 +50,7 @@
         <!-- Header with Back Button -->
         <div class="presensi-header">
             <div class="back-button">
-                <a href="{{ route('siswa.beranda') }}" class="back-button">
+                <a href="{{ route('guru.beranda') }}" class="back-button">
                     <i class="fas fa-arrow-left"></i> Presensi Online
                 </a>
             </div>
@@ -71,6 +71,12 @@
                 <button id="checkOutInfo" class="check-btn check-out btn-sm">
                     <i class="fas fa-times-circle"></i> Check Out --:--
                 </button>
+                {{-- <span id="checkInInfo" class="check-btn check-in active btn-sm">
+                    <i class="fas fa-check-circle"></i> Check In --:--
+                </span>
+                <span id="checkOutInfo" class="check-btn check-out active btn-sm">
+                    <i class="fas fa-times-circle"></i> Check Out --:--
+                </span> --}}
             </div>
         </div>
 
@@ -106,7 +112,7 @@
         </button>
     </div>
 
-    @include('siswa.modal.modal-selfie')
+    @include('guru.modal.modal-selfie')
 
     @include('layouts.footer-cr')
 
@@ -382,7 +388,7 @@
         }
 
         // Ambil status presensi hari ini
-        fetch("{{ route('siswa.presensi.hari_ini') }}")
+        fetch("{{ route('guru.presensi.hari_ini') }}")
             .then(res => res.json())
             .then(data => {
                 const requestBtn = document.getElementById('requestCheckIn');
@@ -425,7 +431,7 @@
             });
 
         window.addEventListener('DOMContentLoaded', () => {
-            fetch('/siswa/presensi/hari-ini')
+            fetch('/guru/presensi/hari-ini')
                 .then(res => res.json())
                 .then(data => {
                     console.log('Data Presensi:', data);
@@ -577,7 +583,7 @@
                     formData.append('status_lokasi', statusLokasi);
                     if (alasan) formData.append('alasan', alasan);
 
-                    return fetch('/siswa/presensi/store', {
+                    return fetch('/guru/presensi/store', {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')

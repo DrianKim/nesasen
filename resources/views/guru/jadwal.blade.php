@@ -45,7 +45,7 @@
         <!-- Header -->
         <div class="jadwal-header">
             <div class="back-button">
-                <a href="{{ route('siswa.beranda') }}" onclick="goBack()">
+                <a href="{{ route('guru.beranda') }}" onclick="goBack()">
                     <i class="fas fa-arrow-left"></i> Jadwal
                 </a>
             </div>
@@ -94,7 +94,7 @@
 
         <!-- Current Date Display -->
         <div class="current-date">
-            <div class="date-text" id="current-date-text">Kamis, 05 Juni 2025</div>
+            <div class="date-text" id="current-date-text"></div>
             <div class="today-badge" id="today-badge" style="display: none;">Hari Ini</div>
         </div>
 
@@ -137,10 +137,10 @@
                 this.dayNamesShort = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
 
                 this.routes = {
-                    jadwal: '/siswa/jadwal',
-                    jadwalPerhari: '/siswa/jadwal/perhari',
-                    jadwalPerminggu: '/siswa/jadwal/perminggu',
-                    jadwalPerbulan: '/siswa/jadwal/perbulan'
+                    jadwal: '/guru/jadwal',
+                    jadwalPerhari: '/guru/jadwal/perhari',
+                    jadwalPerminggu: '/guru/jadwal/perminggu',
+                    jadwalPerbulan: '/guru/jadwal/perbulan'
                 };
 
                 this.init();
@@ -263,9 +263,9 @@
                     const isToday = this.isSameDay(currentDate, new Date());
 
                     let classes = 'day-cell';
-                    if (isActive) classes += ' active';
-                    if (isToday) classes += ' today';
-                    if (!isCurrentMonth) classes += ' other-month disabled';
+                    if (isActive) classes += 'active';
+                    if (isToday) classes += 'today';
+                    if (!isCurrentMonth) classes += 'other-month disabled';
 
                     // Jangan kasih onclick kalau other-month
                     const clickHandler = isCurrentMonth ?
@@ -337,34 +337,29 @@
 
                 if (!jadwalData || jadwalData.length === 0) {
                     jadwalList.html(`
-                        <div class="empty-jadwal">
-                            <div class="empty-illustration">
-                                <i class="fas fa-calendar-times"></i>
-                            </div>
-                            <div class="empty-text">Tidak ada jadwal untuk hari ini</div>
-                        </div>
-                    `);
+            <div class="empty-jadwal">
+                <div class="empty-illustration">
+                    <i class="fas fa-calendar-times"></i>
+                </div>
+                <div class="empty-text">Tidak ada jadwal untuk hari ini</div>
+            </div>
+        `);
                     return;
                 }
 
                 let html = '';
                 jadwalData.forEach((jadwal) => {
-                    const completedClass = jadwal.is_selesai ? 'completed' : '';
-                    const ongoingClass = jadwal.is_berlangsung ? 'ongoing' : '';
-                    const upcomingClass = (!jadwal.is_selesai && !jadwal.is_berlangsung) ? 'upcoming' : '';
+                    const statusClass = jadwal.is_selesai ?
+                        'completed' :
+                        jadwal.is_berlangsung ?
+                        'ongoing' :
+                        'upcoming';
 
-                    let statusIcon = '';
-                    if (jadwal.is_selesai) {
-                        statusIcon = '<div class="status-check"><i class="fas fa-check-circle"></i></div>';
-                    } else if (jadwal.is_berlangsung) {
-                        statusIcon = '<div class="status-ongoing"><i class="fas fa-clock"></i></div>';
-                    } else {
-                        statusIcon =
-                            '<div class="status-upcoming"><i class="fas fa-hourglass-start"></i></div>';
-                    }
-
-                    const ongoingSubjectClass = jadwal.is_berlangsung ? 'belum-selesai' : (upcomingClass ?
-                        'upcoming' : '');
+                    const statusIcon = jadwal.is_selesai ?
+                        '<div class="status-check"><i class="fas fa-check-circle"></i></div>' :
+                        jadwal.is_berlangsung ?
+                        '<div class="status-ongoing"><i class="fas fa-clock"></i></div>' :
+                        '<div class="status-upcoming"><i class="fas fa-hourglass-start"></i></div>';
 
                     const mapelKelas = jadwal.mapel_kelas;
                     const mataPelajaran = mapelKelas?.mata_pelajaran;
@@ -372,33 +367,27 @@
                     const kelas = mapelKelas?.kelas;
                     const jurusan = kelas?.jurusan;
 
+                    const jamMulai = (jadwal.jam_mulai ?? '00:00').substring(0, 5);
+                    const jamSelesai = (jadwal.jam_selesai ?? '00:00').substring(0, 5);
+
                     html += `
-                        <div class="jadwal-item ${completedClass} ${ongoingClass} ${upcomingClass}">
-                            <div class="waktu-container">
-                                <div class="waktu">
-                                    ${jadwal.jam_mulai.substring(0, 5)}
-                                    -
-                                    ${jadwal.jam_selesai.substring(0, 5)}
-                                </div>
-                                ${statusIcon}
-                            </div>
-                            <div class="mata-pelajaran-container ${ongoingSubjectClass}">
-                                <div class="mata-pelajaran">
-                                    ${mataPelajaran ? mataPelajaran.nama_mapel : '-'}
-                                </div>
-                                <div class="guru">
-                                    ${guru ? guru.nama : '-'}
-                                </div>
-                                <div class="kelas">
-                                    ${kelas ? `${kelas.tingkat} ${jurusan?.kode_jurusan ?? ''} ${kelas.no_kelas}` : '-'}
-                                </div>
-                            </div>
-                        </div>
-                    `;
+            <div class="jadwal-item ${statusClass}">
+                <div class="waktu-container">
+                    <div class="waktu">${jamMulai} - ${jamSelesai}</div>
+                    ${statusIcon}
+                </div>
+                <div class="mata-pelajaran-container ${statusClass === 'ongoing' ? 'belum-selesai' : ''}">
+                    <div class="mata-pelajaran">${mataPelajaran?.nama_mapel ?? '-'}</div>
+                    <div class="guru">${guru?.nama ?? '-'}</div>
+                    <div class="kelas">${kelas ? `${kelas.tingkat} ${jurusan?.kode_jurusan ?? ''} ${kelas.no_kelas}` : '-'}</div>
+                </div>
+            </div>
+        `;
                 });
 
                 jadwalList.html(html);
             }
+
 
             getStartOfWeek(date) {
                 const d = new Date(date);

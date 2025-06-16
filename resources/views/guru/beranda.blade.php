@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="beranda-container">
-        <!-- Check In/Out Info -->
+        <!-- Clock In/Out Section -->
         <div class="clock-section">
             <button id="checkInBeranda" class="clock-btn active">
                 <i class="fas fa-clock"></i> Check In --:--
@@ -19,7 +19,7 @@
             <div class="features-grid">
                 <!-- Feature 1: Presensi -->
                 <div class="feature-item">
-                    <a href="{{ route('siswa.presensi') }}">
+                    <a href="{{ route('guru.presensi') }}">
                         <div class="feature-icon red">
                             <i class="fas fa-clock"></i>
                         </div>
@@ -29,7 +29,7 @@
 
                 <!-- Feature 2: Izin -->
                 <div class="feature-item">
-                    <a href="{{ route('siswa.izin') }}">
+                    <a href="{{ route('guru.izin') }}">
                         <div class="feature-icon blue">
                             <i class="fas fa-envelope"></i>
                         </div>
@@ -47,7 +47,7 @@
 
                 <!-- Feature 4: Jadwal -->
                 <div class="feature-item">
-                    <a href="{{ route('siswa.jadwal') }}">
+                    <a href="{{ route('guru.jadwal') }}">
                         <div class="feature-icon red">
                             <i class="fas fa-calendar"></i>
                         </div>
@@ -65,7 +65,7 @@
 
                 <!-- Feature 6: Tugasku -->
                 <div class="feature-item">
-                    <a href="{{ route('siswa.kelasKu.index') }}">
+                    <a href="{{ route('guru.kelasKu.index') }}">
                         <div class="feature-icon red">
                             <i class="fas fa-tasks"></i>
                         </div>
@@ -93,23 +93,24 @@
     </div>
 
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             $.ajax({
-                url: '/siswa/presensi-reminder',
+                url: '/guru/presensi-reminder',
                 method: 'GET',
-                success: function(res) {
+                success: function (res) {
                     if (!res.jam_masuk) {
                         Swal.fire({
                             title: '',
-                            html: 'Kamu belum Check In hari ini<br>Yuk Check In sekarang',
+                            html: 'Kamu belum Check In hari ini.<br>Yuk Check In sekarang!',
                             icon: 'warning',
-                            // showCancelButton: true,
+                            // iconHtml: '<i class="fas fa-bell fa-1x text-warning"></i>',
+                            // showCancelButton: false,
                             confirmButtonText: 'Check In',
                             confirmButtonColor: '#3085d6',
                             // cancelButtonText: 'Nanti aja',
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href = '/siswa/presensi';
+                                window.location.href = '/guru/presensi';
                             }
                         });
                     }
@@ -120,7 +121,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            fetch('/siswa/presensi/hari-ini')
+            fetch('/guru/presensi/hari-ini')
                 .then(response => response.json())
                 .then(data => {
                     const jamMasuk = data.jam_masuk;

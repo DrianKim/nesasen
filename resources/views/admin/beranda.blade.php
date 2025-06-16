@@ -15,10 +15,10 @@
                     <div class="status">
                         <div class="info">
                             <h3>Total Siswa Terdaftar</h3>
-                            <h1>5,024</h1>
+                            <h1>{{ $totalSiswa }}</h1>
                         </div>
                         <div class="icon-vector">
-                            <img src="images/many-siswa.png" alt="Icon Siswa" />
+                            <img src="{{ asset('img/many-siswa-vector.png') }}" alt="Icon Siswa" />
                         </div>
                     </div>
                 </div>
@@ -26,11 +26,11 @@
                     <div class="status">
                         <div class="progress-box">
                             <h3>Total Siswa Perempuan</h3>
-                            <h1>2,397</h1>
+                            <h1>{{ $totalPerempuan }}</h1>
                             <div class="bar-container">
-                                <div class="bar-fill" style="width: 81%"></div>
+                                <div class="bar-fill" style="width: {{ $persenPerempuan }}%"></div>
                             </div>
-                            <small>81%</small>
+                            <small>{{ round($persenPerempuan) }}%</small>
                         </div>
                     </div>
                 </div>
@@ -38,15 +38,16 @@
                     <div class="status">
                         <div class="progress-box">
                             <h3>Total Siswa Laki-laki</h3>
-                            <h1>2,397</h1>
+                            <h1>{{ $totalLaki }}</h1>
                             <div class="bar-container-laki">
-                                <div class="bar-fill-laki" style="width: 21%"></div>
+                                <div class="bar-fill-laki" style="width: {{ $persenLaki }}%"></div>
                             </div>
-                            <small>21%</small>
+                            <small>{{ round($persenLaki) }}%</small>
                         </div>
                     </div>
                 </div>
             </div>
+
             <!-- End of Analyses -->
 
             <div class="pengumuman">
@@ -98,17 +99,17 @@
             </div>
             <!-- End of Nav -->
 
-            <div class="news">
+            {{-- <div class="news">
                 <iframe src="https://www.instagram.com/reel/DHe7asDy6ob/embed" width="100%" height="335"
                     frameborder="0" scrolling="no" allowtransparency="true">
                 </iframe>
-            </div>
+            </div> --}}
 
-            {{-- <div class="news">
+            <div class="news">
                 <iframe src="https://www.instagram.com/p/DJWiNpzSK2i/embed" width="100%" height="335"
                     frameborder="0" scrolling="no" allowtransparency="true">
                 </iframe>
-            </div> --}}
+            </div>
 
             <div class="reminders">
                 <div class="header">

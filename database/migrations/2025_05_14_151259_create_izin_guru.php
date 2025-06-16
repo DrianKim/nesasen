@@ -18,6 +18,7 @@ return new class extends Migration
             $table->enum('jenis_izin', ['Keperluan Keluarga', 'Sakit', 'Keperluan Sekolah', 'Lainnya']);
             $table->string('keterangan')->nullable();
             $table->string('lampiran')->nullable();
+            $table->timestamps();
         });
     }
 
