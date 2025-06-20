@@ -18,4 +18,13 @@ class izinSiswa extends Model
     {
         return $this->belongsTo(Siswa::class);
     }
+    public function kelas()
+    {
+        return $this->belongsTo(Kelas::class);
+    }
+
+    public function jurusan()
+    {
+        return $this->belongsTo(Jurusan::class);
+    }
 }

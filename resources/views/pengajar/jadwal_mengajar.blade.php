@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('admin.layouts.app')
 
 @section('content')
     <!-- Page Heading -->
@@ -25,16 +25,18 @@
             </thead>
             <tbody>
                 @forelse ($jadwalList as $jadwal)
-                <tr>
-                    <td>{{ $jadwal->hari }}</td>
-                    <td>{{ \Carbon\Carbon::parse($jadwal->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->jam_selesai)->format('H:i') }}</td>
-                    <td>{{ $jadwal->mapelKelas->mapel->nama_mapel }}</td>
-                    <td>{{ $jadwal->mapelKelas->kelas->tingkat. ' '. $jadwal->mapelKelas->kelas->jurusan->kode_jurusan. ' '. $jadwal->mapelKelas->kelas->no_kelas ?? '' }}</td>
-                </tr>
+                    <tr>
+                        <td>{{ $jadwal->hari }}</td>
+                        <td>{{ \Carbon\Carbon::parse($jadwal->jam_mulai)->format('H:i') }} -
+                            {{ \Carbon\Carbon::parse($jadwal->jam_selesai)->format('H:i') }}</td>
+                        <td>{{ $jadwal->mapelKelas->mapel->nama_mapel }}</td>
+                        <td>{{ $jadwal->mapelKelas->kelas->tingkat . ' ' . $jadwal->mapelKelas->kelas->jurusan->kode_jurusan . ' ' . $jadwal->mapelKelas->kelas->no_kelas ?? '' }}
+                        </td>
+                    </tr>
                 @empty
-                <tr>
-                    <td colspan="4" class="text-center">Belum ada jadwal mengajar</td>
-                </tr>
+                    <tr>
+                        <td colspan="4" class="text-center">Belum ada jadwal mengajar</td>
+                    </tr>
                 @endforelse
             </tbody>
         </table>

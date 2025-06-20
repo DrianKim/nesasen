@@ -85,6 +85,7 @@ font-size: 0.9rem;
 min-width: 180px;
 background-color: var(--white);
 transition: all 0.2s ease;
+margin-top: 12px;
 }
 
 .form-select:focus, .form-control:focus {

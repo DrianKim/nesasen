@@ -66,19 +66,18 @@
                             </button>
                         </div>
                     </div>
-
-                    <!-- Loading Indicator -->
-                    <div id="loading-indicator" style="display:none;">
-                        <div class="my-3 d-flex justify-content-center">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Table Section -->
-                <div class="table-responsive">
+                <div class="table-responsive" style="position: relative;">
+                    <!-- Loading Indicator -->
+                    <div id="loading-indicator" style="display:none;" class="loading-overlay-table">
+                        <div class="my-3 d-flex justify-content-center spinner-wrapper">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="loading-text">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
                     {{-- <form id="bulk_form" action="{{ route('admin_kelas.bulk_action') }}" method="POST"> --}}
                     {{-- @csrf --}}
                     <input type="hidden" name="bulk_action" id="bulk_action" value="">
@@ -158,35 +157,83 @@
 
     <script>
         function openModal() {
-            document.getElementById("modalJurusanTambah").style.display = 'block';
+            const modal = document.getElementById("modalJurusanTambah");
+            if (modal) {
+                modal.style.display = 'block';
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
+            }
         }
 
         function closeModal() {
-            document.getElementById("modalJurusanTambah").style.display = 'none';
+            const modal = document.getElementById("modalJurusanTambah");
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
         }
 
         function openModalImport() {
-            document.getElementById("modalJurusanImport").style.display = 'flex';
+            const modal = document.getElementById("modalJurusanImport");
+            if (modal) {
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    modal.classList.add('show')
+                }, 10);
+            }
         }
 
         function closeModalImport() {
-            document.getElementById("modalJurusanImport").style.display = 'none';
+            const modal = document.getElementById("modalJurusanImport");
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
         }
 
         function openModalExport() {
-            document.getElementById("modalJurusanExport").style.display = 'flex';
+            const modal = document.getElementById("modalJurusanExport");
+            if (modal) {
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    modal.classList.add('show')
+                }, 10);
+            }
         }
 
         function closeModalExport() {
-            document.getElementById("modalJurusanExport").style.display = 'none';
+            const modal = document.getElementById("modalJurusanExport");
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
         }
 
-        function closeModalEdit(modalId, id) {
-            document.getElementById(modalId).style.display = 'none';
+        function openModalEdit(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
+            }
         }
 
-        function openModalEdit(modalId, id) {
-            document.getElementById(modalId).style.display = 'block';
+        function closeModalEdit(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
         }
     </script>
 
@@ -291,7 +338,7 @@
             // Function to load data via AJAX
             function loadData() {
                 // Show loading indicator
-                loadingIndicator.style.display = 'block';
+                loadingIndicator.style.display = 'flex';
 
                 // If there's a pending request, abort it
                 if (currentRequest) {

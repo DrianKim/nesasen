@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('admin.layouts.app')
 
 @section('content')
     <div class="beranda-container">
@@ -93,11 +93,11 @@
     </div>
 
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             $.ajax({
                 url: '/guru/presensi-reminder',
                 method: 'GET',
-                success: function (res) {
+                success: function(res) {
                     if (!res.jam_masuk) {
                         Swal.fire({
                             title: '',

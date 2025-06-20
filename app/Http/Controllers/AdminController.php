@@ -15,21 +15,26 @@ use Barryvdh\DomPDF\PDF;
 use App\Models\izinSiswa;
 use App\Models\MapelKelas;
 use App\Exports\GuruExport;
-use App\Models\absensiGuru;
 use Illuminate\Support\Str;
 use App\Exports\KelasExport;
 use App\Exports\SiswaExport;
 use App\Imports\SiswaImport;
+use App\Models\presensiGuru;
 use Illuminate\Http\Request;
 use App\Models\MataPelajaran;
 use App\Models\presensiSiswa;
 use App\Exports\JurusanExport;
+use App\Exports\izinGuruExport;
+use App\Exports\izinSiswaExport;
 use Database\Seeders\GuruSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Exports\MataPelajaranExport;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 use Psy\CodeCleaner\FunctionContextPass;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use function PHPUnit\Framework\returnSelf;
@@ -2795,7 +2800,7 @@ class AdminController extends Controller
         }
     }
 
-        public function export_mapel_pdf()
+    public function export_mapel_pdf()
     {
         try {
             $mapel = MataPelajaran::all();
@@ -2841,54 +2846,123 @@ class AdminController extends Controller
         $query = presensiSiswa::with('siswa.kelas.jurusan');
 
         // Filter
-        if ($request->filled('kelas')) {
-            $query->whereHas('siswa', function ($q) use ($request) {
-                $q->where('kelas_id', $request->input('kelas'));
-            });
+        // if ($request->filled('kelas')) {
+        //     $query->whereHas('siswa', function ($q) use ($request) {
+        //         $q->where('kelas_id', $request->input('kelas'));
+        //     });
+        // }
+
+        if ($filterBy === 'kelas' && $request->filled('tanggal')) {
+            $query->whereDate('tanggal', $request->input('tanggal'));
         }
 
-        if ($request->filled('tanggal')) {
-            $query->where('tanggal', $request->input('tanggal'));
-        }
+        // if ($filterBy === 'tanggal' && $request->filled('range_tanggal')) {
+        //     [$start, $end] = explode(' - ', $request->range_tanggal);
+        //     $query->whereBetween('tanggal', [$start, $end]);
+        // }
 
-        if ($request->filled('filter_by')) {
-            $query->where($filterBy, '>', 0);
+        if ($request->filled('range_tanggal')) {
+            [$start, $end] = explode(' - ', $request->range_tanggal);
+            $start = trim($start);
+            $end = trim($end);
+            $query->whereBetween('tanggal', [$start, $end]);
         }
 
         // Sorting manual tanpa join dulu
         $columnMap = [
-            'Absen Masuk' => 'absen_masuk',
-            'Absen Pulang' => 'absen_pulang',
+            'Tanggal' => 'tanggal',
+            'Kelas' => 'kelas',
+            'Total Siswa' => 'total_siswa',
             'Hadir' => 'hadir',
             'Izin' => 'izin',
             'Sakit' => 'sakit',
+            'Alpa' => 'alpa',
         ];
 
         if (isset($columnMap[$sortBy])) {
             $query->orderBy($columnMap[$sortBy], $sortDirection);
         } else {
-            $query->orderBy('tanggal', 'desc');
+            $query->orderBy('tanggal', 'asc');
         }
 
         $presensi_raw = $query->paginate($perPage)->withQueryString();
 
-        // Map data
-        $presensi_grouped = $presensi_raw->getCollection()->groupBy(function ($item) {
-            $kelas = optional($item->siswa->kelas);
-            $jurusan = optional($kelas->jurusan);
-            return $kelas ? $kelas->tingkat . ' ' . $jurusan->kode_jurusan . ' ' . $kelas->no_kelas : '-';
-        })->map(function ($group, $kelasNama) {
-            return [
-                'kelas' => $kelasNama,
-                'total_siswa' => $group->count(),
-                'hadir' => $group->where('status_kehadiran', 'hadir')->count(),
-                'izin' => $group->where('status_kehadiran', 'izin')->count(),
-                'sakit' => $group->where('status_kehadiran', 'sakit')->count(),
-                'ids' => $group->pluck('id')->toArray(),
-            ];
-        })->values();
+        $lihatBerdasarkan = $request->input('lihatBerdasarkan', 'kelas');
 
-        $presensi_siswa = new \Illuminate\Pagination\LengthAwarePaginator(
+        if ($lihatBerdasarkan === 'tanggal') {
+            $presensi_grouped = $presensi_raw->getCollection()->groupBy('tanggal')->map(function ($group, $tanggal) {
+                // $kelasIds = $group->pluck('siswa.kelas.id')->unique();
+                $siswaIds = Siswa::pluck('id');
+
+                $totalSiswa = count($siswaIds);
+
+                $izinCount = izinSiswa::whereDate('tanggal', $tanggal)
+                    ->whereIn('siswa_id', $siswaIds)
+                    ->where('jenis_izin', '!=', 'Sakit')
+                    ->count();
+
+                $sakitCount = izinSiswa::whereDate('tanggal', $tanggal)
+                    ->whereIn('siswa_id', $siswaIds)
+                    ->where('jenis_izin', 'Sakit')
+                    ->count();
+
+                $alpaCount = presensiSiswa::whereDate('tanggal', $tanggal)
+                    ->whereIn('siswa_id', $siswaIds)
+                    ->where('status_kehadiran', 'alpa')
+                    ->count();
+
+                $hadirCount = $group->where('status_kehadiran', 'hadir')->count();
+
+                return [
+                    'tanggal' => $tanggal,
+                    'total_siswa' => $totalSiswa,
+                    'hadir' => $hadirCount,
+                    'izin' => $izinCount,
+                    'sakit' => $sakitCount,
+                    'alpa' => $alpaCount,
+                ];
+            })->values();
+        } else {
+            $presensi_grouped = $presensi_raw->getCollection()->groupBy(function ($item) {
+                $kelas = optional($item->siswa->kelas);
+                $jurusan = optional($kelas->jurusan);
+                return $kelas ? $kelas->tingkat . ' ' . $jurusan->kode_jurusan . ' ' . $kelas->no_kelas : '-';
+            })->map(function ($group, $kelasNama) {
+                $kelasId = optional(optional($group->first()->siswa)->kelas)->id;
+                $tanggal = optional($group->first())->tanggal;
+
+                $totalSiswa = Siswa::where('kelas_id', $kelasId)->count();
+
+                $siswaIds = $group->pluck('siswa_id')->unique();
+
+                $izinCount = izinSiswa::whereIn('siswa_id', $siswaIds)
+                    ->where('jenis_izin', '!=', 'Sakit')
+                    ->count();
+
+                $sakitCount = izinSiswa::whereIn('siswa_id', $siswaIds)
+                    ->where('jenis_izin', 'Sakit')
+                    ->count();
+
+                $alpaCount = presensiSiswa::whereDate('tanggal', $tanggal)
+                    ->whereIn('siswa_id', $siswaIds)
+                    ->where('status_kehadiran', 'alpa')
+                    ->count();
+
+                $hadirCount = $group->where('status_kehadiran', 'hadir')->count();
+
+                return [
+                    'kelas' => $kelasNama,
+                    'total_siswa' => $totalSiswa,
+                    'hadir' => $hadirCount,
+                    'izin' => $izinCount,
+                    'sakit' => $sakitCount,
+                    'alpa' => $alpaCount,
+                    'ids' => $group->pluck('id')->toArray(),
+                ];
+            })->values();
+        }
+
+        $presensi_siswa = new LengthAwarePaginator(
             $presensi_grouped,
             $presensi_raw->total(),
             $presensi_raw->perPage(),
@@ -2923,18 +2997,23 @@ class AdminController extends Controller
         $sortBy = $request->input('sort_by');
         $sortDirection = $request->input('sort_direction', 'asc');
 
-        $query = absensiGuru::with('guru');
+        $query = presensiGuru::with('guru');
 
         // Filter
         if ($request->filled('tanggal')) {
             $query->where('tanggal', $request->input('tanggal'));
         }
 
+        if ($request->filled('range_tanggal')) {
+            [$start, $end] = explode(' - ', $request->range_tanggal);
+            $start = trim($start);
+            $end = trim($end);
+            $query->whereBetween('tanggal', [$start, $end]);
+        }
+
         // Sorting manual tanpa join dulu
         $columnMap = [
             'tanggal' => 'tanggal',
-            'Absen Masuk' => 'absen_masuk',
-            'Absen Pulang' => 'absen_pulang',
             'Hadir' => 'hadir',
             'Izin' => 'izin',
             'Sakit' => 'sakit',
@@ -2943,23 +3022,48 @@ class AdminController extends Controller
         if (isset($columnMap[$sortBy])) {
             $query->orderBy($columnMap[$sortBy], $sortDirection);
         } else {
-            $query->orderBy('tanggal', 'desc');
+            $query->orderBy('tanggal', 'asc');
         }
 
         $presensi_raw = $query->paginate($perPage)->withQueryString();
 
         // Map data
-        $presensi_guru = $presensi_raw->getCollection()->transform(function ($item) {
+        $presensi_guru = $presensi_raw->getCollection()->groupBy('tanggal')->map(function ($group, $tanggal) {
+
+            $guruIds = Guru::pluck('id');
+
+            $totalGuru = count($guruIds);
+
+            $izinCount = izinGuru::whereDate('tanggal', $tanggal)
+                ->whereIn('guru_id', $guruIds)
+                ->where('jenis_izin', '!=', 'Sakit')
+                ->count();
+
+            $sakitCount = izinGuru::whereDate('tanggal', $tanggal)
+                ->whereIn('guru_id', $guruIds)
+                ->where('jenis_izin', 'Sakit')
+                ->count();
+
+            $alpaCount = presensiGuru::whereDate('tanggal', $tanggal)
+                ->whereIn('guru_id', $guruIds)
+                ->where('status_kehadiran', 'alpa')
+                ->count();
+
+            $hadirCount = $group->where('status_kehadiran', 'hadir')->count();
 
             return [
-                'id' => $item->id,
-                'masuk' => $item->absen_masuk,
-                'pulang' => $item->absen_pulang,
-                'hadir' => $item->hadir,
-                'izin' => $item->izin,
-                'sakit' => $item->sakit,
+                'tanggal' => $tanggal,
+                'total_guru' => $totalGuru,
+                'hadir' => $hadirCount,
+                'izin' => $izinCount,
+                'sakit' => $sakitCount,
+                'alpa' => $alpaCount,
             ];
-        });
+        })->values();
+        if ($sortBy) {
+            $presensi_guru = $presensi_guru->sortBy($sortBy, SORT_REGULAR, $sortDirection === 'desc')->values();
+        }
+
 
         $presensi_guru = new \Illuminate\Pagination\LengthAwarePaginator(
             $presensi_guru,
@@ -2969,7 +3073,7 @@ class AdminController extends Controller
             ['path' => request()->url(), 'query' => request()->query()]
         );
 
-        $tanggalFilter = absensiGuru::select('tanggal')->distinct()->orderBy('tanggal', 'desc')->pluck('tanggal');
+        $tanggalFilter = presensiGuru::select('tanggal')->distinct()->orderBy('tanggal', 'desc')->pluck('tanggal');
 
         $data = [
             'title' => 'Presensi Siswa',
@@ -2997,12 +3101,13 @@ class AdminController extends Controller
         return view('admin.presensi.per_mapel.index', $data);
     }
 
+
     // izin siswa
     public function index_izin_siswa(Request $request)
     {
+        $search = $request->input('search');
         $perPage = $request->input('perPage', 10);
         $sortBy = $request->input('sort_by');
-        $filterBy = $request->input('filter_by');
         $sortDirection = $request->input('sort_direction', 'asc');
 
         $query = izinSiswa::with('siswa.kelas.jurusan');
@@ -3018,47 +3123,66 @@ class AdminController extends Controller
             $query->where('tanggal', $request->input('tanggal'));
         }
 
+        if ($request->filled('range_tanggal')) {
+            [$start, $end] = explode(' - ', $request->range_tanggal);
+            $start = trim($start);
+            $end = trim($end);
+            $query->whereBetween('tanggal', [$start, $end]);
+        }
+
+        if ($search) {
+            $searchTerm = strtolower(trim($search));
+
+            $query->where(function ($q) use ($searchTerm) {
+                // Search by siswa.nama
+                $q->whereHas('siswa', function ($q2) use ($searchTerm) {
+                    $q2->whereRaw('LOWER(REPLACE(nama, " ", "")) LIKE ?', ['%' . $searchTerm . '%'])
+                        ->orWhereHas('kelas', function ($q3) use ($searchTerm) {
+                            $q3->whereRaw('LOWER(tingkat) LIKE ?', ["%{$searchTerm}%"])
+                                ->orWhereRaw('LOWER(no_kelas) LIKE ?', ["%{$searchTerm}%"])
+                                ->orWhereHas('jurusan', function ($q4) use ($searchTerm) {
+                                    $q4->whereRaw('LOWER(kode_jurusan) LIKE ?', ["%{$searchTerm}%"]);
+                                });
+                        });
+                });
+            });
+        }
+
+        if ($sortBy === 'kelas') {
+            $query->join('siswa', 'izin_siswa.siswa_id', '=', 'siswa.id')
+                ->join('kelas', 'siswa.kelas_id', '=', 'kelas.id')
+                ->join('jurusan', 'kelas.jurusan_id', '=', 'jurusan.id')
+                ->orderBy('kelas.tingkat', $sortDirection)
+                ->orderBy('jurusan.kode_jurusan', $sortDirection)
+                ->orderBy('kelas.no_kelas', $sortDirection)
+                ->select('izin_siswa.*');
+        } elseif ($sortBy === 'siswa') {
+            $query->join('siswa', 'izin_siswa.siswa_id', '=', 'siswa.id')
+                ->orderBy('siswa.nama', $sortDirection)
+                ->select('izin_siswa.*');
+        } elseif ($sortBy === 'tanggal') {
+            $query->orderBy('tanggal', $sortDirection);
+        } else {
+            $query->orderBy('tanggal', 'asc');
+        }
+
         // Sorting manual tanpa join dulu
         $columnMap = [
             'tanggal' => 'tanggal',
             'siswa' => 'siswa_id',
-            'Kelas' => 'kelas_id',
+            'kelas_id' => 'kelas_id',
             'jenis_izin' => 'jenis_izin',
             'keterangan' => 'keterangan',
             'lampiran' => 'lampiran',
         ];
 
-        if (isset($columnMap[$sortBy])) {
-            $query->orderBy($columnMap[$sortBy], $sortDirection);
-        } else {
-            $query->orderBy('tanggal', 'desc');
-        }
+        // if (isset($columnMap[$sortBy])) {
+        //     $query->orderBy($columnMap[$sortBy], $sortDirection);
+        // } else {
+        //     $query->orderBy('tanggal', 'asc');
+        // }
 
-        $izin_raw = $query->paginate($perPage)->withQueryString();
-
-        // Map data
-        $izin_siswa = $izin_raw->getCollection()->transform(function ($item) {
-            $kelas = optional($item->siswa->kelas);
-            $jurusan = optional($kelas->jurusan);
-
-            return [
-                'id' => $item->id,
-                'tanggal' => $item->tanggal,
-                'siswa' => $item->siswa->nama,
-                'kelas' => $kelas ? $kelas->tingkat . ' ' . $jurusan->kode_jurusan . ' ' . $kelas->no_kelas : '-',
-                'jenis_izin' => $item->jenis_izin,
-                'keterangan' => $item->keterangan,
-                'lampiran' => $item->lampiran,
-            ];
-        });
-
-        $izin_siswa = new \Illuminate\Pagination\LengthAwarePaginator(
-            $izin_siswa,
-            $izin_raw->total(),
-            $izin_raw->perPage(),
-            $izin_raw->currentPage(),
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
+        $izin_siswa = $query->paginate($perPage)->withQueryString();
 
         $kelasFilter = Kelas::with('jurusan')->orderBy('tingkat')->orderBy('jurusan_id')->orderBy('no_kelas')->get();
         $tanggalFilter = izinSiswa::select('tanggal')->distinct()->orderBy('tanggal', 'desc')->pluck('tanggal');
@@ -3069,68 +3193,190 @@ class AdminController extends Controller
             'kelasFilter' => $kelasFilter,
             'tanggalFilter' => $tanggalFilter,
         ];
-        return view('admin.izin.siswa.index', $data);
 
         if ($request->ajax()) {
             return response()->json([
                 'table' => view('admin.izin.siswa.partials.table', $data)->render(),
-                'pagination' => view('admin.izin.siswa.partials.pagination', ['presensi_siswa' => $presensi_siswa])->render(),
+                'pagination' => view('admin.izin.siswa.partials.pagination', ['izin_siswa' => $izin_siswa])->render(),
             ]);
         }
+        return view('admin.izin.siswa.index', $data);
+    }
+
+    public function download_lampiran_siswa($filename)
+    {
+        $path = storage_path('app/public/lampiran_izin/' . $filename); // Atau storage_path kalau file di storage
+
+        if (!File::exists($path)) {
+            abort(404);
+        }
+
+        $file = File::get($path);
+        $type = File::mimeType($path);
+
+        return Response($file, 200)->header("Content-Type", $type);
+    }
+
+    // public function export_izin_siswa_pdf(Request $request)
+    // {
+    //     try {
+    //         $query = izinSiswa::with(['siswa.kelas.jurusan']);
+
+    //         if ($request->filled('range_tanggal')) {
+    //             [$start, $end] = explode(' - ', $request->range_tanggal);
+    //             $query->whereBetween('tanggal', [trim($start), trim($end)]);
+    //         }
+
+    //         if ($request->filled('search')) {
+    //             $searchTerm = strtolower(trim($request->search));
+    //             $query->where(function ($q) use ($searchTerm) {
+    //             // Search by siswa.nama
+    //             $q->whereHas('siswa', function ($q2) use ($searchTerm) {
+    //                 $q2->whereRaw('LOWER(REPLACE(nama, " ", "")) LIKE ?', ['%' . $searchTerm . '%'])
+    //                     ->orWhereHas('kelas', function ($q3) use ($searchTerm) {
+    //                         $q3->whereRaw('LOWER(tingkat) LIKE ?', ["%{$searchTerm}%"])
+    //                             ->orWhereRaw('LOWER(no_kelas) LIKE ?', ["%{$searchTerm}%"])
+    //                             ->orWhereHas('jurusan', function ($q4) use ($searchTerm) {
+    //                                 $q4->whereRaw('LOWER(kode_jurusan) LIKE ?', ["%{$searchTerm}%"]);
+    //                             });
+    //                     });
+    //             });
+    //         });
+    //         }
+
+    //         $izin = $query->orderBy('tanggal', 'asc')->get();
+
+    //         $data = [
+    //             'title' => 'Data Izin Siswa',
+    //             'izin_siswa' => $izin,
+    //             'exported_at' => now()->format('d-m-Y'),
+    //             'exported_at_time' => now()->format('d-m-Y H:i:s'),
+    //             'total_izin' => $query->count(),
+    //         ];
+
+    //         $pdf = app('domdf.wrapper');
+    //         $pdf->loadview('admin.izin.siswa.export.pdf', $data);
+
+    //         $fileName = 'izin_siswa_' . date('Y-m-d_H-i-s') . '.pdf';
+    //         return $pdf->download($fileName);
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()->with('error', 'Gagal export PDF :' . $e->getMessage());
+    //     }
+    // }
+
+    // public function export_izin_siswa_xlsx(Request $request)
+    // {
+    //     try {
+    //         $filename = 'izin_siswa_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+    //         return Excel::download(new izinSiswaExport($request->only(['kelas', 'range_tanggal', 'search'])), $filename);
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()->with('error', 'Gagal mengekspor data ke excel: ' . $e->getMessage());
+    //     }
+    // }
+
+    public function export_izin_siswa_pdf(Request $request)
+    {
+        $filters = $request->only(['range_tanggal', 'search']);
+
+        $izinSiswa = izinSiswa::select('izin_siswa.*')
+            ->join('siswa', 'izin_siswa.siswa_id', '=', 'siswa.id')
+            ->join('kelas', 'siswa.kelas_id', '=', 'kelas.id')
+            ->join('jurusan', 'kelas.jurusan_id', '=', 'jurusan.id')
+            ->with(['siswa.kelas.jurusan'])
+            ->when(!empty($filters['range_tanggal']), function ($query) use ($filters) {
+                [$start, $end] = explode(' - ', $filters['range_tanggal']);
+                $query->whereBetween('izin_siswa.tanggal', [trim($start), trim($end)]);
+            })
+            ->when(!empty($filters['search']), function ($query) use ($filters) {
+                $searchTerm = strtolower(trim($filters['search']));
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->whereRaw('LOWER(REPLACE(siswa.nama, " ", "")) LIKE ?', ["%{$searchTerm}%"])
+                        ->orWhereRaw('LOWER(kelas.tingkat) LIKE ?', ["%{$searchTerm}%"])
+                        ->orWhereRaw('LOWER(kelas.no_kelas) LIKE ?', ["%{$searchTerm}%"])
+                        ->orWhereRaw('LOWER(jurusan.kode_jurusan) LIKE ?', ["%{$searchTerm}%"]);
+                });
+            })
+            ->orderBy('izin_siswa.tanggal', 'asc')
+            ->orderByRaw('LOWER(siswa.nama) ASC')
+            ->orderBy('kelas.tingkat', 'asc')
+            ->orderBy('jurusan.kode_jurusan', 'asc')
+            ->orderBy('kelas.no_kelas', 'asc')
+            ->get();
+
+        $data = [
+            'title' => 'Export Izin Siswa',
+            'izin_siswa' => $izinSiswa,
+            'total_izin' => $izinSiswa->count(),
+            'exported_at' => now()->format('d-m-Y'),
+            'exported_at_time' => now()->format('d-m-Y H:i:s'),
+        ];
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('admin.izin.siswa.export.pdf', $data);
+
+        return $pdf->download('izin_siswa_' . now()->format('Y-m-d_H-i-s') . '.pdf');
+    }
+
+    public function export_izin_siswa_xlsx(Request $request)
+    {
+        $filters = $request->only(['kelas', 'range_tanggal', 'search']);
+
+        return Excel::download(new izinSiswaExport($filters), 'izin_siswa_' . now()->format('Y-m-d_H-i-s') . '.xlsx');
     }
 
     // izin guru
     public function index_izin_guru(Request $request)
     {
+        $search = $request->input('search');
         $perPage = $request->input('perPage', 10);
         $sortBy = $request->input('sort_by');
         $sortDirection = $request->input('sort_direction', 'asc');
 
-        $query = izinGuru::with('guru.kelas.jurusan');
-
+        $query = izinGuru::with('guru');
 
         if ($request->filled('tanggal')) {
             $query->where('tanggal', $request->input('tanggal'));
         }
 
+        if ($request->filled('range_tanggal')) {
+            [$start, $end] = explode(' - ', $request->range_tanggal);
+            $start = trim($start);
+            $end = trim($end);
+            $query->whereBetween('tanggal', [$start, $end]);
+        }
+
+        if ($search) {
+            $searchTerm = strtolower(trim($search));
+
+            $query->where(function ($q) use ($searchTerm) {
+                $q->whereHas('guru', function ($q2) use ($searchTerm) {
+                    $q2->whereRaw('LOWER(REPLACE(nama, " ", "")) LIKE ?', ['%' . $searchTerm . '%']);
+                });
+            });
+        }
+
         // Sorting manual tanpa join dulu
         $columnMap = [
             'tanggal' => 'tanggal',
-            'guru' => 'guru_id',
-            'Kelas' => 'kelas_id',
+            // 'guru' => 'guru_id',
             'jenis_izin' => 'jenis_izin',
             'keterangan' => 'keterangan',
             'lampiran' => 'lampiran',
         ];
 
-        if (isset($columnMap[$sortBy])) {
+        if ($sortBy === 'guru') {
+            $query->join('guru', 'izin_guru.guru_id', '=', 'guru.id')
+                ->orderBy('guru.nama', $sortDirection)
+                ->select('izin_guru.*'); // penting biar pagination gak rusak
+        } elseif (isset($columnMap[$sortBy])) {
             $query->orderBy($columnMap[$sortBy], $sortDirection);
         } else {
-            $query->orderBy('tanggal', 'desc');
+            $query->orderBy('tanggal', 'asc');
         }
 
-        $izin_raw = $query->paginate($perPage)->withQueryString();
 
-        // Map data
-        $izin_guru = $izin_raw->getCollection()->transform(function ($item) {
-
-            return [
-                'id' => $item->id,
-                'tanggal' => $item->tanggal,
-                'guru' => $item->guru->nama,
-                'jenis_izin' => $item->jenis_izin,
-                'keterangan' => $item->keterangan,
-                'lampiran' => $item->lampiran,
-            ];
-        });
-
-        $izin_guru = new \Illuminate\Pagination\LengthAwarePaginator(
-            $izin_guru,
-            $izin_raw->total(),
-            $izin_raw->perPage(),
-            $izin_raw->currentPage(),
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
+        $izin_guru = $query->paginate($perPage)->withQueryString();
 
         $tanggalFilter = izinGuru::select('tanggal')->distinct()->orderBy('tanggal', 'desc')->pluck('tanggal');
 
@@ -3140,14 +3386,67 @@ class AdminController extends Controller
             'tanggalFilter' => $tanggalFilter,
         ];
 
-        return view('admin.izin.guru.index', $data);
-
         if ($request->ajax()) {
             return response()->json([
                 'table' => view('admin.izin.guru.partials.table', $data)->render(),
-                'pagination' => view('admin.izin.guru.partials.pagination', ['presensi_guru' => $presensi_guru])->render(),
+                'pagination' => view('admin.izin.guru.partials.pagination', ['izin_guru' => $izin_guru])->render(),
             ]);
         }
+        return view('admin.izin.guru.index', $data);
+    }
+
+    public function download_lampiran_guru($filename)
+    {
+        $path = storage_path('app/public/lampiran_izin/' . $filename); // Atau storage_path kalau file di storage
+
+        if (!File::exists($path)) {
+            abort(404);
+        }
+
+        $file = File::get($path);
+        $type = File::mimeType($path);
+
+        return Response($file, 200)->header("Content-Type", $type);
+    }
+
+    public function export_izin_guru_pdf(Request $request)
+    {
+        $filters = $request->only(['range_tanggal', 'search']);
+        $izinGuru = izinGuru::select('izin_guru.*')
+            ->join('guru', 'izin_guru.guru_id', '=', 'guru.id')
+            ->when(!empty($filters['range_tanggal']), function ($query) use ($filters) {
+                [$start, $end] = explode(' - ', $filters['range_tanggal']);
+                $query->whereBetween('izin_guru.tanggal', [trim($start), trim($end)]);
+            })
+            ->when(!empty($filters['search']), function ($query) use ($filters) {
+                $searchTerm = strtolower(trim($filters['search']));
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->whereRaw('LOWER(REPLACE(guru.nama, " ", "")) LIKE ?', ["%{$searchTerm}%"]);
+                });
+            })
+            ->orderBy('izin_guru.tanggal', 'asc')
+            ->orderByRaw('LOWER(guru.nama) ASC')
+            ->get();
+
+        $data = [
+            'title' => 'Export Izin Guru',
+            'izin_guru' => $izinGuru,
+            'total_izin' => $izinGuru->count(),
+            'exported_at' => now()->format('d-m-Y'),
+            'exported_at_time' => now()->format('d-m-Y H:i:s'),
+        ];
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('admin.izin.guru.export.pdf', $data);
+
+        return $pdf->download('izin_guru_' . now()->format('Y-m-d_H-i-s') . '.pdf');
+    }
+
+    public function export_izin_guru_xlsx(Request $request)
+    {
+        $filters = $request->only(['range_tanggal', 'search']);
+
+        return Excel::download(new izinGuruExport($filters), 'izin_guru_' . now()->format('Y-m-d_H-i-s') . '.xlsx');
     }
 }
 // public function index_semester()

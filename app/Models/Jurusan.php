@@ -22,4 +22,8 @@ class Jurusan extends Model
     {
         return $this->hasMany(Siswa::class, 'kelas_id');
     }
+    // public function izin_siswa()
+    // {
+    //     return $this->hasMany(izinSiswa::class);
+    // }
 }

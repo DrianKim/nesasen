@@ -37,10 +37,10 @@
                 <span class="material-icons-sharp"> groups </span>
                 <h3>Data Siswa</h3>
             </a>
-            <a href="#">
+            {{-- <a href="#">
                 <span class="material-icons-sharp"> school </span>
                 <h3>Siswa Lulus</h3>
-            </a>
+            </a> --}}
             <a href="{{ route('admin_guru.index') }}"
                 class="{{ request()->routeIs('admin_guru.index') ? 'active' : '' }}">
                 <span class="material-icons-sharp"> groups_2 </span>
@@ -86,7 +86,7 @@
                 <span class="material-icons-sharp"> contact_phone </span>
                 <h3>Izin Guru</h3>
             </a>
-            <a href="#">
+            {{-- <a href="#">
                 <span class="material-icons-sharp"> grading </span>
                 <h3>Nilai Pelajaran</h3>
             </a>
@@ -101,7 +101,7 @@
             <a href="#">
                 <span class="material-icons-sharp"> date_range </span>
                 <h3>Tahun Ajaran</h3>
-            </a>
+            </a> --}}
         </div>
 
         <a href="{{ route('logout') }}" class="btn-logout" id="logout-btn">
@@ -110,3 +110,4 @@
         </a>
     </div>
 </aside>
+

@@ -1,44 +1,47 @@
-<table class="table table-hover">
+<table class="data-kelas-table">
     <thead>
         <tr>
-            <th width="3%">
+            {{-- <th width="3%">
                 <input type="checkbox" onclick="toggleAll(this)">
-            </th>
-            <th width="10%" class="sortable" data-column="tanggal">Tanggal <i class="fas fa-sort"></i></th>
-            <th width="10%" class="sortable" data-column="siswa_id">Siswa <i class="fas fa-sort"></i></th>
-            <th width="10%" class="sortable" data-column="kelas_id">Kelas <i class="fas fa-sort"></i></th>
-            <th width="10%" class="sortable" data-column="jenis_izin">Izin <i class="fas fa-sort"></i></th>
-            <th width="10%" class="sortable" data-column="keterangan">Keterangan <i class="fas fa-sort"></i></th>
-            <th width="10%" class="sortable" data-column="lampiran">Lampiran <i class="fas fa-sort"></i></th>
-            <th class="text-center" width="12%">Action</th>
+            </th> --}}
+            <th width="10%" class="sortable" data-column="tanggal">Tanggal <i class="fas fa-sort"
+                    style="margin-left: 4px;"></i></th>
+            <th width="10%" class="sortable" data-column="siswa">Siswa <i class="fas fa-sort"
+                    style="margin-left: 4px;"></i></th>
+            <th width="10%" class="sortable" data-column="kelas">Kelas <i class="fas fa-sort"
+                    style="margin-left: 4px;"></i></th>
+            <th width="10%" data-column="jenis_izin">Izin</th>
+            <th width="10%" data-column="keterangan">Keterangan</th>
+            <th width="10%" data-column="lampiran">Lampiran</th>
+            {{-- <th class="text-center" width="12%">Action</th> --}}
         </tr>
     </thead>
     <tbody>
         @forelse ($izin_siswa as $item)
             <tr id="row-{{ $item->id }}">
-                <td>
+                {{-- <td>
                     <input type="checkbox" name="selected_izin_siswa[]" value="{{ $item->id }}">
-                </td>
-                <td class="editable-cell" data-field="tanggal">{{ $item->tanggal ?? '-' }}</td>
-                <td class="editable-cell" data-field="siswa_id">
+                </td> --}}
+                <td data-field="tanggal">{{ $item->tanggal ?? '-' }}</td>
+                <td data-field="siswa_id">
                     {{ $item->siswa->nama }}
                 </td>
-                <td class="editable-cell" data-field="kelas_id">
+                <td data-field="kelas_id">
                     {{ $item->siswa->kelas->tingkat . ' ' . $item->siswa->kelas->jurusan->kode_jurusan . ' ' . $item->siswa->kelas->no_kelas }}
                 </td>
-                <td class="editable-cell" data-field="jenis_izin">
-                    {{ $item->jenis_izin->nama }}
+                <td data-field="jenis_izin">
+                    {{ $item->jenis_izin }}
                 </td>
-                <td class="editable-cell" data-field="keterangan">{{ $item->keterangan ?? '-' }}</td>
-                <td class="editable-cell" data-field="lampiran">
+                <td data-field="keterangan">{{ $item->keterangan ?? '-' }}</td>
+                <td data-field="lampiran">
                     @if ($item->lampiran)
-                        <a href="{{ asset('storage/' . $item->lampiran) }}" target="_blank">Lihat Lampiran</a>
+                        <a href="{{ route('admin_izin_lampiran_siswa.download', basename($item->lampiran)) }}" target="_blank">Lihat | </a>
+                        <a href="{{ route('admin_izin_lampiran_siswa.download', basename($item->lampiran)) }}" download>Download</a>
                     @else
                         -
                     @endif
                 </td>
-                </td>
-                <td class="text-center">
+                {{-- <td class="text-center">
                     <div class="action-buttons">
                         <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal"
                             data-target="#modalSiswaShow{{ $item->id }}">
@@ -49,8 +52,8 @@
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
-                    {{-- @include('admin.izin.siswa.modal') --}}
-                </td>
+                    @include('admin.izin.siswa.modal')
+                </td> --}}
             </tr>
         @empty
             <tr>

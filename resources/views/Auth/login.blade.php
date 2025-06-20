@@ -35,7 +35,7 @@
 
         <!-- Form Login -->
         <div class="form-container">
-            <h2 id="login-heading">Login Siswa</h2>
+            <h2 id="login-heading" style="margin-bottom: 30px;">Login Siswa</h2>
             <div class="signup-link">
                 <p>
                     Belum Memiliki Akun?

@@ -25,22 +25,32 @@
     const closeBtn = document.getElementById("close-btn");
     const darkMode = document.querySelector(".dark-mode");
 
-    menuBtn?.addEventListener("click", () => (sideMenu.style.display = "block"));
-    closeBtn?.addEventListener("click", () => (sideMenu.style.display = "none"));
+    // menuBtn?.addEventListener("click", () => (sideMenu.style.display = "block"));
+    // closeBtn?.addEventListener("click", () => (sideMenu.style.display = "none"));
+
+    menuBtn?.addEventListener("click", () => {
+        sideMenu.classList.add("active");
+    });
+
+    closeBtn?.addEventListener("click", () => {
+        sideMenu.classList.remove("active");
+    });
 
     // Saat toggle diklik
     darkMode?.addEventListener("click", () => {
         document.body.classList.toggle("dark-mode-variables");
+        document.documentElement.classList.toggle("dark-mode-variables");
 
         const isDark = document.body.classList.contains("dark-mode-variables");
         localStorage.setItem("darkMode", isDark ? "true" : "false");
 
-        darkMode.querySelector("span:nth-child(1)")?.classList.toggle("active");
-        darkMode.querySelector("span:nth-child(2)")?.classList.toggle("active");
+        darkMode.querySelector("span:nth-child(1)")?.classList.toggle("active", !isDark);
+        darkMode.querySelector("span:nth-child(2)")?.classList.toggle("active", isDark);
     });
 
     if (localStorage.getItem("darkMode") === "true") {
         document.body.classList.add("dark-mode-variables");
+        document.documentElement.classList.toggle("dark-mode-variables");
 
         const lightIcon = document.querySelector(".dark-mode span:nth-child(1)");
         const darkIcon = document.querySelector(".dark-mode span:nth-child(2)");
@@ -48,48 +58,85 @@
         lightIcon?.classList.remove("active");
         darkIcon?.classList.add("active");
     }
+
+    window.addEventListener("load", () => {
+        sessionStorage.removeItem("darkModeOverride");
+    });
 </script>
 
 <script>
-    document.getElementById('logout-btn').addEventListener('click', function(e) {
-        e.preventDefault(); // Mencegah aksi default
-        Swal.fire({
-            title: 'Apakah Anda yakin ingin logout?',
-            text: "Anda akan keluar dari sesi saat ini.",
-            icon: 'warning',
-            showCancelButton: true,
-            iconColor: '#e7586e',
-            confirmButtonColor: '#e7586e',
-            cancelButtonColor: '#43c6c9',
-            confirmButtonText: 'Ya, logout!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = "{{ route('logout') }}"; // Redirect ke route logout
-            }
+    document.addEventListener('DOMContentLoaded', function() {
+        const logoutBtn = document.getElementById('logout-btn');
+
+        logoutBtn?.addEventListener('click', function(e) {
+            e.preventDefault();
+            const isDark = document.body.classList.contains('dark-mode-variables');
+
+            // sideMenu.style.display = "none";
+            sideMenu.classList.remove("active");
+
+            setTimeout(() => {
+                Swal.fire({
+                    title: 'Apakah Anda yakin ingin logout?',
+                    text: "Anda akan keluar dari sesi saat ini.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    iconColor: '#e7586e',
+                    confirmButtonColor: '#e7586e',
+                    cancelButtonColor: '#43c6c9',
+                    confirmButtonText: 'Ya, logout!',
+                    cancelButtonText: 'Batal',
+                    background: isDark ? getComputedStyle(document.body)
+                        .getPropertyValue(
+                            '--color-background') : '#fff',
+                    color: isDark ? getComputedStyle(document.body).getPropertyValue(
+                        '--color-dark') : '#000',
+                    customClass: {
+                        popup: isDark ? 'swal-dark' : ''
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href =
+                            "{{ route('logout') }}"; // Redirect ke route logout
+                    }
+                });
+            }, 100);
         });
     });
 </script>
 
 @if (session('success'))
     <script>
+        const isDark = document.body.classList.contains('dark-mode-variables')
+
         Swal.fire({
             icon: 'success',
             title: 'Sukses',
             text: '{{ session('success') }}',
             confirmButtonColor: '#43c6c9',
-
+            background: isDark ? getComputedStyle(document.body).getPropertyValue('--color-background') : '#fff',
+            color: isDark ? getComputedStyle(document.body).getPropertyValue('--color-dark') : '#000',
+            customClass: {
+                popup: isDark ? 'swal-dark' : ''
+            }
         });
     </script>
 @endif
 
 @if (session('error'))
     <script>
+        const isDark = document.body.classList.contains('dark-mode-variables')
+
         Swal.fire({
             icon: 'error',
             title: 'Gagal',
             text: '{{ session('error') }}',
             confirmButtonColor: '#43c6c9',
+            background: isDark ? getComputedStyle(document.body).getPropertyValue('--color-background') : '#fff',
+            color: isDark ? getComputedStyle(document.body).getPropertyValue('--color-dark') : '#000',
+            customClass: {
+                popup: isDark ? 'swal-dark' : ''
+            }
         });
     </script>
 @endif

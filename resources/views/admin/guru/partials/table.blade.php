@@ -27,8 +27,7 @@
                         <button class="btn-edit" onclick="openModalEdit('modalGuruEdit{{ $item->id }}')">
                             <span class="material-icons-sharp">edit</span>
                         </button>
-                        <button class="btn-delete" data-toggle="modal"
-                            data-target="#modalKelasDestroy{{ $item->id }}">
+                        <button class="btn-delete" data-id="{{ $item->id }}" data-nama="{{ $item->nama }}">
                             <span class="material-icons-sharp">delete</span>
                         </button>
                     </td>
@@ -52,6 +51,48 @@
         @endforelse
     </tbody>
 </table>
+
+<script>
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.btn-delete')) {
+            const button = e.target.closest('.btn-delete')
+            const id = button.getAttribute('data-id');
+            const namaGuru = button.getAttribute('data-nama');
+            const isDark = document.body.classList.contains('dark-mode-variables')
+
+            Swal.fire({
+                title: `Hapus guru dengan nama ${namaGuru}?`,
+                text: 'Data guru ini bakal dihapus permanen!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e7586e',
+                cancelButtonColor: '#43c6c9',
+                confirmButtonText: 'Ya, hapus',
+                cancelButtonText: 'Batal',
+                background: isDark ? getComputedStyle(document.body).getPropertyValue(
+                    '--color-background') : '#fff',
+                color: isDark ? getComputedStyle(document.body).getPropertyValue('--color-dark') :
+                    '#000',
+                customClass: {
+                    popup: isDark ? 'swal-dark' : ''
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/admin/guru/destroy/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(() => {
+                            location.reload();
+                        });
+                }
+            });
+        }
+    });
+</script>
 
 @if ($errors->has('username'))
     <script>

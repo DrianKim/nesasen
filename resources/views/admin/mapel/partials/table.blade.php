@@ -25,7 +25,8 @@
                             onclick="openModalEdit('modalMapelEdit{{ $item->id }}')">
                             <span class="material-icons-sharp">edit</span>
                         </button>
-                        <button class="btn-delete" data-toggle="modal" data-target="#modalMapeltroy{{ $item->id }}">
+                        <button class="btn-delete" data-id="{{ $item->id }}" data-nama="{{ $item->nama_mapel }}"
+                            data-kode="{{ $item->kode_mapel }}">
                             <span class="material-icons-sharp">delete</span>
                         </button>
                     </div>
@@ -50,3 +51,47 @@
         @endforelse
     </tbody>
 </table>
+
+<script>
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.btn-delete')) {
+            const button = e.target.closest('.btn-delete')
+            const id = button.getAttribute('data-id');
+            const namaMapel = button.getAttribute('data-nama');
+            const kodeMapel = button.getAttribute('data-kode');
+            const isDark = document.body.classList.contains('dark-mode-variables')
+
+            Swal.fire({
+                title: `Hapus mapel ${namaMapel}(${kodeMapel})?`,
+                text: 'Data mapel ini bakal dihapus permanen!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e7586e',
+                cancelButtonColor: '#43c6c9',
+                confirmButtonText: 'Ya, hapus',
+                cancelButtonText: 'Batal',
+                background: isDark ? getComputedStyle(document.body).getPropertyValue(
+                    '--color-background') : '#fff',
+                color: isDark ? getComputedStyle(document.body).getPropertyValue('--color-dark') :
+                    '#000',
+                customClass: {
+                    popup: isDark ? 'swal-dark' : ''
+                }
+
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/admin/mapel/destroy/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(() => {
+                            location.reload();
+                        });
+                }
+            });
+        }
+    });
+</script>

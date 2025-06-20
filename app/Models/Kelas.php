@@ -18,7 +18,7 @@ class Kelas extends Model
     {
         return $this->belongsTo(User::class);
     }
-    
+
     public function jurusan()
     {
         return $this->belongsTo(Jurusan::class);
@@ -33,6 +33,11 @@ class Kelas extends Model
     {
         return $this->hasMany(Siswa::class);
     }
+
+    // public function izin_siswa()
+    // {
+    //     return $this->hasMany(izinSiswa::class);
+    // }
 
     public function mapelKelas()
     {

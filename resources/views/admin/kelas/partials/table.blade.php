@@ -18,21 +18,27 @@
     <tbody>
         @forelse ($kelas as $item)
             <tr>
-                <td>
+                <td data-label="Pilih">
                     <input type="checkbox" name="selected_kelas[]" class="item-checkbox" value="{{ $item->id }}">
                 </td>
-                <td>{{ $item->tingkat . ' ' . $item->jurusan->kode_jurusan . ' ' . $item->no_kelas ?? '-' }} </td>
-                <td>{{ $item->walas->user->guru->nama ?? '-' }}</td>
-                <td>{{ $item->siswa->count() ?? 0 }}</td>
-                <td>
+                <td data-label="Kelas">
+                    {{ $item->tingkat . ' ' . $item->jurusan->kode_jurusan . ' ' . $item->no_kelas ?? '-' }}
+                </td>
+                <td data-label="Wali Kelas">
+                    {{ $item->walas->user->guru->nama ?? '-' }}
+                </td>
+                <td data-label="Jumlah Siswa">
+                    {{ $item->siswa->count() ?? 0 }}
+                </td>
+                <td data-label="Action">
                     <div class="action-buttons">
                         @include('admin.kelas.modal.edit', ['id' => $item->id, 'kelas' => $item])
                         <button type="button" class="btn-edit"
                             onclick="openModalEdit('modalKelasEdit{{ $item->id }}')">
                             <span class="material-icons-sharp">edit</span>
                         </button>
-                        <button class="btn-delete" data-toggle="modal"
-                            data-target="#modalKelasDestroy{{ $item->id }}">
+                        <button class="btn-delete" data-id="{{ $item->id }}"
+                            data-nama="{{ $item->tingkat }} {{ $item->jurusan->kode_jurusan }} {{ $item->no_kelas }}">
                             <span class="material-icons-sharp">delete</span>
                         </button>
                     </div>
@@ -44,7 +50,6 @@
                     <div class="empty-state">
                         <img src="{{ asset('assets\img\not-found.png') }}" alt="No Data" width="120">
                         <p>Tidak ada data kelas yang ditemukan</p>
-                        {{-- @include('admin.kelas.modal-create') --}}
                         <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
                             data-target="#modalKelasCreate">
                             <i class="fas fa-plus" style="margin-left: 0,25rem"></i>
@@ -56,3 +61,45 @@
         @endforelse
     </tbody>
 </table>
+
+<script>
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.btn-delete')) {
+            const button = e.target.closest('.btn-delete')
+            const id = button.getAttribute('data-id');
+            const namaKelas = button.getAttribute('data-nama');
+            const isDark = document.body.classList.contains('dark-mode-variables')
+
+            Swal.fire({
+                title: `Hapus kelas ${namaKelas}?`,
+                text: 'Data kelas ini bakal dihapus permanen!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e7586e',
+                cancelButtonColor: '#43c6c9',
+                confirmButtonText: 'Ya, hapus',
+                cancelButtonText: 'Batal',
+                background: isDark ? getComputedStyle(document.body).getPropertyValue(
+                    '--color-background') : '#fff',
+                color: isDark ? getComputedStyle(document.body).getPropertyValue('--color-dark') :
+                    '#000',
+                customClass: {
+                    popup: isDark ? 'swal-dark' : ''
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/admin/kelas/destroy/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(() => {
+                            location.reload();
+                        });
+                }
+            });
+        }
+    });
+</script>

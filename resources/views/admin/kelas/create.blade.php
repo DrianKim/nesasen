@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('admin.layouts.app')
 
 @section('content')
     <div class="container py-4">
@@ -48,7 +48,8 @@
                                     </label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                        <select name="guru_id" class="form-control @error('guru_id') is-invalid @enderror" required>
+                                        <select name="guru_id" class="form-control @error('guru_id') is-invalid @enderror"
+                                            required>
                                             <option disabled selected>-- Pilih Guru --</option>
                                             @foreach ($guruList as $guru)
                                                 <option value="{{ $guru->id }}">{{ $guru->nama }}</option>
@@ -68,7 +69,7 @@
                                         <select name="jurusan_id" class="form-control" required>
                                             <option disabled value="">---Pilih Jurusan---</option>
                                             @foreach ($jurusanList as $jurusan)
-                                            <option value="{{ $jurusan->id }}">{{ $jurusan->nama_jurusan }}</option>
+                                                <option value="{{ $jurusan->id }}">{{ $jurusan->nama_jurusan }}</option>
                                             @endforeach
                                         </select>
                                     </div>

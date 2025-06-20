@@ -66,8 +66,6 @@
                             </button>
                         </div>
                     </div>
-
-
                 </div>
 
                 <!-- Table Section -->
@@ -162,45 +160,81 @@
             const modal = document.getElementById("modalKelasTambah");
             if (modal) {
                 modal.style.display = 'block';
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
 
                 $('#guru').select2({
                     placeholder: 'Cari nama guru...',
-                    // dropdownParent: $(modal).find('.modal-content'),
+                    // dropdownParent: $('#modalKelasTambah .modal-content'),
                     width: '100%'
                 });
 
                 $('#jurusan').select2({
                     placeholder: 'Pilih Jurusan',
-                    // dropdownParent: $(modal).find('.modal-content'),
+                    // dropdownParent: $('#modalKelasTambah .modal-content'),
                     width: '100%'
                 });
             }
         }
 
         function closeModal() {
-            document.getElementById("modalKelasTambah").style.display = 'none';
+            const modal = document.getElementById("modalKelasTambah");
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
         }
 
         function openModalImport() {
-            document.getElementById("modalKelasImport").style.display = 'flex';
+            const modal = document.getElementById("modalKelasImport");
+            if (modal) {
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    modal.classList.add('show')
+                }, 10);
+            }
         }
 
         function closeModalImport() {
-            document.getElementById("modalKelasImport").style.display = 'none';
+            const modal = document.getElementById("modalKelasImport");
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
         }
 
         function openModalExport() {
-            document.getElementById("modalKelasExport").style.display = 'flex';
+            const modal = document.getElementById("modalKelasExport");
+            if (modal) {
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    modal.classList.add('show')
+                }, 10);
+            }
         }
 
         function closeModalExport() {
-            document.getElementById("modalKelasExport").style.display = 'none';
+            const modal = document.getElementById("modalKelasExport");
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
         }
 
         function openModalEdit(modalId) {
             const modal = document.getElementById(modalId);
             if (modal) {
                 modal.style.display = 'block';
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
 
                 const id = modalId.replace('modalKelasEdit', '');
                 setupEditFormListenersKelas(id);
@@ -223,33 +257,16 @@
         function closeModalEdit(modalId) {
             const modal = document.getElementById(modalId);
             if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+
                 // Destroy Select2 dulu
                 $(modal).find('.select-guru-edit').select2('destroy');
                 $(modal).find('.select-jurusan-edit').select2('destroy');
-
-                modal.style.display = 'none';
             }
         }
-
-        // function openModalEdit(modalId) {
-        //     const modal = document.getElementById(modalId);
-        //     if (modal) {
-        //         modal.style.display = 'block';
-
-        //         $('#guruEdit').select2({
-        //             placeholder: 'Cari nama guru...',
-        //             // dropdownParent: $(modal).find('.modal-content'),
-        //             width: '100%'
-        //         });
-        //     }
-        // }
-
-        // function closeModalEdit(modalId, id) {
-        //     document.getElementById(modalId).style.display = 'none';
-        // }
-        // function openModalEdit(modalId, id) {
-        //     document.getElementById(modalId).style.display = 'block';
-        // }
     </script>
 
     <script>

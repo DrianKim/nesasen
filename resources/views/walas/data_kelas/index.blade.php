@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('admin.layouts.app')
 
 @section('content')
     <!-- Page Heading -->
@@ -69,7 +69,8 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center">Belum ada siswa di kelas ini.</td> <!-- colspan harus 6 bro -->
+                                    <td colspan="6" class="text-center">Belum ada siswa di kelas ini.</td>
+                                    <!-- colspan harus 6 bro -->
                                 </tr>
                             @endforelse
                         </tbody>

@@ -189,7 +189,7 @@
                         @if (isset($izinSiswa) && !empty($izinSiswa->lampiran))
                             <div class="mt-3">
                                 <p class="text-muted">Lampiran yang sudah diupload:</p>
-                                @if (Str::endsWith(strtolower($izinSiswa->lampiran), ['.jpg', '.jpeg', '.png', '.gif', '.bmp']))
+                                @if (Str::endsWith(strtolower($izinSiswa->lampiran), ['.jpg', '.jpeg', '.png', 'pdf', '.gif', '.bmp']))
                                     <img src="{{ asset('storage/' . $izinSiswa->lampiran) }}" alt="Lampiran"
                                         class="mt-2 img-fluid" style="max-width: 200px;">
                                 @else

@@ -144,20 +144,20 @@ footer p {
 /* Menambahkan hiasan di pojok kanan atas dan kiri bawah */
 .decorative-image {
     position: absolute;
-    z-index: -1; /* Agar gambar tidak menghalangi konten lainnya */
+    z-index: -1;
 }
 
 .decorative-image.top-right {
     top: 0;
     right: 0;
-    width: 150px; /* Sesuaikan ukuran hiasan untuk desktop */
+    width: 150px;
     height: auto;
 }
 
 .decorative-image.bottom-left {
     bottom: 0;
     left: 0;
-    width: 150px; /* Sesuaikan ukuran hiasan untuk desktop */
+    width: 150px;
     height: auto;
 }
 
@@ -200,8 +200,8 @@ footer p {
     }
 
     .card img.vector {
-        width: 150px; /* Gambar vektor lebih besar di mobile */
-        height: 150px; /* Atur tinggi gambar vektor supaya lebih proporsional */
+        width: 115px; /* Gambar vektor lebih besar di mobile */
+        height: 115px; /* Atur tinggi gambar vektor supaya lebih proporsional */
         margin-top: auto;
         object-fit: cover; /* Agar gambar tidak pecah */
         flex-shrink: 0; /* Gambar nggak mengecil */
@@ -212,49 +212,45 @@ footer p {
     }
 
     .card-content h2 {
-        font-size: 1rem; /* Ukuran font lebih kecil untuk mobile */
+        font-size: 0.88rem; /* Ukuran font lebih kecil untuk mobile */
     }
 
     .card-content p {
-        font-size: 0.8rem; /* Ukuran font untuk deskripsi lebih kecil */
+        font-size: 0.7rem; /* Ukuran font untuk deskripsi lebih kecil */
     }
 
-    /* Menambahkan hiasan di pojok kanan atas dan kiri bawah */
     .decorative-image {
         position: absolute;
-        z-index: -1; /* Agar gambar tidak menghalangi konten lainnya */
+        z-index: -1;
     }
 
-    /* Hiasan di pojok kanan atas */
     .decorative-image.top-right {
         top: 0;
         right: 0;
-        width: 150px; /* Sesuaikan ukuran hiasan untuk desktop */
+        width: 150px;
         height: auto;
     }
 
-    /* Hiasan di pojok kiri bawah */
     .decorative-image.bottom-left {
-        bottom: 0;
+        bottom: 50;
         left: 0;
-        width: 150px; /* Sesuaikan ukuran hiasan untuk desktop */
+        width: 150px;
         height: auto;
+        display: none;
     }
 
-    /* Untuk memastikan posisi tetap benar di mobile */
     .decorative-image.top-right {
-        width: 100px; /* Ukuran lebih kecil di mobile */
+        width: 100px;
     }
 
     .decorative-image.bottom-left {
-        width: 100px; /* Ukuran lebih kecil di mobile */
+        width: 100px;
     }
 
     .social-media a {
         font-size: 0.9rem;
     }
 
-    /* Atur gambar hiasan tetap di belakang konten */
     body {
         position: relative;
     }

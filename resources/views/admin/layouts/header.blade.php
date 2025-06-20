@@ -39,4 +39,29 @@
     <!-- JS Select2 (setelah jQuery) -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <!-- JS -->
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+    {{-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script> --}}
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+    <script>
+        try {
+            const dark = localStorage.getItem("darkMode");
+            const override = sessionStorage.getItem("darkModeOverride");
+
+            const isDark = override !== null ? override === "true" : dark === "true";
+
+            if (isDark) {
+                document.documentElement.classList.add("dark-mode-variables");
+            } else {
+                document.documentElement.classList.remove("dark-mode-variables");
+            }
+        } catch (e) {
+            console.log("Dark mode apply failed", e);
+        }
+    </script>
+
 </head>

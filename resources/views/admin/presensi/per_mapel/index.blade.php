@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('admin.layouts.app')
 
 @section('content')
     <div class="p-0 container-fluid">
@@ -164,7 +164,8 @@
 
                 // Create AJAX request
                 currentRequest = new XMLHttpRequest();
-                currentRequest.open('GET', '{{ route('admin_presensi_per_mapel.filter') }}?' + new URLSearchParams(formData)
+                currentRequest.open('GET', '{{ route('admin_presensi_per_mapel.filter') }}?' + new URLSearchParams(
+                        formData)
                     .toString(), true);
                 currentRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 

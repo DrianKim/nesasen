@@ -21,8 +21,8 @@
                             <form action="{{ route('admin_siswa.index') }}" method="GET">
                                 <div class="filter-group">
                                     <label for="kelas">Kelas:</label>
-                                    <select id="kelas" name="kelas" class="form-control">
-                                        <option value="">Semua Kelas</option>
+                                    <select id="kelas" name="kelas" class="form-control select-kelas">
+                                        <option selected value="">Semua Kelas</option>
                                         @foreach ($kelasFilter as $kelas)
                                             <option value="{{ $kelas->id }}"
                                                 {{ request('kelas') == $kelas->id ? 'selected' : '' }}>
@@ -81,86 +81,18 @@
                             </button>
                         </div>
                     </div>
+                </div>
 
+                <!-- Table Section -->
+                <div class="table-responsive" style="position: relative;">
                     <!-- Loading Indicator -->
-                    <div id="loading-indicator" style="display:none;">
-                        <div class="my-3 d-flex justify-content-center">
+                    <div id="loading-indicator" style="display:none;" class="loading-overlay-table">
+                        <div class="my-3 d-flex justify-content-center spinner-wrapper">
                             <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
+                                <span class="loading-text">Loading...</span>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Filter Section -->
-                {{-- <div class="filter-section">
-                    <form id="siswaFilterForm">
-                        @csrf
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label for="kelas">Kelas:</label>
-                                    <select class="form-select" id="kelas" name="kelas">
-                                        <option value="">Semua Kelas</option>
-                                        @foreach ($kelasFilter as $kelas)
-                                            <option value="{{ $kelas->id }}"
-                                                {{ request('kelas') == $kelas->id ? 'selected' : '' }}>
-                                                {{ $kelas->tingkat }} {{ $kelas->jurusan->kode_jurusan }}
-                                                {{ $kelas->no_kelas }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label for="tahun_ajaran">Tahun Ajaran:</label>
-                                    <select class="form-select" id="tahun_ajaran" name="tahun_ajaran">
-                                        @foreach ($tahunAjaranFilter as $tahun)
-                                            <option value="{{ $tahun }}"
-                                                {{ request('tahun_ajaran') == $tahun ? 'selected' : '' }}>
-                                                {{ $tahun }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="form-group">
-                                    <label for="perPage">Tampilkan:</label>
-                                    <select class="form-select" id="perPage" name="perPage">
-                                        <option value="10" {{ request('perPage', 10) == 10 ? 'selected' : '' }}>10
-                                        </option>
-                                        <option value="25" {{ request('perPage') == 25 ? 'selected' : '' }}>25</option>
-                                        <option value="50" {{ request('perPage') == 50 ? 'selected' : '' }}>50</option>
-                                        <option value="100" {{ request('perPage') == 100 ? 'selected' : '' }}>100
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group search-box">
-                                    <label for="searchInput">Cari:</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" name="search" id="searchInput"
-                                            placeholder="Cari siswa..." value="{{ request('search') }}">
-                                        <button type="button" class="btn btn-primary" id="resetFilter">
-                                            <i class="fas fa-sync-alt"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Hidden fields for sorting -->
-                        <input type="hidden" name="sort_by" id="sort_by" value="{{ request('sort_by') }}">
-                        <input type="hidden" name="sort_direction" id="sort_direction"
-                            value="{{ request('sort_direction', 'asc') }}">
-                        <input type="hidden" name="page" id="current_page" value="{{ request('page', 1) }}">
-                    </form>
-                </div> --}}
-
-                <!-- Table Section -->
-                <div class="table-responsive">
                     {{-- <form id="bulk_form" action="{{ route('admin_siswa.bulk_action') }}" method="POST">
                         @csrf
                         <input type="hidden" name="bulk_action" id="bulk_action" value=""> --}}
@@ -193,7 +125,7 @@
             </div>
         </div>
     </div>
-    
+
     @if ($errors->any() && old('from_edit_siswa'))
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -252,6 +184,9 @@
             const modal = document.getElementById("modalSiswaTambah");
             if (modal) {
                 modal.style.display = 'block';
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
 
                 $('#kelasModal').select2({
                     placeholder: 'Cari kelas...',
@@ -262,29 +197,68 @@
         }
 
         function closeModal() {
-            document.getElementById("modalSiswaTambah").style.display = 'none';
+            const modal = document.getElementById("modalSiswaTambah");
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
         }
 
         function openModalImport() {
-            document.getElementById("modalSiswaImport").style.display = 'flex';
+            const modal = document.getElementById("modalSiswaImport");
+            if (modal) {
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    modal.classList.add('show')
+                }, 10);
+
+                $('#siswaKelasImport').select2({
+                    placeholder: 'Cari kelas...',
+                    // dropdownParent: $(modal).find('.modal-content'),
+                    width: '100%'
+                });
+            }
         }
 
         function closeModalImport() {
-            document.getElementById("modalSiswaImport").style.display = 'none';
+            const modal = document.getElementById("modalSiswaImport");
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
         }
 
         function openModalExport() {
-            document.getElementById("modalSiswaExport").style.display = 'flex';
+            const modal = document.getElementById("modalSiswaExport");
+            if (modal) {
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    modal.classList.add('show')
+                }, 10);
+            }
         }
 
         function closeModalExport() {
-            document.getElementById("modalSiswaExport").style.display = 'none';
+            const modal = document.getElementById("modalSiswaExport");
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
         }
 
         function openModalEdit(modalId) {
             const modal = document.getElementById(modalId);
             if (modal) {
                 modal.style.display = 'block';
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
 
                 const id = modalId.replace('modalSiswaEdit', '');
                 setupEditFormListenersSiswa(id);
@@ -301,10 +275,14 @@
         function closeModalEdit(modalId) {
             const modal = document.getElementById(modalId);
             if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+
                 // Destroy Select2 dulu
                 $(modal).find('.select-kelas-edit').select2('destroy');
 
-                modal.style.display = 'none';
             }
         }
 
@@ -392,7 +370,7 @@
             const resetButton = document.querySelector('.resetFilter');
 
             const tahunAjaranSelect = document.getElementById('tahun-ajaran');
-            const kelasListSelect = document.getElementById('kelas');
+            const kelasListSelect = document.querySelector('.select-kelas');
             const perPageSelect = document.getElementById('perPage');
             const sortByInput = document.getElementById('sort_by');
             const sortDirectionInput = document.getElementById('sort_direction');
@@ -418,7 +396,7 @@
             // Function to load data via AJAX
             function loadData() {
                 // Show loading indicator
-                loadingIndicator.style.display = 'block';
+                loadingIndicator.style.display = 'flex';
 
                 // If there's a pending request, abort it
                 if (currentRequest) {
@@ -487,18 +465,6 @@
                 }
             }
 
-            // Bind events to filter elements
-            // filters.forEach(filter => {
-            //     const element = document.getElementById(filter);
-            //     if (element) {
-            //         element.addEventListener('change', function() {
-            //             // Reset to page 1 when changing filters
-            //             document.getElementById('current_page').value = 1;
-            //             loadData();
-            //         });
-            //     }
-            // });
-
             if (tahunAjaranSelect) {
                 tahunAjaranSelect.addEventListener('change', function() {
                     currentPageInput.value = 1;
@@ -513,19 +479,24 @@
             //     });
             // }
 
-            if (typeof $ !== 'undifined') {
-                $('#kelas').select2({
-                    placeholder: "Pilih Kelas...",
-                    allowClear: true,
-                    width: '100%',
+            if (typeof $ !== 'undefined') {
+                const $kelas = $('.select-kelas');
+
+                $kelas.each(function() {
+                    const $el = $(this);
+                    if (!$el.hasClass('select2-hidden-accessible')) {
+                        $el.select2({
+                            placeholder: "Pilih Kelas...",
+                            allowClear: true,
+                            width: '100%',
+                        });
+                    }
                 });
 
-                $('#kelas').on('change', function() {
+                $kelas.on('change', function() {
                     currentPageInput.value = 1;
                     loadData();
                 });
-            } else {
-                console.warn('select2 tidak dapat diaktifkan');
             }
 
             if (perPageSelect) {
@@ -553,7 +524,7 @@
                     e.preventDefault();
                     // Reset all filters
                     if (tahunAjaranSelect) tahunAjaranSelect.value = '';
-                    if (kelasListSelect) $('#kelas').val('').trigger('change');
+                    if (kelasListSelect) $('.select-kelas').val('').trigger('change');
                     if (perPageSelect) perPageSelect.value = '10';
                     if (searchInput) searchInput.value = '';
                     sortByInput.value = '';
@@ -645,6 +616,7 @@
             bindSortingEvents();
             bindPaginationEvents();
             bindCheckboxEvents();
+
         });
     </script>
 @endsection

@@ -57,91 +57,23 @@
                             </button>
                         </div>
                     </div>
+                </div>
 
+                <!-- Table Section -->
+                <div class="table-responsive" style="position: relative;">
                     <!-- Loading Indicator -->
-                    <div id="loading-indicator" style="display:none;">
-                        <div class="my-3 d-flex justify-content-center">
+                    <div id="loading-indicator" style="display:none;" class="loading-overlay-table">
+                        <div class="my-3 d-flex justify-content-center spinner-wrapper">
                             <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
+                                <span class="loading-text">Loading...</span>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Filter Section -->
-                {{-- <div class="filter-section">
-                    <form id="guruFilterForm">
-                        @csrf
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label for="kelas">Kelas:</label>
-                                    <select class="form-select" id="kelas" name="kelas">
-                                        <option value="">Semua Kelas</option>
-                                        @foreach ($kelasFilter as $kelas)
-                                            <option value="{{ $kelas->id }}"
-                                                {{ request('kelas') == $kelas->id ? 'selected' : '' }}>
-                                                {{ $kelas->tingkat }} {{ $kelas->jurusan->kode_jurusan }}
-                                                {{ $kelas->no_kelas }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label for="tahun_ajaran">Tahun Ajaran:</label>
-                                    <select class="form-select" id="tahun_ajaran" name="tahun_ajaran">
-                                        @foreach ($tahunAjaranFilter as $tahun)
-                                            <option value="{{ $tahun }}"
-                                                {{ request('tahun_ajaran') == $tahun ? 'selected' : '' }}>
-                                                {{ $tahun }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="form-group">
-                                    <label for="perPage">Tampilkan:</label>
-                                    <select class="form-select" id="perPage" name="perPage">
-                                        <option value="10" {{ request('perPage', 10) == 10 ? 'selected' : '' }}>10
-                                        </option>
-                                        <option value="25" {{ request('perPage') == 25 ? 'selected' : '' }}>25</option>
-                                        <option value="50" {{ request('perPage') == 50 ? 'selected' : '' }}>50</option>
-                                        <option value="100" {{ request('perPage') == 100 ? 'selected' : '' }}>100
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group search-box">
-                                    <label for="searchInput">Cari:</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" name="search" id="searchInput"
-                                            placeholder="Cari guru..." value="{{ request('search') }}">
-                                        <button type="button" class="btn btn-primary" id="resetFilter">
-                                            <i class="fas fa-sync-alt"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Hidden fields for sorting -->
-                        <input type="hidden" name="sort_by" id="sort_by" value="{{ request('sort_by') }}">
-                        <input type="hidden" name="sort_direction" id="sort_direction"
-                            value="{{ request('sort_direction', 'asc') }}">
-                        <input type="hidden" name="page" id="current_page" value="{{ request('page', 1) }}">
-                    </form>
-                </div> --}}
-
-                <!-- Table Section -->
-                <div class="table-responsive">
                     {{-- <form id="bulk_form" action="{{ route('admin_guru.bulk_action') }}" method="POST">
                         @csrf
                         <input type="hidden" name="bulk_action" id="bulk_action" value=""> --}}
 
-                        {{-- <div class="bulk-actions">
+                    {{-- <div class="bulk-actions">
                             <div class="bulk-buttons">
                                 <button type="button" class="btn btn-sm btn-outline-danger"
                                     onclick="bulkAction('delete')">
@@ -150,13 +82,13 @@
                             </div>
                         </div> --}}
 
-                        <div id="table-container">
-                            <!-- Konten tabel akan diisi dengan AJAX -->
-                            @include('admin.guru.partials.table')
-                            <div class="mt-2 d-flex justify-content-end">
-                                {{-- {{ $guru->links() }}   --}}
-                            </div>
+                    <div id="table-container">
+                        <!-- Konten tabel akan diisi dengan AJAX -->
+                        @include('admin.guru.partials.table')
+                        <div class="mt-2 d-flex justify-content-end">
+                            {{-- {{ $guru->links() }}   --}}
                         </div>
+                    </div>
                     {{-- </form> --}}
                 </div>
 
@@ -203,6 +135,9 @@
             const modal = document.getElementById("modalGuruTambah");
             if (modal) {
                 modal.style.display = 'block';
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
 
                 $('#kelasModal').select2({
                     placeholder: 'Cari kelas...',
@@ -213,31 +148,73 @@
         }
 
         function closeModal() {
-            document.getElementById("modalGuruTambah").style.display = 'none';
+            const modal = document.getElementById("modalGuruTambah");
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
         }
 
         function openModalImport() {
-            document.getElementById("modalGuruImport").style.display = 'flex';
+            const modal = document.getElementById("modalGuruImport");
+            if (modal) {
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    modal.classList.add('show')
+                }, 10);
+            }
         }
 
         function closeModalImport() {
-            document.getElementById("modalGuruImport").style.display = 'none';
+            const modal = document.getElementById("modalGuruImport");
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
         }
 
         function openModalExport() {
-            document.getElementById("modalGuruExport").style.display = 'flex';
+            const modal = document.getElementById("modalGuruExport");
+            if (modal) {
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    modal.classList.add('show')
+                }, 10);
+            }
         }
 
         function closeModalExport() {
-            document.getElementById("modalGuruExport").style.display = 'none';
+            const modal = document.getElementById("modalGuruExport");
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
         }
 
         function openModalEdit(modalId) {
-            document.getElementById(modalId).style.display = 'block';
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
+            }
         }
 
         function closeModalEdit(modalId) {
-            document.getElementById(modalId).style.display = 'none';
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
         }
     </script>
 
@@ -342,7 +319,7 @@
             // Function to load data via AJAX
             function loadData() {
                 // Show loading indicator
-                loadingIndicator.style.display = 'block';
+                loadingIndicator.style.display = 'flex';
 
                 // If there's a pending request, abort it
                 if (currentRequest) {

@@ -2,8 +2,8 @@
 <html lang="id">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pilih Peran</title>
     <link rel="stylesheet" href="{{ asset('assets/css/style-role.css') }}">
     <link href="{{ asset('img/favicon.png') }}" rel="icon">
@@ -12,13 +12,13 @@
 
 <body>
     <!-- Hiasan -->
-    <img src="{{ asset('img/corner-right.png') }}" alt="Hiasan Kanan Atas" class="decorative-image top-right" />
-    <img src="{{ asset('img/corner-left.png') }}" alt="Hiasan Kiri Bawah" class="decorative-image bottom-left" />
+    <img src="{{ asset('img/corner-right.png') }}" alt="Hiasan Kanan Atas" class="decorative-image top-right">
+    <img src="{{ asset('img/corner-left.png') }}" alt="Hiasan Kiri Bawah" class="decorative-image bottom-left">
 
     <!-- Header dengan logo -->
     <header>
         <div class="logo">
-            <img src="{{ asset('img/ls-logo.png') }}" alt="Nesasen Logo" />
+            <img src="{{ asset('img/ls-logo.png') }}" alt="Nesasen Logo">
         </div>
     </header>
 
@@ -33,7 +33,7 @@
                     <h2>Admin Sekolah</h2>
                     <p>Jika kamu adalah admin sekolah, pilih yang ini</p>
                 </div>
-                <img src="{{ asset('img/atmin-vector.png') }}" alt="Admin Sekolah" class="vector" />
+                <img src="{{ asset('img/atmin-vector.png') }}" alt="Admin Sekolah" class="vector">
             </a>
 
             <!-- Guru -->
@@ -42,7 +42,7 @@
                     <h2>Guru</h2>
                     <p>Jika kamu adalah pahlawan tanpa tanda jasa, pilih yang ini</p>
                 </div>
-                <img src="{{ asset('img/guru-vector.png') }}" alt="Guru" class="vector" />
+                <img src="{{ asset('img/guru-vector.png') }}" alt="Guru" class="vector">
             </a>
 
             <!-- Siswa -->
@@ -51,7 +51,7 @@
                     <h2>Siswa</h2>
                     <p>Jika kamu siswa NESAS yang CEREN, pilih yang ini</p>
                 </div>
-                <img src="{{ asset('img/siswa-vector.png') }}" alt="Siswa" class="vector" />
+                <img src="{{ asset('img/siswa-vector.png') }}" alt="Siswa" class="vector">
             </a>
         </div>
     </main>

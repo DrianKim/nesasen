@@ -171,7 +171,7 @@ class GuruController extends Controller
             'jenis_izin' => 'required',
             'tanggal' => 'required|date',
             'keterangan' => 'required|string|max:255',
-            'lampiran' => 'nullable|image|file|mimes:jpg,jpeg,png,pdf',
+            'lampiran' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
         ], [
             'jenis_izin.required' => 'Jenis izin harus diisi',
             'tanggal.required' => 'Tanggal izin harus diisi',

@@ -19,18 +19,21 @@
 
 <body id="page-top"
     class="@if (session('dark_mode', false)) dark-mode @endif
-    @if (auth()->user()->role_id == 1) admin
-    @elseif (auth()->user()->role_id == 2 || auth()->user()->role_id == 3) guru
-    @else siswa @endif">
+    @auth
+        @if (auth()->user()->role_id == 1) admin
+        @elseif (auth()->user()->role_id == 2 || auth()->user()->role_id == 3) guru
+        @else siswa
+        @endif
+    @endauth">
 
     <!-- Page Wrapper -->
     <div id="wrapper">
 
-        @include('layouts.sidebar')
+        {{-- @include('layouts.sidebar') --}}
 
         <!-- Navigation Mobile -->
         @if (@auth()->user()->role_id != 1)
-            @include('layouts.bottom-navbar')
+            {{-- @include('layouts.bottom-navbar') --}}
         @endif
 
         <!-- Content Wrapper -->
@@ -39,7 +42,7 @@
             <!-- Main Content -->
             <div id="content">
 
-                @include('layouts.topbar')
+                {{-- @include('layouts.topbar') --}}
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->

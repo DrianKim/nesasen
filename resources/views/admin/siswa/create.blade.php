@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('admin.layouts.app')
 
 @section('content')
     <div class="container py-4">
@@ -15,7 +15,7 @@
             <div class="p-4 card-body">
                 <form action="{{ route('admin_siswa.store') }}" method="POST">
                     @csrf
-                    
+
                     {{-- data siswa --}}
                     <div class="mb-4 border-0 card bg-light rounded-3">
                         <div class="text-white card-header bg-primary">
@@ -46,7 +46,8 @@
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-chalkboard"></i></span>
                                         {{-- <input list="kelas_id" > --}}
-                                        <select name="kelas_id" class="form-control @error('kelas_id') is-invalid @enderror">
+                                        <select name="kelas_id"
+                                            class="form-control @error('kelas_id') is-invalid @enderror">
                                             <option disabled value="">---Pilih Kelas---</option>
                                             @foreach ($kelasList as $kelas)
                                                 <option value="{{ $kelas->id }}">

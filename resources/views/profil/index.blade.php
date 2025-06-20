@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('admin.layouts.app')
 
 @section('content')
     <div class="container py-5">
@@ -24,8 +24,8 @@
                                             style="width: 30px; height: 30px; cursor: pointer;">
                                             <i class="fas fa-camera"></i>
                                         </div>
-                                        <input type="file" id="upload-foto-profil" name="foto_profil" style="display: none;"
-                                            accept="image/jpeg,image/png,image/jpg">
+                                        <input type="file" id="upload-foto-profil" name="foto_profil"
+                                            style="display: none;" accept="image/jpeg,image/png,image/jpg">
                                     </form>
                                 </label>
                             </div>

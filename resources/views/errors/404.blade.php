@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('admin.layouts.app')
 
 @section('content')
     <div class="d-flex flex-column justify-content-center align-items-center position-relative"
@@ -29,7 +29,8 @@
                 </a>
             </div>
 
-            <p class="mt-3 text-muted">Butuh bantuan? <a href="https://wa.me/6287720405130" target="_blank">Hubungi Admin</a></p>
+            <p class="mt-3 text-muted">Butuh bantuan? <a href="https://wa.me/6287720405130" target="_blank">Hubungi
+                    Admin</a></p>
         </div>
     </div>
     @php $title = '404 - Halaman Tidak Ditemukan'; @endphp

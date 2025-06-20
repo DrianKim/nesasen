@@ -81,7 +81,7 @@
 
                         <div class="form-group half">
                             <label for="kelas">Kelas</label>
-                            <select id="kelas" name="edit_kelas_id"
+                            <select id="select-kelas" name="edit_kelas_id"
                                 class="form-control select-kelas-edit @error('edit_kelas_id') is-invalid @enderror"
                                 required>
                                 <option value="" disabled>Pilih Kelas</option>

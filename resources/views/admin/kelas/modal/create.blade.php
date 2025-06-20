@@ -1,6 +1,6 @@
 <div class="modal" id="modalKelasTambah">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content dark-mode-availables">
             <!-- Modal Header -->
             <div class="modal-header-custom">
                 <div class="modal-header-icon">
@@ -17,7 +17,7 @@
                 <form id="formTambahKelas" action="{{ route('admin_kelas.store') }}" method="POST">
                     @csrf
 
-                    <input type="hidden" name="from_tambah_siswa" value="1">
+                    <input type="hidden" name="from_tambah_kelas" value="1">
 
                     <div class="form-grid-kelas">
                         <div class="form-group">

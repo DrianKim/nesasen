@@ -27,18 +27,17 @@
                 <td data-field="no_hp">{{ $item->no_hp ?? '-' }}</td>
                 <td>{{ $item->kelas ? $item->kelas->tingkat . ' ' . $item->kelas->jurusan->kode_jurusan . ' ' . $item->kelas->no_kelas : '-' }}
                 </td>
-                <div class="action-buttons">
-                    <td>
+                <td>
+                    <div class="action-buttons">
                         @include('admin.siswa.modal.edit', ['id' => $item->id, 'siswa' => $item])
                         <button class="btn-edit" onclick="openModalEdit('modalSiswaEdit{{ $item->id }}')">
                             <span class="material-icons-sharp">edit</span>
                         </button>
-                        <button class="btn-delete" data-toggle="modal"
-                            data-target="#modalKelasDestroy{{ $item->id }}">
+                        <button class="btn-delete" data-id="{{ $item->id }}" data-nama="{{ $item->nama }}">
                             <span class="material-icons-sharp">delete</span>
                         </button>
-                    </td>
-                </div>
+                    </div>
+                </td>
                 {{-- @include('admin.siswa.modal') --}}
             </tr>
         @empty
@@ -48,16 +47,59 @@
                         <img src="{{ asset('assets\img\not-found.png') }}" alt="No Data" width="120">
                         <p>Tidak ada data siswa yang ditemukan</p>
                         {{-- @include('admin.siswa.modal-create') --}}
-                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+                        {{-- <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
                             data-target="#modalSiswaCreate">
                             <i class="mr-1 fas fa-plus"></i> Tambah Siswa
-                        </button>
+                        </button> --}}
                     </div>
                 </td>
             </tr>
         @endforelse
     </tbody>
 </table>
+
+<script>
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.btn-delete')) {
+            const button = e.target.closest('.btn-delete')
+            const id = button.getAttribute('data-id');
+            const namaSiswa = button.getAttribute('data-nama');
+            const isDark = document.body.classList.contains('dark-mode-variables')
+
+            Swal.fire({
+                title: `Hapus siswa dengan nama ${namaSiswa}?`,
+                text: 'Data siswa ini bakal dihapus permanen!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e7586e',
+                cancelButtonColor: '#43c6c9',
+                confirmButtonText: 'Ya, hapus',
+                cancelButtonText: 'Batal',
+                background: isDark ? getComputedStyle(document.body).getPropertyValue(
+                    '--color-background') : '#fff',
+                color: isDark ? getComputedStyle(document.body).getPropertyValue('--color-dark') :
+                    '#000',
+                customClass: {
+                    popup: isDark ? 'swal-dark' : ''
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/admin/siswa/destroy/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(() => {
+                            location.reload();
+                        });
+                }
+            });
+        }
+    });
+</script>
+
 @if ($errors->has('username'))
     <script>
         Swal.fire({

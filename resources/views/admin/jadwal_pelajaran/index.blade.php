@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('admin.layouts.app')
 
 @section('content')
     <!-- Page Heading -->
@@ -49,7 +49,8 @@
             <div class="card-body">
                 <div class="search-box">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="search-input" placeholder="Cari berdasarkan nama jurusan atau kode jurusan...">
+                    <input type="text" class="search-input"
+                        placeholder="Cari berdasarkan nama jurusan atau kode jurusan...">
                 </div>
 
                 <div class="table-container">

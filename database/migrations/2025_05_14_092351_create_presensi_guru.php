@@ -22,7 +22,7 @@ return new class extends Migration
             $table->json('lokasi_masuk')->nullable();
             $table->json('lokasi_keluar')->nullable();
             $table->text('alasan')->nullable();
-            $table->enum('status_kehadiran', ['hadir', 'terlambat', 'alfa'])->default('hadir');
+            $table->enum('status_kehadiran', ['hadir', 'terlambat', 'alpa'])->default('hadir');
             $table->enum('status_lokasi', ['dalam_area', 'di_luar_area'])->default('dalam_area');
             $table->timestamps();
 

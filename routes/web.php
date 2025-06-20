@@ -281,16 +281,22 @@ Route::middleware(['isLogin'])->group(function () {
         Route::post('admin/izin/siswa/update/{id}', [AdminController::class, 'update_izin_siswa'])->name('admin_izin_siswa.update');
         Route::delete('admin/izin/siswa/destroy/{id}', [AdminController::class, 'destroy_izin_siswa'])->name('admin_izin_siswa.destroy');
         Route::delete('admin/izin/siswa/bulk_action', [AdminController::class, 'bulkAction_izin_siswa'])->name('admin_izin_siswa.bulk_action');
+        Route::get('/izin-siswa/lampiran/{filename}', [AdminController::class, 'download_lampiran_siswa'])->name('admin_izin_lampiran_siswa.download');
+        Route::get('admin/izin_siswa/export/pdf', [AdminController::class, 'export_izin_siswa_pdf'])->name('admin_izin_siswa.export.pdf');
+        Route::get('admin/izin_siswa/export/xlsx', [AdminController::class, 'export_izin_siswa_xlsx'])->name('admin_izin_siswa.export.xlsx');
 
         // izin guru
         Route::get('admin/izin/guru', [AdminController::class, 'index_izin_guru'])->name('admin_izin_guru.index');
-        Route::get('admin/izin/guru/filter', [AdminController::class, 'filter_izin_guru'])->name('admin_izin_guru.filter');
+        Route::get('admin/izin/guru/filter', [AdminController::class, 'index_izin_guru'])->name('admin_izin_guru.filter');
         Route::get('admin/izin/guru/create', [AdminController::class, 'create_izin_guru'])->name('admin_izin_guru.create');
         Route::post('admin/izin/guru/store', [AdminController::class, 'store_izin_guru'])->name('admin_izin_guru.store');
         Route::get('admin/izin/guru/edit/{id}', [AdminController::class, 'edit_izin_guru'])->name('admin_izin_guru.edit');
         Route::post('admin/izin/guru/update/{id}', [AdminController::class, 'update_izin_guru'])->name('admin_izin_guru.update');
         Route::delete('admin/izin/guru/destroy/{id}', [AdminController::class, 'destroy_izin_guru'])->name('admin_izin_guru.destroy');
         Route::delete('admin/izin/guru/bulk_action', [AdminController::class, 'bulkAction_izin_guru'])->name('admin_izin_guru.bulk_action');
+        Route::get('/izin-guru/lampiran/{filename}', [AdminController::class, 'download_lampiran_guru'])->name('admin_izin_lampiran_guru.download');
+        Route::get('admin/izin_guru/export/pdf', [AdminController::class, 'export_izin_guru_pdf'])->name('admin_izin_guru.export.pdf');
+        Route::get('admin/izin_guru/export/xlsx', [AdminController::class, 'export_izin_guru_xlsx'])->name('admin_izin_guru.export.xlsx');
 
         // Route::get('admin/semester', [AdminController::class, 'semester'])->name('admin_semester.index');
         // Route::get('admin/tahunAjaran', [AdminController::class, 'tahunAjaran'])->name('admin_tahunAjaran.index');

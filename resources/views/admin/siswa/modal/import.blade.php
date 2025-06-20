@@ -71,7 +71,7 @@
                             <!-- Kelas -->
                             <div class="form-group half">
                                 <label for="import_kelas">Kelas:</label>
-                                <select name="kelas_id" id="import_kelas" required>
+                                <select name="kelas_id" id="siswaKelasImport" class="form-control" required>
                                     <option value="" disabled>Pilih Siswa</option>
                                     @foreach ($kelasFilter as $kelas)
                                         <option value="{{ $kelas->id }}">
@@ -97,7 +97,7 @@
                         </div>
 
                         <!-- Upload file -->
-                        <div class="file-upload-group">
+                        <div class="file-upload-group" style="margin-top: 1rem;">
                             <label for="import_file">Pilih File:</label>
                             <input type="file" id="import_file" name="file" accept=".xlsx,.xls" required />
                         </div>
