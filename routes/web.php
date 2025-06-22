@@ -168,8 +168,15 @@ Route::middleware(['isLogin'])->group(function () {
     Route::middleware(['isAdmin'])->group(function () {
         // beranda
         Route::get('admin/beranda', [DashboardController::class, 'index'])->name('admin.index');
-
-        Route::get('admin/pengumuman', [DashboardController::class, 'index_pengumuman'])->name('admin_pengumuman.index');
+        
+        // pengumuman
+        Route::middleware(['auth'])->group(function () {
+            Route::get('admin/pengumuman', [DashboardController::class, 'index_pengumuman'])->name('admin_pengumuman.index');
+            Route::post('admin/pengumuman', [DashboardController::class, 'store_pengumuman'])->name('admin_pengumuman.store');
+        });
+        Route::get('/pengumuman/{id}/edit', [DashboardController::class, 'edit_pengumuman'])->name('pengumuman.edit');
+        Route::put('admin/pengumuman/{id}', [DashboardController::class, 'update_pengumuman'])->name('pengumuman.update');
+        Route::delete('/pengumuman/{id}', [DashboardController::class, 'destroy_pengumuman'])->name('pengumuman.destroy');
 
         // umum kelas
         Route::get('admin/kelas', [AdminController::class, 'index_kelas'])->name('admin_kelas.index');

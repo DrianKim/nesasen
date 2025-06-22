@@ -2247,3 +2247,225 @@ input[type="file"] {
         transform: translateY(0);
     }
 }
+
+.announcement.empty-state {
+    text-align: center;
+    padding: 2rem;
+    border: 2px dashed #ccc;
+    border-radius: 12px;
+    background-color: #f9f9f9;
+    color: #555;
+    transition: all 0.3s ease;
+}
+
+.announcement.empty-state:hover {
+    color: #1a7576;
+    box-shadow: 0 2px 12px rgba(67, 198, 201, 0.08);
+}
+
+.announcement.empty-state img.empty-img {
+    max-width: 120px;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.1));
+}
+
+.announcement.empty-state .empty-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.announcement.empty-state .empty-subtitle {
+    font-size: 1rem;
+    color: #888;
+}
+
+.dark-mode-variables .announcement.empty-state {
+    background-color: #202528;
+    border-color: #444;
+    color: #ccc;
+}
+
+.dark-mode-variables .announcement.empty-state .empty-subtitle {
+    color: #aaa;
+}
+
+.modal-edit-pengumuman {
+    display: none;
+    position: fixed;
+    z-index: 99;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    background-color: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(1px);
+    padding: 2rem 1rem;
+    box-sizing: border-box;
+}
+
+.modal-edit-content {
+    background: var(--color-white);
+    max-width: 600px;
+    margin: auto;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--box-shadow);
+    animation: fadeIn 0.3s ease-in-out;
+    margin-top: 6rem;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-edit-header {
+    padding: 1rem 1.5rem;
+    background: var(--color-primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.modal-edit-header span {
+    font-size: 1.4rem;
+}
+
+.modal-edit-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.modal-edit-body .input-group {
+    display: flex;
+    align-items: center;
+    background: var(--color-light);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    gap: 0.75rem;
+    border: 1.5px solid var(--color-input-border);
+    margin-top: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+.modal-edit-body .input-group input,
+.modal-edit-body .input-group textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    font-size: 1rem;
+    color: var(--color-text);
+}
+
+.modal-edit-body .input-group textarea {
+    height: 80px;
+}
+
+.modal-edit-body select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 1.5px solid var(--color-input-border);
+    background: var(--color-light);
+    font-size: 1rem;
+    color: var(--color-text);
+    outline: none;
+    margin-top: 1rem;
+}
+
+.modal-edit-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background-color: var(--color-light);
+}
+
+.modal-edit-footer .btn-secondary,
+.modal-edit-footer .btn-success {
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    border: none;
+    transition: 0.2s ease;
+}
+
+.modal-edit-footer .btn-secondary {
+    background: #ddd;
+    color: #333;
+}
+
+.modal-edit-footer .btn-secondary:hover {
+    background: #c6c6c6;
+}
+
+.modal-edit-footer .btn-success {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.modal-edit-footer .btn-success:hover {
+    background: #00a5a5;
+}
+
+/* === DARK MODE SUPPORT === */
+.dark-mode-variables .modal-edit-content {
+    background: var(--color-background);
+    color: var(--color-text);
+}
+
+.dark-mode-variables .modal-edit-body .input-group,
+.dark-mode-variables .modal-edit-body select {
+    background: var(--color-input-bg);
+    background-color: #202528;
+    color: #edeffd;
+}
+
+.dark-mode-variables .modal-edit-footer {
+    background: var(--color-bg-alt);
+}
+
+.dark-mode-variables .modal-edit-footer .btn-secondary {
+    background: #555;
+    color: #fff;
+}
+
+.dark-mode-variables .modal-edit-footer .btn-secondary:hover {
+    background: #444;
+}
+
+@media screen and (max-width: 1200px) {
+    .vector-container {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .form-group-pengumuman.half .form-input.untuk {
+        transform: translateY(18px);
+    }
+
+    .right-section .news.hide,
+    .right-section .reminders.hide {
+        display: none;
+    }
+}

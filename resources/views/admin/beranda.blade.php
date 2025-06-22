@@ -52,29 +52,27 @@
 
             <div class="pengumuman">
                 <h2>Pengumuman</h2>
-                <div class="announcement">
-                    <h4>Judul Pengumuman 1</h4>
-                    <small>Dibuat pada <i>11 Juni 2025</i></small>
-                    <p>Isi pengumuman pertama yang ditampilkan di sini.</p>
-                    <small class="text-muted">Ditujukan untuk: <b>Semua</b></small><br />
-                    <small class="text-muted">Akan hilang pada <b>15 Juni 2025</b></small>
-                </div>
-                <div class="announcement">
-                    <h4>Judul Pengumuman 2</h4>
-                    <small>Dibuat pada <i>10 Juni 2025</i></small>
-                    <p>Isi pengumuman kedua yang ditampilkan di sini.</p>
-                    <small class="text-muted">Ditujukan untuk: <b>Siswa</b></small><br />
-                    <small class="text-muted">Akan hilang pada <b>16 Juni 2025</b></small>
-                </div>
-                <div class="announcement">
-                    <h4>Judul Pengumuman 3</h4>
-                    <small>Dibuat pada <i>11 Juni 2025</i></small>
-                    <p>Isi pengumuman ketiga yang ditampilkan di sini.</p>
-                    <small class="text-muted">Ditujukan untuk: <b>Semua</b></small><br />
-                    <small class="text-muted">Akan hilang pada <b>15 Juni 2025</b></small>
-                </div>
+                @forelse($pengumumen as $p)
+                    <div class="announcement">
+                        <h4>{{ $p->judul }}</h4>
+                        <small>Dibuat pada
+                            <i>{{ \Carbon\Carbon::parse($p->tanggal)->translatedFormat('d F Y') }}</i></small>
+                        <p>{{ $p->isi }}</p>
+                        <small>Ditujukan untuk: <b>{{ ucfirst($p->ditujukan_untuk) }}</b></small><br />
+                        <small>Habis:
+                            {{ \Carbon\Carbon::parse($p->kadaluarsa_sampai)->translatedFormat('d F Y') }}</small>
+                    </div>
+                @empty
+                    <div class="announcement empty-state">
+                        <img src="{{ asset('assets/img/no-data.png') }}" alt="Tidak ada pengumuman" class="empty-img">
+                        <h4 class="empty-title">Belum Ada Pengumuman untuk saat ini</h4>
+                        <p class="empty-subtitle">Silahkan buat pengumuman terlebih dulu atau tunggu guru yang
+                            membuatnya</p>
+                    </div>
+                @endforelse
             </div>
-            <!-- End of Recent Orders -->
+
+            <!-- End of Pengumuman -->
         </main>
         <!-- End of Main Content -->
 
@@ -95,7 +93,7 @@
                         <small class="text-muted">Admin</small>
                     </div>
                     <div class="profile-photo">
-                        <img src="{{ asset('assets/img/smeapng.png') }}" />
+                        <img src="images/profile-1.jpg" />
                     </div>
                 </div>
             </div>
