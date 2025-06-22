@@ -96,6 +96,7 @@
         const form = e.target;
         const formData = new FormData(form);
         const btn = document.getElementById('btnImportKelas');
+        const isDark = document.body.classList.contains('dark-mode-variables')
 
         btn.disabled = true;
         btn.innerHTML =
@@ -105,7 +106,8 @@
                 method: "POST",
                 body: formData,
                 headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
                 }
             })
             .then(res => res.json())
@@ -120,7 +122,16 @@
                         title: 'Berhasil!',
                         html: res.message + (res.errors ?
                             `<br><br><strong>Error:</strong><br>${res.errors.join('<br>')}` : ''
-                        )
+                        ),
+                        background: isDark ? getComputedStyle(document.body)
+                            .getPropertyValue(
+                                '--color-background') : '#fff',
+                        color: isDark ? getComputedStyle(document.body)
+                            .getPropertyValue(
+                                '--color-dark') : '#000',
+                        customClass: {
+                            popup: isDark ? 'swal-dark' : ''
+                        }
                     });
                 } else {
                     Swal.fire({
@@ -128,7 +139,16 @@
                         title: 'Import Gagal Sebagian!',
                         html: res.message + (res.errors ?
                             `<br><br><strong>Error:</strong><br>${res.errors.join('<br>')}` : ''
-                        )
+                        ),
+                        background: isDark ? getComputedStyle(document.body)
+                            .getPropertyValue(
+                                '--color-background') : '#fff',
+                        color: isDark ? getComputedStyle(document.body)
+                            .getPropertyValue(
+                                '--color-dark') : '#000',
+                        customClass: {
+                            popup: isDark ? 'swal-dark' : ''
+                        }
                     });
                 }
             })

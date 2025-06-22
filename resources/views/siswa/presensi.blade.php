@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{{-- <!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -45,8 +45,8 @@
 
 @include('layouts.loading-page')
 
-<body>
-    <div class="presensi-container">
+<body> --}}
+{{-- <div class="presensi-container">
         <!-- Header with Back Button -->
         <div class="presensi-header">
             <div class="back-button">
@@ -99,18 +99,151 @@
             <textarea id="alasanText" class="border rounded form-control border-opacity-30" rows="2"
                 placeholder="Masukkan alasan kamu..." style="resize: none;" required></textarea>
         </div>
-
+requestCheckIn
         <!-- Action Button -->
         <button class="action-button" id="requestCheckIn">
             REQUEST CHECK IN
         </button>
+    </div> --}}
+
+
+{{-- @include('layouts.footer-cr')
+
+    @include('layouts.footer') --}}
+
+@extends('siswa.layouts.app')
+
+@section('content')
+    <main>
+        <h2 class="section-title-form">Presensi</h2>
+
+        <div class="presensi-wrapper">
+            <!-- Header Presensi -->
+
+            <!-- Map -->
+            <div class="map-frame">
+                <div id="map" style="width: 100%; height: 350px;"></div>
+                <div class="check-info">
+                    <button id="checkInInfo" class="check-btn check-in active btn-sm">
+                        <i class="fas fa-check-circle"></i> Check In --:--
+                    </button>
+                    <button id="checkOutInfo" class="check-btn check-out active btn-sm">
+                        <i class="fas fa-times-circle"></i> Check Out --:--
+                    </button>
+                </div>
+            </div>
+
+            <!-- Info Lokasi -->
+            <div class="lokasi-info">
+                <img src="{{ asset('assets\img\smeapng.png') }}" alt="SMKN 1" />
+                <div>
+                    <h4>SMKN 1 SUBANG</h4>
+                    <p>CQV6+J32, Cigadung, Subang, Jawa Barat 41211</p>
+                </div>
+            </div>
+
+            <div class="alert-jam-wrapper">
+                <!-- Status di luar zona -->
+                <div class="alert-out-zone">
+                    {{-- <span class="material-icons-sharp">warning</span> --}}
+                    <p id="locationWarning"> Kamu berada di luar area presensi</p>
+                </div>
+
+                <!-- Waktu Sekarang -->
+                <div class="jam-presensi">
+                    <b id="currentTime"></b>
+                </div>
+            </div>
+
+            <!-- Input alasan -->
+            <div id="alasanWrapper" class="alasan-wrapper">
+                <textarea id="alasanText" class="alasan-text" rows="2" placeholder="Masukkan alasan kamu..." required></textarea>
+            </div>
+
+            <!-- Tombol Request -->
+            <button class="btn-pengumuman-style btn-presensi" id="btnModalAlert">
+                REQUEST CHECK IN
+            </button>
+        </div>
+    </main>
+    <!-- End of Main Content -->
+
+    <!-- Right Section -->
+    <div class="right-section">
+        <div class="nav">
+            <button id="menu-btn">
+                <span class="material-icons-sharp"> menu </span>
+            </button>
+
+            <div class="date-today">
+                <span id="tanggal-hari-ini"></span>
+            </div>
+
+            <div class="dark-mode">
+                <span class="material-icons-sharp active"> light_mode </span>
+                <span class="material-icons-sharp"> dark_mode </span>
+            </div>
+
+            <div class="profile">
+                <div class="info">
+                    <p>Hallo, <b>{{ Auth::user()->siswa->nama }}</b></p>
+                    <small class="text-muted">Siswa</small>
+                </div>
+                <div class="profile-photo">
+                    <img src="images/profile-1.jpg" />
+                </div>
+            </div>
+        </div>
+
+        <!-- End of Nav -->
+
+        <div class="news">
+            <iframe src="https://www.instagram.com/p/DJWiNpzSK2i/embed" width="100%" height="335" frameborder="0"
+                scrolling="no" allowtransparency="true">
+            </iframe>
+        </div>
+
+        <div class="reminders hide">
+            <div class="header">
+                <h2>Reminders</h2>
+            </div>
+
+            <div class="notification">
+                <div class="icon">
+                    <span class="material-icons-sharp"> volume_up </span>
+                </div>
+                <div class="content">
+                    <div class="info">
+                        <h3>Workshop</h3>
+                        <small class="text_muted"> 08:00 AM - 12:00 PM </small>
+                    </div>
+                    <span class="material-icons-sharp"> more_vert </span>
+                </div>
+            </div>
+
+            <div class="notification deactive">
+                <div class="icon">
+                    <span class="material-icons-sharp"> edit </span>
+                </div>
+                <div class="content">
+                    <div class="info">
+                        <h3>Workshop</h3>
+                        <small class="text_muted"> 08:00 AM - 12:00 PM </small>
+                    </div>
+                    <span class="material-icons-sharp"> more_vert </span>
+                </div>
+            </div>
+
+            <div class="notification add-reminder">
+                <div>
+                    <span class="material-icons-sharp"> add </span>
+                    <h3>Add Reminder</h3>
+                </div>
+            </div>
+        </div>
     </div>
 
     @include('siswa.modal.modal-selfie')
-
-    @include('layouts.footer-cr')
-
-    @include('layouts.footer')
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -119,6 +252,53 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        document.getElementById('btnModalAlert').addEventListener('click', () => {
+            modalAlert();
+        });
+
+        document.getElementById('lanjutSelfieBtn').addEventListener('click', () => {
+            lanjutKePresensi();
+        });
+
+        function modalAlert() {
+            document.getElementById('modalAlert').style.display = 'flex';
+        }
+
+        // Fungsi untuk tutup modal alert dan buka modal presensi
+        function closeModalAlert() {
+            document.getElementById('modalAlert').style.display = 'none';
+        }
+
+        // Fungsi untuk lanjut dari alert ke modal presensi
+        function lanjutKePresensi() {
+            // Tutup modal alert
+            document.getElementById('modalAlert').style.display = 'none';
+            // Buka modal presensi
+            document.getElementById('modalPresensi').style.display = 'block';
+            resetModalView();
+        }
+
+        // Fungsi untuk tutup modal presensi
+        function closeModalPresensi() {
+            document.getElementById('modalPresensi').style.display = 'none';
+            resetModalView();
+        }
+    </script>
+
+    <script>
+        // Update event listener untuk tombol request check in
+        document.addEventListener('DOMContentLoaded', function() {
+            // Event listener untuk tombol request check in - buka modal alert dulu
+            document.getElementById('requestCheckIn').addEventListener('click', () => {
+                modalAlert(); // Buka modal alert terlebih dahulu
+            });
+
+            // Event listener untuk tombol lanjut di modal alert
+            document.getElementById('lanjutSelfieBtn').addEventListener('click', () => {
+                lanjutKePresensi(); // Lanjut ke modal presensi
+            });
+        });
+
         const schoolPosition = L.latLng(-6.555879634402878, 107.75989081030457);
         const map = L.map('map').setView(schoolPosition, 18);
 
@@ -151,19 +331,6 @@
             [-6.55540511706991, 107.75930328524294],
             [-6.555366632776824, 107.7592552506672],
             [-6.555189604989252, 107.75937301285347],
-            // [-6.5554546, 107.759751],
-            // [-6.555899, 107.760417],
-            // [-6.556318, 107.760764],
-            // [-6.556460, 107.760689],
-            // [-6.556300, 107.760086],
-            // [-6.556800, 107.759838],
-            // [-6.556471, 107.759118],
-            // [-6.556322, 107.759196],
-            // [-6.556183, 107.759241],
-            // [-6.556085, 107.759188],
-            // [-6.555883, 107.759344],
-            // [-6.555721, 107.759155],
-            // [-6.555186, 107.759387],
         ], {
             color: 'red',
             fillOpacity: 0.2
@@ -241,30 +408,32 @@
             }
 
             // Hide initial view and after selfie view, show camera
-            initialView.style.display = 'none';
+            if (initialView) initialView.style.display = 'none';
             afterSelfieView.style.display = 'none';
             cameraContainer.style.display = 'block';
             modalBody.classList.add('camera-active');
 
             // Reset buttons properly
             ambilSelfieBtn.style.display = 'block';
-            ambilSelfieBtn.textContent = 'AMBIL FOTO';
+            ambilSelfieBtn.innerHTML =
+                '<span class="material-icons-sharp" style="vertical-align: middle; margin-right: 0.3rem;">photo_camera</span> AMBIL SELFIE';
+            // ambilSelfieBtn.textContent = 'AMBIL FOTO';
             kirimPresensiBtn.style.display = 'none';
 
             // Set video to square and mirror
             cameraPreview.style.objectFit = 'cover';
-            cameraPreview.style.width = '320px';
-            cameraPreview.style.height = '320px';
+            cameraPreview.style.width = '354px';
+            cameraPreview.style.height = '472px';
             cameraPreview.style.transform = 'scaleX(-1)';
 
             navigator.mediaDevices.getUserMedia({
                     video: {
                         facingMode: 'user',
                         width: {
-                            ideal: 720
+                            ideal: 1080
                         },
                         height: {
-                            ideal: 720
+                            ideal: 1920
                         }
                     },
                     audio: false
@@ -282,27 +451,33 @@
         }
 
         function takeSelfie() {
-            selfieCanvas.width = cameraPreview.videoWidth;
-            selfieCanvas.height = cameraPreview.videoHeight;
+            if (!stream) {
+                startCamera();
+            } else {
+                // Logika ambil foto
+                const canvas = document.getElementById('selfie-canvas');
+                const video = document.getElementById('camera-preview');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
 
-            const ctx = selfieCanvas.getContext('2d');
-            ctx.drawImage(cameraPreview, 0, 0, selfieCanvas.width, selfieCanvas.height);
-            selfieData = selfieCanvas.toDataURL('image/jpeg');
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                selfieData = canvas.toDataURL('image/jpeg');
 
-            // Stop camera
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                stream = null;
+                // Stop camera
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
+                }
+
+                showAfterSelfieView();
             }
-
-            // Show after selfie view
-            showAfterSelfieView();
         }
 
         function showAfterSelfieView() {
             // Hide kamera
             cameraContainer.style.display = 'none';
-            initialView.style.display = 'none';
+            if (initialView) initialView.style.display = 'none';
             modalBody.classList.remove('camera-active');
 
             // Tampil view selfie
@@ -312,8 +487,8 @@
 
             // Mirror dan persegi
             selfiePreview.style.objectFit = 'cover';
-            selfiePreview.style.width = '320px';
-            selfiePreview.style.height = '320px';
+            selfiePreview.style.width = '354px';
+            selfiePreview.style.height = '472px';
             selfiePreview.style.transform = 'scaleX(-1)';
 
             const now = new Date();
@@ -357,15 +532,15 @@
         }
 
         function resetModalView() {
-            // Reset all views
-            initialView.style.display = 'block';
+            // Reset all views - langsung show camera karena tidak ada initial view lagi
             cameraContainer.style.display = 'none';
             afterSelfieView.style.display = 'none';
             modalBody.classList.remove('camera-active');
 
             // Reset buttons
             ambilSelfieBtn.style.display = 'block';
-            ambilSelfieBtn.textContent = 'AMBIL SELFIE';
+            ambilSelfieBtn.innerHTML =
+                '<span class="material-icons-sharp" style="vertical-align: middle;">photo_camera</span> AMBIL SELFIE';
             kirimPresensiBtn.style.display = 'none';
 
             // Reset selfie data
@@ -379,13 +554,27 @@
                 stream.getTracks().forEach(track => track.stop());
                 stream = null;
             }
+
+            // Langsung start camera ketika modal presensi dibuka
+            setTimeout(() => {
+                if (document.getElementById('modalPresensi').style.display === 'block') {
+                    startCamera();
+                }
+            }, 100);
         }
+
+        function isDark() {
+            return document.body.classList.contains('dark-mode-variables');
+        }
+
+        // Event listeners
+        let selfieFile = null;
 
         // Ambil status presensi hari ini
         fetch("{{ route('siswa.presensi.hari_ini') }}")
             .then(res => res.json())
             .then(data => {
-                const requestBtn = document.getElementById('requestCheckIn');
+                const requestBtn = document.getElementById('btnModalAlert');
                 const submitBtn = document.getElementById('kirimPresensiBtn');
 
                 // Kondisi default: Check In
@@ -483,19 +672,13 @@
             }
         }
 
-        // Event listeners
-        let selfieFile = null;
-        document.getElementById('requestCheckIn').addEventListener('click', () => {
-            resetModalView();
-            $('#selfieModal').modal('show');
-        });
-
         ambilSelfieBtn.addEventListener('click', () => {
-            if (!stream) {
-                startCamera();
-            } else {
-                takeSelfie();
-            }
+            takeSelfie();
+            // if (!stream) {
+            //     startCamera();
+            // } else {
+            //     takeSelfie();
+            // }
         });
 
         if (fotoUlangBtn) {
@@ -534,6 +717,15 @@
                         icon: 'error',
                         title: 'Data Kurang!',
                         text: 'Silakan masukkan alasan kamu.',
+                        confirmButtonColor: '#43c6c9',
+                        background: isDark ? getComputedStyle(document.body)
+                            .getPropertyValue(
+                                '--color-background') : '#fff',
+                        color: isDark ? getComputedStyle(document.body).getPropertyValue(
+                            '--color-dark') : '#000',
+                        customClass: {
+                            popup: isDark ? 'swal-dark' : ''
+                        }
                     });
                     return;
                 }
@@ -560,6 +752,15 @@
                     icon: 'error',
                     title: 'Data Kurang!',
                     text: 'Pastikan selfie dan lokasi terdeteksi',
+                    confirmButtonColor: '#43c6c9',
+                    background: isDark ? getComputedStyle(document.body)
+                        .getPropertyValue(
+                            '--color-background') : '#fff',
+                    color: isDark ? getComputedStyle(document.body).getPropertyValue(
+                        '--color-dark') : '#000',
+                    customClass: {
+                        popup: isDark ? 'swal-dark' : ''
+                    }
                 });
                 return;
             }
@@ -595,7 +796,15 @@
                         text: `${data.message}`,
                         footer: data.jam ? `Pada Pukul ${data.jam}` : '',
                         timer: 4000,
-                        showConfirmButton: false
+                        showConfirmButton: false,
+                        background: isDark ? getComputedStyle(document.body)
+                            .getPropertyValue(
+                                '--color-background') : '#fff',
+                        color: isDark ? getComputedStyle(document.body).getPropertyValue(
+                            '--color-dark') : '#000',
+                        customClass: {
+                            popup: isDark ? 'swal-dark' : ''
+                        }
                     });
 
                     // Update tampilan info presensi
@@ -610,10 +819,19 @@
                         icon: 'error',
                         title: 'Presensi Gagal!',
                         text: 'Coba lagi, mungkin ada masalah koneksi.',
+                        confirmButtonColor: '#43c6c9',
+                        background: isDark ? getComputedStyle(document.body)
+                            .getPropertyValue(
+                                '--color-background') : '#fff',
+                        color: isDark ? getComputedStyle(document.body).getPropertyValue(
+                            '--color-dark') : '#000',
+                        customClass: {
+                            popup: isDark ? 'swal-dark' : ''
+                        }
                     });
                 });
 
-            $('#selfieModal').modal('hide');
+            document.getElementById('modalPresensi').style.display = 'none';
         });
 
         // Modal close event
@@ -626,9 +844,6 @@
                 hour: '2-digit',
                 minute: '2-digit'
             });
-            // document.getElementById('checkOutBtn').innerHTML =
-            //     `<i class="fas fa-times-circle"></i> Check Out ${jam}`;
-            // console.log("Check out berhasil");
         });
 
         function updateTime() {
@@ -647,7 +862,4 @@
             updateTime();
         });
     </script>
-
-</body>
-
-</html>
+@endsection

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Middleware\isLogin;
+use Svg\Tag\Rect;
 use Carbon\Carbon;
 use App\Models\Siswa;
 use App\Models\Jadwal;
@@ -11,10 +11,12 @@ use App\Models\MapelKelas;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\presensiSiswa;
+use App\Http\Middleware\isLogin;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Svg\Tag\Rect;
+use Illuminate\Validation\ValidationException;
 
 class SiswaController extends Controller
 {
@@ -28,20 +30,99 @@ class SiswaController extends Controller
         return view('siswa.beranda', $data);
     }
 
-    public function presensi_index(Request $request)
-    {
-        $isMobile = $request->header('User-Agent') && preg_match('/Mobile|Android|iPhone|iPad|iPod/', $request->header('User-Agent'));
 
-        if ($request->has('mobile') && $request->mobile == 'true') {
-            $isMobile = true;
+    public function profil_index()
+    {
+        $user = auth()->user();
+        $siswa = $user->siswa;
+
+        $hadir = PresensiSiswa::where('siswa_id', $siswa->id)
+            ->whereMonth('tanggal', now()->month)
+            ->whereYear('tanggal', now()->year)
+            ->whereIn('status_kehadiran', ['hadir', 'terlambat'])
+            ->count();
+
+        $izin = izinSiswa::where('siswa_id', $siswa->id)
+            ->whereMonth('tanggal', now()->month)
+            ->whereYear('tanggal', now()->year)
+            ->whereIn('jenis_izin', ['Izin', 'Keperluan Keluarga', 'Keperluan Sekolah', 'Sakit'])
+            ->count();
+
+        $data = array(
+            'title' => 'Profil Siswa',
+            'menuProfil' => 'active',
+            'user' => $user,
+            'siswa' => $siswa,
+            'hadir' => $hadir,
+            'izin' => $izin,
+        );
+        return view('siswa.profil', $data);
+    }
+
+    public function profil_update(Request $request)
+    {
+        try {
+            $user = auth()->user();
+            $siswa = $user->siswa;
+
+            $request->validate([
+                'nama' => 'required|string|max:255',
+                'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+                'nis' => 'nullable|string|max:20',
+                'nisn' => 'nullable|string|max:20',
+                'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
+                'tanggal_lahir' => 'nullable|date',
+                'no_hp' => 'nullable|string|max:20',
+                'email' => 'required|email|max:255',
+                'new_password' => 'nullable|min:5|same:password_confirmation',
+                'password_confirmation' => 'nullable|required_with:new_password|same:new_password',
+            ], [
+                'nama.required' => 'Nama tidak boleh kosong.',
+                'username.required' => 'Username tidak boleh kosong.',
+                'username.unique' => 'Username sudah digunakan.',
+                'email.required' => 'Email harus diisi.',
+                'email.email' => 'Format email tidak valid.',
+                'jenis_kelamin.required' => 'Jenis kelamin harus dipilih.',
+                'jenis_kelamin.in' => 'Jenis kelamin harus L atau P.',
+                'new_password.min' => 'Password minimal 6 karakter.',
+                'new_password.confirmed' => 'Konfirmasi password tidak cocok.',
+            ]);
+
+            $siswa->update([
+                'nama' => $request->nama,
+                'nis' => $request->nis,
+                'nisn' => $request->nisn,
+                'jenis_kelamin' => $request->jenis_kelamin,
+                'tanggal_lahir' => $request->tanggal_lahir,
+                'no_hp' => $request->no_hp,
+                'email' => $request->email,
+            ]);
+
+            if ($user) {
+                $userData = [
+                    'username' => $request->username,
+                ];
+
+                if ($request->filled('new_password')) {
+                    $userData['password'] = Hash::make($request->new_password);
+                }
+
+                $user->update($userData);
+            }
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'Gagal memperbarui profil: ' . $e->getMessage());
         }
 
+        return redirect()->route('siswa.profil')->with('success', 'Profil berhasil diperbarui!');
+    }
+
+    public function presensi_index(Request $request)
+    {
         $data = array(
             'title' => 'Presensi Siswa',
             'menuPresensi' => 'active',
             'siswa' => Siswa::all(),
             'presensiSiswa' => presensiSiswa::where('siswa_id', Auth::user()->id)->get(),
-            'isMobile' => $isMobile,
         );
         return view('siswa.presensi', $data);
     }
@@ -184,10 +265,19 @@ class SiswaController extends Controller
             'lampiran.file' => 'Lampiran harus berupa file',
             'lampiran.mimes' => 'Lampiran harus berupa file dengan format jpg, jpeg, png, atau pdf',
         ]);
+        $tanggal = Carbon::parse($request->tanggal);
+
+        $sudahizin = izinSiswa::where('siswa_id', Auth::user()->siswa->id)
+            ->whereDate('tanggal', $tanggal)
+            ->exists();
+
+        if ($sudahizin) {
+            throw ValidationException::withMessages([
+                'tanggal' => 'Kamu sudah mengajukan izin di tanggal ini.',
+            ]);
+        }
 
         $pathLampiran = null;
-
-        $tanggal = Carbon::createFromFormat('d-m-Y', $request->tanggal);
 
         if ($request->hasFile('lampiran')) {
             $lampiran = $request->file('lampiran');
@@ -209,7 +299,7 @@ class SiswaController extends Controller
     {
         $siswa = Siswa::with('kelas')->find(Auth::user()->siswa->id);
 
-        $mapelKelasList = MapelKelas::with(['mataPelajaran', 'guru.user', 'tugas.pengumpulan_tugas'])
+        $mapelKelasList = MapelKelas::with(['mataPelajaran', 'siswa.user', 'tugas.pengumpulan_tugas'])
             ->where('kelas_id', $siswa->kelas_id)
             ->get()
             ->map(function ($item) use ($siswa) {

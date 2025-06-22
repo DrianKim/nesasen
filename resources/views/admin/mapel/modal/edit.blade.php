@@ -4,7 +4,7 @@
             <!-- Modal Header -->
             <div class="modal-header-custom">
                 <div class="modal-header-icon">
-                    <img src="images/classroom.png" alt="Mapel Icon">
+                    <img src="{{ asset('assets/img/book2.png') }}" alt="Mapel Icon">
                 </div>
                 <div class="modal-header-text">
                     <h5>Edit Data Mata Pelajaran</h5>

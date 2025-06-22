@@ -10,6 +10,7 @@ use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\walas;
 use App\Models\Jurusan;
+use App\Models\kelasKu;
 use App\Models\izinGuru;
 use Barryvdh\DomPDF\PDF;
 use App\Models\izinSiswa;
@@ -24,6 +25,7 @@ use Illuminate\Http\Request;
 use App\Models\MataPelajaran;
 use App\Models\presensiSiswa;
 use App\Exports\JurusanExport;
+use App\Exports\KelasKuExport;
 use App\Exports\izinGuruExport;
 use App\Exports\izinSiswaExport;
 use Database\Seeders\GuruSeeder;
@@ -375,20 +377,22 @@ class AdminController extends Controller
 
     public function bulkAction_kelas(Request $request)
     {
-        $ids = $request->input('selected_kelas');
+        $ids = $request->input('ids');
 
-        if (!$ids) {
-            return redirect()->back()->with('error', 'Tidak Ada Data Yang Dipilih!');
+        if (!$ids || !is_array($ids)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada data yang dipilih!'
+            ]);
         }
 
-        foreach ($ids as $id) {
-            $kelas = Kelas::find($id);
+        try {
+            $deletedCount = 0;
 
-            if ($kelas) {
+            foreach ($ids as $id) {
+                $kelas = Kelas::find($id);
 
-                $walas = Walas::where('kelas_id', $kelas->id)->first();
-
-                if ($walas) {
+                if ($kelas) {
                     $walas = Walas::where('kelas_id', $kelas->id)->first();
 
                     if ($walas) {
@@ -397,18 +401,24 @@ class AdminController extends Controller
                             $user->role_id = 3;
                             $user->save();
                         }
+                        $walas->delete();
                     }
-                    $walas->delete();
+
+                    $kelas->delete();
+                    $deletedCount++;
                 }
-
-                // if ($kelas->user) {
-                //     $kelas->user->delete();
-                // }
-
-                $kelas->delete();
             }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil menghapus {$deletedCount} data Kelas."
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()
+            ]);
         }
-        return redirect()->back()->with('success', 'Kelas Berhasil Dihapus');
     }
 
     public function download_template_kelas()
@@ -762,59 +772,58 @@ class AdminController extends Controller
         $sortBy = $request->input('sort_by');
         $sortDirection = $request->input('sort_direction', 'asc');
 
-        $query = MapelKelas::with('kelas.jurusan', 'mataPelajaran', 'guru');
+        $query = MapelKelas::with(['kelas.jurusan', 'mataPelajaran', 'guru']);
 
+        // Search Logic
         if ($search) {
-            $searchTerm = strtolower(trim($search));
+            $searchTerm = strtolower(str_replace(' ', '', trim($search))); // Hilangkan spasi dari search term juga
 
             $query->where(function ($q) use ($searchTerm) {
-                $q->whereHas('mata_pelajaran', function ($q2) use ($searchTerm) {
+                // Search di mata pelajaran
+                $q->whereHas('mataPelajaran', function ($q2) use ($searchTerm) {
                     $q2->whereRaw('LOWER(REPLACE(nama_mapel, " ", "")) LIKE ?', ["%$searchTerm%"])
                         ->orWhereRaw('LOWER(REPLACE(kode_mapel, " ", "")) LIKE ?', ["%$searchTerm%"]);
                 })
+                    // Search di guru
                     ->orWhereHas('guru', function ($q3) use ($searchTerm) {
                         $q3->whereRaw('LOWER(REPLACE(nama, " ", "")) LIKE ?', ["%$searchTerm%"]);
+                    })
+                    // Search di kelas (optional tambahan)
+                    ->orWhereHas('kelas', function ($q4) use ($searchTerm) {
+                        $q4->whereRaw('LOWER(CONCAT(tingkat, (SELECT kode_jurusan FROM jurusan WHERE jurusan.id = kelas.jurusan_id), no_kelas)) LIKE ?', ["%$searchTerm%"]);
                     });
             });
         }
 
+        // Sorting Logic
         if ($sortBy) {
             switch ($sortBy) {
                 case 'KelasKu':
-                    $query->join('mata_pelajaran', 'mapel_kelas.mata_pelajaran_id', '=', 'mata_pelajaran.id')
+                    $query->leftJoin('mata_pelajaran', 'mapel_kelas.mata_pelajaran_id', '=', 'mata_pelajaran.id')
                         ->orderBy('mata_pelajaran.nama_mapel', $sortDirection)
                         ->select('mapel_kelas.*');
                     break;
 
                 case 'Kelas':
-                    $query->join('kelas', 'mapel_kelas.kelas_id', '=', 'kelas.id')
-                        ->join('jurusan', 'kelas.jurusan_id', '=', 'jurusan.id')
+                    $query->leftJoin('kelas', 'mapel_kelas.kelas_id', '=', 'kelas.id')
+                        ->leftJoin('jurusan', 'kelas.jurusan_id', '=', 'jurusan.id')
                         ->orderByRaw("CONCAT(kelas.tingkat, jurusan.kode_jurusan, kelas.no_kelas) $sortDirection")
                         ->select('mapel_kelas.*');
                     break;
 
                 case 'Guru':
-                    // FIX: join langsung ke guru dari mapel_kelas.guru_id
-                    $query->join('guru', 'mapel_kelas.guru_id', '=', 'guru.id')
+                    $query->leftJoin('guru', 'mapel_kelas.guru_id', '=', 'guru.id')
                         ->orderBy('guru.nama', $sortDirection)
                         ->select('mapel_kelas.*');
                     break;
 
                 default:
-                    $query->orderBy('id', 'asc');
+                    $query->orderBy('mapel_kelas.id', 'asc');
                     break;
             }
         } else {
-            $query->orderBy('id', 'asc');
+            $query->orderBy('mapel_kelas.id', 'asc');
         }
-
-        // dd($sortBy, $columnMap[$sortBy] ?? null);
-        //     if (isset($columnMap[$sortBy])) {
-        //         $query->orderBy($columnMap[$sortBy], $sortDirection);
-        //     } else {
-        //         $query->orderBy('nama_mapel', 'asc')->orderBy('kode_mapel', 'asc');
-        //     }
-        // }
 
         $kelasKu = $query->paginate($perPage)->withQueryString();
 
@@ -827,8 +836,10 @@ class AdminController extends Controller
             'kelasList' => Kelas::with('jurusan')->get(),
         ];
 
+        // AJAX Response
         if ($request->ajax()) {
             return response()->json([
+                'success' => true,
                 'table' => view('admin.kelasKu.partials.table', $data)->render(),
                 'pagination' => view('admin.kelasKu.partials.pagination', ['kelasKu' => $kelasKu])->render(),
             ]);
@@ -863,6 +874,32 @@ class AdminController extends Controller
         }
     }
 
+    public function update_kelasKu(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'mapel_id' => 'required|exists:mata_pelajaran,id',
+                'kelas_id' => 'required|exists:kelas,id',
+                'guru_id' => 'required|exists:guru,id',
+            ], [
+                'mapel_id.required' => 'Mapel wajib dipilih.',
+                'kelas_id.required' => 'Kelas wajib dipilih.',
+                'guru_id.required' => 'Guru wajib dipilih.',
+            ]);
+
+            $mapelKelas = MapelKelas::findOrFail($id);
+            $mapelKelas->update([
+                'mapel_id' => $request->mapel_id,
+                'kelas_id' => $request->kelas_id,
+                'guru_id' => $request->guru_id,
+            ]);
+
+            return redirect()->back()->with('success', 'Data KelasKu berhasil diperbarui.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal update data: ' . $e->getMessage());
+        }
+    }
+
     public function destroy_kelasKu($id)
     {
         $kelasKu = MapelKelas::findOrFail($id);
@@ -875,24 +912,322 @@ class AdminController extends Controller
     public function bulkAction_kelasKu(Request $request)
     {
         $ids = $request->input('ids');
-        if (!$ids) {
-            return redirect()->back()->with('error', 'Tidak Ada Data Yang Dipilih!');
+
+        if (!$ids || !is_array($ids)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada data yang dipilih!'
+            ]);
         }
 
-        foreach ($ids as $id) {
-            $kelas = Kelas::find($id)->get();
+        try {
+            $deletedCount = 0;
 
-            if ($kelas) {
-                $walas = $kelas->walas;
+            foreach ($ids as $id) {
+                $kelasKu = MapelKelas::find($id);
 
-                if ($walas && $walas->user) {
-                    $walas->user->delete();
+                if ($kelasKu) {
+                    $kelasKu->delete();
+                    $deletedCount++;
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil menghapus {$deletedCount} data KelasKu."
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+
+    public function download_template_kelasKu()
+    {
+        $fileName = 'template_import_kelasKu_' . date('Y-m-d') . '.xlsx';
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $spreadsheet->getProperties()
+            ->setCreator('SMKN 1 Subang')
+            ->setTitle('Template Import KelasKu')
+            ->setDescription('Template untuk mengimpor data kelas ke dalam sistem.');
+
+        $headersStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFFFF'],
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['argb' => '198754'],
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['argb' => '0000000'],
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+            ],
+        ];
+
+        $headers = [
+            'KelasKu',
+            'Kelas',
+            'Guru',
+        ];
+
+        $sheet->fromArray(($headers), null, 'A1');
+        $sheet->getStyle('A1:C1')->applyFromArray($headersStyle);
+
+        $sheet->getColumnDimension('A')->setWidth(25);
+        $sheet->getColumnDimension('B')->setWidth(25);
+        $sheet->getColumnDimension('C')->setWidth(25);
+
+        $exampleData = [
+            ['Bahasa Indonesia', 'X RPL 1', 'Mi Bombo'],
+            ['Bahasa Jepang', 'X TKJ 1', 'Buyungkai'],
+        ];
+
+        $sheet->fromArray($exampleData, null, 'A2');
+        $sheet->getStyle('A2:C3')->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => '0000000'],
+                ]
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'f8f9fa'],
+            ],
+        ]);
+
+        $sheet->setCellValue('A5', 'Petunjuk:');
+        $sheet->setCellValue('A6', '1. Isi kolom "KelasKu" dengan nama mapel yang sesuai.');
+        $sheet->setCellValue('A7', '2. Isi kolom "Kelas" dengan nama kelas yang sesuai.');
+        $sheet->setCellValue('A8', '3. Isi kolom "Guru" dengan nama guru yang sesuai.');
+
+        $sheet->getStyle('A5')->getFont()->setBold(true)->setSize(13);
+        $sheet->getStyle('A6:A8')->getFont()->setItalic(true);
+
+        $sheet->getRowDimension(1)->setRowHeight(25);
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+            'Cache-Control' => 'cache, must-revalidate',
+            'Pragma' => 'public',
+        ]);
+    }
+
+    public function import_kelasKu(Request $request)
+    {
+        try {
+            $request->validate([
+                'file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
+            ], [
+                'file.required' => 'File tidak boleh kosong.',
+                'file.mimes' => 'File harus berformat: XLSX, XLS, atau CSV.',
+                'file.max' => 'Ukuran file maksimal 2MB.',
+            ]);
+
+            $file = $request->file('file');
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getRealPath());
+            $worksheet = $spreadsheet->getActiveSheet();
+            $rows = $worksheet->toArray();
+            $headers = array_shift($rows);
+
+            $requiredHeaders = ['KelasKu', 'Kelas', 'Guru'];
+            $headerMap = [];
+
+            foreach ($requiredHeaders as $required) {
+                $found = false;
+                foreach ($headers as $index => $header) {
+                    if (trim(strtolower($header)) === strtolower($required)) {
+                        $headerMap[$required] = $index;
+                        $found = true;
+                        break;
+                    }
                 }
 
-                $kelas->delete();
+                if (!$found) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Kolom '{$required}' tidak ditemukan dalam file.",
+                    ]);
+                }
             }
+
+            $successCount = 0;
+            $errorRows = [];
+
+            DB::beginTransaction();
+
+            foreach ($rows as $rowIndex => $row) {
+                $rowNumber = $rowIndex + 2;
+
+                try {
+                    if (empty(array_filter($row))) {
+                        continue;
+                    }
+
+                    $namaMapel = trim($row[$headerMap['KelasKu']] ?? '');
+                    $namaKelas = trim($row[$headerMap['Kelas']] ?? '');
+                    $namaGuru  = trim($row[$headerMap['Guru']] ?? '');
+
+                    if (!$namaMapel || !$namaKelas || !$namaGuru) {
+                        $errorRows[] = "Baris {$rowNumber}: Kolom wajib tidak boleh kosong.";
+                        continue;
+                    }
+
+                    $mapel = MataPelajaran::where('nama_mapel', $namaMapel)->first();
+                    if (!$mapel) {
+                        $errorRows[] = "Baris {$rowNumber}: Mata pelajaran '{$namaMapel}' tidak ditemukan.";
+                        continue;
+                    }
+
+                    // Pecah Kelas, contoh: X RPL 1
+                    preg_match('/^(X|XI|XII)\s+([A-Z]+)\s+(\d+)$/i', $namaKelas, $match);
+                    if (!$match) {
+                        $errorRows[] = "Baris {$rowNumber}: Format kelas '{$namaKelas}' tidak valid. Gunakan format: X RPL 1.";
+                        continue;
+                    }
+
+                    [$full, $tingkat, $kodeJurusan, $noKelas] = $match;
+
+                    $jurusan = Jurusan::where('kode_jurusan', strtoupper($kodeJurusan))->first();
+                    if (!$jurusan) {
+                        $errorRows[] = "Baris {$rowNumber}: Jurusan '{$kodeJurusan}' tidak ditemukan.";
+                        continue;
+                    }
+
+                    $kelas = Kelas::where([
+                        'tingkat' => $tingkat,
+                        'jurusan_id' => $jurusan->id,
+                        'no_kelas' => $noKelas,
+                        // 'tahun_ajaran' => date('Y'),
+                    ])->first();
+
+                    if (!$kelas) {
+                        $errorRows[] = "Baris {$rowNumber}: Kelas '{$namaKelas}' tidak ditemukan.";
+                        continue;
+                    }
+
+                    $guru = Guru::where('nama', 'LIKE', '%' . $namaGuru . '%')->first();
+                    if (!$guru) {
+                        $errorRows[] = "Baris {$rowNumber}: Guru '{$namaGuru}' tidak ditemukan.";
+                        continue;
+                    }
+
+                    $exists = MapelKelas::where([
+                        'mapel_id' => $mapel->id,
+                        'kelas_id' => $kelas->id,
+                        'guru_id' => $guru->id,
+                    ])->exists();
+
+                    if ($exists) {
+                        $errorRows[] = "Baris {$rowNumber}: Data mapel '{$namaMapel}', kelas '{$namaKelas}', dan guru '{$namaGuru}' sudah ada.";
+                        continue;
+                    }
+
+                    MapelKelas::create([
+                        'mapel_id' => $mapel->id,
+                        'kelas_id' => $kelas->id,
+                        'guru_id' => $guru->id,
+                    ]);
+
+                    // Di controller
+                    if ($request->ajax()) {
+                        Log::debug('Ini AJAX Request');
+                    } else {
+                        Log::debug('INI BUKAN AJAX');
+                    }
+
+                    $successCount++;
+                } catch (\Exception $e) {
+                    $errorRows[] = "Baris {$rowNumber}: Error - " . $e->getMessage();
+                }
+            }
+
+            if ($successCount > 0) {
+                DB::commit();
+                return response()->json([
+                    'success' => true,
+                    'message' => "Berhasil mengimpor {$successCount} data mapel kelas.",
+                    'errors' => $errorRows,
+                ]);
+            } else {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => "Tidak ada data yang berhasil diimpor.",
+                    'errors' => $errorRows,
+                ]);
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+            ]);
         }
-        return redirect()->back()->with('success', 'KelasKu Berhasil Dihapus');
+    }
+
+    public function export_kelasKu_pdf()
+    {
+        try {
+            $kelasKu = MapelKelas::with(['mataPelajaran', 'kelas.jurusan', 'guru'])
+                ->get()
+                ->sortBy([
+                    fn($a, $b) => strcmp($a->mataPelajaran->nama_mapel ?? '', $b->mataPelajaran->nama_mapel ?? ''),
+                    fn($a, $b) => strcmp(
+                        ($a->kelas->tingkat ?? '') . ($a->kelas->jurusan->kode_jurusan ?? '') . ($a->kelas->no_kelas ?? ''),
+                        ($b->kelas->tingkat ?? '') . ($b->kelas->jurusan->kode_jurusan ?? '') . ($b->kelas->no_kelas ?? '')
+                    ),
+                    fn($a, $b) => strcmp($a->guru->nama ?? '', $b->guru->nama ?? ''),
+                ]);
+
+            $data = [
+                'title' => 'Data KelasKu',
+                'kelasKu' => $kelasKu,
+                'exported_at' => Carbon::now()->format('d-m-Y'),
+                'exported_at_time' => Carbon::now()->format('d-m-Y H:i:s'),
+                'total_data' => $kelasKu->count(),
+            ];
+
+            $pdf = app('dompdf.wrapper');
+            $pdf->loadView('admin.kelasKu.export.pdf', $data);
+
+            $fileName = 'data_kelasKu_' . date('Y-m-d_H-i-s') . '.pdf';
+
+            return $pdf->download($fileName);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengekspor KelasKu: ' . $e->getMessage());
+        }
+    }
+
+    public function export_kelasKu_xlsx()
+    {
+        try {
+            $fileName = 'data_kelasKu_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+            return Excel::download(new KelasKuExport(), $fileName);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengekspor data ke Excel: ' . $e->getMessage());
+        }
     }
 
     // siswa
@@ -1226,23 +1561,41 @@ class AdminController extends Controller
 
     public function bulkAction_siswa(Request $request)
     {
-        $ids = $request->input('selected_siswa');
-        if (!$ids) {
-            return redirect()->back()->with('error', 'Tidak Ada Data Yang Dipilih!');
+        $ids = $request->input('ids');
+
+        if (!$ids || !is_array($ids)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada data yang dipilih!'
+            ]);
         }
 
-        foreach ($ids as $id) {
-            $siswa = Siswa::with('user')->find($id);
+        try {
+            $deletedCount = 0;
 
-            if ($siswa) {
-                if ($siswa->user) {
-                    $siswa->user->delete();
+            foreach ($ids as $id) {
+                $siswa = Siswa::with('user')->find($id);
+
+                if ($siswa) {
+                    if ($siswa->user) {
+                        $siswa->user->delete();
+                    }
+
+                    $siswa->delete();
+                    $deletedCount++;
                 }
-
-                $siswa->delete();
             }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil menghapus {$deletedCount} data Siswa."
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()
+            ]);
         }
-        return redirect()->back()->with('success', 'Siswa Berhasil Dihapus');
     }
 
     public function download_template_siswa()
@@ -1737,23 +2090,41 @@ class AdminController extends Controller
 
     public function bulkAction_guru(Request $request)
     {
-        $ids = $request->input('selected_guru');
-        if (!$ids) {
-            return redirect()->back()->with('error', 'Tidak Ada Data Yang Dipilih!');
+        $ids = $request->input('ids');
+
+        if (!$ids || !is_array($ids)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada data yang dipilih!'
+            ]);
         }
 
-        foreach ($ids as $id) {
-            $guru = Guru::with('user')->find($id);
+        try {
+            $deletedCount = 0;
 
-            if ($guru) {
-                if ($guru->user) {
-                    $guru->user->delete();
+            foreach ($ids as $id) {
+                $guru = Guru::with('user')->find($id);
+
+                if ($guru) {
+                    if ($guru->user) {
+                        $guru->user->delete();
+                    }
+
+                    $guru->delete();
+                    $deletedCount++;
                 }
-
-                $guru->delete();
             }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil menghapus {$deletedCount} data Guru."
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()
+            ]);
         }
-        return redirect()->back()->with('success', 'Guru Berhasil Dihapus');
     }
 
     public function download_template_guru()
@@ -2189,16 +2560,36 @@ class AdminController extends Controller
     public function bulkAction_jurusan(Request $request)
     {
         $ids = $request->input('ids');
-        if (!$ids) {
-            return redirect()->back()->with('error', 'Tidak Ada Data Yang Dipilih!');
+
+        if (!$ids || !is_array($ids)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada data yang dipilih!'
+            ]);
         }
 
-        foreach ($ids as $id) {
-            $jurusan = Jurusan::find($id);
+        try {
+            $deletedCount = 0;
 
-            $jurusan->delete();
+            foreach ($ids as $id) {
+                $jurusan = Jurusan::find($id);
+
+                if ($jurusan) {
+                    $jurusan->delete();
+                    $deletedCount++;
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil menghapus {$deletedCount} data Jurusan."
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()
+            ]);
         }
-        return redirect()->back()->with('success', 'Jurusan Berhasil Dihapus');
     }
 
     public function download_template_jurusan()
@@ -2578,16 +2969,36 @@ class AdminController extends Controller
     public function bulkAction_mapel(Request $request)
     {
         $ids = $request->input('ids');
-        if (!$ids) {
-            return redirect()->back()->with('error', 'Tidak Ada Data Yang Dipilih!');
+
+        if (!$ids || !is_array($ids)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada data yang dipilih!'
+            ]);
         }
 
-        foreach ($ids as $id) {
-            $mapel = MataPelajaran::find($id);
+        try {
+            $deletedCount = 0;
 
-            $mapel->delete();
+            foreach ($ids as $id) {
+                $mapel = MataPelajaran::find($id);
+
+                if ($mapel) {
+                    $mapel->delete();
+                    $deletedCount++;
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil menghapus {$deletedCount} data Mapel."
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()
+            ]);
         }
-        return redirect()->back()->with('success', 'Mapel Berhasil Dihapus');
     }
 
     public function download_template_mapel()

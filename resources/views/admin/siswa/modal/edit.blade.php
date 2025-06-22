@@ -4,7 +4,7 @@
             <!-- Modal Header -->
             <div class="modal-header-custom">
                 <div class="modal-header-icon">
-                    <img src="images/student.png" alt="Siswa Icon">
+                    <img src="{{ asset('assets/img/student.png') }}" alt="Siswa Icon">
                 </div>
                 <div class="modal-header-text">
                     <h5>Edit Data Siswa</h5>

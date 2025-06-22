@@ -52,7 +52,7 @@
                             @include('admin.kelas.modal.create')
                             @include('admin.kelas.modal.import')
                             @include('admin.kelas.modal.export')
-                            <button class="btn-hapus">
+                            <button id="btnHapusKelasSelect" class="btn-hapus">
                                 <span class="material-icons-sharp">delete</span> Hapus
                             </button>
                             <button class="btn-tambah" onclick="openModal('modalKelasTambah')">

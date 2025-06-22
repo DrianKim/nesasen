@@ -115,6 +115,10 @@ Route::middleware(['isLogin'])->group(function () {
     // beranda
     Route::get('siswa/beranda', [SiswaController::class, 'beranda_index'])->name('siswa.beranda');
 
+    //profil
+    Route::get('siswa/profil', [SiswaController::class, 'profil_index'])->name('siswa.profil');
+    Route::post('siswa/profil/update', [SiswaController::class, 'profil_update'])->name('siswa.profil.update');
+
     // presensi
     Route::get('siswa/presensi', [SiswaController::class, 'presensi_index'])->name('siswa.presensi');
     Route::get('/siswa/presensi/hari-ini', [SiswaController::class, 'presensi_hari_ini'])->name('siswa.presensi.hari_ini');
@@ -134,12 +138,13 @@ Route::middleware(['isLogin'])->group(function () {
     Route::get('/siswa/jadwal/perminggu', [SiswaController::class, 'jadwal_perminggu'])->name('siswa.jadwal.perminggu');
     Route::get('/siswa/jadwal/perbulan', [SiswaController::class, 'jadwal_perbulan'])->name('siswa.jadwal.perbulan');
 
-
-
-
     // guru
     // beranda
     Route::get('guru/beranda', [GuruController::class, 'beranda_index'])->name('guru.beranda');
+
+    // profil
+    Route::get('guru/profil', [GuruController::class, 'profil_index'])->name('guru.profil');
+    Route::post('guru/profil/update', [GuruController::class, 'profil_update'])->name('guru.profil.update');
 
     // presensi
     Route::get('guru/presensi', [GuruController::class, 'presensi_index'])->name('guru.presensi');
@@ -189,6 +194,10 @@ Route::middleware(['isLogin'])->group(function () {
         Route::post('admin/kelasKu/update/{id}', [AdminController::class, 'update_kelasKu'])->name('admin_kelasKu.update');
         Route::delete('admin/kelasKu/destroy/{id}', [AdminController::class, 'destroy_kelasKu'])->name('admin_kelasKu.destroy');
         Route::delete('admin/kelasKu/bulk_action', [AdminController::class, 'bulkAction_kelasKu'])->name('admin_kelasKu.bulk_action');
+        Route::get('admin/kelasKu/template', [AdminController::class, 'download_template_kelasKu'])->name('admin_kelasKu.template');
+        Route::post('admin/kelasKu/import', [AdminController::class, 'import_kelasKu'])->name('admin_kelasKu.import');
+        Route::get('admin/kelasKu/export/pdf', [AdminController::class, 'export_kelasKu_pdf'])->name('admin_kelasKu.export.pdf');
+        Route::get('admin/kelasKu/export/xlsx', [AdminController::class, 'export_kelasKu_xlsx'])->name('admin_kelasKu.export.xlsx');
 
         // siswa
         Route::get('admin/siswa', [AdminController::class, 'index_siswa'])->name('admin_siswa.index');

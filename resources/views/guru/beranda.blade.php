@@ -1,190 +1,231 @@
-@extends('admin.layouts.app')
+@extends('guru.layouts.app')
 
 @section('content')
-    <div class="beranda-container">
-        <!-- Clock In/Out Section -->
-        <div class="clock-section">
-            <button id="checkInBeranda" class="clock-btn active">
-                <i class="fas fa-clock"></i> Check In --:--
-            </button>
-            <button id="checkOutBeranda" class="clock-btn">
-                <i class="fas fa-clock"></i> Check Out --:--
-            </button>
+    <main>
+
+        <h2 class="section-title-feature">Fitur Guru</h2>
+        <div class="status-presensi">
+            <div class="check-item checked" id="checkInBerandaGuru">
+                <span class="material-icons-sharp">check_circle</span>
+                <span>Check In --:--</span>
+            </div>
+            <div class="check-item unchecked" id="checkOutBerandaGuru">
+                <span class="material-icons-sharp">cancel</span>
+                <span>Check Out --:--</span>
+            </div>
         </div>
 
-        <!-- Main Features Section -->
-        <div class="features-section">
-            <h2 class="section-title">Fitur Utama</h2>
+        <!-- Fitur Guru Section -->
+        <div class="feature-card">
+            <div class="icon-group">
+                <a href="{{ route('guru.presensi') }}"
+                    class="icon-item {{ request()->routeIs('guru.presensi') ? 'active' : '' }}">
+                    <span class="material-icons-sharp">work_history</span>
+                    <p>Presensi</p>
+                </a>
+                <a href="{{ route('guru.izin') }}" class="icon-item {{ request()->routeIs('guru.izin') ? 'active' : '' }}">
+                    <span class="material-icons-sharp">forward_to_inbox</span>
+                    <p>Izin</p>
+                </a>
+                <a href="{{ route('guru.jadwal') }}"
+                    class="icon-item {{ request()->routeIs('guru.jadwal') ? 'active' : '' }}">
+                    <span class="material-icons-sharp">today</span>
+                    <p>Jadwal</p>
+                </a>
+                <a href="#" class="icon-item">
+                    <span class="material-icons-sharp">cast_for_education</span>
+                    <p>KelasKu</p>
+                </a>
+                <a href="#" class="icon-item">
+                    <span class="material-icons-sharp">history</span>
+                    <p>History</p>
+                </a>
+                <a href="#" class="icon-item">
+                    <span class="material-icons-sharp">grading</span>
+                    <p>Nilai</p>
+                </a>
+                <!-- Tambah fitur lain tinggal duplikat -->
+            </div>
+        </div>
+        <!-- End of Fitur Guru Section -->
 
-            <div class="features-grid">
-                <!-- Feature 1: Presensi -->
-                <div class="feature-item">
-                    <a href="{{ route('guru.presensi') }}">
-                        <div class="feature-icon red">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <div class="feature-name">Presensi</div>
-                    </a>
+        <!-- Pengumuman -->
+        <div class="pengumuman">
+            <h2>Pengumuman</h2>
+            <div class="announcement">
+                <h4>Judul Pengumuman 1</h4>
+                <small>Dibuat pada <i>16 Juni 2025</i></small>
+                <p>Isi pengumuman pertama yang ditampilkan di sini.</p>
+                <small class="text-muted">Ditujukan untuk: <b>Semua</b></small><br />
+                <small class="text-muted">Akan hilang pada <b>27 Juni 2025</b></small>
+            </div>
+            <div class="announcement">
+                <h4>Judul Pengumuman 2</h4>
+                <small>Dibuat pada <i>17 Juni 2025</i></small>
+                <p>Isi pengumuman kedua yang ditampilkan di sini.</p>
+                <small class="text-muted">Ditujukan untuk: <b>Guru</b></small><br />
+                <small class="text-muted">Akan hilang pada <b>28 Juni 2025</b></small>
+            </div>
+            <div class="announcement">
+                <h4>Judul Pengumuman 3</h4>
+                <small>Dibuat pada <i>18 Juni 2025</i></small>
+                <p>Isi pengumuman kedua yang ditampilkan di sini.</p>
+                <small class="text-muted">Ditujukan untuk: <b>Guru</b></small><br />
+                <small class="text-muted">Akan hilang pada <b>29 Juni 2025</b></small>
+            </div>
+        </div>
+        <!-- End of Pengumuman -->
+    </main>
+
+
+    <!-- Right Section -->
+    <div class="right-section">
+        <div class="nav">
+            <button id="menu-btn">
+                <span class="material-icons-sharp"> menu </span>
+            </button>
+
+            <div class="date-today">
+                <span id="tanggal-hari-ini"></span>
+            </div>
+
+            <div class="dark-mode">
+                <span class="material-icons-sharp active"> light_mode </span>
+                <span class="material-icons-sharp"> dark_mode </span>
+            </div>
+
+            <div class="profile">
+                <div class="info">
+                    <p>Hallo, <b>{{ Auth::user()->guru->nama }}</b></p>
+                    <small class="text-muted">Guru</small>
                 </div>
-
-                <!-- Feature 2: Izin -->
-                <div class="feature-item">
-                    <a href="{{ route('guru.izin') }}">
-                        <div class="feature-icon blue">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                    </a>
-                    <div class="feature-name">Izin</div>
+                <div class="profile-photo">
+                    <img src="images/profile-1.jpg" />
                 </div>
+            </div>
+        </div>
 
-                <!-- Feature 3: Histori -->
-                <div class="feature-item">
-                    <div class="feature-icon orange">
-                        <i class="fas fa-history"></i>
+        <!-- End of Nav -->
+
+        <div class="news">
+            <iframe src="https://www.instagram.com/p/DJWiNpzSK2i/embed" width="100%" height="335" frameborder="0"
+                scrolling="no" allowtransparency="true">
+            </iframe>
+        </div>
+
+        <div class="reminders">
+            <div class="header">
+                <h2>Reminders</h2>
+            </div>
+
+            <div class="notification">
+                <div class="icon">
+                    <span class="material-icons-sharp"> volume_up </span>
+                </div>
+                <div class="content">
+                    <div class="info">
+                        <h3>Workshop</h3>
+                        <small class="text_muted"> 08:00 AM - 12:00 PM </small>
                     </div>
-                    <div class="feature-name">Histori</div>
+                    <span class="material-icons-sharp"> more_vert </span>
                 </div>
+            </div>
 
-                <!-- Feature 4: Jadwal -->
-                <div class="feature-item">
-                    <a href="{{ route('guru.jadwal') }}">
-                        <div class="feature-icon red">
-                            <i class="fas fa-calendar"></i>
-                        </div>
-                    </a>
-                    <div class="feature-name">Jadwal</div>
+            <div class="notification deactive">
+                <div class="icon">
+                    <span class="material-icons-sharp"> edit </span>
                 </div>
-
-                <!-- Feature 5: Nilai -->
-                <div class="feature-item">
-                    <div class="feature-icon blue">
-                        <i class="fas fa-chart-bar"></i>
+                <div class="content">
+                    <div class="info">
+                        <h3>Workshop</h3>
+                        <small class="text_muted"> 08:00 AM - 12:00 PM </small>
                     </div>
-                    <div class="feature-name">Nilai</div>
+                    <span class="material-icons-sharp"> more_vert </span>
                 </div>
+            </div>
 
-                <!-- Feature 6: Tugasku -->
-                <div class="feature-item">
-                    <a href="{{ route('guru.kelasKu.index') }}">
-                        <div class="feature-icon red">
-                            <i class="fas fa-tasks"></i>
-                        </div>
-                    </a>
-                    <div class="feature-name">KelasKu</div>
-                </div>
-
-                <!-- Feature 7: Catatan Sikap -->
-                <div class="feature-item">
-                    <div class="feature-icon blue">
-                        <i class="fas fa-clipboard-list"></i>
-                    </div>
-                    <div class="feature-name">Catatan Sikap</div>
-                </div>
-
-                <!-- Feature 8: E-Rapor -->
-                <div class="feature-item">
-                    <div class="feature-icon red">
-                        <i class="fas fa-file-chart-line"></i>
-                    </div>
-                    <div class="feature-name">E-Rapor</div>
+            <div class="notification add-reminder">
+                <div>
+                    <span class="material-icons-sharp"> add </span>
+                    <h3>Add Reminder</h3>
                 </div>
             </div>
         </div>
     </div>
-
-    <script>
-        $(document).ready(function() {
-            $.ajax({
-                url: '/guru/presensi-reminder',
-                method: 'GET',
-                success: function(res) {
-                    if (!res.jam_masuk) {
-                        Swal.fire({
-                            title: '',
-                            html: 'Kamu belum Check In hari ini.<br>Yuk Check In sekarang!',
-                            icon: 'warning',
-                            // iconHtml: '<i class="fas fa-bell fa-1x text-warning"></i>',
-                            // showCancelButton: false,
-                            confirmButtonText: 'Check In',
-                            confirmButtonColor: '#3085d6',
-                            // cancelButtonText: 'Nanti aja',
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = '/guru/presensi';
-                            }
-                        });
-                    }
-                }
-            });
-        });
-    </script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            fetch('/guru/presensi/hari-ini')
-                .then(response => response.json())
-                .then(data => {
-                    const jamMasuk = data.jam_masuk;
-                    const jamKeluar = data.jam_keluar;
-
-                    updateCheckInfoBeranda(jamMasuk, jamKeluar);
-                })
-                .catch(error => {
-                    console.error('Gagal ambil data presensi', error);
-                    updateCheckInfoBeranda(null, null);
-                });
-        });
-
-        function updateCheckInfoBeranda(jamMasuk = null, jamKeluar = null) {
-            const jamIn = jamMasuk ? jamMasuk.slice(0, 5) : '--:--';
-            const jamOut = jamKeluar ? jamKeluar.slice(0, 5) : '--:--';
-
-            document.getElementById('checkInBeranda').innerHTML =
-                `<i class="fas fa-check-circle"></i> Check In ${jamIn}`;
-
-            document.getElementById('checkOutBeranda').innerHTML =
-                `<i class="fas fa-times-circle"></i> Check Out ${jamOut}`;
-        }
-    </script>
-
-    {{-- <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Carousel functionality
-            const slides = document.querySelectorAll('.carousel-slide');
-            const indicators = document.querySelectorAll('.indicator');
-            let currentSlide = 0;
-
-            function showSlide(index) {
-                slides.forEach(slide => slide.classList.remove('active'));
-                indicators.forEach(indicator => indicator.classList.remove('active'));
-
-                slides[index].classList.add('active');
-                indicators[index].classList.add('active');
-                currentSlide = index;
-            }
-
-            // Auto rotate slides
-            setInterval(() => {
-                let nextSlide = (currentSlide + 1) % slides.length;
-                showSlide(nextSlide);
-            }, 5000);
-
-            // Click on indicators
-            indicators.forEach((indicator, index) => {
-                indicator.addEventListener('click', () => {
-                    showSlide(index);
-                });
-            });
-
-            // Clock In/Out toggle
-            const clockBtns = document.querySelectorAll('.clock-btn');
-
-            clockBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    clockBtns.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                });
-            });
-        });
-    </script> --}}
 @endsection
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Reminder check-in buat guru
+        fetch('/guru/presensi-reminder')
+            .then(response => response.json())
+            .then(res => {
+                if (!res.jam_masuk) {
+                    Swal.fire({
+                        title: '',
+                        html: 'Kamu belum Check In hari ini<br>Yuk Check In sekarang!',
+                        icon: 'warning',
+                        confirmButtonText: 'Check In',
+                        confirmButtonColor: '#e7586e',
+                        showCancelButton: true,
+                        cancelButtonText: 'Nanti aja',
+                        cancelButtonColor: '#3085d6',
+                        background: isDarkMode() ? getBg() : '#fff',
+                        color: isDarkMode() ? getColor() : '#000',
+                        customClass: {
+                            popup: isDarkMode() ? 'swal-dark' : ''
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href =
+                                '/guru/presensi'; // arahkan ke halaman presensi guru
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Gagal cek reminder presensi:', error);
+            });
+
+        // Fungsi bantu dark mode
+        function isDarkMode() {
+            return document.body.classList.contains('dark-mode-variables');
+        }
+
+        function getBg() {
+            return getComputedStyle(document.body).getPropertyValue('--color-background');
+        }
+
+        function getColor() {
+            return getComputedStyle(document.body).getPropertyValue('--color-dark');
+        }
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('/guru/presensi/hari-ini')
+            .then(response => response.json())
+            .then(data => {
+                const jamMasuk = data.jam_masuk;
+                const jamKeluar = data.jam_keluar;
+
+                updateCheckInfoBeranda(jamMasuk, jamKeluar);
+            })
+            .catch(error => {
+                console.error('Gagal ambil data presensi', error);
+                updateCheckInfoBeranda(null, null);
+            });
+    });
+
+    function updateCheckInfoBeranda(jamMasuk = null, jamKeluar = null) {
+        const jamIn = jamMasuk ? jamMasuk.slice(0, 5) : '--:--';
+        const jamOut = jamKeluar ? jamKeluar.slice(0, 5) : '--:--';
+
+        document.getElementById('checkInBerandaGuru').innerHTML =
+            `<span class="material-icons-sharp">check_circle</span> <span>Check In ${jamIn}</span>`;
+
+        document.getElementById('checkOutBerandaGuru').innerHTML =
+            `<span class="material-icons-sharp">cancel</span> <span>Check Out ${jamOut}</span>`;
+    }
+</script>

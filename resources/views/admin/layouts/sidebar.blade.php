@@ -5,7 +5,7 @@
 <aside>
     <div class="toggle">
         <div class="logo">
-            <img src="{{ asset('img/ls-logo.png') }}" />
+            <img src="{{ asset('img/ls-logo.png') }}">
         </div>
         <div class="close" id="close-btn">
             <span class="material-icons-sharp"> close </span>
@@ -28,7 +28,7 @@
                 <span class="material-icons-sharp"> local_library </span>
                 <h3>Data Kelas</h3>
             </a>
-            <a href="#">
+            <a href="{{ route('admin_kelasKu.index') }}" class="{{ request()->routeIs('admin_kelasKu.index') ? 'active' : '' }}">
                 <span class="material-icons-sharp"> co_present </span>
                 <h3>KelasKu</h3>
             </a>
@@ -104,7 +104,7 @@
             </a> --}}
         </div>
 
-        <a href="{{ route('logout') }}" class="btn-logout" id="logout-btn">
+        <a href="#" class="btn-logout" id="logout-btn">
             <span class="material-icons-sharp"> logout </span>
             <h3>Logout</h3>
         </a>

@@ -10,6 +10,8 @@ use App\Models\MapelKelas;
 use App\Models\presensiGuru;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class GuruController extends Controller
 {
@@ -23,20 +25,102 @@ class GuruController extends Controller
         return view('guru.beranda', $data);
     }
 
-    public function presensi_index(Request $request)
+    public function profil_index()
     {
-        $isMobile = $request->header('User-Agent') && preg_match('/Mobile|Android|iPhone|iPad|iPod/', $request->header('User-Agent'));
+        $user = auth()->user();
+        $guru = $user->guru;
 
-        if ($request->has('mobile') && $request->mobile == 'true') {
-            $isMobile = true;
+        $hadir = PresensiGuru::where('guru_id', $guru->id)
+            ->whereMonth('tanggal', now()->month)
+            ->whereYear('tanggal', now()->year)
+            ->whereIn('status_kehadiran', ['hadir', 'terlambat'])
+            ->count();
+
+        $izin = izinGuru::where('guru_id', $guru->id)
+            ->whereMonth('tanggal', now()->month)
+            ->whereYear('tanggal', now()->year)
+            ->whereIn('jenis_izin', ['Izin', 'Keperluan Keluarga', 'Keperluan Sekolah', 'Sakit'])
+            ->count();
+
+        $kelasDiampu = MapelKelas::where('guru_id', $guru->id)->count();
+
+        $walasKelas = auth()->user()->walas->kelas ?? null;
+
+        $data = array(
+            'title' => 'Profil Guru',
+            'menuProfil' => 'active',
+            'user' => $user,
+            'guru' => $guru,
+            'hadir' => $hadir,
+            'izin' => $izin,
+            'kelasDiampu' => $kelasDiampu,
+            'walasKelas' => $walasKelas,
+        );
+        return view('guru.profil', $data);
+    }
+
+    public function profil_update(Request $request)
+    {
+        try {
+            $user = auth()->user();
+            $guru = $user->guru;
+
+            $request->validate([
+                'nama' => 'required|string|max:255',
+                'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+                'nip' => 'nullable|string|max:20',
+                'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
+                'tanggal_lahir' => 'nullable|date',
+                'no_hp' => 'nullable|string|max:20',
+                'email' => 'required|email|max:255',
+                'new_password' => 'nullable|min:5|same:password_confirmation',
+                'password_confirmation' => 'nullable|required_with:new_password|same:new_password',
+            ], [
+                'nama.required' => 'Nama tidak boleh kosong.',
+                'username.required' => 'Username tidak boleh kosong.',
+                'username.unique' => 'Username sudah digunakan.',
+                'email.required' => 'Email harus diisi.',
+                'email.email' => 'Format email tidak valid.',
+                'jenis_kelamin.required' => 'Jenis kelamin harus dipilih.',
+                'jenis_kelamin.in' => 'Jenis kelamin harus L atau P.',
+                'new_password.min' => 'Password minimal 6 karakter.',
+                'new_password.confirmed' => 'Konfirmasi password tidak cocok.',
+            ]);
+
+            $guru->update([
+                'nama' => $request->nama,
+                'nip' => $request->nip,
+                'jenis_kelamin' => $request->jenis_kelamin,
+                'tanggal_lahir' => $request->tanggal_lahir,
+                'no_hp' => $request->no_hp,
+                'email' => $request->email,
+            ]);
+
+            if ($user) {
+                $userData = [
+                    'username' => $request->username,
+                ];
+
+                if ($request->filled('new_password')) {
+                    $userData['password'] = Hash::make($request->new_password);
+                }
+
+                $user->update($userData);
+            }
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'Gagal memperbarui profil: ' . $e->getMessage());
         }
 
+        return redirect()->route('guru.profil')->with('success', 'Profil berhasil diperbarui!');
+    }
+
+    public function presensi_index(Request $request)
+    {
         $data = array(
             'title' => 'Presensi Guru',
             'menuPresensi' => 'active',
             'guru' => Guru::all(),
             'presensiGuru' => presensiGuru::where('guru_id', Auth::user()->id)->get(),
-            'isMobile' => $isMobile,
         );
         return view('guru.presensi', $data);
     }
@@ -55,7 +139,6 @@ class GuruController extends Controller
             'jam_keluar' => optional($presensi)->jam_keluar,
         ]);
     }
-
 
     public function presensi_reminder()
     {
@@ -169,7 +252,7 @@ class GuruController extends Controller
     {
         $request->validate([
             'jenis_izin' => 'required',
-            'tanggal' => 'required|date',
+            'tanggal' => 'required|date|after_or_equal:today',
             'keterangan' => 'required|string|max:255',
             'lampiran' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
         ], [
@@ -180,10 +263,20 @@ class GuruController extends Controller
             'lampiran.file' => 'Lampiran harus berupa file',
             'lampiran.mimes' => 'Lampiran harus berupa file dengan format jpg, jpeg, png, atau pdf',
         ]);
+        // $tanggal = Carbon::createFromFormat('d-m-Y', $request->tanggal);
+        $tanggal = Carbon::parse($request->tanggal);
+
+        $sudahizin = izinGuru::where('guru_id', Auth::user()->guru->id)
+            ->whereDate('tanggal', $tanggal)
+            ->exists();
+
+        if ($sudahizin) {
+            throw ValidationException::withMessages([
+                'tanggal' => 'Kamu sudah mengajukan izin di tanggal ini.',
+            ]);
+        }
 
         $pathLampiran = null;
-
-        $tanggal = Carbon::createFromFormat('d-m-Y', $request->tanggal);
 
         if ($request->hasFile('lampiran')) {
             $lampiran = $request->file('lampiran');

@@ -67,7 +67,7 @@
                             @include('admin.siswa.modal.create')
                             @include('admin.siswa.modal.import')
                             @include('admin.siswa.modal.export')
-                            <button class="btn-hapus">
+                            <button id="btnHapusSiswaSelect" class="btn-hapus">
                                 <span class="material-icons-sharp">delete</span> Hapus
                             </button>
                             <button class="btn-tambah" onclick="openModal('modalSiswaTambah')">

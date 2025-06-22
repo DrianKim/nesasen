@@ -4,7 +4,7 @@
             <!-- Modal Header -->
             <div class="modal-header-custom">
                 <div class="modal-header-icon">
-                    <img src="images/classroom.png" alt="Jurusan Icon">
+                    <img src="{{ asset('assets/img/book2.png') }}" alt="Jurusan Icon">
                 </div>
                 <div class="modal-header-text">
                     <h5>Edit Data Jurusan</h5>

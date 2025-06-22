@@ -27,7 +27,7 @@
                     {{ $item->siswa->nama }}
                 </td>
                 <td data-field="kelas_id">
-                    {{ $item->siswa->kelas->tingkat . ' ' . $item->siswa->kelas->jurusan->kode_jurusan . ' ' . $item->siswa->kelas->no_kelas }}
+                    {{ $item->siswa->kelas?->tingkat . ' ' . $item->siswa->kelas?->jurusan?->kode_jurusan . ' ' . $item->siswa->kelas?->no_kelas ?? '-' }}
                 </td>
                 <td data-field="jenis_izin">
                     {{ $item->jenis_izin }}
@@ -35,8 +35,10 @@
                 <td data-field="keterangan">{{ $item->keterangan ?? '-' }}</td>
                 <td data-field="lampiran">
                     @if ($item->lampiran)
-                        <a href="{{ route('admin_izin_lampiran_siswa.download', basename($item->lampiran)) }}" target="_blank">Lihat | </a>
-                        <a href="{{ route('admin_izin_lampiran_siswa.download', basename($item->lampiran)) }}" download>Download</a>
+                        <a href="{{ route('admin_izin_lampiran_siswa.download', basename($item->lampiran)) }}"
+                            target="_blank">Lihat | </a>
+                        <a href="{{ route('admin_izin_lampiran_siswa.download', basename($item->lampiran)) }}"
+                            download>Download</a>
                     @else
                         -
                     @endif

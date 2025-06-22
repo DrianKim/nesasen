@@ -52,7 +52,7 @@
                             @include('admin.jurusan.modal.create')
                             @include('admin.jurusan.modal.import')
                             @include('admin.jurusan.modal.export')
-                            <button class="btn-hapus">
+                            <button id="btnHapusJurusanSelect" class="btn-hapus">
                                 <span class="material-icons-sharp">delete</span> Hapus
                             </button>
                             <button class="btn-tambah" onclick="openModal('modalJurusanTambah')">

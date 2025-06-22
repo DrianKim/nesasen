@@ -10,18 +10,6 @@
             </a>
         </div>
 
-        <!-- School Info -->
-        {{-- <div class="mb-4 d-flex align-items-center">
-            <div class="school-icon me-3">
-                <img src="{{ asset('assets\img\smeapng.png') }}" alt="Smea
-                 Icon" width="50"
-                    height="50">
-            </div>
-            <div>
-                <h5 class="mb-0 ml-2 fw-bold">SMKN 1 SUBANG</h5>
-            </div>
-        </div> --}}
-
         <!-- Tab Navigation -->
         <div class="mb-4">
             <ul class="nav nav-tabs" id="kelasKuTabs" role="tablist">

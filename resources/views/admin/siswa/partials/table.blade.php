@@ -100,6 +100,103 @@
     });
 </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnHapusSiswaSelect = document.getElementById('btnHapusSiswaSelect');
+
+        if (btnHapusSiswaSelect) {
+            btnHapusSiswaSelect.addEventListener('click', function() {
+                const selected = Array.from(document.querySelectorAll('.item-checkbox:checked')).map(
+                    cb => cb.value);
+
+                if (selected.length === 0) {
+                    return Swal.fire({
+                        title: 'Tidak ada data terpilih',
+                        text: 'Pilih setidaknya satu data untuk dihapus.',
+                        icon: 'warning',
+                        confirmButtonColor: '#43c6c9',
+                        background: isDarkMode() ? getBg() : '#fff',
+                        color: isDarkMode() ? getColor() : '#000',
+                        customClass: {
+                            popup: isDarkMode() ? 'swal-dark' : ''
+                        }
+                    });
+                }
+
+                Swal.fire({
+                    title: `Hapus ${selected.length} data siswa?`,
+                    text: 'Data siswa ini bakal dihapus permanen!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#e7586e',
+                    cancelButtonColor: '#43c6c9',
+                    confirmButtonText: 'Ya, hapus',
+                    cancelButtonText: 'Batal',
+                    background: isDarkMode() ? getBg() : '#fff',
+                    color: isDarkMode() ? getColor() : '#000',
+                    customClass: {
+                        popup: isDarkMode() ? 'swal-dark' : ''
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`{{ route('admin_siswa.bulk_action') }}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    ids: selected
+                                })
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Berhasil',
+                                        text: data.message,
+                                        confirmButtonColor: '#43c6c9',
+                                        background: isDarkMode() ? getBg() : '#fff',
+                                        color: isDarkMode() ? getColor() : '#000',
+                                        customClass: {
+                                            popup: isDarkMode() ? 'swal-dark' : ''
+                                        }
+                                    }).then(() => location.reload());
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Gagal',
+                                        text: data.message,
+                                        confirmButtonColor: '#e7586e',
+                                        background: isDarkMode() ? getBg() : '#fff',
+                                        color: isDarkMode() ? getColor() : '#000',
+                                        customClass: {
+                                            popup: isDarkMode() ? 'swal-dark' : ''
+                                        }
+                                    });
+                                }
+                            });
+                    }
+                });
+            });
+        }
+
+        function isDarkMode() {
+            return document.body.classList.contains('dark-mode-variables');
+        }
+
+        function getBg() {
+            return getComputedStyle(document.body).getPropertyValue('--color-background');
+        }
+
+        function getColor() {
+            return getComputedStyle(document.body).getPropertyValue('--color-dark');
+        }
+    });
+</script>
+
 @if ($errors->has('username'))
     <script>
         Swal.fire({

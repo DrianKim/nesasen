@@ -52,7 +52,7 @@
                             @include('admin.mapel.modal.create')
                             @include('admin.mapel.modal.import')
                             @include('admin.mapel.modal.export')
-                            <button class="btn-hapus">
+                            <button id="btnHapusMapelSelect" class="btn-hapus">
                                 <span class="material-icons-sharp">delete</span> Hapus
                             </button>
                             <button class="btn-tambah" onclick="openModal('modalMapelTambah')">

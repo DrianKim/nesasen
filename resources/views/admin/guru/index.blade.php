@@ -43,7 +43,7 @@
                             @include('admin.guru.modal.create')
                             @include('admin.guru.modal.import')
                             @include('admin.guru.modal.export')
-                            <button class="btn-hapus">
+                            <button id="btnHapusGuruSelect" class="btn-hapus">
                                 <span class="material-icons-sharp">delete</span> Hapus
                             </button>
                             <button class="btn-tambah" onclick="openModal('modalGuruTambah')">
@@ -424,8 +424,6 @@
                 resetButton.addEventListener('click', function(e) {
                     e.preventDefault();
                     // Reset all filters
-                    if (tahunAjaranSelect) tahunAjaranSelect.value = '';
-                    if (kelasListSelect) kelasListSelect.value = '';
                     if (perPageSelect) perPageSelect.value = '10';
                     if (searchInput) searchInput.value = '';
                     sortByInput.value = '';

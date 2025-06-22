@@ -8,7 +8,7 @@
             <!-- Modal Header -->
             <div class="modal-header-custom">
                 <div class="modal-header-icon">
-                    <img src="images/classroom.png" alt="Kelas Icon" />
+                    <img src="{{ asset('assets/img/classroom.png') }}" alt="Kelas Icon">
                 </div>
                 <div class="modal-header-text">
                     <h5>Edit Data Kelas</h5>
