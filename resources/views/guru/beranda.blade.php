@@ -1,5 +1,8 @@
 @extends('guru.layouts.app')
-
+@php
+    $nama = explode(' ', Auth::user()->guru->nama);
+    $namaPendek = implode(' ', array_slice($nama, 0, 1));
+@endphp
 @section('content')
     <main>
 
@@ -56,22 +59,22 @@
                 <h4>Judul Pengumuman 1</h4>
                 <small>Dibuat pada <i>16 Juni 2025</i></small>
                 <p>Isi pengumuman pertama yang ditampilkan di sini.</p>
-                <small class="text-muted">Ditujukan untuk: <b>Semua</b></small><br />
-                <small class="text-muted">Akan hilang pada <b>27 Juni 2025</b></small>
+                <small class="text-muted">Ditujukan untuk: <b>{{ asset('assets/img/smeapng.png') }}r>
+                        <small class="text-muted">Akan hilang pada <b>27 Juni 2025</b></small>
             </div>
             <div class="announcement">
                 <h4>Judul Pengumuman 2</h4>
                 <small>Dibuat pada <i>17 Juni 2025</i></small>
                 <p>Isi pengumuman kedua yang ditampilkan di sini.</p>
-                <small class="text-muted">Ditujukan untuk: <b>Guru</b></small><br />
-                <small class="text-muted">Akan hilang pada <b>28 Juni 2025</b></small>
+                <small class="text-muted">Ditujukan untuk: <b>{{ asset('assets/img/smeapng.png') }}r>
+                        <small class="text-muted">Akan hilang pada <b>28 Juni 2025</b></small>
             </div>
             <div class="announcement">
                 <h4>Judul Pengumuman 3</h4>
                 <small>Dibuat pada <i>18 Juni 2025</i></small>
                 <p>Isi pengumuman kedua yang ditampilkan di sini.</p>
-                <small class="text-muted">Ditujukan untuk: <b>Guru</b></small><br />
-                <small class="text-muted">Akan hilang pada <b>29 Juni 2025</b></small>
+                <small class="text-muted">Ditujukan untuk: <b>{{ asset('assets/img/smeapng.png') }}r>
+                        <small class="text-muted">Akan hilang pada <b>29 Juni 2025</b></small>
             </div>
         </div>
         <!-- End of Pengumuman -->
@@ -96,11 +99,11 @@
 
             <div class="profile">
                 <div class="info">
-                    <p>Hallo, <b>{{ Auth::user()->guru->nama }}</b></p>
+                    <p>Hallo, <b>{{ $namaPendek }}</b></p>
                     <small class="text-muted">Guru</small>
                 </div>
                 <div class="profile-photo">
-                    <img src="images/profile-1.jpg" />
+                    <img src="{{ asset('assets/img/smeapng.png') }}">
                 </div>
             </div>
         </div>
@@ -155,51 +158,48 @@
 @endsection
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Reminder check-in buat guru
-        fetch('/guru/presensi-reminder')
-            .then(response => response.json())
-            .then(res => {
-                if (!res.jam_masuk) {
-                    Swal.fire({
-                        title: '',
-                        html: 'Kamu belum Check In hari ini<br>Yuk Check In sekarang!',
-                        icon: 'warning',
-                        confirmButtonText: 'Check In',
-                        confirmButtonColor: '#e7586e',
-                        showCancelButton: true,
-                        cancelButtonText: 'Nanti aja',
-                        cancelButtonColor: '#3085d6',
-                        background: isDarkMode() ? getBg() : '#fff',
-                        color: isDarkMode() ? getColor() : '#000',
-                        customClass: {
-                            popup: isDarkMode() ? 'swal-dark' : ''
-                        }
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href =
-                                '/guru/presensi'; // arahkan ke halaman presensi guru
-                        }
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Gagal cek reminder presensi:', error);
-            });
+    document.addEventListener{{ asset('assets/img/smeapng.png') }} / Reminder check - in buat guru
+    fetch('/guru/presensi-reminder')
+        .then(response => response.json())
+        .then(res => {
+            if (!res.jam_masuk) {
+                Swal.fire({
+                    title: '',
+                    html: 'Kamu belum Check In hari ini<br>Yuk Check In sekarang!',
+                    icon: 'warning',
+                    confirmButtonText: 'Check In',
+                    confirmButtonColor: '#e7586e',
+                    showCancelButton: true,
+                    cancelButtonText: 'Nanti aja',
+                    cancelButtonColor: '#3085d6',
+                    background: isDarkMode() ? getBg() : '#fff',
+                    color: isDarkMode() ? getColor() : '#000',
+                    customClass: {
+                        popup: isDarkMode() ? 'swal-dark' : ''
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href {{ asset('assets/img/smeapng.png') }};
+                        / arahkan ke halaman presensi guru
+                    }
+                });
+            }
+        })
+        .catch(error => {
+                console.error(
+                    'Gagal cek reminder presensi{{ asset('assets/img/smeapng.png') }} / Fungsi bantu dark mode
+                    function isDarkMode() {
+                        return document.body.classList.contains('dark-mode-variables');
+                    }
 
-        // Fungsi bantu dark mode
-        function isDarkMode() {
-            return document.body.classList.contains('dark-mode-variables');
-        }
+                    function getBg() {
+                        return getComputedStyle(document.body).getPropertyValue('--color-background');
+                    }
 
-        function getBg() {
-            return getComputedStyle(document.body).getPropertyValue('--color-background');
-        }
-
-        function getColor() {
-            return getComputedStyle(document.body).getPropertyValue('--color-dark');
-        }
-    });
+                    function getColor() {
+                        return getComputedStyle(document.body).getPropertyValue('--color-dark');
+                    }
+                });
 </script>
 
 <script>

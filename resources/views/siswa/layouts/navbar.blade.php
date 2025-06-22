@@ -13,7 +13,7 @@
             <small class="text-muted">Siswa</small>
         </div>
         <div class="profile-photo">
-            <img src="images/profile-1.jpg" />
+            <img src="{{ asset('assets/img/smeapng.png') }}" />
         </div>
     </div>
 </div>

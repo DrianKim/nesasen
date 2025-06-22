@@ -875,6 +875,10 @@ main .last-announcement .announcement-content {
     color: var(--color-text);
 }
 
+.dark-mode {
+    margin-right: 1rem;
+}
+
 .dark-mode-variables .profile-wrapper {
     background: #212629;
     box-shadow: none;
@@ -1642,6 +1646,7 @@ body.dark-mode-variables .jadwal-card {
     font-size: 0.85rem;
     font-weight: 500;
 }
+
 .right-section .dark-mode {
     background-color: var(--color-light);
     display: flex;
@@ -2684,6 +2689,12 @@ body.dark-mode-variables .jadwal-card {
     background: #444;
 }
 
+.right-section .nav .dark-mode {
+    width: 4.4rem;
+    position: absolute;
+    margin-right: 180px;
+}
+
 @media screen and (max-width: 1200px) {
     .container {
         width: 95%;
@@ -2835,11 +2846,11 @@ body.dark-mode-variables .jadwal-card {
     .right-section .nav .dark-mode {
         width: 4.4rem;
         position: absolute;
-        left: 64%;
+        margin-right: 180px;
     }
 
     .right-section .profile .info {
-        display: none;
+        display: block;
     }
 
     .right-section .nav button {

@@ -1642,6 +1642,7 @@ body.dark-mode-variables .jadwal-card {
     font-size: 0.85rem;
     font-weight: 500;
 }
+
 .right-section .dark-mode {
     background-color: var(--color-light);
     display: flex;
@@ -1651,6 +1652,10 @@ body.dark-mode-variables .jadwal-card {
     width: 4.2rem;
     cursor: pointer;
     border-radius: var(--border-radius-1);
+}
+
+.dark-mode {
+    margin-right: 1rem;
 }
 
 .right-section .dark-mode span {
@@ -2835,11 +2840,15 @@ body.dark-mode-variables .jadwal-card {
     .right-section .nav .dark-mode {
         width: 4.4rem;
         position: absolute;
-        left: 64%;
+        margin-right: 13.8rem;
+    }
+
+    .dark-mode {
+        margin-right: 1rem;
     }
 
     .right-section .profile .info {
-        display: none;
+        display: block;
     }
 
     .right-section .nav button {

@@ -1,126 +1,8 @@
-{{-- <!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Nesasen - Learning Management System for SMKN 1 Subang">
-    <meta name="author" content="Development Team">
-    <meta name="theme-color" content="#4e73df">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>Nesasen | {{ $title }}</title>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ asset('img/favicon.png') }}" type="image/x-icon">
-
-    <!-- Custom fonts for this template-->
-    <link href="{{ asset('sbadmin2/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
-
-    <!-- Custom styles for this template-->
-    <link href="{{ asset('sbadmin2/css/sb-admin-2.min.css') }}" rel="stylesheet">
-
-    <!-- Custom styles -->
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
-
-    <!-- PWA elements -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Nesasen">
-    <link rel="apple-touch-icon" href="{{ asset('images/icons/icon-152x152.png') }}">
-
-    <!-- Css Custom -->
-    <link rel="stylesheet" href="{{ asset('assets/css/style-jadwal.css') }}">
-
-</head>
-
-<body>
-    <div class="jadwal-container">
-        <!-- Header -->
-        <div class="jadwal-header">
-            <div class="back-button">
-                <a href="{{ route('siswa.beranda') }}" onclick="goBack()">
-                    <i class="fas fa-arrow-left"></i> Jadwal
-                </a>
-            </div>
-            <div class="calendar-button" id="toggle-view">
-                <i class="fas fa-calendar"></i>
-            </div>
-        </div>
-
-        <!-- Semester Info -->
-        <div class="semester-info">
-            <h4>Tahun Ajaran 2024-2025 - Semester 2</h4>
-        </div>
-
-        <!-- Month Header -->
-        <div class="month-header">
-            <button class="month-nav-btn" onclick="navigateMonth(-1)">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <h3 id="month-display">Juni 2025</h3>
-            <button class="month-nav-btn" onclick="navigateMonth(1)">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-        </div>
-
-        <!-- Week Navigation -->
-        <div class="week-navigation" id="week-navigation">
-            <div class="week-nav-flex">
-                <div class="week-arrow-prev" onclick="changeWeek(-1)">
-                    <i class="fas fa-chevron-left"></i>
-                </div>
-                <div class="days-container" id="week-days-container">
-                    <!-- Week days will be populated here -->
-                </div>
-                <div class="week-arrow-next" onclick="changeWeek(1)">
-                    <i class="fas fa-chevron-right"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Month Navigation -->
-        <div class="month-navigation" id="month-navigation">
-            <div class="month-grid" id="month-grid">
-                <!-- Month calendar will be populated here -->
-            </div>
-        </div>
-
-        <!-- Current Date Display -->
-        <div class="current-date">
-            <div class="date-text" id="current-date-text"></div>
-            <div class="today-badge" id="today-badge" style="display: none;">Hari Ini</div>
-        </div>
-
-        <!-- Loading Indicator -->
-        <div id="loading-indicator" style="display: none;">
-            <i class="fas fa-spinner fa-spin"></i> Memuat jadwal...
-        </div>
-
-        <!-- Schedule List -->
-        <div class="jadwal-list" id="jadwal-list">
-            <div class="empty-jadwal">
-                <div class="empty-illustration">
-                    <i class="fas fa-calendar-times"></i>
-                </div>
-                <div class="empty-text">Tidak ada jadwal untuk hari ini</div>
-            </div>
-        </div>
-
-        <!-- Floating Add Button -->
-        <div class="floating-button">
-            <i class="fas fa-plus"></i>
-        </div>
-    </div> --}}
-
 @extends('siswa.layouts.app')
-
+@php
+    $nama = explode(' ', Auth::user()->siswa->nama);
+    $namaPendek = implode(' ', array_slice($nama, 0, 1));
+@endphp
 @section('content')
     <main>
         <h2 class="izin-title">Jadwal</h2>
@@ -217,11 +99,11 @@
 
             <div class="profile">
                 <div class="info">
-                    <p>Hallo, <b>{{ Auth::user()->siswa->nama }}</b></p>
+                    <p>Hallo, <b>{{ $namaPendek }}</b></p>
                     <small class="text-muted">Siswa</small>
                 </div>
                 <div class="profile-photo">
-                    <img src="images/profile-1.jpg" />
+                    <img src="{{ asset('assets/img/smeapng.png') }}" />
                 </div>
             </div>
         </div>

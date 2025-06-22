@@ -1,5 +1,8 @@
 @extends('siswa.layouts.app')
-
+@php
+    $nama = explode(' ', Auth::user()->siswa->nama);
+    $namaPendek = implode(' ', array_slice($nama, 0, 1));
+@endphp
 @section('content')
     <main>
         <h2 class="section-title-form">Profil Anda</h2>
@@ -149,11 +152,11 @@
 
             <div class="profile">
                 <div class="info">
-                    <p>Hallo, <b>{{ Auth::user()->siswa->nama }}</b></p>
+                    <p>Hallo, <b>{{ $namaPendek }}</b></p>
                     <small class="text-muted">Siswa</small>
                 </div>
                 <div class="profile-photo">
-                    <img src="images/profile-1.jpg" />
+                    <img src="{{ asset('assets/img/smeapng.png') }}" />
                 </div>
             </div>
         </div>

@@ -140,7 +140,7 @@
                         <small class="text-muted">Guru</small>
                     </div>
                     <div class="profile-photo">
-                        <img src="{{ asset('images/profile-1.jpg') }}" />
+                        <img src="{{ asset('{{ asset('assets/img/smeapng.png') }}') }}" />
                     </div>
                 </div>
             </div>

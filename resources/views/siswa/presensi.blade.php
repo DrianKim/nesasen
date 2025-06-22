@@ -1,118 +1,8 @@
-{{-- <!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Nesasen - Learning Management System for SMKN 1 Subang">
-    <meta name="author" content="Development Team">
-    <meta name="theme-color" content="#4e73df">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>Nesasen | {{ $title }}</title>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ asset('img/favicon.png') }}" type="image/x-icon">
-
-    <!-- Custom fonts for this template-->
-    <link href="{{ asset('sbadmin2/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
-
-    <!-- Custom styles for this template-->
-    <link href="{{ asset('sbadmin2/css/sb-admin-2.min.css') }}" rel="stylesheet">
-
-    <!-- Custom styles -->
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
-
-    <!-- PWA elements -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Nesasen">
-    <link rel="apple-touch-icon" href="{{ asset('images/icons/icon-152x152.png') }}">
-
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
-    <!-- Css Custom -->
-    <link rel="stylesheet" href="{{ asset('assets/css/style-presensi.css') }}">
-
-</head>
-
-@include('layouts.loading-page')
-
-<body> --}}
-{{-- <div class="presensi-container">
-        <!-- Header with Back Button -->
-        <div class="presensi-header">
-            <div class="back-button">
-                <a href="{{ route('siswa.beranda') }}" class="back-button">
-                    <i class="fas fa-arrow-left"></i> Presensi Online
-                </a>
-            </div>
-            <div class="history-button">
-                <i class="fas fa-history"></i>
-            </div>
-        </div>
-
-        <!-- Map Container -->
-        <div class="map-container">
-            <div id="map"></div>
-
-            <!-- Check In/Out Info -->
-            <div class="check-info">
-                <button id="checkInInfo" class="check-btn check-in active btn-sm">
-                    <i class="fas fa-check-circle"></i> Check In --:--
-                </button>
-                <button id="checkOutInfo" class="check-btn check-out btn-sm">
-                    <i class="fas fa-times-circle"></i> Check Out --:--
-                </button>
-            </div>
-        </div>
-
-        <!-- School Info -->
-        <div class="school-info">
-            <div class="school-logo">
-                <img src="{{ asset('assets\img\smeapng.png') }}" alt="School Logo">
-            </div>
-            <div class="school-details">
-                <h3>SMKN 1 SUBANG</h3>
-                <p>CQV6+J32, Cigadung, Kec. Subang, Kabupaten Subang, Jawa Barat 41211, Indonesia</p>
-            </div>
-        </div>
-
-        <!-- Location Status -->
-        <div class="location-status">
-            <p class="location-warning" id="locationWarning"></p>
-            <div class="time-display">
-                <i class="far fa-check"></i>
-                <span id="currentTime"></span>
-            </div>
-        </div>
-
-        <!-- Reason for Check In -->
-        <div id="alasanWrapper" class="mb-2" style="display: none;">
-            <textarea id="alasanText" class="border rounded form-control border-opacity-30" rows="2"
-                placeholder="Masukkan alasan kamu..." style="resize: none;" required></textarea>
-        </div>
-requestCheckIn
-        <!-- Action Button -->
-        <button class="action-button" id="requestCheckIn">
-            REQUEST CHECK IN
-        </button>
-    </div> --}}
-
-
-{{-- @include('layouts.footer-cr')
-
-    @include('layouts.footer') --}}
-
 @extends('siswa.layouts.app')
-
+@php
+    $nama = explode(' ', Auth::user()->siswa->nama);
+    $namaPendek = implode(' ', array_slice($nama, 0, 1));
+@endphp
 @section('content')
     <main>
         <h2 class="section-title-form">Presensi</h2>
@@ -186,11 +76,11 @@ requestCheckIn
 
             <div class="profile">
                 <div class="info">
-                    <p>Hallo, <b>{{ Auth::user()->siswa->nama }}</b></p>
+                    <p>Hallo, <b>{{ $namaPendek }}</b></p>
                     <small class="text-muted">Siswa</small>
                 </div>
                 <div class="profile-photo">
-                    <img src="images/profile-1.jpg" />
+                    <img src="{{ asset('assets/img/smeapng.png') }}" />
                 </div>
             </div>
         </div>

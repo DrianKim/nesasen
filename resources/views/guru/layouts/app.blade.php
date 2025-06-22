@@ -1,5 +1,6 @@
 @include('guru.layouts.header')
 
+
 <body>
     <div class="container">
         <!-- Sidebar Section -->
@@ -7,7 +8,7 @@
         <!-- End of Sidebar Section -->
         {{-- @include('guru.layouts.navbar') --}}
         {{-- <main> --}}
-            @yield('content')
+        @yield('content')
         {{-- </main> --}}
     </div>
 
