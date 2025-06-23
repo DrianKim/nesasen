@@ -8,21 +8,30 @@ use App\Models\Jadwal;
 use App\Models\izinGuru;
 use App\Models\MapelKelas;
 use App\Models\presensiGuru;
+use App\Models\Pengumuman;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class GuruController extends Controller
 {
     public function beranda_index()
     {
-        $data = array(
-            'title' => 'Beranda Guru',
+        $pengumumen = Pengumuman::where(function ($q) {
+            $q->where('ditujukan_untuk', 'guru')->orWhere('ditujukan_untuk', 'semua');
+        })
+            ->where('kadaluarsa_sampai', '>=', now())
+            ->orderByDesc('tanggal')
+            ->take(3)
+            ->get();
+
+        return view('guru.beranda', [
+            'title' => 'Beranda',
             'menuBeranda' => 'active',
-            'guru' => Guru::all(),
-        );
-        return view('guru.beranda', $data);
+            'pengumumen' => $pengumumen,
+        ]);
     }
 
     public function profil_index()
@@ -46,7 +55,7 @@ class GuruController extends Controller
 
         $walasKelas = auth()->user()->walas->kelas ?? null;
 
-        $data = array(
+        $data = [
             'title' => 'Profil Guru',
             'menuProfil' => 'active',
             'user' => $user,
@@ -55,7 +64,7 @@ class GuruController extends Controller
             'izin' => $izin,
             'kelasDiampu' => $kelasDiampu,
             'walasKelas' => $walasKelas,
-        );
+        ];
         return view('guru.profil', $data);
     }
 
@@ -65,27 +74,30 @@ class GuruController extends Controller
             $user = auth()->user();
             $guru = $user->guru;
 
-            $request->validate([
-                'nama' => 'required|string|max:255',
-                'username' => 'required|string|max:255|unique:users,username,' . $user->id,
-                'nip' => 'nullable|string|max:20',
-                'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
-                'tanggal_lahir' => 'nullable|date',
-                'no_hp' => 'nullable|string|max:20',
-                'email' => 'required|email|max:255',
-                'new_password' => 'nullable|min:5|same:password_confirmation',
-                'password_confirmation' => 'nullable|required_with:new_password|same:new_password',
-            ], [
-                'nama.required' => 'Nama tidak boleh kosong.',
-                'username.required' => 'Username tidak boleh kosong.',
-                'username.unique' => 'Username sudah digunakan.',
-                'email.required' => 'Email harus diisi.',
-                'email.email' => 'Format email tidak valid.',
-                'jenis_kelamin.required' => 'Jenis kelamin harus dipilih.',
-                'jenis_kelamin.in' => 'Jenis kelamin harus L atau P.',
-                'new_password.min' => 'Password minimal 6 karakter.',
-                'new_password.confirmed' => 'Konfirmasi password tidak cocok.',
-            ]);
+            $request->validate(
+                [
+                    'nama' => 'required|string|max:255',
+                    'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+                    'nip' => 'nullable|string|max:20',
+                    'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
+                    'tanggal_lahir' => 'nullable|date',
+                    'no_hp' => 'nullable|string|max:20',
+                    'email' => 'required|email|max:255',
+                    'new_password' => 'nullable|min:5|same:password_confirmation',
+                    'password_confirmation' => 'nullable|required_with:new_password|same:new_password',
+                ],
+                [
+                    'nama.required' => 'Nama tidak boleh kosong.',
+                    'username.required' => 'Username tidak boleh kosong.',
+                    'username.unique' => 'Username sudah digunakan.',
+                    'email.required' => 'Email harus diisi.',
+                    'email.email' => 'Format email tidak valid.',
+                    'jenis_kelamin.required' => 'Jenis kelamin harus dipilih.',
+                    'jenis_kelamin.in' => 'Jenis kelamin harus L atau P.',
+                    'new_password.min' => 'Password minimal 6 karakter.',
+                    'new_password.confirmed' => 'Konfirmasi password tidak cocok.',
+                ],
+            );
 
             $guru->update([
                 'nama' => $request->nama,
@@ -108,7 +120,9 @@ class GuruController extends Controller
                 $user->update($userData);
             }
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Gagal memperbarui profil: ' . $e->getMessage());
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal memperbarui profil: ' . $e->getMessage());
         }
 
         return redirect()->route('guru.profil')->with('success', 'Profil berhasil diperbarui!');
@@ -116,12 +130,12 @@ class GuruController extends Controller
 
     public function presensi_index(Request $request)
     {
-        $data = array(
+        $data = [
             'title' => 'Presensi Guru',
             'menuPresensi' => 'active',
             'guru' => Guru::all(),
             'presensiGuru' => presensiGuru::where('guru_id', Auth::user()->id)->get(),
-        );
+        ];
         return view('guru.presensi', $data);
     }
 
@@ -130,9 +144,7 @@ class GuruController extends Controller
         $guruId = auth()->user()->guru->id;
         $tanggal = now()->toDateString();
 
-        $presensi = presensiGuru::where('guru_id', $guruId)
-            ->where('tanggal', $tanggal)
-            ->first();
+        $presensi = presensiGuru::where('guru_id', $guruId)->where('tanggal', $tanggal)->first();
 
         return response()->json([
             'jam_masuk' => optional($presensi)->jam_masuk,
@@ -151,9 +163,7 @@ class GuruController extends Controller
         $guruId = $user->guru->id;
         $tanggal = now()->toDateString();
 
-        $presensi = presensiGuru::where('guru_id', $guruId)
-            ->where('tanggal', $tanggal)
-            ->first();
+        $presensi = presensiGuru::where('guru_id', $guruId)->where('tanggal', $tanggal)->first();
 
         return response()->json([
             'jam_masuk' => optional($presensi)->jam_masuk,
@@ -162,23 +172,26 @@ class GuruController extends Controller
 
     public function presensi_store(Request $request)
     {
-        $request->validate([
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'selfie' => 'nullable|image|file|max:2048',
-            'status_kehadiran' => 'required|in:hadir,terlambat,alfa',
-            'status_lokasi' => 'required|in:dalam_area,di_luar_area',
-        ], [
-            'latitude.required' => 'Latitude tidak ada',
-            'longitude.required' => 'Longitude tidak ada',
-            'selfie.image' => 'File selfie harus berupa gambar',
-            'selfie.file' => 'File selfie harus berupa file',
-            'selfie.max' => 'Ukuran file selfie maksimal 2MB',
-            'status_kehadiran.required' => 'Status kehadiran harus diisi',
-            'status_kehadiran.in' => 'Status kehadiran harus berupa salah satu dari: hadir, terlambat, alfa',
-            'status_lokasi.required' => 'Status lokasi harus diisi',
-            'status_lokasi.in' => 'Status lokasi harus berupa salah satu dari: dalam_area, di_luar_area',
-        ]);
+        $request->validate(
+            [
+                'latitude' => 'required|numeric',
+                'longitude' => 'required|numeric',
+                'selfie' => 'nullable|image|file|max:2048',
+                'status_kehadiran' => 'required|in:hadir,terlambat,alfa',
+                'status_lokasi' => 'required|in:dalam_area,di_luar_area',
+            ],
+            [
+                'latitude.required' => 'Latitude tidak ada',
+                'longitude.required' => 'Longitude tidak ada',
+                'selfie.image' => 'File selfie harus berupa gambar',
+                'selfie.file' => 'File selfie harus berupa file',
+                'selfie.max' => 'Ukuran file selfie maksimal 2MB',
+                'status_kehadiran.required' => 'Status kehadiran harus diisi',
+                'status_kehadiran.in' => 'Status kehadiran harus berupa salah satu dari: hadir, terlambat, alfa',
+                'status_lokasi.required' => 'Status lokasi harus diisi',
+                'status_lokasi.in' => 'Status lokasi harus berupa salah satu dari: dalam_area, di_luar_area',
+            ],
+        );
 
         $guruId = auth()->user()->guru->id;
         $tanggal = now()->toDateString();
@@ -195,8 +208,7 @@ class GuruController extends Controller
             $fotoPath = $request->file('selfie')->store('presensi_foto', 'public');
         }
 
-        $presensi = presensiGuru::where('guru_id', $guruId)
-            ->where('tanggal', $tanggal)->first();
+        $presensi = presensiGuru::where('guru_id', $guruId)->where('tanggal', $tanggal)->first();
 
         $status_kehadiran = $request->status_kehadiran;
         $status_lokasi = $request->status_lokasi;
@@ -226,7 +238,6 @@ class GuruController extends Controller
                 'jam_keluar' => $waktu,
                 'foto_keluar' => $fotoPath,
                 'lokasi_keluar' => $lokasi,
-
             ]);
             return response()->json([
                 'message' => 'Berhasil Melakukan Check Out!',
@@ -240,29 +251,32 @@ class GuruController extends Controller
 
     public function izin_index(Request $request)
     {
-        $data = array(
+        $data = [
             'title' => 'Izin Guru',
             'guru' => Guru::all(),
             'izinGuru' => izinGuru::where('guru_id', Auth::user()->id)->get(),
-        );
+        ];
         return view('guru.izin', $data);
     }
 
     public function izin_store(Request $request)
     {
-        $request->validate([
-            'jenis_izin' => 'required',
-            'tanggal' => 'required|date|after_or_equal:today',
-            'keterangan' => 'required|string|max:255',
-            'lampiran' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
-        ], [
-            'jenis_izin.required' => 'Jenis izin harus diisi',
-            'tanggal.required' => 'Tanggal izin harus diisi',
-            'keterangan.required' => 'Keterangan harus diisi',
-            'lampiran.image' => 'Lampiran harus berupa gambar',
-            'lampiran.file' => 'Lampiran harus berupa file',
-            'lampiran.mimes' => 'Lampiran harus berupa file dengan format jpg, jpeg, png, atau pdf',
-        ]);
+        $request->validate(
+            [
+                'jenis_izin' => 'required',
+                'tanggal' => 'required|date|after_or_equal:today',
+                'keterangan' => 'required|string|max:255',
+                'lampiran' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
+            ],
+            [
+                'jenis_izin.required' => 'Jenis izin harus diisi',
+                'tanggal.required' => 'Tanggal izin harus diisi',
+                'keterangan.required' => 'Keterangan harus diisi',
+                'lampiran.image' => 'Lampiran harus berupa gambar',
+                'lampiran.file' => 'Lampiran harus berupa file',
+                'lampiran.mimes' => 'Lampiran harus berupa file dengan format jpg, jpeg, png, atau pdf',
+            ],
+        );
         // $tanggal = Carbon::createFromFormat('d-m-Y', $request->tanggal);
         $tanggal = Carbon::parse($request->tanggal);
 
@@ -297,9 +311,7 @@ class GuruController extends Controller
     public function jadwal_index(Request $request)
     {
         $guru = auth()->user()->guru;
-        $selectedDate = $request->input('tanggal')
-            ? Carbon::parse($request->input('tanggal'))
-            : Carbon::now();
+        $selectedDate = $request->input('tanggal') ? Carbon::parse($request->input('tanggal')) : Carbon::now();
 
         $mapelKelasIds = MapelKelas::where('guru_id', $guru->id)->pluck('id');
 
@@ -324,11 +336,17 @@ class GuruController extends Controller
                 return $jadwal;
             });
 
-        $jadwalHariIni = $jadwalHariIni->sortby(function ($jadwal) {
-            if ($jadwal->is_berlangsung) return 0;
-            if (!$jadwal->is_selesai) return 1;
-            return 2;
-        })->values();
+        $jadwalHariIni = $jadwalHariIni
+            ->sortby(function ($jadwal) {
+                if ($jadwal->is_berlangsung) {
+                    return 0;
+                }
+                if (!$jadwal->is_selesai) {
+                    return 1;
+                }
+                return 2;
+            })
+            ->values();
 
         $startOfWeek = $selectedDate->copy()->startOfWeek(Carbon::MONDAY);
         $daysOfWeek = [];
@@ -378,9 +396,7 @@ class GuruController extends Controller
     public function jadwal_perhari(Request $request)
     {
         $guru = auth()->user()->guru;
-        $selectedDate = $request->input('tanggal')
-            ? Carbon::parse($request->input('tanggal'))
-            : Carbon::now();
+        $selectedDate = $request->input('tanggal') ? Carbon::parse($request->input('tanggal')) : Carbon::now();
 
         $mapelKelasIds = MapelKelas::where('guru_id', $guru->kelas->id)->pluck('id');
 
@@ -408,7 +424,7 @@ class GuruController extends Controller
 
         return response()->json([
             'jadwal' => $jadwalHariIni,
-            'currentTime' => Carbon::now()->format('H:i:s')
+            'currentTime' => Carbon::now()->format('H:i:s'),
         ]);
     }
 
@@ -431,7 +447,7 @@ class GuruController extends Controller
         $html = view('guru.partials.days_perminggu', compact('daysOfWeek', 'selectedDate'))->render();
 
         return response()->json([
-            'daysHtml' => $html
+            'daysHtml' => $html,
         ]);
     }
 
@@ -455,5 +471,90 @@ class GuruController extends Controller
         return response()->json([
             'daysHtml' => $html,
         ]);
+    }
+
+    public function pengumuman_index()
+    {
+        $pengumumen = Pengumuman::where('user_id', Auth::id())->orderByDesc('tanggal')->get();
+
+        return view('guru.pengumuman', [
+            'title' => 'Pengumuman',
+            'pengumumen' => $pengumumen,
+        ]);
+    }
+
+    public function pengumuman_store(Request $request)
+    {
+        $request->validate([
+            'judul' => 'required|max:255',
+            'isi' => 'required',
+            'durasi' => 'required|in:1,3,7',
+        ]);
+
+        $tanggal = now();
+        $kadaluarsa = $tanggal->copy()->addDays((int) $request->durasi);
+
+        Pengumuman::create([
+            'judul' => $request->judul,
+            'isi' => $request->isi,
+            'ditujukan_untuk' => 'siswa', // fix ke siswa, karena guru ga bisa ubah
+            'tanggal' => $tanggal,
+            'kadaluarsa_sampai' => $kadaluarsa,
+            'user_id' => Auth::id(),
+        ]);
+
+        return redirect()->route('guru.pengumuman')->with('success', 'Pengumuman berhasil dibuat.');
+    }
+
+    public function pengumuman_destroy($id)
+    {
+        Log::info("Hapus pengumuman id $id oleh user " . Auth::id());
+
+        $pengumuman = Pengumuman::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+
+        $pengumuman->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function pengumuman_edit($id)
+    {
+        $pengumuman = Pengumuman::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+
+        $durasi = Carbon::parse($pengumuman->tanggal)->diffInDays(Carbon::parse($pengumuman->kadaluarsa_sampai));
+
+        return response()->json([
+            'judul' => $pengumuman->judul,
+            'isi' => $pengumuman->isi,
+            'durasi' => $durasi,
+        ]);
+    }
+
+    public function pengumuman_update(Request $request, $id)
+    {
+        $request->validate([
+            'judul' => 'required|max:255',
+            'isi' => 'required',
+        ]);
+
+        $pengumuman = Pengumuman::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+
+        if ($request->filled('durasi')) {
+            $durasi = (int) $request->durasi;
+        } else {
+            $durasi = Carbon::parse($pengumuman->tanggal)->diffInDays(Carbon::parse($pengumuman->kadaluarsa_sampai));
+        }
+
+        $tanggal = now();
+        $kadaluarsa = $tanggal->copy()->addDays($durasi);
+
+        $pengumuman->update([
+            'judul' => $request->judul,
+            'isi' => $request->isi,
+            'tanggal' => $tanggal,
+            'kadaluarsa_sampai' => $kadaluarsa,
+        ]);
+
+        return redirect()->route('guru.pengumuman')->with('success', 'Pengumuman berhasil diubah.');
     }
 }

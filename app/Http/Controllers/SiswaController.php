@@ -8,6 +8,7 @@ use App\Models\Siswa;
 use App\Models\Jadwal;
 use App\Models\izinSiswa;
 use App\Models\MapelKelas;
+use App\Models\Pengumuman;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\presensiSiswa;
@@ -22,14 +23,25 @@ class SiswaController extends Controller
 {
     public function beranda_index()
     {
-        $data = array(
+        $data = [
             'title' => 'Beranda Siswa',
             'menuBeranda' => 'active',
             'siswa' => Siswa::all(),
-        );
+        ];
+
+        $today = Carbon::now();
+
+        $pengumumen = Pengumuman::where(function ($query) {
+            $query->where('ditujukan_untuk', 'siswa')->orWhere('ditujukan_untuk', 'semua');
+        })
+            ->whereDate('kadaluarsa_sampai', '>=', $today)
+            ->orderByDesc('tanggal')
+            ->take(3)
+            ->get();
+
+        $data['pengumumen'] = $pengumumen;
         return view('siswa.beranda', $data);
     }
-
 
     public function profil_index()
     {
@@ -48,14 +60,14 @@ class SiswaController extends Controller
             ->whereIn('jenis_izin', ['Izin', 'Keperluan Keluarga', 'Keperluan Sekolah', 'Sakit'])
             ->count();
 
-        $data = array(
+        $data = [
             'title' => 'Profil Siswa',
             'menuProfil' => 'active',
             'user' => $user,
             'siswa' => $siswa,
             'hadir' => $hadir,
             'izin' => $izin,
-        );
+        ];
         return view('siswa.profil', $data);
     }
 
@@ -65,28 +77,31 @@ class SiswaController extends Controller
             $user = auth()->user();
             $siswa = $user->siswa;
 
-            $request->validate([
-                'nama' => 'required|string|max:255',
-                'username' => 'required|string|max:255|unique:users,username,' . $user->id,
-                'nis' => 'nullable|string|max:20',
-                'nisn' => 'nullable|string|max:20',
-                'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
-                'tanggal_lahir' => 'nullable|date',
-                'no_hp' => 'nullable|string|max:20',
-                'email' => 'required|email|max:255',
-                'new_password' => 'nullable|min:5|same:password_confirmation',
-                'password_confirmation' => 'nullable|required_with:new_password|same:new_password',
-            ], [
-                'nama.required' => 'Nama tidak boleh kosong.',
-                'username.required' => 'Username tidak boleh kosong.',
-                'username.unique' => 'Username sudah digunakan.',
-                'email.required' => 'Email harus diisi.',
-                'email.email' => 'Format email tidak valid.',
-                'jenis_kelamin.required' => 'Jenis kelamin harus dipilih.',
-                'jenis_kelamin.in' => 'Jenis kelamin harus L atau P.',
-                'new_password.min' => 'Password minimal 6 karakter.',
-                'new_password.confirmed' => 'Konfirmasi password tidak cocok.',
-            ]);
+            $request->validate(
+                [
+                    'nama' => 'required|string|max:255',
+                    'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+                    'nis' => 'nullable|string|max:20',
+                    'nisn' => 'nullable|string|max:20',
+                    'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
+                    'tanggal_lahir' => 'nullable|date',
+                    'no_hp' => 'nullable|string|max:20',
+                    'email' => 'required|email|max:255',
+                    'new_password' => 'nullable|min:5|same:password_confirmation',
+                    'password_confirmation' => 'nullable|required_with:new_password|same:new_password',
+                ],
+                [
+                    'nama.required' => 'Nama tidak boleh kosong.',
+                    'username.required' => 'Username tidak boleh kosong.',
+                    'username.unique' => 'Username sudah digunakan.',
+                    'email.required' => 'Email harus diisi.',
+                    'email.email' => 'Format email tidak valid.',
+                    'jenis_kelamin.required' => 'Jenis kelamin harus dipilih.',
+                    'jenis_kelamin.in' => 'Jenis kelamin harus L atau P.',
+                    'new_password.min' => 'Password minimal 6 karakter.',
+                    'new_password.confirmed' => 'Konfirmasi password tidak cocok.',
+                ],
+            );
 
             $siswa->update([
                 'nama' => $request->nama,
@@ -110,7 +125,9 @@ class SiswaController extends Controller
                 $user->update($userData);
             }
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Gagal memperbarui profil: ' . $e->getMessage());
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal memperbarui profil: ' . $e->getMessage());
         }
 
         return redirect()->route('siswa.profil')->with('success', 'Profil berhasil diperbarui!');
@@ -118,12 +135,12 @@ class SiswaController extends Controller
 
     public function presensi_index(Request $request)
     {
-        $data = array(
+        $data = [
             'title' => 'Presensi Siswa',
             'menuPresensi' => 'active',
             'siswa' => Siswa::all(),
             'presensiSiswa' => presensiSiswa::where('siswa_id', Auth::user()->id)->get(),
-        );
+        ];
         return view('siswa.presensi', $data);
     }
 
@@ -132,9 +149,7 @@ class SiswaController extends Controller
         $siswaId = auth()->user()->siswa->id;
         $tanggal = now()->toDateString();
 
-        $presensi = presensiSiswa::where('siswa_id', $siswaId)
-            ->where('tanggal', $tanggal)
-            ->first();
+        $presensi = presensiSiswa::where('siswa_id', $siswaId)->where('tanggal', $tanggal)->first();
 
         return response()->json([
             'jam_masuk' => optional($presensi)->jam_masuk,
@@ -153,9 +168,7 @@ class SiswaController extends Controller
         $siswaId = $user->siswa->id;
         $tanggal = now()->toDateString();
 
-        $presensi = presensiSiswa::where('siswa_id', $siswaId)
-            ->where('tanggal', $tanggal)
-            ->first();
+        $presensi = presensiSiswa::where('siswa_id', $siswaId)->where('tanggal', $tanggal)->first();
 
         return response()->json([
             'jam_masuk' => optional($presensi)->jam_masuk,
@@ -164,23 +177,26 @@ class SiswaController extends Controller
 
     public function presensi_store(Request $request)
     {
-        $request->validate([
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'selfie' => 'nullable|image|file|max:2048',
-            'status_kehadiran' => 'required|in:hadir,terlambat,alfa',
-            'status_lokasi' => 'required|in:dalam_area,di_luar_area',
-        ], [
-            'latitude.required' => 'Latitude tidak ada',
-            'longitude.required' => 'Longitude tidak ada',
-            'selfie.image' => 'File selfie harus berupa gambar',
-            'selfie.file' => 'File selfie harus berupa file',
-            'selfie.max' => 'Ukuran file selfie maksimal 2MB',
-            'status_kehadiran.required' => 'Status kehadiran harus diisi',
-            'status_kehadiran.in' => 'Status kehadiran harus berupa salah satu dari: hadir, terlambat, alfa',
-            'status_lokasi.required' => 'Status lokasi harus diisi',
-            'status_lokasi.in' => 'Status lokasi harus berupa salah satu dari: dalam_area, di_luar_area',
-        ]);
+        $request->validate(
+            [
+                'latitude' => 'required|numeric',
+                'longitude' => 'required|numeric',
+                'selfie' => 'nullable|image|file|max:2048',
+                'status_kehadiran' => 'required|in:hadir,terlambat,alfa',
+                'status_lokasi' => 'required|in:dalam_area,di_luar_area',
+            ],
+            [
+                'latitude.required' => 'Latitude tidak ada',
+                'longitude.required' => 'Longitude tidak ada',
+                'selfie.image' => 'File selfie harus berupa gambar',
+                'selfie.file' => 'File selfie harus berupa file',
+                'selfie.max' => 'Ukuran file selfie maksimal 2MB',
+                'status_kehadiran.required' => 'Status kehadiran harus diisi',
+                'status_kehadiran.in' => 'Status kehadiran harus berupa salah satu dari: hadir, terlambat, alfa',
+                'status_lokasi.required' => 'Status lokasi harus diisi',
+                'status_lokasi.in' => 'Status lokasi harus berupa salah satu dari: dalam_area, di_luar_area',
+            ],
+        );
 
         $siswaId = auth()->user()->siswa->id;
         $tanggal = now()->toDateString();
@@ -197,8 +213,7 @@ class SiswaController extends Controller
             $fotoPath = $request->file('selfie')->store('presensi_foto', 'public');
         }
 
-        $presensi = presensiSiswa::where('siswa_id', $siswaId)
-            ->where('tanggal', $tanggal)->first();
+        $presensi = presensiSiswa::where('siswa_id', $siswaId)->where('tanggal', $tanggal)->first();
 
         $status_kehadiran = $request->status_kehadiran;
         $status_lokasi = $request->status_lokasi;
@@ -228,7 +243,6 @@ class SiswaController extends Controller
                 'jam_keluar' => $waktu,
                 'foto_keluar' => $fotoPath,
                 'lokasi_keluar' => $lokasi,
-
             ]);
             return response()->json([
                 'message' => 'Berhasil Melakukan Check Out!',
@@ -242,29 +256,32 @@ class SiswaController extends Controller
 
     public function izin_index(Request $request)
     {
-        $data = array(
+        $data = [
             'title' => 'Izin Siswa',
             'siswa' => Siswa::all(),
             'izinSiswa' => izinSiswa::where('siswa_id', Auth::user()->id)->get(),
-        );
+        ];
         return view('siswa.izin', $data);
     }
 
     public function izin_store(Request $request)
     {
-        $request->validate([
-            'jenis_izin' => 'required',
-            'tanggal' => 'required|date',
-            'keterangan' => 'required|string|max:255',
-            'lampiran' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
-        ], [
-            'jenis_izin.required' => 'Jenis izin harus diisi',
-            'tanggal.required' => 'Tanggal izin harus diisi',
-            'keterangan.required' => 'Keterangan harus diisi',
-            'lampiran.image' => 'Lampiran harus berupa gambar',
-            'lampiran.file' => 'Lampiran harus berupa file',
-            'lampiran.mimes' => 'Lampiran harus berupa file dengan format jpg, jpeg, png, atau pdf',
-        ]);
+        $request->validate(
+            [
+                'jenis_izin' => 'required',
+                'tanggal' => 'required|date',
+                'keterangan' => 'required|string|max:255',
+                'lampiran' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
+            ],
+            [
+                'jenis_izin.required' => 'Jenis izin harus diisi',
+                'tanggal.required' => 'Tanggal izin harus diisi',
+                'keterangan.required' => 'Keterangan harus diisi',
+                'lampiran.image' => 'Lampiran harus berupa gambar',
+                'lampiran.file' => 'Lampiran harus berupa file',
+                'lampiran.mimes' => 'Lampiran harus berupa file dengan format jpg, jpeg, png, atau pdf',
+            ],
+        );
         $tanggal = Carbon::parse($request->tanggal);
 
         $sudahizin = izinSiswa::where('siswa_id', Auth::user()->siswa->id)
@@ -305,9 +322,11 @@ class SiswaController extends Controller
             ->map(function ($item) use ($siswa) {
                 $jumlahTugas = $item->tugas->count();
 
-                $tugasSelesai = $item->tugas->flatMap(function ($tugas) use ($siswa) {
-                    return $tugas->pengumpulan_tugas->where('siswa_id', $siswa->id)->where('status', 'Sudah Dikerjakan');
-                })->count();
+                $tugasSelesai = $item->tugas
+                    ->flatMap(function ($tugas) use ($siswa) {
+                        return $tugas->pengumpulan_tugas->where('siswa_id', $siswa->id)->where('status', 'Sudah Dikerjakan');
+                    })
+                    ->count();
 
                 $item->jumlahTugas = $jumlahTugas;
                 $item->tugasSelesai = $tugasSelesai;
@@ -316,20 +335,18 @@ class SiswaController extends Controller
                 return $item;
             });
 
-        $data = array(
+        $data = [
             'title' => 'Kelas Saya',
             'siswa' => $siswa,
             'kelasKu' => $mapelKelasList,
-        );
+        ];
         return view('siswa.kelasKu', $data);
     }
 
     public function jadwal_index(Request $request)
     {
         $siswa = auth()->user()->siswa;
-        $selectedDate = $request->input('tanggal')
-            ? Carbon::parse($request->input('tanggal'))
-            : Carbon::now();
+        $selectedDate = $request->input('tanggal') ? Carbon::parse($request->input('tanggal')) : Carbon::now();
 
         $mapelKelasIds = MapelKelas::where('kelas_id', $siswa->kelas->id)->pluck('id');
 
@@ -354,11 +371,17 @@ class SiswaController extends Controller
                 return $jadwal;
             });
 
-        $jadwalHariIni = $jadwalHariIni->sortby(function ($jadwal) {
-            if ($jadwal->is_berlangsung) return 0;
-            if (!$jadwal->is_selesai) return 1;
-            return 2;
-        })->values();
+        $jadwalHariIni = $jadwalHariIni
+            ->sortby(function ($jadwal) {
+                if ($jadwal->is_berlangsung) {
+                    return 0;
+                }
+                if (!$jadwal->is_selesai) {
+                    return 1;
+                }
+                return 2;
+            })
+            ->values();
 
         $startOfWeek = $selectedDate->copy()->startOfWeek(Carbon::MONDAY);
         $daysOfWeek = [];
@@ -408,9 +431,7 @@ class SiswaController extends Controller
     public function jadwal_perhari(Request $request)
     {
         $siswa = auth()->user()->siswa;
-        $selectedDate = $request->input('tanggal')
-            ? Carbon::parse($request->input('tanggal'))
-            : Carbon::now();
+        $selectedDate = $request->input('tanggal') ? Carbon::parse($request->input('tanggal')) : Carbon::now();
 
         $mapelKelasIds = MapelKelas::where('kelas_id', $siswa->kelas->id)->pluck('id');
 
@@ -438,7 +459,7 @@ class SiswaController extends Controller
 
         return response()->json([
             'jadwal' => $jadwalHariIni,
-            'currentTime' => Carbon::now()->format('H:i:s')
+            'currentTime' => Carbon::now()->format('H:i:s'),
         ]);
     }
 
@@ -461,7 +482,7 @@ class SiswaController extends Controller
         $html = view('siswa.partials.days_perminggu', compact('daysOfWeek', 'selectedDate'))->render();
 
         return response()->json([
-            'daysHtml' => $html
+            'daysHtml' => $html,
         ]);
     }
 

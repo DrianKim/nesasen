@@ -1039,8 +1039,8 @@ main .statistik-title {
     }
 
     /* .check-info button {
-        font-size: 0.75rem;
-    } */
+font-size: 0.75rem;
+} */
 }
 
 .check-info .check-btn {
@@ -2693,6 +2693,91 @@ body.dark-mode-variables .jadwal-card {
     width: 4.4rem;
     position: absolute;
     margin-right: 180px;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    color: #6c757d; /* abu-abu soft */
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.empty-state img {
+    max-width: 150px;
+    opacity: 0.7;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.empty-state .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+/* Optional: animasi fadeIn */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.announcement.empty-state {
+    text-align: center;
+    padding: 2rem;
+    border: 2px dashed #ccc;
+    border-radius: 12px;
+    background-color: #f9f9f9;
+    color: #555;
+    transition: all 0.3s ease;
+}
+
+.announcement.empty-state:hover {
+    color: #1a7576;
+    box-shadow: 0 2px 12px rgba(67, 198, 201, 0.08);
+}
+
+.announcement.empty-state img.empty-img {
+    max-width: 120px;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.1));
+}
+
+.announcement.empty-state .empty-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.announcement.empty-state .empty-subtitle {
+    font-size: 1rem;
+    color: #888;
+}
+
+.dark-mode-variables .announcement.empty-state {
+    background-color: #202528;
+    border-color: #444;
+    color: #ccc;
+}
+
+.dark-mode-variables .announcement.empty-state .empty-subtitle {
+    color: #aaa;
 }
 
 @media screen and (max-width: 1200px) {

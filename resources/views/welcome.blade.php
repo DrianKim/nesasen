@@ -55,11 +55,7 @@
                         <h1>NESASEN</h1>
                         <p>Platform Presensi dan Informasi Jadwal Sekolah Berbasis Web</p>
                         <div class="d-flex">
-                            @auth
-                                <a href="{{ route('dashboard') }}" class="btn-get-started">Dashboard</a>
-                            @else
-                                <a href="{{ route('selectRole') }}" class="btn-get-started">Login</a>
-                            @endauth
+                            <a href="{{ route('selectRole') }}" class="btn-get-started">Login</a>
                         </div>
                     </div>
                     <div class="order-1 col-lg-6 order-lg-2 hero-img" data-aos="zoom-out" data-aos-delay="100">

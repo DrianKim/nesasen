@@ -17,10 +17,6 @@
             <span class="material-icons-sharp"> dashboard </span>
             <h3>Beranda</h3>
         </a>
-        <a href="buat-pengumuman.html">
-            <span class="material-icons-sharp"> campaign </span>
-            <h3>Buat Pengumuman</h3>
-        </a>
         <a href="{{ route('siswa.profil') }}" class="{{ request()->routeIs('siswa.profil') ? 'active' : '' }}">
             <span class="material-icons-sharp"> person_2 </span>
             <h3>Profil</h3>

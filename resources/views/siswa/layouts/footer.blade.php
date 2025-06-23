@@ -25,9 +25,6 @@
     const closeBtn = document.getElementById("close-btn");
     const darkMode = document.querySelector(".dark-mode");
 
-    // menuBtn?.addEventListener("click", () => (sideMenu.style.display = "block"));
-    // closeBtn?.addEventListener("click", () => (sideMenu.style.display = "none"));
-
     menuBtn?.addEventListener("click", () => {
         sideMenu.classList.add("active");
     });
@@ -36,28 +33,29 @@
         sideMenu.classList.remove("active");
     });
 
-    // Saat toggle diklik
-    darkMode?.addEventListener("click", () => {
-        document.body.classList.toggle("dark-mode-variables");
-        document.documentElement.classList.toggle("dark-mode-variables");
+    function applyDarkModeFromStorage() {
+        const isDark = localStorage.getItem("darkMode") === "true";
 
-        const isDark = document.body.classList.contains("dark-mode-variables");
-        localStorage.setItem("darkMode", isDark ? "true" : "false");
-
-        darkMode.querySelector("span:nth-child(1)")?.classList.toggle("active", !isDark);
-        darkMode.querySelector("span:nth-child(2)")?.classList.toggle("active", isDark);
-    });
-
-    if (localStorage.getItem("darkMode") === "true") {
-        document.body.classList.add("dark-mode-variables");
-        document.documentElement.classList.toggle("dark-mode-variables");
+        document.body.classList.toggle("dark-mode-variables", isDark);
+        document.documentElement.classList.toggle("dark-mode-variables", isDark);
 
         const lightIcon = document.querySelector(".dark-mode span:nth-child(1)");
         const darkIcon = document.querySelector(".dark-mode span:nth-child(2)");
 
-        lightIcon?.classList.remove("active");
-        darkIcon?.classList.add("active");
+        if (lightIcon && darkIcon) {
+            lightIcon.classList.toggle("active", !isDark);
+            darkIcon.classList.toggle("active", isDark);
+        }
     }
+
+    darkMode?.addEventListener("click", () => {
+        const isDark = !document.body.classList.contains("dark-mode-variables");
+
+        localStorage.setItem("darkMode", isDark ? "true" : "false");
+        applyDarkModeFromStorage();
+    });
+
+    applyDarkModeFromStorage();
 
     window.addEventListener("load", () => {
         sessionStorage.removeItem("darkModeOverride");

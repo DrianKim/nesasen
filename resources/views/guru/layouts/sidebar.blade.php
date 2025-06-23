@@ -17,7 +17,7 @@
             <span class="material-icons-sharp"> dashboard </span>
             <h3>Beranda</h3>
         </a>
-        <a href="buat-pengumuman.html">
+        <a href="{{ route('guru.pengumuman') }}" class="{{ request()->routeIs('guru.pengumuman.index') ? 'active' : '' }}">
             <span class="material-icons-sharp"> campaign </span>
             <h3>Buat Pengumuman</h3>
         </a>

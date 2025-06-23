@@ -25,7 +25,6 @@ Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
-
 // Tampilan Mobile
 Route::post('/set-mobile-session', function (\Illuminate\Http\Request $request) {
     session(['is_mobile_device' => $request->is_mobile]);
@@ -94,7 +93,6 @@ Route::get('/reset-password', [ForgotPasswordController::class, 'showResetForm']
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('forgot.reset.store');
 
 Route::middleware(['isLogin'])->group(function () {
-
     // profil
     Route::get('profil', [ProfilController::class, 'index'])->name('profil.index');
     Route::get('profil/edit', [ProfilController::class, 'index'])->name('profil.edit');
@@ -113,7 +111,11 @@ Route::middleware(['isLogin'])->group(function () {
 
     // siswa
     // beranda
-    Route::get('siswa/beranda', [SiswaController::class, 'beranda_index'])->name('siswa.beranda');
+    Route::middleware(['auth'])
+        ->prefix('siswa')
+        ->group(function () {
+            Route::get('/beranda', [SiswaController::class, 'beranda_index'])->name('siswa.beranda');
+        });
 
     //profil
     Route::get('siswa/profil', [SiswaController::class, 'profil_index'])->name('siswa.profil');
@@ -142,6 +144,17 @@ Route::middleware(['isLogin'])->group(function () {
     // beranda
     Route::get('guru/beranda', [GuruController::class, 'beranda_index'])->name('guru.beranda');
 
+    // pengumuman
+    Route::middleware(['auth'])
+        ->prefix('guru')
+        ->group(function () {
+            Route::get('/pengumuman', [GuruController::class, 'pengumuman_index'])->name('guru.pengumuman');
+            Route::post('/pengumuman', [GuruController::class, 'pengumuman_store'])->name('guru.pengumuman.store');
+            Route::delete('/pengumuman/{id}', [GuruController::class, 'pengumuman_destroy'])->name('guru.pengumuman.destroy');
+            Route::get('/pengumuman/{id}/edit', [GuruController::class, 'pengumuman_edit'])->name('guru.pengumuman.edit');
+            Route::put('/pengumuman/{id}', [GuruController::class, 'pengumuman_update'])->name('guru.pengumuman.update');
+        });
+
     // profil
     Route::get('guru/profil', [GuruController::class, 'profil_index'])->name('guru.profil');
     Route::post('guru/profil/update', [GuruController::class, 'profil_update'])->name('guru.profil.update');
@@ -168,7 +181,7 @@ Route::middleware(['isLogin'])->group(function () {
     Route::middleware(['isAdmin'])->group(function () {
         // beranda
         Route::get('admin/beranda', [DashboardController::class, 'index'])->name('admin.index');
-        
+
         // pengumuman
         Route::middleware(['auth'])->group(function () {
             Route::get('admin/pengumuman', [DashboardController::class, 'index_pengumuman'])->name('admin_pengumuman.index');
@@ -328,9 +341,9 @@ Route::middleware(['isLogin'])->group(function () {
     });
 });
 // walas
-        // Route::get('admin/walas', [AdminController::class, 'index_walas'])->name('admin_walas.index');
-        // Route::get('admin/walas/create', [AdminController::class, 'create_walas'])->name('admin_walas.create');
-        // Route::post('admin/walas/store', [AdminController::class, 'store_walas'])->name('admin_walas.store');
-        // Route::get('admin/walas/edit/{id}', [AdminController::class, 'edit_walas'])->name('admin_walas.edit');
-        // Route::post('admin/walas/update/{id}', [AdminController::class, 'update_walas'])->name('admin_walas.update');
-        // Route::delete('admin/walas/destroy/{id}', [AdminController::class, 'destroy_walas'])->name('admin_walas.destroy');
+// Route::get('admin/walas', [AdminController::class, 'index_walas'])->name('admin_walas.index');
+// Route::get('admin/walas/create', [AdminController::class, 'create_walas'])->name('admin_walas.create');
+// Route::post('admin/walas/store', [AdminController::class, 'store_walas'])->name('admin_walas.store');
+// Route::get('admin/walas/edit/{id}', [AdminController::class, 'edit_walas'])->name('admin_walas.edit');
+// Route::post('admin/walas/update/{id}', [AdminController::class, 'update_walas'])->name('admin_walas.update');
+// Route::delete('admin/walas/destroy/{id}', [AdminController::class, 'destroy_walas'])->name('admin_walas.destroy');
