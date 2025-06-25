@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\walas;
+use App\Models\Jadwal;
 use App\Models\Jurusan;
 use App\Models\kelasKu;
 use App\Models\izinGuru;
@@ -36,6 +37,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Illuminate\Support\Facades\Response;
 use Psy\CodeCleaner\FunctionContextPass;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
@@ -44,34 +46,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class AdminController extends Controller
 {
-
-    // walas
-    // public function index_walas()
-    // {
-    //     $data = array(
-    //         'title' => 'Daftar Wali Kelas',
-    //         'menuPengguna' => 'active',
-    //         // 'menu_admin_index_walas' => 'active',
-    //         'walas' => Walas::with('guru')->get(),
-    //     );
-    //     return view('admin.walas.index', $data);
-    // }
-
-    // public function create_walas()
-    // {
-    //     $data = array(
-    //         'title' => 'Tambah Wali Kelas',
-    //         'menuPengguna' => 'active',
-    //         // 'menu_admin_index_walas' => 'active',
-    //         'walas' => Walas::with('guru')->get(),
-    //         'guruList' => Guru::all(),
-    //     );
-    //     return view('admin.walas.create', $data);
-    // }
-
-    // public function store_walas() {}
-
-    private function parseExcelDate($dateString)
+    private function parsel_excel_date($dateString)
     {
         try {
             // Try to parse dd/mm/yyyy format
@@ -95,7 +70,7 @@ class AdminController extends Controller
         }
     }
 
-    private function generateUsernameFromName($nama)
+    private function generate_username_from_name($nama)
     {
         $parts = explode(' ', strtolower($nama));
 
@@ -1781,7 +1756,7 @@ class AdminController extends Controller
                         continue;
                     }
 
-                    $parsedDate = $this->parseExcelDate($tanggalLahir);
+                    $parsedDate = $this->parsel_excel_date($tanggalLahir);
                     if (!$parsedDate) {
                         $errorRows[] = "Baris {$rowNumber}: Format tanggal lahir tidak valid (gunakan dd/mm/yyyy)";
                         continue;
@@ -1792,7 +1767,7 @@ class AdminController extends Controller
                         continue;
                     }
 
-                    $username = $this->generateUsernameFromName($nama);
+                    $username = $this->generate_username_from_name($nama);
                     $password = $parsedDate->format('dmY');
 
                     $user = User::create([
@@ -1915,7 +1890,6 @@ class AdminController extends Controller
                 $query->orderBy('nama', 'asc');
             }
         }
-
 
         $guru = $query->paginate($perPage)->withQueryString();
 
@@ -2306,7 +2280,7 @@ class AdminController extends Controller
                         continue;
                     }
 
-                    $parsedDate = $this->parseExcelDate($tanggalLahir);
+                    $parsedDate = $this->parsel_excel_date($tanggalLahir);
                     if (!$parsedDate) {
                         $errorRows[] = "Baris {$rowNumber}: Format tanggal lahir tidak valid (gunakan dd/mm/yyyy)";
                         continue;
@@ -2317,7 +2291,7 @@ class AdminController extends Controller
                         continue;
                     }
 
-                    $username = $this->generateUsernameFromName($nama);
+                    $username = $this->generate_username_from_name($nama);
                     $password = $parsedDate->format('dmY');
 
                     $user = User::create([
@@ -2407,16 +2381,444 @@ class AdminController extends Controller
         }
     }
 
-    // umum jurusan
-    public function index_jadwal_pelajaran()
+    private function convert_hari_to_carbon_const($hari)
     {
+        $map = [
+            'Senin' => Carbon::MONDAY,
+            'Selasa' => Carbon::TUESDAY,
+            'Rabu' => Carbon::WEDNESDAY,
+            'Kamis' => Carbon::THURSDAY,
+            'Jumat' => Carbon::FRIDAY,
+            'Sabtu' => Carbon::SATURDAY,
+            'Minggu' => Carbon::SUNDAY,
+        ];
+
+        return $map[$hari] ?? Carbon::MONDAY;
+    }
+
+    // umum jurusan
+    public function index_jadwal_pelajaran(Request $request)
+    {
+        $kelasId = $request->kelas;
+
+        $query = Jadwal::with(['mapelKelas.mataPelajaran', 'mapelKelas.kelas'])
+            ->when($kelasId, function ($q) use ($kelasId) {
+                $q->whereHas('mapelKelas', function ($q2) use ($kelasId) {
+                    $q2->where('kelas_id', $kelasId);
+                });
+            });
+
+        $jadwals = $query->get();
+
+        $kelasFilter = Kelas::with('jurusan')->orderBy('tingkat')->orderBy('jurusan_id')->orderBy('no_kelas')->get();
+
         $data = array(
             'title' => 'Jadwal Pelajaran',
             'menuAdmin' => 'active',
-            // 'menu_admin_index_jurusan' => 'active',
-            // 'jurusan' => Jurusan::orderby('nama_jurusan', 'asc')->get(),
+            'jadwals' => $jadwals,
+            'kelasFilter' => $kelasFilter,
+            'kelasList' => Kelas::with('jurusan')->get(),
         );
+
+        if ($request->ajax()) {
+
+            if ($kelasId) {
+                $selectedKelas = Kelas::with('jurusan')->find($kelasId);
+            }
+
+            return response()->json([
+                'grid' => view('admin.jadwal_pelajaran.partials.grid', ['jadwals' => $jadwals])->render(),
+                'judul' => view('admin.jadwal_pelajaran.partials.judul', ['selectedKelas' => $selectedKelas])->render(),
+            ]);
+        }
+
         return view('admin.jadwal_pelajaran.index', $data);
+    }
+
+    public function update_jadwal_pelajaran(Request $request, $id)
+    {
+        try {
+
+            $request->merge([
+                'jam_mulai' => \Carbon\Carbon::parse($request->jam_mulai)->format('H:i'),
+                'jam_selesai' => \Carbon\Carbon::parse($request->jam_selesai)->format('H:i'),
+            ]);
+
+            $request->validate([
+                'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
+                'jam_mulai' => 'required|date_format:H:i',
+                'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
+            ]);
+
+            $jadwal = Jadwal::findOrFail($id);
+
+            $mapelKelasId = $jadwal->mapel_kelas_id;
+            $tanggalAwal = Carbon::parse($jadwal->tanggal);
+
+            try {
+                $targetHariBaru = $this->convert_hari_to_carbon_const($request->hari);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'type' => 'error',
+                    'message' => 'Hari tidak valid: ' . $e->getMessage(),
+                ]);
+            }
+
+            $start = Carbon::now()->startOfWeek(Carbon::MONDAY);
+            $end = Carbon::now()->addMonths(6);
+            $tanggalBaru = $start->copy()->next($targetHariBaru);
+
+            $tanggalListBaru = [];
+            while ($tanggalBaru->lte($end)) {
+                $tanggalListBaru[] = $tanggalBaru->copy();
+                $tanggalBaru->addWeek();
+            }
+
+            $jadwalsToUpdate = Jadwal::where('mapel_kelas_id', $mapelKelasId)
+                ->whereBetween('tanggal', [Carbon::now()->toDateString(), $end->toDateString()])
+                ->where(function ($q) use ($tanggalAwal) {
+                    $q->whereRaw('DAYOFWEEK(tanggal) = ?', [$tanggalAwal->dayOfWeekIso + 1]);
+                })
+                ->where('jam_mulai', $jadwal->jam_mulai)
+                ->where('jam_selesai', $jadwal->jam_selesai)
+                ->get();
+
+            if ($jadwalsToUpdate->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'type' => 'warning',
+                    'message' => 'Tidak ada jadwal yang cocok untuk diupdate.',
+                ]);
+            }
+
+            foreach ($jadwalsToUpdate as $item) {
+                $newDate = collect($tanggalListBaru)->first(function ($tgl) use ($item) {
+                    return $tgl->format('Y-m-d') > $item->tanggal;
+                }) ?? $item->tanggal;
+
+                $item->update([
+                    'tanggal' => is_string($newDate) ? $newDate : $newDate->format('Y-m-d'),
+                    'jam_mulai' => $request->jam_mulai,
+                    'jam_selesai' => $request->jam_selesai,
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'type' => 'success',
+                'message' => 'Jadwal berhasil diperbarui!',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'type' => 'error',
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'type' => 'error',
+                'message' => 'Terjadi kesalahan saat mengupdate jadwal: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function destroy_jadwal_pelajaran($id)
+    {
+        try {
+            $jadwal = Jadwal::findOrFail($id);
+
+            $mapelKelasId = $jadwal->mapel_kelas_id;
+            $tanggalAwal = \Carbon\Carbon::parse($jadwal->tanggal);
+            $jamMulai = $jadwal->jam_mulai;
+            $jamSelesai = $jadwal->jam_selesai;
+
+            $endDate = \Carbon\Carbon::now()->addMonths(6)->toDateString();
+
+            $jadwalsToDelete = \App\Models\Jadwal::where('mapel_kelas_id', $mapelKelasId)
+                ->whereBetween('tanggal', [now()->toDateString(), $endDate])
+                ->where(function ($q) use ($tanggalAwal) {
+                    $q->whereRaw('DAYOFWEEK(tanggal) = ?', [$tanggalAwal->dayOfWeekIso + 1]);
+                })
+                ->where('jam_mulai', $jamMulai)
+                ->where('jam_selesai', $jamSelesai)
+                ->get();
+
+            if ($jadwalsToDelete->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada jadwal yang cocok untuk dihapus.',
+                ]);
+            }
+
+            $jumlah = $jadwalsToDelete->count();
+
+            foreach ($jadwalsToDelete as $item) {
+                $item->delete();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil menghapus $jumlah jadwal!",
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    public function download_template_jadwal_pelajaran()
+    {
+        $fileName = 'template_import_jadwal_pelajaran_' . date('Y-m-d') . '.xlsx';
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $spreadsheet->getProperties()
+            ->setCreator('SMKN 1 Subang')
+            ->setTitle('Template Import Jadwal')
+            ->setDescription('Template untuk mengimpor jadwal ke dalam sistem.');
+
+        $headersStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFFFF'],
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['argb' => '198754'],
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['argb' => '0000000'],
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+            ],
+        ];
+
+        $headers = [
+            'Hari',
+            'Jam Mulai',
+            'Jam Selesai',
+            'Mata Pelajaran',
+            'Guru',
+        ];
+
+        $sheet->fromArray(($headers), null, 'A1');
+        $sheet->getStyle('A1:E1')->applyFromArray($headersStyle);
+
+        $sheet->getColumnDimension('A')->setWidth(15);
+        $sheet->getColumnDimension('B')->setWidth(15);
+        $sheet->getColumnDimension('C')->setWidth(15);
+        $sheet->getColumnDimension('D')->setWidth(30);
+        $sheet->getColumnDimension('E')->setWidth(30);
+
+        $exampleData = [
+            ['Senin', '08:00', '09:20', 'Bahasa Indonesia', 'Dedi Purnama'],
+            ['Senin', '09:20', '10:40', 'Bahasa Inggris', 'Siti'],
+        ];
+
+        $sheet->fromArray($exampleData, null, 'A2');
+        $sheet->getStyle('A2:E3')->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => '0000000'],
+                ]
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'f8f9fa'],
+            ],
+        ]);
+
+        $sheet->getStyle('B2:E3')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        $sheet->setCellValue('A5', 'Petunjuk:');
+        $sheet->setCellValue('A6', '1. Isi kolom "Hari" dengan nama hari (Senin s.d. Minggu).');
+        $sheet->setCellValue('A7', '2. Isi "Jam Mulai" dan "Jam Selesai" dalam format HH:MM (misal: 07:30).');
+        $sheet->setCellValue('A8', '3. Isi "Mata Pelajaran" sesuai yang sudah tersedia di sistem.');
+        $sheet->setCellValue('A9', '4. Isi "Guru" dengan nama guru yang terdaftar sesuai kelas dan mapel.');
+
+        $sheet->getStyle('A5')->getFont()->setBold(true)->setSize(13);
+        $sheet->getStyle('A6:A10')->getFont()->setItalic(true);
+
+        $sheet->getRowDimension(1)->setRowHeight(25);
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+            'Cache-Control' => 'cache, must-revalidate',
+            'Pragma' => 'public',
+        ]);
+    }
+
+    public function import_jadwal_pelajaran(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:2048',
+            'kelas_id' => 'required|exists:kelas,id',
+        ]);
+
+        try {
+            $file = $request->file('file');
+            $spreadsheet = IOFactory::load($file);
+            $sheet = $spreadsheet->getActiveSheet();
+            $rows = $sheet->toArray(null, true, true, true);
+            $headers = array_shift($rows);
+
+            $requiredHeaders = ['Hari', 'Jam Mulai', 'Jam Selesai', 'Mata Pelajaran', 'Guru'];
+            $headerMap = [];
+
+            foreach ($requiredHeaders as $required) {
+                $found = false;
+                foreach ($headers as $index => $header) {
+                    if (trim(strtolower($header)) === strtolower($required)) {
+                        $headerMap[$required] = $index;
+                        $found = true;
+                        break;
+                    }
+                }
+
+                if (!$found) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Kolom '{$required}' tidak ditemukan di file."
+                    ]);
+                }
+            }
+
+            $mapHari = [
+                'Senin' => Carbon::MONDAY,
+                'Selasa' => Carbon::TUESDAY,
+                'Rabu' => Carbon::WEDNESDAY,
+                'Kamis' => Carbon::THURSDAY,
+                'Jumat' => Carbon::FRIDAY,
+                'Sabtu' => Carbon::SATURDAY,
+                'Minggu' => Carbon::SUNDAY,
+            ];
+
+            $kelas_id = $request->kelas_id;
+            $successCount = 0;
+            $errorRows = [];
+
+            DB::beginTransaction();
+
+            foreach ($rows as $rowIndex => $row) {
+                $rowNumber = $rowIndex + 2;
+
+                try {
+                    
+                    if (empty(array_filter($row))) {
+                        continue;
+                    }
+
+                    $hari = ucfirst(strtolower(trim($row[$headerMap['Hari']] ?? '')));
+                    $jamMulai = trim($row[$headerMap['Jam Mulai']] ?? '');
+                    $jamSelesai = trim($row[$headerMap['Jam Selesai']] ?? '');
+                    $namaMapel = trim($row[$headerMap['Mata Pelajaran']] ?? '');
+                    $namaGuru = trim($row[$headerMap['Guru']] ?? '');
+
+                    if (!$hari || !$jamMulai || !$jamSelesai || !$namaMapel || !$namaGuru) {
+                        $errorRows[] = "Baris {$rowNumber}: Semua kolom wajib diisi.";
+                        continue;
+                    }
+
+                    if (!isset($mapHari[$hari])) {
+                        $errorRows[] = "Baris {$rowNumber}: Hari '{$hari}' tidak valid.";
+                        continue;
+                    }
+
+                    if (!preg_match('/^\d{2}:\d{2}$/', $jamMulai) || !preg_match('/^\d{2}:\d{2}$/', $jamSelesai)) {
+                        $errorRows[] = "Baris {$rowNumber}: Format jam tidak valid.";
+                        continue;
+                    }
+
+                    $mapelKelas = MapelKelas::where('kelas_id', $kelas_id)
+                        ->whereHas('mataPelajaran', fn($q) => $q->where('nama_mapel', $namaMapel))
+                        ->whereHas('guru', fn($q) => $q->where('nama', 'LIKE', "%$namaGuru%"))
+                        ->first();
+
+                    if (!$mapelKelas) {
+                        $kelas = Kelas::find($kelas_id);
+                        $kelasNama = $kelas ? ($kelas->tingkat . ' ' . ($kelas->jurusan->kode_jurusan ?? '') . ' ' . $kelas->no_kelas) : $kelas_id;
+                        $errorRows[] = "Baris {$rowNumber}: Kombinasi mapel '{$namaMapel}', guru '{$namaGuru}', kelas '{$kelasNama}' tidak ditemukan.";
+                        continue;
+                    }
+
+                    $start = Carbon::now()->startOfWeek(Carbon::MONDAY);
+                    $end = Carbon::now()->addMonths(6);
+                    $targetDay = $mapHari[$hari];
+                    $tanggal = $start->copy()->next($targetDay);
+
+                    while ($tanggal->lte($end)) {
+                        $existing = Jadwal::where([
+                            'mapel_kelas_id' => $mapelKelas->id,
+                            'tanggal' => $tanggal->format('Y-m-d'),
+                            'jam_mulai' => $jamMulai,
+                            'jam_selesai' => $jamSelesai,
+                        ])->exists();
+
+                        if (!$existing) {
+                            Jadwal::create([
+                                'mapel_kelas_id' => $mapelKelas->id,
+                                'tanggal' => $tanggal->format('Y-m-d'),
+                                'jam_mulai' => $jamMulai,
+                                'jam_selesai' => $jamSelesai,
+                            ]);
+                        }
+
+                        $tanggal->addWeek();
+                    }
+
+                    $successCount++;
+                } catch (\Exception $e) {
+                    $errorRows[] = "Baris {$rowNumber}: Error - " . $e->getMessage();
+                }
+            }
+
+            if ($successCount > 0) {
+                DB::commit();
+
+                $message = "Berhasil mengimpor {$successCount} jadwal.";
+                $errors = array_merge($errorRows);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'imported_count' => $successCount,
+                    'errors' => !empty($errors) ? $errors : null,
+                ]);
+            } else {
+                DB::rollBack();
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada data yang berhasil diimpor.',
+                    'errors' => array_merge($errorRows),
+                ]);
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+            ]);
+        }
     }
 
     // umum jurusan
@@ -3627,64 +4029,6 @@ class AdminController extends Controller
 
         return Response($file, 200)->header("Content-Type", $type);
     }
-
-    // public function export_izin_siswa_pdf(Request $request)
-    // {
-    //     try {
-    //         $query = izinSiswa::with(['siswa.kelas.jurusan']);
-
-    //         if ($request->filled('range_tanggal')) {
-    //             [$start, $end] = explode(' - ', $request->range_tanggal);
-    //             $query->whereBetween('tanggal', [trim($start), trim($end)]);
-    //         }
-
-    //         if ($request->filled('search')) {
-    //             $searchTerm = strtolower(trim($request->search));
-    //             $query->where(function ($q) use ($searchTerm) {
-    //             // Search by siswa.nama
-    //             $q->whereHas('siswa', function ($q2) use ($searchTerm) {
-    //                 $q2->whereRaw('LOWER(REPLACE(nama, " ", "")) LIKE ?', ['%' . $searchTerm . '%'])
-    //                     ->orWhereHas('kelas', function ($q3) use ($searchTerm) {
-    //                         $q3->whereRaw('LOWER(tingkat) LIKE ?', ["%{$searchTerm}%"])
-    //                             ->orWhereRaw('LOWER(no_kelas) LIKE ?', ["%{$searchTerm}%"])
-    //                             ->orWhereHas('jurusan', function ($q4) use ($searchTerm) {
-    //                                 $q4->whereRaw('LOWER(kode_jurusan) LIKE ?', ["%{$searchTerm}%"]);
-    //                             });
-    //                     });
-    //             });
-    //         });
-    //         }
-
-    //         $izin = $query->orderBy('tanggal', 'asc')->get();
-
-    //         $data = [
-    //             'title' => 'Data Izin Siswa',
-    //             'izin_siswa' => $izin,
-    //             'exported_at' => now()->format('d-m-Y'),
-    //             'exported_at_time' => now()->format('d-m-Y H:i:s'),
-    //             'total_izin' => $query->count(),
-    //         ];
-
-    //         $pdf = app('domdf.wrapper');
-    //         $pdf->loadview('admin.izin.siswa.export.pdf', $data);
-
-    //         $fileName = 'izin_siswa_' . date('Y-m-d_H-i-s') . '.pdf';
-    //         return $pdf->download($fileName);
-    //     } catch (\Exception $e) {
-    //         return redirect()->back()->with('error', 'Gagal export PDF :' . $e->getMessage());
-    //     }
-    // }
-
-    // public function export_izin_siswa_xlsx(Request $request)
-    // {
-    //     try {
-    //         $filename = 'izin_siswa_' . date('Y-m-d_H-i-s') . '.xlsx';
-
-    //         return Excel::download(new izinSiswaExport($request->only(['kelas', 'range_tanggal', 'search'])), $filename);
-    //     } catch (\Exception $e) {
-    //         return redirect()->back()->with('error', 'Gagal mengekspor data ke excel: ' . $e->getMessage());
-    //     }
-    // }
 
     public function export_izin_siswa_pdf(Request $request)
     {

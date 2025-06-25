@@ -285,10 +285,6 @@
 
             }
         }
-
-        // function openModalEdit(modalId, id) {
-        //     document.getElementById(modalId).style.display = 'block';
-        // }
     </script>
 
     <script>

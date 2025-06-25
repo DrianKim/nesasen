@@ -7,13 +7,14 @@ use App\Models\Guru;
 use App\Models\Jadwal;
 use App\Models\izinGuru;
 use App\Models\MapelKelas;
-use App\Models\presensiGuru;
 use App\Models\Pengumuman;
+use App\Models\presensiGuru;
 use Illuminate\Http\Request;
+use App\Models\PresensiSiswa;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Log;
 
 class GuruController extends Controller
 {
@@ -312,19 +313,23 @@ class GuruController extends Controller
     {
         $guru = auth()->user()->guru;
         $selectedDate = $request->input('tanggal') ? Carbon::parse($request->input('tanggal')) : Carbon::now();
+        $tanggalFormat = $selectedDate->format('Y-m-d');
 
-        $mapelKelasIds = MapelKelas::where('guru_id', $guru->id)->pluck('id');
+        $mapelKelas = MapelKelas::with('kelas.siswa')->where('guru_id', $guru->id)->get();
+        $mapelKelasIds = $mapelKelas->pluck('id');
 
         $jadwalHariIni = Jadwal::whereIn('mapel_kelas_id', $mapelKelasIds)
-            ->where('tanggal', $selectedDate->format('Y-m-d'))
+            ->where('tanggal', $tanggalFormat)
             ->with(['mapelKelas.mataPelajaran', 'mapelKelas.guru', 'mapelKelas.kelas.jurusan'])
             ->orderBy('jam_mulai')
             ->get()
-            ->map(function ($jadwal) {
+            ->map(function ($jadwal) use ($selectedDate) {
                 $now = Carbon::now();
                 $jadwalDate = Carbon::parse($jadwal->tanggal);
                 $jamMulai = $jadwalDate->copy()->setTimeFromTimeString($jadwal->jam_mulai);
                 $jamSelesai = $jadwalDate->copy()->setTimeFromTimeString($jadwal->jam_selesai);
+                
+                $jadwal->tanggal_formatted = Carbon::parse($jadwal->tanggal)->translatedFormat('l, d F Y');
 
                 if ($jadwalDate->isToday()) {
                     $jadwal->is_selesai = $now->gt($jamSelesai);
@@ -333,6 +338,56 @@ class GuruController extends Controller
                     $jadwal->is_selesai = $jadwalDate->isPast();
                     $jadwal->is_berlangsung = false;
                 }
+
+                $kelas = $jadwal->mapelKelas->kelas;
+                $siswaIds = $kelas->siswa->pluck('id');
+                $siswaKelas = $kelas->siswa ?? collect();
+
+                $totalHadir = PresensiSiswa::whereIn('siswa_id', $siswaIds)
+                    ->whereDate('tanggal', $selectedDate)
+                    ->whereIn('status_kehadiran', ['hadir', 'terlambat'])
+                    ->count();
+
+                $jadwal->total_siswa_kelas = $kelas->siswa->count();
+                $jadwal->total_hadir_kelas = $totalHadir;
+
+                $presensiData = PresensiSiswa::whereIn('siswa_id', $siswaIds)
+                    ->whereDate('tanggal', $selectedDate)
+                    ->get();
+
+                $izinData = \App\Models\IzinSiswa::whereIn('siswa_id', $siswaIds)
+                    ->whereDate('tanggal', $selectedDate)
+                    ->get();
+
+                $totalHadir = $presensiData->whereIn('status_kehadiran', ['hadir', 'terlambat'])->count();
+
+                $jadwal->total_siswa_kelas = $siswaKelas->count();
+                $jadwal->total_hadir_kelas = $totalHadir;
+
+                $siswaList = $siswaKelas->map(function ($siswa) use ($presensiData, $izinData) {
+                    $presensi = $presensiData->firstWhere('siswa_id', $siswa->id);
+                    $izin = $izinData->firstWhere('siswa_id', $siswa->id);
+
+                    $status = 'alpa';
+                    $alasan = null;
+
+                    if ($presensi) {
+                        $status = $presensi->status_kehadiran;
+                        $alasan = $presensi->alasan;
+                    } elseif ($izin) {
+                        $status = 'izin';
+                        $alasan = $izin->keterangan ?? $izin->jenis_izin;
+                    }
+
+                    return [
+                        'nama' => $siswa->nama,
+                        'status' => $status,
+                        'alasan' => $alasan,
+                    ];
+                });
+
+                $jadwal->siswa_presensi = $siswaList;
+
                 return $jadwal;
             });
 

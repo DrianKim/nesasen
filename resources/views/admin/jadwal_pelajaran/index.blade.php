@@ -1,162 +1,362 @@
 @extends('admin.layouts.app')
 
 @section('content')
-    <!-- Page Heading -->
-    <div class="mb-4 d-flex justify-content-between align-items-center">
-        {{-- <h1 class="m-0 h4 fw-bold">
-            <i class="fas fa-chalkboard">
-            </i>
-            {{ $title }}
-        </h1> --}}
-        {{-- <button class="px-3 rounded btn btn-primary">
-            <i class="fas fa-plus me-2"></i>Tambah Murid
-        </button> --}}
-    </div>
+    <div class="content-wrapper">
 
-    <div class="container">
-        <div class="card">
-            <div class="card-header">
-                <div class="mb-1 mr-2">
-                    <a href="#" class="btn btn-primary btn-sm">
-                        <i class="mr-2 fas fa-plus"></i>
-                        Tambah Jadwal
-                    </a>
-                </div>
-                <div class="filter-form">
-                    {{-- <div class="form-group">
-                        <select class="form-select">
-                            <option value="">Semua Jurusan</option>
-                            <option value="1">IPA</option>
-                            <option value="2">IPS</option>
-                            <option value="3">Bahasa</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <select class="form-select">
-                            <option value="">Semua Kelas</option>
-                            <option value="1">X IPA 1</option>
-                            <option value="2">XI IPS 2</option>
-                            <option value="3">XII Bahasa 3</option>
-                        </select>
-                    </div> --}}
-                    <button type="button" class="btn btn-primary btn-filter btn-sm">
-                        <i class="fas fa-filter"></i>
-                        Terapkan Filter
-                    </button>
-                </div>
-            </div>
+        <div id="judul-jadwal">
+            @include('admin.jadwal_pelajaran.partials.judul', ['selectedKelas' => null])
+        </div>
 
-            <div class="card-body">
-                <div class="search-box">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="search-input"
-                        placeholder="Cari berdasarkan nama jurusan atau kode jurusan...">
-                </div>
+        <div class="skul-container">
+            <div class="content-section">
+                {{-- Filter --}}
+                <div class="filter-wrapper">
+                    <div class="filter-top">
+                        <div class="filter-bar">
 
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th width="2%">Waktu</th>
-                                <th width="20%">Senin</th>
-                                <th width="20%">Selasa</th>
-                                <th width="20%">Rabu</th>
-                                <th width="20%">Kamis</th>
-                                <th width="20%">Jumat</th>
-                                <th class="text-center" width="2%">
-                                    <i class="fas fa-cog"></i>
-                                </th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            <tr class="text-center">
-                                <td class="text-center">07:30</td>
-                                <td class="p-2 border">Matematika</td>
-                                <td class="p-2 border">Bahasa Sunda</td>
-                                <td class="p-2 border">Bahasa Inggris</td>
-                                <td class="p-2 border">Bahas Mandarin</td>
-                                <td class="p-2 border">Bahasa Jepang</td>
-                                <td class="p-2 text-center border">
-                                    {{-- <button class="btn btn-primary btn-sm">
-                                        <i class="fas fa-eye"></i>
-                                    </button> --}}
-                                    <a href="#" class="btn btn-sm btn-warning">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <button class="btn btn-danger btn-sm">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr class="text-center">
-                                <td class="text-center">08:10</td>
-                                <td class="p-2 border">-</td>
-                                <td class="p-2 border">-</td>
-                                <td class="p-2 border">-</td>
-                                <td class="p-2 border">-</td>
-                                <td class="p-2 border">-</td>
-                                <td class="p-2 text-center border">
-                                    {{-- <button class="btn btn-primary btn-sm">
-                                        <i class="fas fa-eye"></i>
-                                    </button> --}}
-                                    <a href="#" class="btn btn-sm btn-warning">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <button class="btn btn-danger btn-sm">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr class="text-center">
-                                <td class="text-center">08:50</td>
-                                <td class="p-2 border">-</td>
-                                <td class="p-2 border">-</td>
-                                <td class="p-2 border">-</td>
-                                <td class="p-2 border">-</td>
-                                <td class="p-2 border">-</td>
-                                <td class="p-2 text-center border">
-                                    {{-- <button class="btn btn-primary btn-sm">
-                                        <i class="fas fa-eye"></i>
-                                    </button> --}}
-                                    <a href="#" class="btn btn-sm btn-warning">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <button class="btn btn-danger btn-sm">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="page-info">
-                    Menampilkan 1-5 dari 24 data
-                </div>
-
-                <div class="pagination">
-                    <div class="page-item">
-                        <a class="page-link" href="#" aria-label="Previous">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                    </div>
-                    <div class="page-item active">
-                        <a class="page-link" href="#">1</a>
-                    </div>
-                    <div class="page-item">
-                        <a class="page-link" href="#">2</a>
-                    </div>
-                    <div class="page-item">
-                        <a class="page-link" href="#">3</a>
-                    </div>
-                    <div class="page-item">
-                        <a class="page-link" href="#" aria-label="Next">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
+                            <form action="{{ route('admin_jadwal_pelajaran.index') }}" method="GET">
+                                <div class="filter-group">
+                                    <label for="kelas">Kelas:</label>
+                                    <select id="kelas" name="kelas" class="form-control select-kelas-jadwal">
+                                        <option selected value="">Semua Kelas</option>
+                                        @foreach ($kelasFilter as $kelas)
+                                            <option value="{{ $kelas->id }}"
+                                                {{ request('kelas') == $kelas->id ? 'selected' : '' }}>
+                                                {{ $kelas->tingkat }} {{ $kelas->jurusan->kode_jurusan }}
+                                                {{ $kelas->no_kelas }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                        {{-- @include('admin.jadwal_pelajaran.modal.create') --}}
+                        @include('admin.jadwal_pelajaran.modal.import')
+                        <div class="right-actions">
+                            {{-- <button class="btn-tambah" onclick="openModal('modalJadwalTambah')">
+                                <span class="material-icons-sharp">add</span>
+                            </button> --}}
+                            <button class="btn-import" onclick="openModalImport('modalJadwalImport')">
+                                <span class="material-icons-sharp">file_present</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
+
+                <div class="grid-wrapper-relative" style="position: relative;">
+
+                    <div id="loading-indicator" style="display:none;" class="loading-overlay-table">
+                        <div class="my-3 d-flex justify-content-center spinner-wrapper">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="loading-text">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="jadwal-grid-wrapper">
+                        @include('admin.jadwal_pelajaran.partials.grid')
+                    </div>
+
+                </div>
+
             </div>
         </div>
     </div>
+
+    @foreach ($jadwals as $jadwal)
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                setupEditFormListenersJadwal({{ $jadwal->id }});
+            });
+        </script>
+    @endforeach
+
+    <script>
+        document.getElementById('formImportJadwal').addEventListener('submit', function() {
+            document.getElementById('btnImportJadwal').disabled = true;
+            document.getElementById('spinnerImportJadwal').style.display = 'inline-block';
+            document.getElementById('textBtnImportJadwal').textContent = 'Mengimport...';
+        });
+
+        function setupEditFormListenersJadwal(id) {
+            const form = document.getElementById('formEditJadwal' + id);
+            const btn = document.getElementById('btnEditJadwal' + id);
+            const spinner = document.getElementById('spinnerEditJadwal' + id);
+            const text = document.getElementById('textBtnEditJadwal' + id);
+
+            if (form) {
+                form.addEventListener('submit', function() {
+                    if (btn && spinner && text) {
+                        btn.disabled = true;
+                        spinner.style.display = 'inline-block';
+                        text.textContent = 'Menyimpan...';
+                    }
+                });
+            }
+        }
+    </script>
+
+    <script>
+        function openModal() {
+            const modal = document.getElementById("modalJadwalTambah");
+            if (modal) {
+                modal.style.display = 'block';
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
+
+                $('.kelas-jadwal').select2({
+                    placeholder: 'Cari kelas...',
+                    // dropdownParent: $(modal).find('.modal-content'),
+                    width: '100%'
+                });
+            }
+        }
+
+        function openModalImport() {
+            const modal = document.getElementById("modalJadwalImport");
+            if (modal) {
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
+
+                $('.kelas-jadwal-import').select2({
+                    placeholder: 'Cari kelas...',
+                    // dropdownParent: $(modal).find('.modal-content'),
+                    width: '100%'
+                });
+            }
+        }
+
+        function closeModalImport() {
+            const modal = document.getElementById("modalJadwalImport");
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
+        }
+
+        function openModalEdit(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
+
+                const id = modalId.replace('modalJadwalEdit', '');
+                setupEditFormListenersJadwal(id);
+            }
+        }
+
+        function closeModalEdit(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
+        }
+    </script>
+
+    <script>
+        function initEditJadwalModal(id) {
+            const jamMulai = document.getElementById("jam_mulai_" + id);
+            const jamSelesai = document.getElementById("jam_selesai_" + id);
+            const durasiDisplay = document.getElementById("durasiDisplay" + id);
+            const form = document.getElementById("formEditJadwal" + id);
+            const modalId = "modalEditJadwal" + id;
+            const isDark = document.body.classList.contains('dark-mode-variables');
+
+            function updateDurasi() {
+                const mulai = jamMulai.value;
+                const selesai = jamSelesai.value;
+
+                if (mulai && selesai) {
+                    const [h1, m1] = mulai.split(":").map(Number);
+                    const [h2, m2] = selesai.split(":").map(Number);
+                    const totalMenit = (h2 * 60 + m2) - (h1 * 60 + m1);
+
+                    if (totalMenit <= 0) {
+                        durasiDisplay.textContent = "❌ Jam selesai harus setelah jam masuk!";
+                        durasiDisplay.style.color = "red";
+                    } else {
+                        const jam = Math.floor(totalMenit / 60);
+                        const menit = totalMenit % 60;
+                        durasiDisplay.textContent = `${jam > 0 ? jam + ' jam ' : ''}${menit} menit`;
+                        durasiDisplay.style.color = "inherit";
+                    }
+                } else {
+                    durasiDisplay.textContent = "-";
+                }
+            }
+
+            if (jamMulai && jamSelesai) {
+                jamMulai.addEventListener("change", updateDurasi);
+                jamSelesai.addEventListener("change", updateDurasi);
+                updateDurasi();
+            }
+
+            if (form) {
+                form.addEventListener("submit", function(e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(form);
+
+                    fetch(form.action, {
+                            method: "POST",
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            },
+                            body: formData
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil!',
+                                    text: data.message,
+                                    timer: 2000,
+                                    showConfirmButton: false,
+                                    background: isDark ? getComputedStyle(document.body)
+                                        .getPropertyValue('--color-background') : '#fff',
+                                    color: isDark ? getComputedStyle(document.body).getPropertyValue(
+                                        '--color-dark') : '#000',
+                                    customClass: {
+                                        popup: isDark ? 'swal-dark' : ''
+                                    }
+                                }).then(() => {
+                                    closeModalEdit(modalId);
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: data.type || 'error',
+                                    title: data.message || 'Gagal!',
+                                    html: data.errors ? Object.values(data.errors).map(err =>
+                                        `<p>${err[0]}</p>`).join('') : 'Terjadi kesalahan.',
+                                    showConfirmButton: true,
+                                    background: isDark ? getComputedStyle(document.body)
+                                        .getPropertyValue('--color-background') : '#fff',
+                                    color: isDark ? getComputedStyle(document.body).getPropertyValue(
+                                        '--color-dark') : '#000',
+                                    customClass: {
+                                        popup: isDark ? 'swal-dark' : ''
+                                    }
+                                });
+                            }
+                        })
+                        .catch(err => {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops!',
+                                text: 'Terjadi kesalahan saat mengirim data.',
+                                showConfirmButton: true,
+                                background: isDark ? getComputedStyle(document.body).getPropertyValue(
+                                    '--color-background') : '#fff',
+                                color: isDark ? getComputedStyle(document.body).getPropertyValue(
+                                    '--color-dark') : '#000',
+                                customClass: {
+                                    popup: isDark ? 'swal-dark' : ''
+                                }
+                            });
+                        });
+                });
+            }
+        }
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const kelasSelect = document.querySelector('.select-kelas-jadwal');
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const jadwalGridWrapper = document.querySelector('.jadwal-grid-wrapper');
+
+            let currentRequest = null;
+
+            function getFilterData() {
+                const data = new URLSearchParams();
+                if (kelasSelect) data.append('kelas', kelasSelect.value);
+                return data;
+            }
+
+            function loadData() {
+                if (!jadwalGridWrapper) return;
+
+                loadingIndicator && (loadingIndicator.style.display = 'flex');
+
+                if (currentRequest) {
+                    currentRequest.abort();
+                }
+
+                const filterData = getFilterData();
+
+                currentRequest = new XMLHttpRequest();
+                currentRequest.open('GET', '{{ route('admin_jadwal_pelajaran.filter') }}?' + filterData.toString(),
+                    true);
+                currentRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+                currentRequest.onload = function() {
+                    loadingIndicator && (loadingIndicator.style.display = 'none');
+                    currentRequest = null;
+
+                    if (this.status >= 200 && this.status < 400) {
+                        try {
+                            const response = JSON.parse(this.response);
+
+                            // Ganti isi grid jadwal dengan view yang dikirim dari controller
+                            jadwalGridWrapper.innerHTML = response.grid;
+
+                            document.getElementById('judul-jadwal').innerHTML = response.judul;
+
+                            // 🔥 Tambahan ini bro buat re-inisialisasi modal script-nya
+                            document.querySelectorAll("[id^='formEditJadwal']").forEach(form => {
+                                const id = form.id.replace("formEditJadwal", "");
+                                initEditJadwalModal(id);
+                            });
+
+                            updateURL(filterData);
+                        } catch (error) {
+                            console.error('Gagal parse JSON:', error);
+                        }
+                    } else {
+                        console.error('Gagal ambil data:', this.status);
+                    }
+                };
+
+                currentRequest.onerror = function() {
+                    console.error('Connection error');
+                    loadingIndicator && (loadingIndicator.style.display = 'none');
+                    currentRequest = null;
+                };
+
+                currentRequest.send();
+            }
+
+            function updateURL(filterData) {
+                const newURL = window.location.protocol + '//' + window.location.host +
+                    window.location.pathname + '?' + filterData.toString();
+                history.pushState({
+                    path: newURL
+                }, '', newURL);
+            }
+
+            if (typeof $ !== 'undefined' && kelasSelect) {
+                $(kelasSelect).select2({
+                    placeholder: 'Pilih Kelas...',
+                    allowClear: true,
+                    width: '100%',
+                });
+
+                $(kelasSelect).on('change', function() {
+                    loadData();
+                });
+            }
+        });
+    </script>
 @endsection

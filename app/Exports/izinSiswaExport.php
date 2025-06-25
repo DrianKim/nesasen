@@ -78,7 +78,7 @@ class izinSiswaExport implements FromArray, WithStyles, WithTitle, WithColumnWid
                 $no++,
                 $izin->tanggal,
                 $izin->siswa->nama ?? '-',
-                $izin->siswa->kelas ? $izin->siswa->kelas->tingkat . ' ' . $izin->siswa->kelas->jurusan->kode_jurusan . ' ' . $izin->siswa->kelas->no_kelas : '-',
+                $izin->siswa->kelas ? $izin->siswa->kelas->tingkat . ' ' . $izin->siswa->kelas->jurusan->kode_jurusan . ' ' . $izin->siswa->kelas->no_kelas : '---',
                 $izin->jenis_izin ?? '-',
                 $izin->keterangan ?? '-',
             ];

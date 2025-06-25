@@ -1,5 +1,8 @@
 @include('admin.layouts.header')
-
+@php
+    $nama = explode(' ', Auth::user()->name_admin);
+    $namaPendek = implode(' ', array_slice($nama, 0, 1));
+@endphp
 <body class="with-right-section">
     <div class="container">
         <!-- Sidebar Section -->
@@ -113,11 +116,11 @@
 
                 <div class="profile">
                     <div class="info">
-                        <p>Hallo, <b>Min</b></p>
+                        <p>Hallo, <b>{{ $namaPendek ?? 'Admin' }}</b></p>
                         <small class="text-muted">Admin</small>
                     </div>
                     <div class="profile-photo">
-                        <img src="images/profile-1.jpg" />
+                        <img src="{{ asset('assets/img/smeapng.png') }}" />
                     </div>
                 </div>
             </div>

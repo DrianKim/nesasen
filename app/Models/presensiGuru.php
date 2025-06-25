@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class presensiGuru extends Model
+class PresensiGuru extends Model
 {
     use HasFactory;
 

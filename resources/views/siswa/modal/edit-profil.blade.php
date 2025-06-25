@@ -56,7 +56,6 @@
                         </div>
                     </div>
 
-
                     <div class="form-group">
                         <label for="no_hp">No HP</label>
                         <input type="text" id="no_hp" name="no_hp" value="{{ $siswa->no_hp }}">
@@ -65,6 +64,11 @@
                     <div class="form-group">
                         <label for="email">Email</label>
                         <input type="email" id="email" name="email" value="{{ $siswa->email }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="alamat">Alamat</label>
+                        <textarea name="alamat" id="alamat" cols="30" rows="10">{{ $siswa->alamat }}</textarea>
                     </div>
 
                     <!-- Password Toggle -->

@@ -38,6 +38,9 @@
                     {{ $jadwal->mapelKelas->kelas->jurusan->kode_jurusan }}
                     {{ $jadwal->mapelKelas->kelas->no_kelas }}
                 </div>
+                <div>
+                    Total hadir hari ini: <span>{{ $jadwal->total_hadir_kelas }}</span> dari {{ $jadwal->total_siswa_kelas }} siswa
+                </div>
             </div>
         </div>
     @endforeach

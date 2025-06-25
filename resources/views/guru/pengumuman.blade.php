@@ -128,43 +128,31 @@
             </div>
 
             <div class="reminders hide">
-                <div class="header">
-                    <h2>Reminders</h2>
-                </div>
+            <div class="header">
+                <h2>Reminders</h2>
+            </div>
 
-                <div class="notification">
-                    <div class="icon">
-                        <span class="material-icons-sharp"> volume_up </span>
-                    </div>
-                    <div class="content">
-                        <div class="info">
-                            <h3>Workshop</h3>
-                            <small class="text_muted"> 08:00 AM - 12:00 PM </small>
-                        </div>
-                        <span class="material-icons-sharp"> more_vert </span>
-                    </div>
+            <div class="notification">
+                <div class="icon">
+                    <span class="material-icons-sharp"> mosque </span>
                 </div>
-
-                <div class="notification deactive">
-                    <div class="icon">
-                        <span class="material-icons-sharp"> edit </span>
+                <div class="content">
+                    <div class="info">
+                        <h3>Sholat Ashar</h3>
+                        <small class="text_muted"> 15:10 - 15:30 </small>
                     </div>
-                    <div class="content">
-                        <div class="info">
-                            <h3>Workshop</h3>
-                            <small class="text_muted"> 08:00 AM - 12:00 PM </small>
-                        </div>
-                        <span class="material-icons-sharp"> more_vert </span>
-                    </div>
-                </div>
-
-                <div class="notification add-reminder">
-                    <div>
-                        <span class="material-icons-sharp"> add </span>
-                        <h3>Add Reminder</h3>
-                    </div>
+                    <span class="material-icons-sharp"> more_vert </span>
                 </div>
             </div>
+
+            @include('guru.modal.reminder')
+            <div class="notification add-reminder">
+                <div onclick="openReminderModal()" style="cursor: pointer;">
+                    <span class="material-icons-sharp">add</span>
+                    <h3>Add Reminder</h3>
+                </div>
+            </div>
+        </div>
         </div>
     </div>
 

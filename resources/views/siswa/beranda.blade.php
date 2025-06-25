@@ -35,7 +35,7 @@
                     <span class="material-icons-sharp">today</span>
                     <p>Jadwal</p>
                 </a>
-                <a href="#" class="icon-item">
+                {{-- <a href="#" class="icon-item">
                     <span class="material-icons-sharp">cast_for_education</span>
                     <p>KelasKu</p>
                 </a>
@@ -46,7 +46,7 @@
                 <a href="#" class="icon-item">
                     <span class="material-icons-sharp">grading</span>
                     <p>Nilai</p>
-                </a>
+                </a> --}}
                 <!-- Tambah fitur lain tinggal duplikat -->
             </div>
         </div>
@@ -71,8 +71,29 @@
                 <div class="announcement empty-state">
                     <img src="{{ asset('assets/img/no-data.png') }}" alt="Tidak ada pengumuman" class="empty-img">
                     <h4 class="empty-title">Belum Ada Pengumuman untuk saat ini</h4>
-                    <p class="empty-subtitle">Silahkan buat pengumuman terlebih dulu atau tunggu admin yang
-                        membuatnya</p>
+                    <p class="empty-subtitle">
+                        {{ collect([
+                            'Tetap semangat, masa depan cerah menantimu!',
+                            'Jangan menyerah, setiap hari adalah kesempatan baru!',
+                            'Belajar hari ini, sukses esok hari.',
+                            'Langkah kecil hari ini, hasil besar nanti.',
+                            'Kamu hebat, teruslah berusaha!',
+                            'Jangan lupa sarapan, biar otak nggak ngelag!',
+                            'Belajar boleh, rebahan juga perlu (tapi jangan kebanyakan).',
+                            'Ujian itu kayak wifi, kadang nyambung kadang lost.',
+                            'Kalau tugas numpuk, ingat: satu-satu aja, jangan panik!',
+                            'Ngantuk di kelas itu wajar, asal jangan ngorok.',
+                            'Jangan takut salah, yang penting bukan salah jurusan.',
+                            'Kesiswaan? Tenang, mereka juga manusia kok.',
+                            'Jangan lupa cukur sebelum dicukurin.',
+                            'Buku tebal bukan buat bantalan tidur, tapi buat dibaca.',
+                            'Kalau nggak paham, tanya! Jangan cuma ngangguk-ngangguk.',
+                            'Jangan lupa minum air putih, biar nggak error.',
+                            'Kalau nilai jelek, jangan salahkan kalkulator.',
+                            'Semangat sekolah, biar bisa liburan dengan tenang.',
+                            'Ingat, tugas itu bukan hantu. Tapi kalau numpuk, bisa serem juga.',
+                        ])->random() }}
+                    </p>
                 </div>
             @endforelse
         </div>
@@ -121,39 +142,37 @@
 
             <div class="notification">
                 <div class="icon">
-                    <span class="material-icons-sharp"> volume_up </span>
+                    <span class="material-icons-sharp"> mosque </span>
                 </div>
                 <div class="content">
                     <div class="info">
-                        <h3>Workshop</h3>
-                        <small class="text_muted"> 08:00 AM - 12:00 PM </small>
+                        <h3>Sholat Ashar</h3>
+                        <small class="text_muted"> 15:10 - 15:30 </small>
                     </div>
                     <span class="material-icons-sharp"> more_vert </span>
                 </div>
             </div>
 
-            <div class="notification deactive">
-                <div class="icon">
-                    <span class="material-icons-sharp"> edit </span>
-                </div>
-                <div class="content">
-                    <div class="info">
-                        <h3>Workshop</h3>
-                        <small class="text_muted"> 08:00 AM - 12:00 PM </small>
-                    </div>
-                    <span class="material-icons-sharp"> more_vert </span>
-                </div>
-            </div>
-
+            @include('siswa.modal.reminder')
             <div class="notification add-reminder">
-                <div>
-                    <span class="material-icons-sharp"> add </span>
+                <div onclick="openReminderModal()" style="cursor: pointer;">
+                    <span class="material-icons-sharp">add</span>
                     <h3>Add Reminder</h3>
                 </div>
             </div>
         </div>
     </div>
 @endsection
+
+<script>
+    function openReminderModal() {
+        document.getElementById("modalReminder").style.display = "flex";
+    }
+
+    function closeReminderModal() {
+        document.getElementById("modalReminder").style.display = "none";
+    }
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

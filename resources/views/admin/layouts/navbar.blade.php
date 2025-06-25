@@ -1,3 +1,7 @@
+@php
+    $nama = explode(' ', Auth::user()->name_admin);
+    $namaPendek = implode(' ', array_slice($nama, 0, 1));
+@endphp
 <div class="nav">
     <button id="menu-btn">
         <span class="material-icons-sharp"> menu </span>
@@ -9,7 +13,7 @@
 
     <div class="profile">
         <div class="info">
-            <p>Hallo, <b>{{ Auth::user()->name_admin }}</b></p>
+            <p>Hallo, <b>{{ $namaPendek ?? 'Admin' }}</b></p>
             <small class="text-muted">Admin</small>
         </div>
         <div class="profile-photo">

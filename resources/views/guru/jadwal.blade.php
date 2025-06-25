@@ -123,38 +123,28 @@
 
             <div class="notification">
                 <div class="icon">
-                    <span class="material-icons-sharp"> volume_up </span>
+                    <span class="material-icons-sharp"> mosque </span>
                 </div>
                 <div class="content">
                     <div class="info">
-                        <h3>Workshop</h3>
-                        <small class="text_muted"> 08:00 AM - 12:00 PM </small>
+                        <h3>Sholat Ashar</h3>
+                        <small class="text_muted"> 15:10 - 15:30 </small>
                     </div>
                     <span class="material-icons-sharp"> more_vert </span>
                 </div>
             </div>
 
-            <div class="notification deactive">
-                <div class="icon">
-                    <span class="material-icons-sharp"> edit </span>
-                </div>
-                <div class="content">
-                    <div class="info">
-                        <h3>Workshop</h3>
-                        <small class="text_muted"> 08:00 AM - 12:00 PM </small>
-                    </div>
-                    <span class="material-icons-sharp"> more_vert </span>
-                </div>
-            </div>
-
+            @include('guru.modal.reminder')
             <div class="notification add-reminder">
-                <div>
-                    <span class="material-icons-sharp"> add </span>
+                <div onclick="openReminderModal()" style="cursor: pointer;">
+                    <span class="material-icons-sharp">add</span>
                     <h3>Add Reminder</h3>
                 </div>
             </div>
         </div>
     </div>
+
+    @include('guru.modal.modal-presensi')
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
@@ -422,6 +412,9 @@
                     const guru = mapelKelas?.guru;
                     const kelas = mapelKelas?.kelas;
                     const jurusan = kelas?.jurusan;
+                    const totalSiswa = jadwal.total_siswa_kelas;
+                    const totalHadirSiswa = jadwal.total_hadir_kelas;
+                    const tanggalFormatted = formatTanggalIndonesia(jadwal.tanggal);    
 
                     const jamMulai = (jadwal.jam_mulai ?? '00:00').substring(0, 5);
                     const jamSelesai = (jadwal.jam_selesai ?? '00:00').substring(0, 5);
@@ -435,21 +428,41 @@
             <div class="jadwal-detail">
                 <h5>${mataPelajaran?.nama_mapel ?? '-'}</h5>
                 <p>Guru: ${guru?.nama ?? '-'}</p>
-                <small>${kelas ? `${kelas.tingkat} ${jurusan?.kode_jurusan ?? ''} ${kelas.no_kelas}` : '-'}</small>
+                <small>
+                    ${kelas ? `${kelas.tingkat} ${jurusan?.kode_jurusan ?? ''} ${kelas.no_kelas}` : '-'}
+                    — Total ${totalSiswa} siswa
+                </small>
+
+                <button
+                    class="btn-detail-presensi"
+                    data-presensi='${encodeURIComponent(JSON.stringify(jadwal.siswa_presensi ?? []))}'
+                    data-kelas='${kelas ? `${kelas.tingkat} ${jurusan?.kode_jurusan ?? ''} ${kelas.no_kelas}` : "-"}'
+                    data-tanggal='${tanggalFormatted ?? "-"}'
+                    style="display: flex; align-items: center; gap: 4px;"
+                >
+                    <span class="material-icons-sharp" style="font-size:0.8rem; vertical-align: middle;">visibility</span>
+                    <span style="vertical-align: middle;">Lihat Detail Presensi</span>
+                </button>
             </div>
-        </div>
-    `;
+        </div>`;
                 });
 
                 jadwalListWeek.html(html);
                 jadwalListMonth.html(html);
+
+                $('.btn-detail-presensi').on('click', function() {
+                    const presensiData = JSON.parse(decodeURIComponent($(this).data('presensi')));
+                    const namaKelas = $(this).data('kelas');
+                    const tanggal = $(this).data('tanggal');
+
+                    openModalPresensi(presensiData, namaKelas, tanggal);
+                });
             }
 
-            // Utility functions - sama seperti yang lama
             getStartOfWeek(date) {
                 const d = new Date(date);
                 const day = d.getDay();
-                const diff = day === 0 ? -6 : 1 - day; // Adjust when day is Sunday
+                const diff = day === 0 ? -6 : 1 - day;
                 const monday = new Date(d);
                 monday.setDate(d.getDate() + diff);
                 return monday;
@@ -473,6 +486,75 @@
                     clearInterval(this.realtimeInterval);
                 }
             }
+        }
+
+        function formatTanggalIndonesia(tanggalStr) {
+            const tanggal = new Date(tanggalStr);
+            const options = {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            };
+            return tanggal.toLocaleDateString('id-ID', options);
+        }
+
+        function openModalPresensi(presensiData, namaKelas, tanggal) {
+            const statusGroups = {
+                hadir: [],
+                terlambat: [],
+                izin: [],
+                alpa: [],
+            };
+
+            presensiData.forEach((siswa) => {
+                const status = siswa.status?.toLowerCase() || 'alpa';
+                if (statusGroups[status]) {
+                    statusGroups[status].push(siswa);
+                } else {
+                    statusGroups.alpa.push(siswa);
+                }
+            });
+
+            Object.keys(statusGroups).forEach(key => {
+                statusGroups[key].sort((a, b) => a.nama.localeCompare(b.nama));
+            });
+
+            $('#judulPresensi').text(`Data Presensi Siswa Kelas ${namaKelas}`);
+            $('#tanggalPresensi').text(tanggal);
+
+            let html = '';
+            const iconMap = {
+                hadir: '✅',
+                terlambat: '🕒',
+                izin: '📄',
+                alpa: '❌',
+            };
+            const labelMap = {
+                hadir: 'Hadir',
+                terlambat: 'Terlambat',
+                izin: 'Izin',
+                alpa: 'Belum Presensi',
+            };
+
+            for (let status of ['hadir', 'terlambat', 'izin', 'alpa']) {
+                const list = statusGroups[status];
+                if (list.length === 0) continue;
+
+                html += `<h4>${iconMap[status]} ${labelMap[status]} (${list.length})</h4><ul>`;
+                list.forEach(s => {
+                    const alasan = s.alasan ? ` <small style="color:gray;">(${s.alasan})</small>` : '';
+                    html += `<li>${iconMap[status]} ${s.nama}${alasan}</li>`;
+                });
+                html += '</ul>';
+            }
+
+            $('#modalPresensiContent').html(html);
+            $('#modalPresensi').fadeIn(200);
+        }
+
+        function closeModalPresensi() {
+            $('#modalPresensi').fadeOut(200);
         }
 
         // Global functions untuk onclick handlers

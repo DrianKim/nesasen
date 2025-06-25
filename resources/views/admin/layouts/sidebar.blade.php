@@ -23,12 +23,20 @@
                 <span class="material-icons-sharp"> campaign </span>
                 <h3>Buat Pengumuman</h3>
             </a>
+            <a href="{{ route('admin_data_admin.index') }}"
+                class="{{ request()->routeIs('admin_data_admin.index') ? 'active' : '' }}">
+                <span class="material-symbols-outlined">
+                    shield_person
+                </span>
+                <h3>Data Admin</h3>
+            </a>
             <a href="{{ route('admin_kelas.index') }}"
                 class="{{ request()->routeIs('admin_kelas.index') ? 'active' : '' }}">
                 <span class="material-icons-sharp"> local_library </span>
                 <h3>Data Kelas</h3>
             </a>
-            <a href="{{ route('admin_kelasKu.index') }}" class="{{ request()->routeIs('admin_kelasKu.index') ? 'active' : '' }}">
+            <a href="{{ route('admin_kelasKu.index') }}"
+                class="{{ request()->routeIs('admin_kelasKu.index') ? 'active' : '' }}">
                 <span class="material-icons-sharp"> co_present </span>
                 <h3>KelasKu</h3>
             </a>
@@ -72,10 +80,10 @@
                 <span class="material-icons-sharp"> person_2 </span>
                 <h3>Presensi Guru</h3>
             </a>
-            <a href="#">
+            {{-- <a href="#">
                 <span class="material-icons-sharp"> badge </span>
                 <h3>Presensi Per-Mapel</h3>
-            </a>
+            </a> --}}
             <a href="{{ route('admin_izin_siswa.index') }}"
                 class="{{ request()->routeIs('admin_izin_siswa.index') ? 'active' : '' }}">
                 <span class="material-icons-sharp"> contact_mail </span>
@@ -110,4 +118,3 @@
         </a>
     </div>
 </aside>
-

@@ -35,7 +35,7 @@
                     <span class="material-icons-sharp">today</span>
                     <p>Jadwal</p>
                 </a>
-                <a href="#" class="icon-item">
+                {{-- <a href="#" class="icon-item">
                     <span class="material-icons-sharp">cast_for_education</span>
                     <p>KelasKu</p>
                 </a>
@@ -46,7 +46,7 @@
                 <a href="#" class="icon-item">
                     <span class="material-icons-sharp">grading</span>
                     <p>Nilai</p>
-                </a>
+                </a> --}}
                 <!-- Tambah fitur lain tinggal duplikat -->
             </div>
         </div>
@@ -71,8 +71,28 @@
                 <div class="announcement empty-state">
                     <img src="{{ asset('assets/img/no-data.png') }}" alt="Tidak ada pengumuman" class="empty-img">
                     <h4 class="empty-title">Belum Ada Pengumuman untuk saat ini</h4>
-                    <p class="empty-subtitle">Silahkan buat pengumuman terlebih dulu atau tunggu admin yang
-                        membuatnya</p>
+                    <p class="empty-subtitle">
+                        {{ collect([
+                            'Terima kasih atas dedikasi Anda, semangat menginspirasi hari ini!',
+                            'Setiap hari adalah peluang baru untuk membimbing generasi penerus.',
+                            'Jangan lupa rehat sejenak, kesehatan juga penting untuk mengajar.',
+                            'Mengajar adalah pekerjaan mulia, tetap semangat dan terus berkarya!',
+                            'Senyum Anda hari ini bisa jadi semangat bagi siswa-siswi.',
+                            'Jika ada tantangan, yakinlah Anda mampu melewatinya.',
+                            'Jangan ragu berbagi ilmu, satu kata Anda bisa mengubah masa depan.',
+                            'Kadang lelah, tapi hasilnya akan terasa di masa depan.',
+                            'Terus belajar dan berinovasi, dunia pendidikan menanti karya Anda.',
+                            'Setiap usaha Anda sangat berarti untuk sekolah dan siswa.',
+                            'Jangan lupa sarapan dan minum air putih sebelum mengajar.',
+                            'Mengajar bukan hanya soal materi, tapi juga membentuk karakter.',
+                            'Jika hari ini terasa berat, istirahat sejenak dan lanjutkan dengan senyum.',
+                            'Anda adalah inspirasi bagi banyak orang, tetaplah menjadi teladan.',
+                            'Semangat mengajar hari ini, hasilnya akan terasa di masa depan.',
+                            'Setiap kelas adalah cerita baru, nikmati setiap momennya.',
+                            'Terima kasih sudah menjadi bagian penting dalam pendidikan.',
+                            'Semoga hari Anda menyenangkan dan penuh keberkahan.',
+                        ])->random() }}
+                    </p>
                 </div>
             @endforelse
         </div>
@@ -123,39 +143,37 @@
 
             <div class="notification">
                 <div class="icon">
-                    <span class="material-icons-sharp"> volume_up </span>
+                    <span class="material-icons-sharp"> mosque </span>
                 </div>
                 <div class="content">
                     <div class="info">
-                        <h3>Workshop</h3>
-                        <small class="text_muted"> 08:00 AM - 12:00 PM </small>
+                        <h3>Sholat Ashar</h3>
+                        <small class="text_muted"> 15:10 - 15:30 </small>
                     </div>
                     <span class="material-icons-sharp"> more_vert </span>
                 </div>
             </div>
 
-            <div class="notification deactive">
-                <div class="icon">
-                    <span class="material-icons-sharp"> edit </span>
-                </div>
-                <div class="content">
-                    <div class="info">
-                        <h3>Workshop</h3>
-                        <small class="text_muted"> 08:00 AM - 12:00 PM </small>
-                    </div>
-                    <span class="material-icons-sharp"> more_vert </span>
-                </div>
-            </div>
-
+            @include('guru.modal.reminder')
             <div class="notification add-reminder">
-                <div>
-                    <span class="material-icons-sharp"> add </span>
+                <div onclick="openReminderModal()" style="cursor: pointer;">
+                    <span class="material-icons-sharp">add</span>
                     <h3>Add Reminder</h3>
                 </div>
             </div>
         </div>
     </div>
 @endsection
+
+<script>
+    function openReminderModal() {
+        document.getElementById("modalReminder").style.display = "flex";
+    }
+
+    function closeReminderModal() {
+        document.getElementById("modalReminder").style.display = "none";
+    }
+</script>
 
 <script>
     document.addEventListener{{ asset('assets/img/smeapng.png') }} / Reminder check - in buat guru
@@ -186,20 +204,21 @@
             }
         })
         .catch(error => {
-                console.error(
-                    'Gagal cek reminder presensi{{ asset('assets/img/smeapng.png') }} / Fungsi bantu dark mode
-                    function isDarkMode() {
-                        return document.body.classList.contains('dark-mode-variables');
-                    }
+            console.error(
+                'Gagal cek reminder presensi{{ asset('assets/img/smeapng.png') }} / Fungsi bantu dark mode
+                function isDarkMode() {
+                    return document.body.classList.contains('dark-mode-variables');
+                }
 
-                    function getBg() {
-                        return getComputedStyle(document.body).getPropertyValue('--color-background');
-                    }
+                function getBg() {
+                    return getComputedStyle(document.body).getPropertyValue('--color-background');
+                }
 
-                    function getColor() {
-                        return getComputedStyle(document.body).getPropertyValue('--color-dark');
-                    }
-                });
+                function getColor() {
+                    return getComputedStyle(document.body).getPropertyValue('--color-dark');
+                }
+            )
+        });
 </script>
 
 <script>

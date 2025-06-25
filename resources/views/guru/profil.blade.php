@@ -22,7 +22,7 @@
                         <p class="role-label">Guru</p>
                     </div>
                 </div>
-                @include('guru.modal.edit_profil')
+                @include('guru.modal.edit-profil')
                 <button class="btn-edit-profile" onclick="openModal('modalEditProfilGuru')">
                     <i class="material-icons-sharp">edit</i> Edit Profil
                 </button>
@@ -33,12 +33,12 @@
                 <button class="tab active">
                     <i class="material-icons-sharp">person</i> Informasi
                 </button>
-                <button class="tab">
+                {{-- <button class="tab">
                     <i class="material-icons-sharp">insights</i> Aktivitas
                 </button>
                 <button class="tab">
                     <i class="material-icons-sharp">settings</i> Pengaturan
-                </button>
+                </button> --}}
             </div>
 
             <!-- Konten Informasi -->
@@ -178,33 +178,21 @@
 
             <div class="notification">
                 <div class="icon">
-                    <span class="material-icons-sharp"> volume_up </span>
+                    <span class="material-icons-sharp"> mosque </span>
                 </div>
                 <div class="content">
                     <div class="info">
-                        <h3>Workshop</h3>
-                        <small class="text_muted"> 08:00 AM - 12:00 PM </small>
+                        <h3>Sholat Ashar</h3>
+                        <small class="text_muted"> 15:10 - 15:30 </small>
                     </div>
                     <span class="material-icons-sharp"> more_vert </span>
                 </div>
             </div>
 
-            <div class="notification deactive">
-                <div class="icon">
-                    <span class="material-icons-sharp"> edit </span>
-                </div>
-                <div class="content">
-                    <div class="info">
-                        <h3>Workshop</h3>
-                        <small class="text_muted"> 08:00 AM - 12:00 PM </small>
-                    </div>
-                    <span class="material-icons-sharp"> more_vert </span>
-                </div>
-            </div>
-
+            @include('guru.modal.reminder')
             <div class="notification add-reminder">
-                <div>
-                    <span class="material-icons-sharp"> add </span>
+                <div onclick="openReminderModal()" style="cursor: pointer;">
+                    <span class="material-icons-sharp">add</span>
                     <h3>Add Reminder</h3>
                 </div>
             </div>

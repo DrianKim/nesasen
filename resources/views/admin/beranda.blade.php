@@ -1,5 +1,8 @@
 @include('admin.layouts.header')
-
+@php
+    $nama = explode(' ', Auth::user()->name_admin);
+    $namaPendek = implode(' ', array_slice($nama, 0, 1));
+@endphp
 <body class="with-right-section">
     <div class="container">
         <!-- Sidebar Section -->
@@ -66,8 +69,7 @@
                     <div class="announcement empty-state">
                         <img src="{{ asset('assets/img/no-data.png') }}" alt="Tidak ada pengumuman" class="empty-img">
                         <h4 class="empty-title">Belum Ada Pengumuman untuk saat ini</h4>
-                        <p class="empty-subtitle">Silahkan buat pengumuman terlebih dulu atau tunggu guru yang
-                            membuatnya</p>
+                        <p class="empty-subtitle">Silahkan buat pengumuman terlebih dulu</p>
                     </div>
                 @endforelse
             </div>
@@ -89,11 +91,11 @@
 
                 <div class="profile">
                     <div class="info">
-                        <p>Hallo, <b>{{ Auth::user()->name_admin }}</b></p>
+                        <p>Hallo, <b>{{ $namaPendek ?? 'Admin' }}</b></p>
                         <small class="text-muted">Admin</small>
                     </div>
                     <div class="profile-photo">
-                        <img src="images/profile-1.jpg" />
+                        <img src="{{ asset('assets/img/smeapng.png') }}" />
                     </div>
                 </div>
             </div>

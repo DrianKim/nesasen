@@ -18,8 +18,6 @@
                     method="POST">
                     @csrf
 
-
-
                     <div class="form-group">
                         <label for="nip">NIP</label>
                         <input type="text" id="nip" name="edit_nip"

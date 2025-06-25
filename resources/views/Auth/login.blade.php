@@ -39,9 +39,10 @@
             <div class="signup-link">
                 <p>
                     Belum Memiliki Akun?
-                    @if ($role !== 'admin')
+                    <a href="#">Hubungi Admin Sekolah!</a>
+                    {{-- @if ($role !== 'admin')
                         <a href="{{ route('registerOtp', ['role' => $role]) }}" id="signup-link">Daftar Sekarang</a>
-                    @endif
+                    @endif --}}
                 </p>
             </div>
 

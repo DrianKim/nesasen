@@ -22,7 +22,7 @@
                         <p class="role-label">Siswa</p>
                     </div>
                 </div>
-                @include('siswa.modal.edit_profil')
+                @include('siswa.modal.edit-profil')
                 <button class="btn-edit-profile" onclick="openModal('modalEditProfilSiswa')">
                     <i class="material-icons-sharp">edit</i> Edit Profil
                 </button>
@@ -33,12 +33,12 @@
                 <button class="tab active">
                     <i class="material-icons-sharp">person</i> Informasi
                 </button>
-                <button class="tab">
+                {{-- <button class="tab">
                     <i class="material-icons-sharp">insights</i> Aktivitas
                 </button>
                 <button class="tab">
                     <i class="material-icons-sharp">settings</i> Pengaturan
-                </button>
+                </button> --}}
             </div>
 
             <!-- Konten Informasi -->
@@ -106,6 +106,33 @@
                         <p class="info-value">{{ $siswa->tanggal_lahir ?? '-' }}</p>
                     </div>
                 </div>
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="material-icons-sharp">school</i>
+                    </div>
+                    <div>
+                        <p class="info-label">Kelas</p>
+                        @if ($siswa->kelas)
+                            <p class="info-value">
+                                {{ $siswa->kelas->tingkat }} {{ $siswa->kelas->jurusan->kode_jurusan }}
+                                {{ $siswa->kelas->no_kelas }}
+                            </p>
+                            <button type="button" onclick="openModal('modalPilihKelas')"
+                                style="font-size: 0.8rem; color: #f39c12; background: none; border: none; padding: 0; text-decoration: underline; cursor: pointer; margin-top: 4px;">
+                                Ganti kelas?
+                            </button>
+                        @else
+                            <p class="info-value text-warning">
+                                Belum memilih kelas
+                            </p>
+                            <button type="button" onclick="openModal('modalPilihKelas')"
+                                style="font-size: 0.8rem; color: #f39c12; background: none; border: none; padding: 0; text-decoration: underline; cursor: pointer; margin-top: 4px;">
+                                Pilih sekarang
+                            </button>
+                        @endif
+                    </div>
+                </div>
+                @include('siswa.modal.pilih-kelas')
                 <div class="info-item full">
                     <div class="info-icon">
                         <i class="material-icons-sharp">location_on</i>
@@ -127,7 +154,7 @@
                 </div>
                 <div class="statistik-item red">
                     <h5>{{ $izin }} Hari</h5>
-                    <small>Izin/Cuti</small>
+                    <small>Izin/Sakit</small>
                 </div>
             </div>
         </div>
@@ -176,33 +203,21 @@
 
             <div class="notification">
                 <div class="icon">
-                    <span class="material-icons-sharp"> volume_up </span>
+                    <span class="material-icons-sharp"> mosque </span>
                 </div>
                 <div class="content">
                     <div class="info">
-                        <h3>Workshop</h3>
-                        <small class="text_muted"> 08:00 AM - 12:00 PM </small>
+                        <h3>Sholat Ashar</h3>
+                        <small class="text_muted"> 15:10 - 15:30 </small>
                     </div>
                     <span class="material-icons-sharp"> more_vert </span>
                 </div>
             </div>
 
-            <div class="notification deactive">
-                <div class="icon">
-                    <span class="material-icons-sharp"> edit </span>
-                </div>
-                <div class="content">
-                    <div class="info">
-                        <h3>Workshop</h3>
-                        <small class="text_muted"> 08:00 AM - 12:00 PM </small>
-                    </div>
-                    <span class="material-icons-sharp"> more_vert </span>
-                </div>
-            </div>
-
+            @include('siswa.modal.reminder')
             <div class="notification add-reminder">
-                <div>
-                    <span class="material-icons-sharp"> add </span>
+                <div onclick="openReminderModal()" style="cursor: pointer;">
+                    <span class="material-icons-sharp">add</span>
                     <h3>Add Reminder</h3>
                 </div>
             </div>
@@ -229,23 +244,49 @@
 @endif
 
 <script>
-    function openModal() {
-        const modal = document.getElementById("modalEditProfilSiswa");
+    function openModal(id = "modalEditProfilSiswa") {
+        const modal = document.getElementById(id);
         if (modal) {
+            document.body.classList.add('modal-open');
             modal.style.display = 'block';
             setTimeout(() => {
                 modal.classList.add('show');
             }, 10);
+
+            // Optional: auto focus input kalau ada
+            const input = modal.querySelector('input[type="text"]');
+            if (input) input.focus();
         }
     }
 
-    function closeModal() {
-        const modal = document.getElementById("modalEditProfilSiswa");
+    function closeModal(id = "modalEditProfilSiswa") {
+        const modal = document.getElementById(id);
         if (modal) {
             modal.classList.remove('show');
+            document.body.classList.remove('modal-open');
             setTimeout(() => {
                 modal.style.display = 'none';
             }, 300);
         }
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // ESC key buat nutup modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal.show').forEach(modal => {
+                    closeModal(modal.id);
+                });
+            }
+        });
+
+        // Klik di luar modal content buat nutup
+        document.addEventListener('click', function(e) {
+            document.querySelectorAll('.modal.show').forEach(modal => {
+                if (e.target === modal) {
+                    closeModal(modal.id);
+                }
+            });
+        });
+    });
 </script>

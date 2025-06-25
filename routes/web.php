@@ -14,6 +14,7 @@ use App\Http\Controllers\PengajarController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ForgotPasswordController;
+use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 //coba
 // Route::get('/coba', function () {
@@ -121,6 +122,9 @@ Route::middleware(['isLogin'])->group(function () {
     Route::get('siswa/profil', [SiswaController::class, 'profil_index'])->name('siswa.profil');
     Route::post('siswa/profil/update', [SiswaController::class, 'profil_update'])->name('siswa.profil.update');
 
+    Route::get('/profil', [SiswaController::class, 'profil_index'])->name('siswa.profil');
+    Route::post('/pilih-kelas', [SiswaController::class, 'siswa_pilih_kelas'])->name('siswa.pilihKelas');
+
     // presensi
     Route::get('siswa/presensi', [SiswaController::class, 'presensi_index'])->name('siswa.presensi');
     Route::get('/siswa/presensi/hari-ini', [SiswaController::class, 'presensi_hari_ini'])->name('siswa.presensi.hari_ini');
@@ -181,6 +185,13 @@ Route::middleware(['isLogin'])->group(function () {
     Route::middleware(['isAdmin'])->group(function () {
         // beranda
         Route::get('admin/beranda', [DashboardController::class, 'index'])->name('admin.index');
+
+        Route::get('admin/data-admin', [DashboardController::class, 'index_data_admin'])->name('admin_data_admin.index');
+        Route::get('admin/data-admin/filter', [DashboardController::class, 'index_data_admin'])->name('admin_data_admin.filter');
+        Route::post('admin/data-admin/store', [DashboardController::class, 'store_data_admin'])->name('admin_data_admin.store');
+        Route::post('admin/data-admin/update/{id}', [DashboardController::class, 'update_data_admin'])->name('admin_data_admin.update');
+        Route::delete('admin/admin/destroy/{id}', [DashboardController::class, 'destroy_admin'])->name('admin_admin.destroy');
+        Route::delete('admin/admin/bulk_action', [DashboardController::class, 'bulkAction_admin'])->name('admin_admin.bulk_action');
 
         // pengumuman
         Route::middleware(['auth'])->group(function () {
@@ -249,6 +260,11 @@ Route::middleware(['isLogin'])->group(function () {
         Route::get('admin/guru/export/xlsx', [AdminController::class, 'export_guru_xlsx'])->name('admin_guru.export.xlsx');
 
         Route::get('admin/jadwal_pelajaran', [AdminController::class, 'index_jadwal_pelajaran'])->name('admin_jadwal_pelajaran.index');
+        Route::get('admin/jadwal_pelajaran/filter', [AdminController::class, 'index_jadwal_pelajaran'])->name('admin_jadwal_pelajaran.filter');
+        Route::post('admin/jadwal_pelajaran/update/{id}', [AdminController::class, 'update_jadwal_pelajaran'])->name('admin_jadwal_pelajaran.update');
+        Route::delete('admin/jadwal_pelajaran/destroy/{id}', [AdminController::class, 'destroy_jadwal_pelajaran'])->name('admin_jadwal_pelajaran.destroy');
+        Route::get('admin/jadwal_pelajaran/template', [AdminController::class, 'download_template_jadwal_pelajaran'])->name('admin_jadwal_pelajaran.template');
+        Route::post('admin/jadwal_pelajaran/import', [AdminController::class, 'import_jadwal_pelajaran'])->name('admin_jadwal_pelajaran.import');
 
         // umum jurusan
         Route::get('admin/jurusan', [AdminController::class, 'index_jurusan'])->name('admin_jurusan.index');

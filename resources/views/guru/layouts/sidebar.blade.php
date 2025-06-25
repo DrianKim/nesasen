@@ -17,7 +17,7 @@
             <span class="material-icons-sharp"> dashboard </span>
             <h3>Beranda</h3>
         </a>
-        <a href="{{ route('guru.pengumuman') }}" class="{{ request()->routeIs('guru.pengumuman.index') ? 'active' : '' }}">
+        <a href="{{ route('guru.pengumuman') }}" class="{{ request()->routeIs('guru.pengumuman') ? 'active' : '' }}">
             <span class="material-icons-sharp"> campaign </span>
             <h3>Buat Pengumuman</h3>
         </a>
@@ -40,7 +40,7 @@
         <a href="#">
             <span class="material-icons-sharp"> notifications </span>
             <h3>Notifikasi</h3>
-            <span class="message-count">27</span>
+            {{-- <span class="message-count">27</span> --}}
         </a>
 
         <a href="#" class="btn-logout" id="logout-btn-guru">

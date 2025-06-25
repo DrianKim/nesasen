@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Svg\Tag\Rect;
 use Carbon\Carbon;
+use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\Jadwal;
 use App\Models\izinSiswa;
@@ -54,11 +55,13 @@ class SiswaController extends Controller
             ->whereIn('status_kehadiran', ['hadir', 'terlambat'])
             ->count();
 
-        $izin = izinSiswa::where('siswa_id', $siswa->id)
+        $izin = IzinSiswa::where('siswa_id', $siswa->id)
             ->whereMonth('tanggal', now()->month)
             ->whereYear('tanggal', now()->year)
             ->whereIn('jenis_izin', ['Izin', 'Keperluan Keluarga', 'Keperluan Sekolah', 'Sakit'])
             ->count();
+
+        $daftarKelas = Kelas::with('siswa.jurusan')->orderBy('tingkat', 'asc')->orderBy('jurusan_id', 'asc')->orderBy('no_kelas', 'asc')->get();
 
         $data = [
             'title' => 'Profil Siswa',
@@ -67,8 +70,24 @@ class SiswaController extends Controller
             'siswa' => $siswa,
             'hadir' => $hadir,
             'izin' => $izin,
+            'daftarKelas' => $daftarKelas,
         ];
+
         return view('siswa.profil', $data);
+    }
+
+    public function siswa_pilih_kelas(Request $request)
+    {
+        $request->validate([
+            'kelas_id' => 'required|exists:kelas,id',
+        ]);
+
+        $siswa = auth()->user()->siswa;
+
+        $siswa->kelas_id = $request->kelas_id;
+        $siswa->save();
+
+        return redirect()->route('siswa.profil')->with('success', 'Kelas berhasil dipilih!');
     }
 
     public function profil_update(Request $request)
@@ -87,6 +106,7 @@ class SiswaController extends Controller
                     'tanggal_lahir' => 'nullable|date',
                     'no_hp' => 'nullable|string|max:20',
                     'email' => 'required|email|max:255',
+                    'alamat' => 'nullable|string|max:255',
                     'new_password' => 'nullable|min:5|same:password_confirmation',
                     'password_confirmation' => 'nullable|required_with:new_password|same:new_password',
                 ],
@@ -111,6 +131,7 @@ class SiswaController extends Controller
                 'tanggal_lahir' => $request->tanggal_lahir,
                 'no_hp' => $request->no_hp,
                 'email' => $request->email,
+                'alamat' => $request->alamat,
             ]);
 
             if ($user) {
