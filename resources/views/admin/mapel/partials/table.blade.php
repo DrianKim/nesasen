@@ -30,7 +30,6 @@
                             <span class="material-icons-sharp">delete</span>
                         </button>
                     </div>
-                    @include('admin.mapel.modal')
                 </td>
             </tr>
         @empty

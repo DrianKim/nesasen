@@ -63,8 +63,7 @@ class DashboardController extends Controller
         if ($search) {
             $searchTerm = strtolower(trim($search));
             $query->where(function ($q) use ($searchTerm) {
-                $q->whereRaw('LOWER(REPLACE(name_admin, " ", "")) LIKE ?', ['%' . $searchTerm . '%'])
-                    ->orWhere('username', 'like', "%{$searchTerm}%");
+                $q->whereRaw('LOWER(REPLACE(name_admin, " ", "")) LIKE ?', ['%' . $searchTerm . '%'])->orWhere('username', 'like', "%{$searchTerm}%");
             });
         }
 
@@ -100,21 +99,24 @@ class DashboardController extends Controller
 
     public function store_data_admin(Request $request)
     {
-        $request->validate([
-            'create_name_admin' => 'required|string|max:100',
-            'create_username' => 'required|string|unique:users,username',
-            'create_password' => 'required|string|min:5',
-        ], [
-            'create_name_admin.required' => 'Nama admin wajib diisi.',
-            'create_name_admin.string' => 'Nama admin harus berupa teks.',
-            'create_name_admin.max' => 'Nama admin maksimal 100 karakter.',
-            'create_username.required' => 'Username wajib diisi.',
-            'create_username.string' => 'Username harus berupa teks.',
-            'create_username.unique' => 'Username sudah digunakan.',
-            'create_password.required' => 'Password wajib diisi.',
-            'create_password.string' => 'Password harus berupa teks.',
-            'create_password.min' => 'Password minimal 5 karakter.',
-        ]);
+        $request->validate(
+            [
+                'create_name_admin' => 'required|string|max:100',
+                'create_username' => 'required|string|unique:users,username',
+                'create_password' => 'required|string|min:5',
+            ],
+            [
+                'create_name_admin.required' => 'Nama admin wajib diisi.',
+                'create_name_admin.string' => 'Nama admin harus berupa teks.',
+                'create_name_admin.max' => 'Nama admin maksimal 100 karakter.',
+                'create_username.required' => 'Username wajib diisi.',
+                'create_username.string' => 'Username harus berupa teks.',
+                'create_username.unique' => 'Username sudah digunakan.',
+                'create_password.required' => 'Password wajib diisi.',
+                'create_password.string' => 'Password harus berupa teks.',
+                'create_password.min' => 'Password minimal 5 karakter.',
+            ],
+        );
 
         if ($request->filled('new_password')) {
             $userData['password'] = Hash::make($request->new_password);
@@ -132,7 +134,7 @@ class DashboardController extends Controller
 
     public function destroy_admin($id)
     {
-        if (auth()->id() == $id) {
+        if (Auth::id() == $id) {
             return redirect()->route('admin_data_admin.index')->with('error', 'Gagal! Kamu tidak bisa menghapus akunmu sendiri.');
         }
 
@@ -142,7 +144,6 @@ class DashboardController extends Controller
         return redirect()->route('admin_data_admin.index')->with('success', 'Admin berhasil dihapus.');
     }
 
-
     public function bulkAction_admin(Request $request)
     {
         $ids = $request->input('ids');
@@ -150,7 +151,7 @@ class DashboardController extends Controller
         if (!$ids || !is_array($ids)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tidak ada data yang dipilih!'
+                'message' => 'Tidak ada data yang dipilih!',
             ]);
         }
 
@@ -159,7 +160,7 @@ class DashboardController extends Controller
             $skipped = 0;
 
             foreach ($ids as $id) {
-                if (auth()->id() == $id) {
+                if (Auth::id() == $id) {
                     $skipped++;
                     continue;
                 }
@@ -178,37 +179,40 @@ class DashboardController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => $message
+                'message' => $message,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage(),
             ]);
         }
     }
 
     public function update_data_admin(Request $request, $id)
     {
-        $request->validate([
-            'edit_username' => 'required|string|max:255|unique:users,username,' . $id,
-            'edit_name_admin' => 'required|string|max:255',
-            'edit_password' => 'nullable|string|min:6|same:edit_password_confirmation',
-            'edit_password_confirmation' => 'nullable|required_with:edit_password|same:edit_password',
-        ], [
-            'edit_username.required' => 'Username wajib diisi.',
-            'edit_username.string' => 'Username harus berupa teks.',
-            'edit_username.max' => 'Username maksimal 255 karakter.',
-            'edit_username.unique' => 'Username sudah digunakan.',
-            'edit_name_admin.required' => 'Nama admin wajib diisi.',
-            'edit_name_admin.string' => 'Nama admin harus berupa teks.',
-            'edit_name_admin.max' => 'Nama admin maksimal 255 karakter.',
-            'edit_password.string' => 'Password harus berupa teks.',
-            'edit_password.min' => 'Password minimal 6 karakter.',
-            'edit_password.same' => 'Konfirmasi password tidak cocok.',
-            'edit_password_confirmation.required_with' => 'Konfirmasi password wajib diisi jika mengubah password.',
-            'edit_password_confirmation.same' => 'Konfirmasi password tidak cocok.',
-        ]);
+        $request->validate(
+            [
+                'edit_username' => 'required|string|max:255|unique:users,username,' . $id,
+                'edit_name_admin' => 'required|string|max:255',
+                'edit_password' => 'nullable|string|min:6|same:edit_password_confirmation',
+                'edit_password_confirmation' => 'nullable|required_with:edit_password|same:edit_password',
+            ],
+            [
+                'edit_username.required' => 'Username wajib diisi.',
+                'edit_username.string' => 'Username harus berupa teks.',
+                'edit_username.max' => 'Username maksimal 255 karakter.',
+                'edit_username.unique' => 'Username sudah digunakan.',
+                'edit_name_admin.required' => 'Nama admin wajib diisi.',
+                'edit_name_admin.string' => 'Nama admin harus berupa teks.',
+                'edit_name_admin.max' => 'Nama admin maksimal 255 karakter.',
+                'edit_password.string' => 'Password harus berupa teks.',
+                'edit_password.min' => 'Password minimal 6 karakter.',
+                'edit_password.same' => 'Konfirmasi password tidak cocok.',
+                'edit_password_confirmation.required_with' => 'Konfirmasi password wajib diisi jika mengubah password.',
+                'edit_password_confirmation.same' => 'Konfirmasi password tidak cocok.',
+            ],
+        );
 
         $user = User::findOrFail($id);
 
@@ -266,6 +270,7 @@ class DashboardController extends Controller
             'judul' => $pengumuman->judul,
             'isi' => $pengumuman->isi,
             'durasi' => $durasi,
+            'ditujukan_untuk' => $pengumuman->ditujukan_untuk, // <-- ini penting
         ]);
     }
 
@@ -274,6 +279,7 @@ class DashboardController extends Controller
         $request->validate([
             'judul' => 'required|max:255',
             'isi' => 'required',
+            'ditujukan_untuk' => 'required|in:siswa,guru,semua', // tambahin validasi target juga
         ]);
 
         $pengumuman = Pengumuman::findOrFail($id);
@@ -292,6 +298,7 @@ class DashboardController extends Controller
             'isi' => $request->isi,
             'tanggal' => $tanggal,
             'kadaluarsa_sampai' => $kadaluarsa,
+            'ditujukan_untuk' => $request->ditujukan_untuk,
         ]);
 
         return redirect()->route('admin_pengumuman.index')->with('success', 'Pengumuman berhasil diubah.');

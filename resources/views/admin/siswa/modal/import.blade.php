@@ -60,7 +60,7 @@
                     <div class="alert info">
                         <span class="material-icons-sharp">info</span>
                         Siswa akan otomatis bisa login dengan username dan password awal
-                        berupa tanggal lahir (ddmmyyyy).
+                        berupa tanggal lahir (mmddyyyy).
                     </div>
 
                     <!-- Form Upload -->

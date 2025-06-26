@@ -31,6 +31,9 @@ use App\Exports\izinGuruExport;
 use App\Exports\izinSiswaExport;
 use Database\Seeders\GuruSeeder;
 use Illuminate\Support\Facades\DB;
+use App\Mail\InfoAkunSiswaMail;
+use App\Mail\InfoAkunGuruMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Exports\MataPelajaranExport;
 use Illuminate\Support\Facades\File;
@@ -92,7 +95,6 @@ class AdminController extends Controller
         return $username;
     }
 
-
     // umum kelas
     public function index_kelas(Request $request)
     {
@@ -119,8 +121,7 @@ class AdminController extends Controller
                 $q->whereRaw('LOWER(tingkat) LIKE ?', ["%{$searchTerm}%"])
                     ->orWhereRaw('LOWER(no_kelas) LIKE ?', ["%{$searchTerm}%"])
                     ->orWhereHas('jurusan', function ($q2) use ($searchTerm) {
-                        $q2->whereRaw('LOWER(nama_jurusan) LIKE ?', ["%{$searchTerm}%"])
-                            ->orWhereRaw('LOWER(kode_jurusan) LIKE ?', ["%{$searchTerm}%"]);
+                        $q2->whereRaw('LOWER(nama_jurusan) LIKE ?', ["%{$searchTerm}%"])->orWhereRaw('LOWER(kode_jurusan) LIKE ?', ["%{$searchTerm}%"]);
                     })
                     ->orWhereHas('walas.user.guru', function ($q3) use ($searchTerm) {
                         $q3->whereRaw('LOWER(nama) LIKE ?', ["%{$searchTerm}%"]);
@@ -131,19 +132,15 @@ class AdminController extends Controller
         if ($sortBy) {
             switch ($sortBy) {
                 case 'Nama Kelas':
-                    $query->with('jurusan')
+                    $query
+                        ->with('jurusan')
                         ->orderBy('tingkat', $sortDirection)
-                        ->orderBy(Jurusan::select('nama_jurusan')
-                            ->whereColumn('jurusan.id', 'kelas.jurusan_id'), $sortDirection)
+                        ->orderBy(Jurusan::select('nama_jurusan')->whereColumn('jurusan.id', 'kelas.jurusan_id'), $sortDirection)
                         ->orderBy('no_kelas', $sortDirection);
                     break;
 
                 case 'Wali Kelas':
-                    $query->join('walas', 'kelas.id', '=', 'walas.kelas_id')
-                        ->join('users', 'walas.user_id', '=', 'users.id')
-                        ->join('guru', 'guru.user_id', '=', 'users.id')
-                        ->orderBy("guru.nama", $sortDirection)
-                        ->select('kelas.*');
+                    $query->join('walas', 'kelas.id', '=', 'walas.kelas_id')->join('users', 'walas.user_id', '=', 'users.id')->join('guru', 'guru.user_id', '=', 'users.id')->orderBy('guru.nama', $sortDirection)->select('kelas.*');
                     break;
 
                 case 'Jumlah Siswa':
@@ -168,9 +165,13 @@ class AdminController extends Controller
             $query->whereNotIn('id', $guruWalasIds);
         })->get();
 
-        $currentWalasGuruIds = collect($kelas->items())->map(function ($kelasItem) {
-            return $kelasItem->walas?->user_id;
-        })->filter()->unique()->toArray();
+        $currentWalasGuruIds = collect($kelas->items())
+            ->map(function ($kelasItem) {
+                return $kelasItem->walas?->user_id;
+            })
+            ->filter()
+            ->unique()
+            ->toArray();
 
         $excludedUserIds = array_diff($guruWalasIds, $currentWalasGuruIds);
 
@@ -201,31 +202,33 @@ class AdminController extends Controller
 
     public function create_kelas()
     {
-
-        $data = array(
+        $data = [
             'title' => 'Tambah Kelas',
             'menuAdmin' => 'active',
             // 'menu_admin_index_kelas' => 'active',
             'jurusanList' => Jurusan::all(),
             'guruList' => Guru::all(),
-        );
+        ];
         return view('admin.kelas.create', $data);
     }
 
     public function store_kelas(Request $request)
     {
         // dd($request->all());
-        $request->validate([
-            'create_tingkat' => 'required|in:X,XI,XII',
-            'create_jurusan_id' => 'required|exists:jurusan,id',
-            'create_no_kelas' => 'required',
-            'create_guru_id' => 'nullable|exists:guru,id',
-        ], [
-            'create_tingkat.required' => 'Tingkat Tidak Boleh Kosong',
-            'create_tingkat.in' => 'Tingkat Tidak Valid',
-            'create_jurusan_id.required' => 'Jurusan Tidak Boleh Kosong',
-            'create_no_kelas.required' => 'No Kelas Tidak Boleh Kosong',
-        ]);
+        $request->validate(
+            [
+                'create_tingkat' => 'required|in:X,XI,XII',
+                'create_jurusan_id' => 'required|exists:jurusan,id',
+                'create_no_kelas' => 'required',
+                'create_guru_id' => 'nullable|exists:guru,id',
+            ],
+            [
+                'create_tingkat.required' => 'Tingkat Tidak Boleh Kosong',
+                'create_tingkat.in' => 'Tingkat Tidak Valid',
+                'create_jurusan_id.required' => 'Jurusan Tidak Boleh Kosong',
+                'create_no_kelas.required' => 'No Kelas Tidak Boleh Kosong',
+            ],
+        );
 
         try {
             $kelas = Kelas::create([
@@ -252,7 +255,9 @@ class AdminController extends Controller
 
             return redirect()->route('admin_kelas.index')->with('success', 'Kelas Berhasil Ditambahkan');
         } catch (\Exception $e) {
-            return back()->withErrors(['general' => 'Terjadi kesalahan, coba lagi.'])->withInput();
+            return back()
+                ->withErrors(['general' => 'Terjadi kesalahan, coba lagi.'])
+                ->withInput();
         }
     }
 
@@ -260,30 +265,33 @@ class AdminController extends Controller
     {
         $kelas = Kelas::findOrFail($id);
 
-        $data = array(
+        $data = [
             'title' => 'Edit Kelas',
             'menuAdmin' => 'active',
             'kelas' => $kelas,
             'jurusanList' => Jurusan::all(),
             'guruList' => User::where('role_id', 3)->with('guru')->get(),
-        );
+        ];
 
         return view('admin.kelas.edit', $data);
     }
 
     public function update_kelas(Request $request, $id)
     {
-        $request->validate([
-            'edit_tingkat' => 'required|in:X,XI,XII',
-            'edit_jurusan_id' => 'required|exists:jurusan,id',
-            'edit_no_kelas' => 'required|in:1,2,3,4',
-            'edit_guru_id' => 'nullable|exists:users,id',
-        ], [
-            'edit_tingkat.required' => 'Tingkat Tidak Boleh Kosong',
-            'edit_tingkat.in' => 'Tingkat Tidak Valid',
-            'edit_jurusan_id.required' => 'Jurusan Tidak Boleh Kosong',
-            'edit_no_kelas.required' => 'No Kelas Tidak Boleh Kosong',
-        ]);
+        $request->validate(
+            [
+                'edit_tingkat' => 'required|in:X,XI,XII',
+                'edit_jurusan_id' => 'required|exists:jurusan,id',
+                'edit_no_kelas' => 'required|in:1,2,3,4',
+                'edit_guru_id' => 'nullable|exists:users,id',
+            ],
+            [
+                'edit_tingkat.required' => 'Tingkat Tidak Boleh Kosong',
+                'edit_tingkat.in' => 'Tingkat Tidak Valid',
+                'edit_jurusan_id.required' => 'Jurusan Tidak Boleh Kosong',
+                'edit_no_kelas.required' => 'No Kelas Tidak Boleh Kosong',
+            ],
+        );
 
         DB::transaction(function () use ($request, $id) {
             $kelas = Kelas::findOrFail($id);
@@ -305,10 +313,7 @@ class AdminController extends Controller
                     }
                 }
 
-                Walas::updateOrCreate(
-                    ['kelas_id' => $id],
-                    ['user_id' => $request->edit_guru_id]
-                );
+                Walas::updateOrCreate(['kelas_id' => $id], ['user_id' => $request->edit_guru_id]);
 
                 $userBaru = User::find($request->edit_guru_id);
                 if ($userBaru) {
@@ -357,7 +362,7 @@ class AdminController extends Controller
         if (!$ids || !is_array($ids)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tidak ada data yang dipilih!'
+                'message' => 'Tidak ada data yang dipilih!',
             ]);
         }
 
@@ -386,12 +391,12 @@ class AdminController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "Berhasil menghapus {$deletedCount} data Kelas."
+                'message' => "Berhasil menghapus {$deletedCount} data Kelas.",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage(),
             ]);
         }
     }
@@ -403,10 +408,7 @@ class AdminController extends Controller
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        $spreadsheet->getProperties()
-            ->setCreator('SMKN 1 Subang')
-            ->setTitle('Template Import Kelas')
-            ->setDescription('Template untuk mengimpor data kelas ke dalam sistem.');
+        $spreadsheet->getProperties()->setCreator('SMKN 1 Subang')->setTitle('Template Import Kelas')->setDescription('Template untuk mengimpor data kelas ke dalam sistem.');
 
         $headersStyle = [
             'font' => [
@@ -429,15 +431,9 @@ class AdminController extends Controller
             ],
         ];
 
-        $headers = [
-            'Tingkat',
-            'Nama Jurusan',
-            'Kode Jurusan',
-            'No Kelas',
-            'Wali Kelas',
-        ];
+        $headers = ['Tingkat', 'Nama Jurusan', 'Kode Jurusan', 'No Kelas', 'Wali Kelas'];
 
-        $sheet->fromArray(($headers), null, 'A1');
+        $sheet->fromArray($headers, null, 'A1');
         $sheet->getStyle('A1:E1')->applyFromArray($headersStyle);
 
         $sheet->getColumnDimension('A')->setWidth(10);
@@ -446,10 +442,7 @@ class AdminController extends Controller
         $sheet->getColumnDimension('D')->setWidth(10);
         $sheet->getColumnDimension('E')->setWidth(20);
 
-        $exampleData = [
-            ['X', 'Teknik Komputer Jaringan', 'TKJ', '1', 'Giga ngga'],
-            ['X', 'Rekayasa Perangkat Lunak', 'RPL', '2', 'Mi bombo'],
-        ];
+        $exampleData = [['X', 'Teknik Komputer Jaringan', 'TKJ', '1', 'Giga ngga'], ['X', 'Rekayasa Perangkat Lunak', 'RPL', '2', 'Mi bombo']];
 
         $sheet->fromArray($exampleData, null, 'A2');
         $sheet->getStyle('A2:E3')->applyFromArray([
@@ -457,7 +450,7 @@ class AdminController extends Controller
                 'allBorders' => [
                     'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
                     'color' => ['rgb' => '0000000'],
-                ]
+                ],
             ],
             'fill' => [
                 'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
@@ -479,29 +472,36 @@ class AdminController extends Controller
 
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
 
-        return response()->streamDownload(function () use ($writer) {
-            $writer->save('php://output');
-        }, $fileName, [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
-            'Cache-Control' => 'cache, must-revalidate',
-            'Pragma' => 'public',
-        ]);
+        return response()->streamDownload(
+            function () use ($writer) {
+                $writer->save('php://output');
+            },
+            $fileName,
+            [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+                'Cache-Control' => 'cache, must-revalidate',
+                'Pragma' => 'public',
+            ],
+        );
     }
 
     public function import_kelas(Request $request)
     {
         try {
             // dd($request->all());
-            $request->validate([
-                'file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
-            ], [
-                'file.required' => 'File Tidak Boleh Kosong',
-                'file.file' => 'File Harus Berupa File',
-                'file.mimes' => 'File Harus Berformat XLSX, XLS, atau CSV',
-                'file.max' => 'Ukuran File Maksimal 2MB',
-            ]);
+            $request->validate(
+                [
+                    'file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
+                ],
+                [
+                    'file.required' => 'File Tidak Boleh Kosong',
+                    'file.file' => 'File Harus Berupa File',
+                    'file.mimes' => 'File Harus Berformat XLSX, XLS, atau CSV',
+                    'file.max' => 'Ukuran File Maksimal 2MB',
+                ],
+            );
 
             $file = $request->file('file');
 
@@ -510,21 +510,14 @@ class AdminController extends Controller
             $rows = $worksheet->toArray();
             $headers = array_shift($rows);
 
-            $requiredHeaders = [
-                'Tingkat',
-                'Nama Jurusan',
-                'Kode Jurusan',
-                'No Kelas',
-            ];
-            $optionalHeaders = [
-                'Wali Kelas',
-            ];
+            $requiredHeaders = ['Tingkat', 'Nama Jurusan', 'Kode Jurusan', 'No Kelas'];
+            $optionalHeaders = ['Wali Kelas'];
             $headerMap = [];
 
             foreach ($requiredHeaders as $required) {
                 $found = false;
                 foreach ($headers as $index => $header) {
-                    if (trim(strtoupper($header)) === strtoupper(($required))) {
+                    if (trim(strtoupper($header)) === strtoupper($required)) {
                         $headerMap[$required] = $index;
                         $found = true;
                         break;
@@ -534,7 +527,7 @@ class AdminController extends Controller
                 if (!$found) {
                     return response()->json([
                         'success' => false,
-                        'message' => "Kolom {$required} tidak ditemukan dalam file."
+                        'message' => "Kolom {$required} tidak ditemukan dalam file.",
                     ]);
                 }
             }
@@ -542,7 +535,7 @@ class AdminController extends Controller
             foreach ($optionalHeaders as $optional) {
                 $found = false;
                 foreach ($headers as $index => $header) {
-                    if (trim(strtoupper($header)) === strtoupper(($optional))) {
+                    if (trim(strtoupper($header)) === strtoupper($optional)) {
                         $headerMap[$optional] = $index;
                         $found = true;
                         break;
@@ -559,7 +552,6 @@ class AdminController extends Controller
                 $rowNumber = $rowIndex + 2;
 
                 try {
-
                     if (empty(array_filter($row))) {
                         continue;
                     }
@@ -575,11 +567,19 @@ class AdminController extends Controller
 
                     if (!$tingkat || !$namaJurusan || !$kodeJurusan || !$noKelas) {
                         $missing = [];
-                        if (!$tingkat) $missing[] = "Tingkat";
-                        if (!$namaJurusan) $missing[] = "Nama Jurusan";
-                        if (!$kodeJurusan) $missing[] = "Kode Jurusan";
-                        if (!$noKelas) $missing[] = "No Kelas";
-                        $errorRows[] = "Baris {$rowNumber}: Kolom " . implode(', ', $missing) . " tidak boleh kosong.";
+                        if (!$tingkat) {
+                            $missing[] = 'Tingkat';
+                        }
+                        if (!$namaJurusan) {
+                            $missing[] = 'Nama Jurusan';
+                        }
+                        if (!$kodeJurusan) {
+                            $missing[] = 'Kode Jurusan';
+                        }
+                        if (!$noKelas) {
+                            $missing[] = 'No Kelas';
+                        }
+                        $errorRows[] = "Baris {$rowNumber}: Kolom " . implode(', ', $missing) . ' tidak boleh kosong.';
                         continue;
                     }
 
@@ -593,9 +593,7 @@ class AdminController extends Controller
                         continue;
                     }
 
-                    $jurusan = Jurusan::where('nama_jurusan', $namaJurusan)
-                        ->orWhere('kode_jurusan', $kodeJurusan)
-                        ->first();
+                    $jurusan = Jurusan::where('nama_jurusan', $namaJurusan)->orWhere('kode_jurusan', $kodeJurusan)->first();
 
                     if ($jurusan && $jurusan->nama_jurusan !== $namaJurusan) {
                         $errorRows[] = "Baris {$rowNumber}: Jurusan dengan nama '{$namaJurusan}' sudah ada dengan kode '{$jurusan->kode_jurusan}'.";
@@ -610,13 +608,9 @@ class AdminController extends Controller
                             continue;
                         }
                         // Cek jika guru sudah menjadi wali kelas di kelas lain
-                        $sudahWali = User::where('id', $guru->user_id)
-                            ->where('role_id', 2)
-                            ->exists();
+                        $sudahWali = User::where('id', $guru->user_id)->where('role_id', 2)->exists();
                         // Cek jika guru sudah menjadi wali kelas di kelas lain
-                        $sudahWalii = User::where('id', $guru->user_id)
-                            ->where('role_id', 2)
-                            ->exists();
+                        $sudahWalii = User::where('id', $guru->user_id)->where('role_id', 2)->exists();
                         if ($sudahWali || $sudahWalii) {
                             $errorRows[] = "Baris {$rowNumber}: Guru dengan nama '{$waliNama}' sudah menjadi wali kelas di kelas lain.";
                             continue;
@@ -635,11 +629,7 @@ class AdminController extends Controller
                         continue;
                     }
 
-
-                    $jurusan = Jurusan::firstOrCreate(
-                        ['nama_jurusan' => $namaJurusan],
-                        ['kode_jurusan' => $kodeJurusan],
-                    );
+                    $jurusan = Jurusan::firstOrCreate(['nama_jurusan' => $namaJurusan], ['kode_jurusan' => $kodeJurusan]);
 
                     $kelas = Kelas::create([
                         'tingkat' => $tingkat,
@@ -724,7 +714,9 @@ class AdminController extends Controller
 
             return $pdf->download($fileName);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengekspor data ke pdf: ' . $e->getMessage());
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal mengekspor data ke pdf: ' . $e->getMessage());
         }
     }
 
@@ -735,7 +727,9 @@ class AdminController extends Controller
 
             return Excel::download(new KelasExport(), $fileName);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengekspor data ke Excel: ' . $e->getMessage());
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal mengekspor data ke Excel: ' . $e->getMessage());
         }
     }
 
@@ -756,8 +750,7 @@ class AdminController extends Controller
             $query->where(function ($q) use ($searchTerm) {
                 // Search di mata pelajaran
                 $q->whereHas('mataPelajaran', function ($q2) use ($searchTerm) {
-                    $q2->whereRaw('LOWER(REPLACE(nama_mapel, " ", "")) LIKE ?', ["%$searchTerm%"])
-                        ->orWhereRaw('LOWER(REPLACE(kode_mapel, " ", "")) LIKE ?', ["%$searchTerm%"]);
+                    $q2->whereRaw('LOWER(REPLACE(nama_mapel, " ", "")) LIKE ?', ["%$searchTerm%"])->orWhereRaw('LOWER(REPLACE(kode_mapel, " ", "")) LIKE ?', ["%$searchTerm%"]);
                 })
                     // Search di guru
                     ->orWhereHas('guru', function ($q3) use ($searchTerm) {
@@ -774,22 +767,19 @@ class AdminController extends Controller
         if ($sortBy) {
             switch ($sortBy) {
                 case 'KelasKu':
-                    $query->leftJoin('mata_pelajaran', 'mapel_kelas.mata_pelajaran_id', '=', 'mata_pelajaran.id')
-                        ->orderBy('mata_pelajaran.nama_mapel', $sortDirection)
-                        ->select('mapel_kelas.*');
+                    $query->leftJoin('mata_pelajaran', 'mapel_kelas.mata_pelajaran_id', '=', 'mata_pelajaran.id')->orderBy('mata_pelajaran.nama_mapel', $sortDirection)->select('mapel_kelas.*');
                     break;
 
                 case 'Kelas':
-                    $query->leftJoin('kelas', 'mapel_kelas.kelas_id', '=', 'kelas.id')
+                    $query
+                        ->leftJoin('kelas', 'mapel_kelas.kelas_id', '=', 'kelas.id')
                         ->leftJoin('jurusan', 'kelas.jurusan_id', '=', 'jurusan.id')
                         ->orderByRaw("CONCAT(kelas.tingkat, jurusan.kode_jurusan, kelas.no_kelas) $sortDirection")
                         ->select('mapel_kelas.*');
                     break;
 
                 case 'Guru':
-                    $query->leftJoin('guru', 'mapel_kelas.guru_id', '=', 'guru.id')
-                        ->orderBy('guru.nama', $sortDirection)
-                        ->select('mapel_kelas.*');
+                    $query->leftJoin('guru', 'mapel_kelas.guru_id', '=', 'guru.id')->orderBy('guru.nama', $sortDirection)->select('mapel_kelas.*');
                     break;
 
                 default:
@@ -826,15 +816,18 @@ class AdminController extends Controller
     public function store_kelasKu(Request $request)
     {
         // dd($request->all());
-        $request->validate([
-            'kelas_id' => 'required|exists:kelas,id',
-            'mapel_id' => 'required|exists:mata_pelajaran,id',
-            'guru_id' => 'required|exists:guru,id',
-        ], [
-            'kelas_id.required' => 'Kelas Tidak Boleh Kosong',
-            'mapel_id.required' => 'Mata Pelajaran Tidak Boleh Kosong',
-            'guru_id.required' => 'Guru Tidak Boleh Kosong',
-        ]);
+        $request->validate(
+            [
+                'kelas_id' => 'required|exists:kelas,id',
+                'mapel_id' => 'required|exists:mata_pelajaran,id',
+                'guru_id' => 'required|exists:guru,id',
+            ],
+            [
+                'kelas_id.required' => 'Kelas Tidak Boleh Kosong',
+                'mapel_id.required' => 'Mata Pelajaran Tidak Boleh Kosong',
+                'guru_id.required' => 'Guru Tidak Boleh Kosong',
+            ],
+        );
 
         try {
             MapelKelas::create([
@@ -845,22 +838,27 @@ class AdminController extends Controller
 
             return redirect()->route('admin_kelasKu.index')->with('success', 'KelasKu Berhasil Ditambahkan');
         } catch (\Exception $e) {
-            return back()->withErrors(['general' => 'Terjadi kesalahan, coba lagi.'])->withInput();
+            return back()
+                ->withErrors(['general' => 'Terjadi kesalahan, coba lagi.'])
+                ->withInput();
         }
     }
 
     public function update_kelasKu(Request $request, $id)
     {
         try {
-            $request->validate([
-                'mapel_id' => 'required|exists:mata_pelajaran,id',
-                'kelas_id' => 'required|exists:kelas,id',
-                'guru_id' => 'required|exists:guru,id',
-            ], [
-                'mapel_id.required' => 'Mapel wajib dipilih.',
-                'kelas_id.required' => 'Kelas wajib dipilih.',
-                'guru_id.required' => 'Guru wajib dipilih.',
-            ]);
+            $request->validate(
+                [
+                    'mapel_id' => 'required|exists:mata_pelajaran,id',
+                    'kelas_id' => 'required|exists:kelas,id',
+                    'guru_id' => 'required|exists:guru,id',
+                ],
+                [
+                    'mapel_id.required' => 'Mapel wajib dipilih.',
+                    'kelas_id.required' => 'Kelas wajib dipilih.',
+                    'guru_id.required' => 'Guru wajib dipilih.',
+                ],
+            );
 
             $mapelKelas = MapelKelas::findOrFail($id);
             $mapelKelas->update([
@@ -871,7 +869,9 @@ class AdminController extends Controller
 
             return redirect()->back()->with('success', 'Data KelasKu berhasil diperbarui.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal update data: ' . $e->getMessage());
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal update data: ' . $e->getMessage());
         }
     }
 
@@ -891,7 +891,7 @@ class AdminController extends Controller
         if (!$ids || !is_array($ids)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tidak ada data yang dipilih!'
+                'message' => 'Tidak ada data yang dipilih!',
             ]);
         }
 
@@ -909,16 +909,15 @@ class AdminController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "Berhasil menghapus {$deletedCount} data KelasKu."
+                'message' => "Berhasil menghapus {$deletedCount} data KelasKu.",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage(),
             ]);
         }
     }
-
 
     public function download_template_kelasKu()
     {
@@ -927,10 +926,7 @@ class AdminController extends Controller
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        $spreadsheet->getProperties()
-            ->setCreator('SMKN 1 Subang')
-            ->setTitle('Template Import KelasKu')
-            ->setDescription('Template untuk mengimpor data kelas ke dalam sistem.');
+        $spreadsheet->getProperties()->setCreator('SMKN 1 Subang')->setTitle('Template Import KelasKu')->setDescription('Template untuk mengimpor data kelas ke dalam sistem.');
 
         $headersStyle = [
             'font' => [
@@ -953,23 +949,16 @@ class AdminController extends Controller
             ],
         ];
 
-        $headers = [
-            'KelasKu',
-            'Kelas',
-            'Guru',
-        ];
+        $headers = ['KelasKu', 'Kelas', 'Guru'];
 
-        $sheet->fromArray(($headers), null, 'A1');
+        $sheet->fromArray($headers, null, 'A1');
         $sheet->getStyle('A1:C1')->applyFromArray($headersStyle);
 
         $sheet->getColumnDimension('A')->setWidth(25);
         $sheet->getColumnDimension('B')->setWidth(25);
         $sheet->getColumnDimension('C')->setWidth(25);
 
-        $exampleData = [
-            ['Bahasa Indonesia', 'X RPL 1', 'Mi Bombo'],
-            ['Bahasa Jepang', 'X TKJ 1', 'Buyungkai'],
-        ];
+        $exampleData = [['Bahasa Indonesia', 'X RPL 1', 'Mi Bombo'], ['Bahasa Jepang', 'X TKJ 1', 'Buyungkai']];
 
         $sheet->fromArray($exampleData, null, 'A2');
         $sheet->getStyle('A2:C3')->applyFromArray([
@@ -977,7 +966,7 @@ class AdminController extends Controller
                 'allBorders' => [
                     'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
                     'color' => ['rgb' => '0000000'],
-                ]
+                ],
             ],
             'fill' => [
                 'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
@@ -997,27 +986,34 @@ class AdminController extends Controller
 
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
 
-        return response()->streamDownload(function () use ($writer) {
-            $writer->save('php://output');
-        }, $fileName, [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
-            'Cache-Control' => 'cache, must-revalidate',
-            'Pragma' => 'public',
-        ]);
+        return response()->streamDownload(
+            function () use ($writer) {
+                $writer->save('php://output');
+            },
+            $fileName,
+            [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+                'Cache-Control' => 'cache, must-revalidate',
+                'Pragma' => 'public',
+            ],
+        );
     }
 
     public function import_kelasKu(Request $request)
     {
         try {
-            $request->validate([
-                'file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
-            ], [
-                'file.required' => 'File tidak boleh kosong.',
-                'file.mimes' => 'File harus berformat: XLSX, XLS, atau CSV.',
-                'file.max' => 'Ukuran file maksimal 2MB.',
-            ]);
+            $request->validate(
+                [
+                    'file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
+                ],
+                [
+                    'file.required' => 'File tidak boleh kosong.',
+                    'file.mimes' => 'File harus berformat: XLSX, XLS, atau CSV.',
+                    'file.max' => 'Ukuran file maksimal 2MB.',
+                ],
+            );
 
             $file = $request->file('file');
             $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getRealPath());
@@ -1061,7 +1057,7 @@ class AdminController extends Controller
 
                     $namaMapel = trim($row[$headerMap['KelasKu']] ?? '');
                     $namaKelas = trim($row[$headerMap['Kelas']] ?? '');
-                    $namaGuru  = trim($row[$headerMap['Guru']] ?? '');
+                    $namaGuru = trim($row[$headerMap['Guru']] ?? '');
 
                     if (!$namaMapel || !$namaKelas || !$namaGuru) {
                         $errorRows[] = "Baris {$rowNumber}: Kolom wajib tidak boleh kosong.";
@@ -1148,7 +1144,7 @@ class AdminController extends Controller
                 DB::rollBack();
                 return response()->json([
                     'success' => false,
-                    'message' => "Tidak ada data yang berhasil diimpor.",
+                    'message' => 'Tidak ada data yang berhasil diimpor.',
                     'errors' => $errorRows,
                 ]);
             }
@@ -1166,14 +1162,7 @@ class AdminController extends Controller
         try {
             $kelasKu = MapelKelas::with(['mataPelajaran', 'kelas.jurusan', 'guru'])
                 ->get()
-                ->sortBy([
-                    fn($a, $b) => strcmp($a->mataPelajaran->nama_mapel ?? '', $b->mataPelajaran->nama_mapel ?? ''),
-                    fn($a, $b) => strcmp(
-                        ($a->kelas->tingkat ?? '') . ($a->kelas->jurusan->kode_jurusan ?? '') . ($a->kelas->no_kelas ?? ''),
-                        ($b->kelas->tingkat ?? '') . ($b->kelas->jurusan->kode_jurusan ?? '') . ($b->kelas->no_kelas ?? '')
-                    ),
-                    fn($a, $b) => strcmp($a->guru->nama ?? '', $b->guru->nama ?? ''),
-                ]);
+                ->sortBy([fn($a, $b) => strcmp($a->mataPelajaran->nama_mapel ?? '', $b->mataPelajaran->nama_mapel ?? ''), fn($a, $b) => strcmp(($a->kelas->tingkat ?? '') . ($a->kelas->jurusan->kode_jurusan ?? '') . ($a->kelas->no_kelas ?? ''), ($b->kelas->tingkat ?? '') . ($b->kelas->jurusan->kode_jurusan ?? '') . ($b->kelas->no_kelas ?? '')), fn($a, $b) => strcmp($a->guru->nama ?? '', $b->guru->nama ?? '')]);
 
             $data = [
                 'title' => 'Data KelasKu',
@@ -1190,7 +1179,9 @@ class AdminController extends Controller
 
             return $pdf->download($fileName);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengekspor KelasKu: ' . $e->getMessage());
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal mengekspor KelasKu: ' . $e->getMessage());
         }
     }
 
@@ -1201,7 +1192,9 @@ class AdminController extends Controller
 
             return Excel::download(new KelasKuExport(), $fileName);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengekspor data ke Excel: ' . $e->getMessage());
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal mengekspor data ke Excel: ' . $e->getMessage());
         }
     }
 
@@ -1241,12 +1234,13 @@ class AdminController extends Controller
         if ($search) {
             $searchTerm = strtolower(trim($search));
 
-            $query->whereHas('user.siswa', function ($q) use ($searchTerm) {
-                $q->whereRaw('LOWER(REPLACE(nama, " ", "")) LIKE ?', ['%' . $searchTerm . '%']);
-            })->orWhere(function ($q) use ($searchTerm) {
-                $q->orWhere('nis', 'like', "%{$searchTerm}%")
-                    ->orWhere('no_hp', 'like', "%{$searchTerm}%");
-            });
+            $query
+                ->whereHas('user.siswa', function ($q) use ($searchTerm) {
+                    $q->whereRaw('LOWER(REPLACE(nama, " ", "")) LIKE ?', ['%' . $searchTerm . '%']);
+                })
+                ->orWhere(function ($q) use ($searchTerm) {
+                    $q->orWhere('nis', 'like', "%{$searchTerm}%")->orWhere('no_hp', 'like', "%{$searchTerm}%");
+                });
         }
 
         if ($sortBy) {
@@ -1268,7 +1262,8 @@ class AdminController extends Controller
                     break;
 
                 case 'Kelas':
-                    $query->join('kelas', 'siswa.kelas_id', '=', 'kelas.id')
+                    $query
+                        ->join('kelas', 'siswa.kelas_id', '=', 'kelas.id')
                         ->join('jurusan', 'kelas.jurusan_id', '=', 'jurusan.id')
                         ->orderByRaw("tingkat $sortDirection")
                         ->orderBy('jurusan.nama_jurusan', $sortDirection)
@@ -1322,49 +1317,53 @@ class AdminController extends Controller
 
     public function create_siswa()
     {
-        $data = array(
+        $data = [
             'title' => 'Tambah Siswa',
             'menuPengguna' => 'active',
             // 'menu_admin_index_siswa' => 'active',
             'kelasList' => Kelas::all(),
-        );
+        ];
         return view('admin.siswa.create', $data);
     }
 
     public function store_siswa(Request $request)
     {
         // dd($request->all());
-        $validated = $request->validate([
-            'create_nisn' => 'nullable|numeric|digits_between:8,10|unique:siswa,nisn',
-            'create_nis' => 'required|numeric|digits_between:4,10|unique:siswa,nis',
-            'create_nama' => 'required|string|max:255',
-            'create_username' => 'required|unique:users,username',
-            'create_tanggal_lahir' => 'required|date',
-            'create_kelas_id' => 'required|exists:kelas,id',
-            'create_no_hp' => 'required|digits_between:10,15',
-            'create_email' => 'required|email|max:255',
-        ], [
-            'create_nisn.required' => 'NISN Tidak Boleh Kosong',
-            'create_nisn.numeric' => 'NISN Harus Angka',
-            'create_nisn.digits_between' => 'NISN Harus Antara 8-10 Digit',
-            'create_nisn.unique' => 'NISN Sudah Digunakan',
-            'create_nis.required' => 'NIS Tidak Boleh Kosong',
-            'create_nis.numeric' => 'NIS Harus Angka',
-            'create_nis.digits_between' => 'NIS Harus Antara 4-10 Digit',
-            'create_nis.unique' => 'NIS Sudah Digunakan',
-            'create_nama.required' => 'Nama Tidak Boleh Kosong',
-            'create_username.required' => 'Username Tidak Boleh Kosong',
-            'create_username.unique' => 'Username Sudah Digunakan',
-            'create_tanggal_lahir.required' => 'Tanggal Lahir Tidak Boleh Kosong',
-            'create_tanggal_lahir.date' => 'Tanggal Lahir Tidak Valid',
-            'create_kelas_id.required' => 'Kelas Tidak Boleh Kosong',
-            'create_kelas_id.exists' => 'Kelas Tidak Valid',
-            'create_no_hp.required' => 'No HP Tidak Boleh Kosong',
-            'create_no_hp.digits_between' => 'No HP Harus Antara 10-15 Digit',
-            'create_email.required' => 'Email Tidak Boleh Kosong',
-            'create_email.email' => 'Email Tidak Valid',
-            'create_email.max' => 'Email Terlalu Panjang',
-        ]);
+        $validated = $request->validate(
+            [
+                'create_nisn' => 'nullable|numeric|digits_between:8,10|unique:siswa,nisn',
+                'create_nis' => 'required|numeric|digits_between:4,10|unique:siswa,nis',
+                'create_nama' => 'required|string|max:255',
+                'create_username' => 'required|unique:users,username',
+                'create_tanggal_lahir' => 'required|date',
+                'create_kelas_id' => 'required|exists:kelas,id',
+                'create_no_hp' => 'required|digits_between:10,15',
+                'create_email' => 'required|email|max:255|unique:siswa,email',
+            ],
+            [
+                'create_nisn.required' => 'NISN Tidak Boleh Kosong',
+                'create_nisn.numeric' => 'NISN Harus Angka',
+                'create_nisn.digits_between' => 'NISN Harus Antara 8-10 Digit',
+                'create_nisn.unique' => 'NISN Sudah Digunakan',
+                'create_nis.required' => 'NIS Tidak Boleh Kosong',
+                'create_nis.numeric' => 'NIS Harus Angka',
+                'create_nis.digits_between' => 'NIS Harus Antara 4-10 Digit',
+                'create_nis.unique' => 'NIS Sudah Digunakan',
+                'create_nama.required' => 'Nama Tidak Boleh Kosong',
+                'create_username.required' => 'Username Tidak Boleh Kosong',
+                'create_username.unique' => 'Username Sudah Digunakan',
+                'create_tanggal_lahir.required' => 'Tanggal Lahir Tidak Boleh Kosong',
+                'create_tanggal_lahir.date' => 'Tanggal Lahir Tidak Valid',
+                'create_kelas_id.required' => 'Kelas Tidak Boleh Kosong',
+                'create_kelas_id.exists' => 'Kelas Tidak Valid',
+                'create_no_hp.required' => 'No HP Tidak Boleh Kosong',
+                'create_no_hp.digits_between' => 'No HP Harus Antara 10-15 Digit',
+                'create_email.required' => 'Email Tidak Boleh Kosong',
+                'create_email.email' => 'Email Tidak Valid',
+                'create_email.max' => 'Email Terlalu Panjang',
+                'create_email.unique' => 'Email Sudah Terdaftar',
+            ],
+        );
 
         try {
             $password = date('dmY', strtotime($validated['create_tanggal_lahir']));
@@ -1386,59 +1385,25 @@ class AdminController extends Controller
                 'email' => $request->create_email,
             ]);
 
+            Mail::to($request->create_email)->send(new InfoAkunSiswaMail($request->create_nama, $request->create_username, $password));
+
             return redirect()->route('admin_siswa.index')->with('success', 'Siswa berhasil ditambahkan!');
         } catch (\Exception $e) {
-            return back()->withErrors(['general' => 'Terjadi kesalahan, coba lagi.'])->withInput();
-        }
-    }
-
-    public function inline_update_siswa(Request $request, $id)
-    {
-        try {
-            $request->validate([
-                'nisn' => 'required|string',
-                'nis' => 'required|string',
-                'nama' => 'required|string',
-                'no_hp' => 'required|string',
-            ]);
-
-            $siswa = Siswa::findOrFail($id);
-
-            // Only update the fields we expect to be editable
-            $allowedFields = ['nisn', 'nis', 'nama', 'no_hp'];
-
-            foreach ($allowedFields as $field) {
-                if ($request->has($field)) {
-                    $siswa->$field = $request->$field;
-                }
-            }
-
-            $siswa->save();
-
-            return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validasi gagal',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
-            ], 500);
+            return back()
+                ->withErrors(['general' => 'Terjadi kesalahan, coba lagi.'])
+                ->withInput();
         }
     }
 
     public function edit_siswa($id)
     {
-        $data = array(
+        $data = [
             'title' => 'Edit Siswa',
             'menuPengguna' => 'active',
             // 'menu_admin_index_siswa' => 'active',
             'siswa' => Siswa::with('user', 'kelas.jurusan')->findOrFail($id),
             'kelasList' => Kelas::all(),
-        );
+        ];
         return view('admin.siswa.edit', $data);
     }
 
@@ -1450,61 +1415,66 @@ class AdminController extends Controller
 
         // dd($request->all());
 
-        $request->validate([
-            'edit_nisn' => 'nullable|numeric|digits_between:8,10|unique:siswa,nisn,' . $id,
-            'edit_nis' => 'required|numeric|digits_between:4,10|unique:siswa,nis,' . $id,
-            'edit_nama' => 'required|string|max:255',
-            'edit_username' => 'required|unique:users,username,' . ($user ? $user->id : 'NULL'),
-            'edit_tanggal_lahir' => 'required|date',
-            'edit_kelas_id' => 'required|exists:kelas,id',
-            'edit_no_hp' => 'required|digits_between:10,15',
-            'edit_email' => 'required|email|max:255',
-            'edit_jenis_kelamin' => 'nullable|in:L,P',
-            'edit_alamat' => 'nullable|string|max:255',
-            // 'current_password' => 'nullable|required_with:new_password|current_password:web',
-            'new_password' => 'nullable|min:5|same:password_confirmation',
-            'password_confirmation' => 'nullable|required_with:new_password|same:new_password',
-        ], [
-            'edit_nisn.required' => 'NISN Tidak Boleh Kosong',
-            'edit_nisn.numeric' => 'NISN Harus Angka',
-            'edit_nisn.digits_between' => 'NISN Harus Antara 8-10 Digit',
-            'edit_nisn.unique' => 'NISN Sudah Digunakan',
-            'edit_nis.required' => 'NIS Tidak Boleh Kosong',
-            'edit_nis.numeric' => 'NIS Harus Angka',
-            'edit_nis.digits_between' => 'NIS Harus Antara 4-10 Digit',
-            'edit_nis.unique' => 'NIS Sudah Digunakan',
-            'edit_nama.required' => 'Nama Tidak Boleh Kosong',
-            'edit_username.required' => 'Username Tidak Boleh Kosong',
-            'edit_username.unique' => 'Username Sudah Digunakan',
-            'edit_tanggal_lahir.required' => 'Tanggal Lahir Tidak Boleh Kosong',
-            'edit_tanggal_lahir.date' => 'Tanggal Lahir Tidak Valid',
-            'edit_kelas_id.required' => 'Kelas Tidak Boleh Kosong',
-            'edit_kelas_id.exists' => 'Kelas Tidak Valid',
-            'edit_no_hp.required' => 'No HP Tidak Boleh Kosong',
-            'edit_no_hp.digits_between' => 'No HP Harus Antara 10-15 Digit',
-            'edit_email.required' => 'Email Tidak Boleh Kosong',
-            'edit_email.email' => 'Email Tidak Valid',
-            'edit_email.max' => 'Email Terlalu Panjang',
-            'current_password.required_with' => 'Password lama harus diisi jika ingin mengganti password.',
-            'current_password.current_password' => 'Password lama tidak sesuai.',
-            'new_password.min' => 'Password baru minimal 5 karakter.',
-            'new_password.different' => 'Password baru tidak boleh sama dengan password lama.',
-            'new_password.same' => 'Konfirmasi password tidak cocok.',
-            'password_confirmation.required_with' => 'Konfirmasi password harus diisi.',
-            'password_confirmation.same' => 'Konfirmasi password tidak cocok.',
-        ]);
+        $request->validate(
+            [
+                'edit_nisn' => 'nullable|numeric|digits_between:8,10|unique:siswa,nisn,' . $id,
+                'edit_nis' => 'required|numeric|digits_between:4,10|unique:siswa,nis,' . $id,
+                'edit_nama' => 'required|string|max:255',
+                'edit_username' => 'required|unique:users,username,' . ($user ? $user->id : 'NULL'),
+                'edit_tanggal_lahir' => 'required|date',
+                'edit_kelas_id' => 'required|exists:kelas,id',
+                'edit_no_hp' => 'required|digits_between:10,15',
+                'edit_email' => 'required|email|max:255',
+                'edit_jenis_kelamin' => 'nullable|in:L,P',
+                'edit_alamat' => 'nullable|string|max:255',
+                // 'current_password' => 'nullable|required_with:new_password|current_password:web',
+                'new_password' => 'nullable|min:5|same:password_confirmation',
+                'password_confirmation' => 'nullable|required_with:new_password|same:new_password',
+            ],
+            [
+                'edit_nisn.required' => 'NISN Tidak Boleh Kosong',
+                'edit_nisn.numeric' => 'NISN Harus Angka',
+                'edit_nisn.digits_between' => 'NISN Harus Antara 8-10 Digit',
+                'edit_nisn.unique' => 'NISN Sudah Digunakan',
+                'edit_nis.required' => 'NIS Tidak Boleh Kosong',
+                'edit_nis.numeric' => 'NIS Harus Angka',
+                'edit_nis.digits_between' => 'NIS Harus Antara 4-10 Digit',
+                'edit_nis.unique' => 'NIS Sudah Digunakan',
+                'edit_nama.required' => 'Nama Tidak Boleh Kosong',
+                'edit_username.required' => 'Username Tidak Boleh Kosong',
+                'edit_username.unique' => 'Username Sudah Digunakan',
+                'edit_tanggal_lahir.required' => 'Tanggal Lahir Tidak Boleh Kosong',
+                'edit_tanggal_lahir.date' => 'Tanggal Lahir Tidak Valid',
+                'edit_kelas_id.required' => 'Kelas Tidak Boleh Kosong',
+                'edit_kelas_id.exists' => 'Kelas Tidak Valid',
+                'edit_no_hp.required' => 'No HP Tidak Boleh Kosong',
+                'edit_no_hp.digits_between' => 'No HP Harus Antara 10-15 Digit',
+                'edit_email.required' => 'Email Tidak Boleh Kosong',
+                'edit_email.email' => 'Email Tidak Valid',
+                'edit_email.max' => 'Email Terlalu Panjang',
+                'current_password.required_with' => 'Password lama harus diisi jika ingin mengganti password.',
+                'current_password.current_password' => 'Password lama tidak sesuai.',
+                'new_password.min' => 'Password baru minimal 5 karakter.',
+                'new_password.different' => 'Password baru tidak boleh sama dengan password lama.',
+                'new_password.same' => 'Konfirmasi password tidak cocok.',
+                'password_confirmation.required_with' => 'Konfirmasi password harus diisi.',
+                'password_confirmation.same' => 'Konfirmasi password tidak cocok.',
+            ],
+        );
 
-        $siswa->update(array_filter([
-            'nama' => $request->edit_nama,
-            'kelas_id' => $request->edit_kelas_id,
-            'nis' => $request->edit_nis,
-            'nisn' => $request->edit_nisn,
-            'tanggal_lahir' => $request->edit_tanggal_lahir,
-            'no_hp' => $request->edit_no_hp,
-            'email' => $request->edit_email,
-            'jenis_kelamin' => $request->edit_jenis_kelamin,
-            'alamat' => $request->edit_alamat,
-        ]));
+        $siswa->update(
+            array_filter([
+                'nama' => $request->edit_nama,
+                'kelas_id' => $request->edit_kelas_id,
+                'nis' => $request->edit_nis,
+                'nisn' => $request->edit_nisn,
+                'tanggal_lahir' => $request->edit_tanggal_lahir,
+                'no_hp' => $request->edit_no_hp,
+                'email' => $request->edit_email,
+                'jenis_kelamin' => $request->edit_jenis_kelamin,
+                'alamat' => $request->edit_alamat,
+            ]),
+        );
 
         if ($user) {
             $userData = [
@@ -1541,7 +1511,7 @@ class AdminController extends Controller
         if (!$ids || !is_array($ids)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tidak ada data yang dipilih!'
+                'message' => 'Tidak ada data yang dipilih!',
             ]);
         }
 
@@ -1563,12 +1533,12 @@ class AdminController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "Berhasil menghapus {$deletedCount} data Siswa."
+                'message' => "Berhasil menghapus {$deletedCount} data Siswa.",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage(),
             ]);
         }
     }
@@ -1580,10 +1550,7 @@ class AdminController extends Controller
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        $spreadsheet->getProperties()
-            ->setCreator('SMKN 1 Subang')
-            ->setTitle('Template Import Siswa')
-            ->setDescription('Template untuk mengimpor data siswa');
+        $spreadsheet->getProperties()->setCreator('SMKN 1 Subang')->setTitle('Template Import Siswa')->setDescription('Template untuk mengimpor data siswa');
 
         $headerStyle = [
             'font' => [
@@ -1606,28 +1573,19 @@ class AdminController extends Controller
             ],
         ];
 
-        $headers = [
-            'NIS',
-            'Nama Siswa',
-            'Tgl. Lahir',
-            'No. HP',
-            'Email',
-        ];
+        $headers = ['NIS', 'Nama Siswa', 'Tgl. Lahir', 'No. HP', 'Email'];
 
         $sheet->fromArray($headers, null, 'A1');
 
         $sheet->getStyle('A1:E1')->applyFromArray($headerStyle);
 
-        $sheet->getColumnDimension('A')->setWidth(15);  // nis
-        $sheet->getColumnDimension('B')->setWidth(25);  // nama siswa
-        $sheet->getColumnDimension('C')->setWidth(15);  // tgl lahir
-        $sheet->getColumnDimension('D')->setWidth(20);  // no hp
-        $sheet->getColumnDimension('E')->setWidth(30);  // email
+        $sheet->getColumnDimension('A')->setWidth(15); // nis
+        $sheet->getColumnDimension('B')->setWidth(25); // nama siswa
+        $sheet->getColumnDimension('C')->setWidth(15); // tgl lahir
+        $sheet->getColumnDimension('D')->setWidth(20); // no hp
+        $sheet->getColumnDimension('E')->setWidth(30); // email
 
-        $exampleData = [
-            ['123456', 'sigma', '01/01/2000', '08123456789', 'sigma@gmail.com'],
-            ['123457', 'gyatrox', '01/01/2000', '08123456789', 'gyatrox@gmail.com'],
-        ];
+        $exampleData = [['123456', 'sigma', '01/01/2000', '08123456789', 'sigma@gmail.com'], ['123457', 'gyatrox', '01/01/2000', '08123456789', 'gyatrox@gmail.com']];
 
         $sheet->fromArray($exampleData, null, 'A2');
 
@@ -1636,7 +1594,7 @@ class AdminController extends Controller
                 'allBorders' => [
                     'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
                     'color' => ['rgb' => '000000'],
-                ]
+                ],
             ],
             'fill' => [
                 'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
@@ -1660,30 +1618,37 @@ class AdminController extends Controller
 
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
 
-        return response()->streamDownload(function () use ($writer) {
-            $writer->save('php://output');
-        }, $fileName, [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
-            'Cache-Control' => 'cache, must-revalidate',
-            'Pragma' => 'public',
-        ]);
+        return response()->streamDownload(
+            function () use ($writer) {
+                $writer->save('php://output');
+            },
+            $fileName,
+            [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+                'Cache-Control' => 'cache, must-revalidate',
+                'Pragma' => 'public',
+            ],
+        );
     }
 
     public function import_siswa(Request $request)
     {
         try {
-            $request->validate([
-                'file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
-                'kelas_id' => 'required|exists:kelas,id',
-            ], [
-                'file.required' => 'File Tidak Boleh Kosong',
-                'file.mimes' => 'File Harus Berformat XLSX, XLS, atau CSV',
-                'file.max' => 'Ukuran File Maksimal 2MB',
-                'kelas_id.required' => 'Kelas Tidak Boleh Kosong',
-                'kelas_id.exists' => 'Kelas Tidak Valid',
-            ]);
+            $request->validate(
+                [
+                    'file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
+                    'kelas_id' => 'required|exists:kelas,id',
+                ],
+                [
+                    'file.required' => 'File Tidak Boleh Kosong',
+                    'file.mimes' => 'File Harus Berformat XLSX, XLS, atau CSV',
+                    'file.max' => 'Ukuran File Maksimal 2MB',
+                    'kelas_id.required' => 'Kelas Tidak Boleh Kosong',
+                    'kelas_id.exists' => 'Kelas Tidak Valid',
+                ],
+            );
 
             $file = $request->file('file');
             $kelasId = $request->kelas_id;
@@ -1708,7 +1673,7 @@ class AdminController extends Controller
                 if (!$found) {
                     return response()->json([
                         'success' => false,
-                        'message' => "Kolom '{$required}' tidak ditemukan di file."
+                        'message' => "Kolom '{$required}' tidak ditemukan di file.",
                     ]);
                 }
             }
@@ -1716,6 +1681,7 @@ class AdminController extends Controller
             $successCount = 0;
             $errorRows = [];
             $duplicateNIS = [];
+            $createdAccounts = [];
 
             DB::beginTransaction();
 
@@ -1723,7 +1689,6 @@ class AdminController extends Controller
                 $rowNumber = $rowIndex + 2;
 
                 try {
-
                     if (empty(array_filter($row))) {
                         continue;
                     }
@@ -1739,18 +1704,28 @@ class AdminController extends Controller
                         continue;
                     }
 
+                    $username = $this->generate_username_from_name($nama);
+
+                    if (User::where('username', $username)->exists()) {
+                        $errorRows[] = "Baris {$rowNumber}: Username '{$username}' sudah digunakan.";
+                        continue;
+                    }
+
                     if (Siswa::where('nis', $nis)->exists()) {
                         $duplicateNIS[] = "Baris {$rowNumber} NIS '{$nis}' sudah terdaftar.";
                         continue;
                     }
 
-                    // Validasi NIS harus angka
+                    if (Siswa::where('email', $email)->exists()) {
+                        $errorRows[] = "Baris {$rowNumber} Email '{$email}' sudah terdaftar.";
+                        continue;
+                    }
+
                     if (!is_numeric($nis)) {
                         $errorRows[] = "Baris {$rowNumber}: NIS harus berupa angka";
                         continue;
                     }
 
-                    // Validasi nomor HP
                     if (!preg_match('/^[0-9+\-\s]+$/', $noHp)) {
                         $errorRows[] = "Baris {$rowNumber}: Format nomor HP tidak valid";
                         continue;
@@ -1762,7 +1737,7 @@ class AdminController extends Controller
                         continue;
                     }
 
-                    if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                         $errorRows[] = "Baris {$rowNumber}: Format email tidak valid";
                         continue;
                     }
@@ -1786,6 +1761,13 @@ class AdminController extends Controller
                         'email' => $email,
                     ]);
 
+                    $createdAccounts[] = [
+                        'email' => $email,
+                        'nama' => $nama,
+                        'username' => $username,
+                        'password' => $password,
+                    ];
+
                     $successCount++;
                 } catch (\Exception $e) {
                     $errorRows[] = "Baris {$rowNumber}: Terjadi kesalahan saat menyimpan data - " . $e->getMessage();
@@ -1795,21 +1777,26 @@ class AdminController extends Controller
             if ($successCount > 0) {
                 DB::commit();
 
-                $message = "Berhasil mengimpor {$successCount} data siswa.";
-                $errors = array_merge($errorRows, $duplicateNIS);
+                foreach ($createdAccounts as $account) {
+                    try {
+                        Mail::to($account['email'])->send(new InfoAkunSiswaMail($account['nama'], $account['username'], $account['password']));
+                    } catch (\Exception $e) {
+                        Log::error("Gagal kirim email ke {$account['email']}: " . $e->getMessage());
+                    }
+                }
 
                 return response()->json([
                     'success' => true,
-                    'message' => $message,
+                    'message' => "Berhasil mengimpor {$successCount} data siswa.",
                     'imported_count' => $successCount,
-                    'errors' => !empty($errors) ? $errors : null,
+                    'errors' => !empty($errorRows) || !empty($duplicateNIS) ? array_merge($errorRows, $duplicateNIS) : null,
                 ]);
             } else {
                 DB::rollBack();
                 return response()->json([
                     'success' => false,
                     'message' => 'Tidak ada data yang berhasil diimpor.',
-                    'errors' => array_merge($errorRows,  $duplicateNIS),
+                    'errors' => array_merge($errorRows, $duplicateNIS),
                 ]);
             }
         } catch (\Exception $e) {
@@ -1824,7 +1811,10 @@ class AdminController extends Controller
     public function export_siswa_pdf()
     {
         try {
-            $siswa = Siswa::with(['user.siswa', 'kelas.jurusan'])->orderBy('kelas_id', 'asc')->orderBy('nama', 'asc')->get();
+            $siswa = Siswa::with(['user.siswa', 'kelas.jurusan'])
+                ->orderBy('kelas_id', 'asc')
+                ->orderBy('nama', 'asc')
+                ->get();
 
             $data = [
                 'title' => 'Data Siswa',
@@ -1841,7 +1831,9 @@ class AdminController extends Controller
 
             return $pdf->download($fileName);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengekspor data ke pdf: ' . $e->getMessage());
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal mengekspor data ke pdf: ' . $e->getMessage());
         }
     }
 
@@ -1850,9 +1842,11 @@ class AdminController extends Controller
         try {
             $filename = 'data_siswa_' . date('Y-m-d_H-i-s') . '.xlsx';
 
-            return Excel::download(new SiswaExport, $filename);
+            return Excel::download(new SiswaExport(), $filename);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengekspor data ke excel: ' . $e->getMessage());
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal mengekspor data ke excel: ' . $e->getMessage());
         }
     }
 
@@ -1869,12 +1863,13 @@ class AdminController extends Controller
         if ($search) {
             $searchTerm = strtolower(trim($search));
 
-            $query->whereHas('user.guru', function ($q) use ($searchTerm) {
-                $q->whereRaw('LOWER(REPLACE(nama, " ", "")) LIKE ?', ['%' . $searchTerm . '%']);
-            })->orWhere(function ($q) use ($searchTerm) {
-                $q->orWhere('nip', 'like', "%{$searchTerm}%")
-                    ->orWhere('no_hp', 'like', "%{$searchTerm}%");
-            });
+            $query
+                ->whereHas('user.guru', function ($q) use ($searchTerm) {
+                    $q->whereRaw('LOWER(REPLACE(nama, " ", "")) LIKE ?', ['%' . $searchTerm . '%']);
+                })
+                ->orWhere(function ($q) use ($searchTerm) {
+                    $q->orWhere('nip', 'like', "%{$searchTerm}%")->orWhere('no_hp', 'like', "%{$searchTerm}%");
+                });
         }
 
         if ($sortBy) {
@@ -1910,46 +1905,49 @@ class AdminController extends Controller
 
     public function create_guru()
     {
-        $data = array(
+        $data = [
             'title' => 'Tambah Guru',
             'menuPengguna' => 'active',
             // 'menu_admin_index_guru' => 'active',
-        );
+        ];
         return view('admin.guru.create', $data);
     }
-
 
     public function store_guru(Request $request)
     {
         // dd($request->all());
-        $request->validate([
-            'create_nip' => 'required|string|unique:guru,nip',
-            'create_nama' => 'required|string|max:255',
-            'create_username' => 'required|unique:users,username',
-            'create_tanggal_lahir' => 'required|date',
-            'create_no_hp' => 'required|digits_between:10,15',
-            'create_email' => 'required|email|max:255',
-        ], [
-            'create_nip.required' => 'NIP Tidak Boleh Kosong',
-            'create_nip.unique' => 'NIP Sudah Digunakan',
+        $request->validate(
+            [
+                'create_nip' => 'required|string|unique:guru,nip',
+                'create_nama' => 'required|string|max:255',
+                'create_username' => 'required|unique:users,username',
+                'create_tanggal_lahir' => 'required|date',
+                'create_no_hp' => 'required|digits_between:10,15',
+                'create_email' => 'required|email|max:255|unique:guru,email',
+            ],
+            [
+                'create_nip.required' => 'NIP Tidak Boleh Kosong',
+                'create_nip.unique' => 'NIP Sudah Digunakan',
 
-            'create_nama.required' => 'Nama Tidak Boleh Kosong',
+                'create_nama.required' => 'Nama Tidak Boleh Kosong',
 
-            'create_username.required' => 'Username Tidak Boleh Kosong',
-            'create_username.unique' => 'Username Sudah Digunakan',
+                'create_username.required' => 'Username Tidak Boleh Kosong',
+                'create_username.unique' => 'Username Sudah Digunakan',
 
-            'create_tanggal_lahir.required' => 'Tanggal Lahir Tidak Boleh Kosong',
-            'create_tanggal_lahir.date' => 'Tanggal Lahir Tidak Valid',
+                'create_tanggal_lahir.required' => 'Tanggal Lahir Tidak Boleh Kosong',
+                'create_tanggal_lahir.date' => 'Tanggal Lahir Tidak Valid',
 
-            'create_no_hp.required' => 'No HP Tidak Boleh Kosong',
-            'create_no_hp.digits_between' => 'No HP Harus Antara 10-15 Digit',
+                'create_no_hp.required' => 'No HP Tidak Boleh Kosong',
+                'create_no_hp.digits_between' => 'No HP Harus Antara 10-15 Digit',
 
-            'create_email.required' => 'Email Tidak Boleh Kosong',
-            'create_email.email' => 'Email Tidak Valid',
-        ]);
+                'create_email.required' => 'Email Tidak Boleh Kosong',
+                'create_email.email' => 'Email Tidak Valid',
+                'create_email.max' => 'Email Terlalu Panjang',
+                'create_email.unique' => 'Email Sudah Terdaftar',
+            ],
+        );
 
         try {
-
             $password = date('dmY', strtotime($request->create_tanggal_lahir));
 
             $user = User::create([
@@ -1967,72 +1965,80 @@ class AdminController extends Controller
                 'email' => $request->create_email,
             ]);
 
+            Mail::to($request->create_email)->send(new InfoAkunGuruMail($request->create_nama, $request->create_username, $password));
+
             return redirect()->route('admin_guru.index')->with('success', 'Guru berhasil ditambahkan!');
         } catch (\Exception $e) {
-            return back()->withErrors(['general' => 'Terjadi kesalahan, coba lagi.'])->withInput();
+            return back()
+                ->withErrors(['general' => 'Terjadi kesalahan, coba lagi.'])
+                ->withInput();
         }
     }
 
     public function edit_guru($id)
     {
-        $data = array(
+        $data = [
             'title' => 'Edit Guru',
             'menuPengguna' => 'active',
             // 'menu_admin_index_guru' => 'active',
             'guru' => Guru::with('user')->findOrFail($id),
             'kelasList' => Kelas::all(),
-        );
+        ];
         return view('admin.guru.edit', $data);
     }
-
 
     public function update_guru(Request $request, $id)
     {
         $guru = Guru::with('user')->findOrFail($id);
         $user = $guru->user;
 
-        $request->validate([
-            'edit_nip' => 'required|string|unique:guru,nip,' . $id,
-            'edit_nama' => 'required|string|max:255',
-            'edit_username' => 'required|unique:users,username,' . ($user ? $user->id : 'NULL'),
-            'edit_tanggal_lahir' => 'required|date',
-            'edit_no_hp' => 'required|digits_between:10,15',
-            'edit_email' => 'required|email|max:255',
-            'edit_jenis_kelamin' => 'nullable|in:L,P',
-            'edit_alamat' => 'nullable|string|max:255',
-            // 'current_password' => 'nullable|required_with:new_password|current_password:web',
-            'new_password' => 'nullable|min:5|same:password_confirmation',
-            'password_confirmation' => 'nullable|required_with:new_password|same:new_password',
-        ], [
-            'edit_nip.required' => 'NIP Tidak Boleh Kosong',
-            'edit_nip.unique' => 'NIP Sudah Digunakan',
-            'edit_nama.required' => 'Nama Tidak Boleh Kosong',
-            'edit_username.required' => 'Username Tidak Boleh Kosong',
-            'edit_username.unique' => 'Username Sudah Digunakan',
-            'edit_tanggal_lahir.required' => 'Tanggal Lahir Tidak Boleh Kosong',
-            'edit_tanggal_lahir.date' => 'Tanggal Lahir Tidak Valid',
-            'edit_no_hp.required' => 'No HP Tidak Boleh Kosong',
-            'edit_no_hp.digits_between' => 'No HP Harus Antara 10-15 Digit',
-            'edit_email.required' => 'Email Tidak Boleh Kosong',
-            'edit_email.email' => 'Email Tidak Valid',
-            'current_password.required_with' => 'Password lama harus diisi jika ingin mengganti password.',
-            'current_password.current_password' => 'Password lama tidak sesuai.',
-            'new_password.min' => 'Password baru minimal 5 karakter.',
-            'new_password.different' => 'Password baru tidak boleh sama dengan password lama.',
-            'new_password.same' => 'Konfirmasi password tidak cocok.',
-            'password_confirmation.required_with' => 'Konfirmasi password harus diisi.',
-            'password_confirmation.same' => 'Konfirmasi password tidak cocok.',
-        ]);
+        $request->validate(
+            [
+                'edit_nip' => 'required|string|unique:guru,nip,' . $id,
+                'edit_nama' => 'required|string|max:255',
+                'edit_username' => 'required|unique:users,username,' . ($user ? $user->id : 'NULL'),
+                'edit_tanggal_lahir' => 'required|date',
+                'edit_no_hp' => 'required|digits_between:10,15',
+                'edit_email' => 'required|email|max:255',
+                'edit_jenis_kelamin' => 'nullable|in:L,P',
+                'edit_alamat' => 'nullable|string|max:255',
+                // 'current_password' => 'nullable|required_with:new_password|current_password:web',
+                'new_password' => 'nullable|min:5|same:password_confirmation',
+                'password_confirmation' => 'nullable|required_with:new_password|same:new_password',
+            ],
+            [
+                'edit_nip.required' => 'NIP Tidak Boleh Kosong',
+                'edit_nip.unique' => 'NIP Sudah Digunakan',
+                'edit_nama.required' => 'Nama Tidak Boleh Kosong',
+                'edit_username.required' => 'Username Tidak Boleh Kosong',
+                'edit_username.unique' => 'Username Sudah Digunakan',
+                'edit_tanggal_lahir.required' => 'Tanggal Lahir Tidak Boleh Kosong',
+                'edit_tanggal_lahir.date' => 'Tanggal Lahir Tidak Valid',
+                'edit_no_hp.required' => 'No HP Tidak Boleh Kosong',
+                'edit_no_hp.digits_between' => 'No HP Harus Antara 10-15 Digit',
+                'edit_email.required' => 'Email Tidak Boleh Kosong',
+                'edit_email.email' => 'Email Tidak Valid',
+                'current_password.required_with' => 'Password lama harus diisi jika ingin mengganti password.',
+                'current_password.current_password' => 'Password lama tidak sesuai.',
+                'new_password.min' => 'Password baru minimal 5 karakter.',
+                'new_password.different' => 'Password baru tidak boleh sama dengan password lama.',
+                'new_password.same' => 'Konfirmasi password tidak cocok.',
+                'password_confirmation.required_with' => 'Konfirmasi password harus diisi.',
+                'password_confirmation.same' => 'Konfirmasi password tidak cocok.',
+            ],
+        );
 
-        $guru->update(array_filter([
-            'nama' => $request->edit_nama,
-            'nip' => $request->edit_nip,
-            'tanggal_lahir' => $request->edit_tanggal_lahir,
-            'no_hp' => $request->edit_no_hp,
-            'email' => $request->edit_email,
-            'jenis_kelamin' => $request->edit_jenis_kelamin,
-            'alamat' => $request->edit_alamat,
-        ]));
+        $guru->update(
+            array_filter([
+                'nama' => $request->edit_nama,
+                'nip' => $request->edit_nip,
+                'tanggal_lahir' => $request->edit_tanggal_lahir,
+                'no_hp' => $request->edit_no_hp,
+                'email' => $request->edit_email,
+                'jenis_kelamin' => $request->edit_jenis_kelamin,
+                'alamat' => $request->edit_alamat,
+            ]),
+        );
 
         if ($user) {
             $userData = [
@@ -2069,7 +2075,7 @@ class AdminController extends Controller
         if (!$ids || !is_array($ids)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tidak ada data yang dipilih!'
+                'message' => 'Tidak ada data yang dipilih!',
             ]);
         }
 
@@ -2091,12 +2097,12 @@ class AdminController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "Berhasil menghapus {$deletedCount} data Guru."
+                'message' => "Berhasil menghapus {$deletedCount} data Guru.",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage(),
             ]);
         }
     }
@@ -2108,10 +2114,7 @@ class AdminController extends Controller
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        $spreadsheet->getProperties()
-            ->setCreator('SMKN 1 Subang')
-            ->setTitle('Template Import Guru')
-            ->setDescription('Template untuk mengimpor data guru');
+        $spreadsheet->getProperties()->setCreator('SMKN 1 Subang')->setTitle('Template Import Guru')->setDescription('Template untuk mengimpor data guru');
 
         $headerStyle = [
             'font' => [
@@ -2134,28 +2137,19 @@ class AdminController extends Controller
             ],
         ];
 
-        $headers = [
-            'NIP',
-            'Nama Guru',
-            'Tgl. Lahir',
-            'No. HP',
-            'Email',
-        ];
+        $headers = ['NIP', 'Nama Guru', 'Tgl. Lahir', 'No. HP', 'Email'];
 
         $sheet->fromArray($headers, null, 'A1');
 
         $sheet->getStyle('A1:E1')->applyFromArray($headerStyle);
 
-        $sheet->getColumnDimension('A')->setWidth(15);  // nip
-        $sheet->getColumnDimension('B')->setWidth(25);  // nama guru
-        $sheet->getColumnDimension('C')->setWidth(15);  // tgl lahir
-        $sheet->getColumnDimension('D')->setWidth(20);  // no hp
-        $sheet->getColumnDimension('E')->setWidth(30);  // email
+        $sheet->getColumnDimension('A')->setWidth(15); // nip
+        $sheet->getColumnDimension('B')->setWidth(25); // nama guru
+        $sheet->getColumnDimension('C')->setWidth(15); // tgl lahir
+        $sheet->getColumnDimension('D')->setWidth(20); // no hp
+        $sheet->getColumnDimension('E')->setWidth(30); // email
 
-        $exampleData = [
-            ['123456', 'sigma', '01/01/2000', '08123456789', 'sigma@gmail.com'],
-            ['123457', 'gyatrox', '01/01/2000', '08123456789', 'gyatrox@gmail.com'],
-        ];
+        $exampleData = [['123456', 'sigma', '01/01/2000', '08123456789', 'sigma@gmail.com'], ['123457', 'gyatrox', '01/01/2000', '08123456789', 'gyatrox@gmail.com']];
 
         $sheet->fromArray($exampleData, null, 'A2');
 
@@ -2164,7 +2158,7 @@ class AdminController extends Controller
                 'allBorders' => [
                     'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
                     'color' => ['rgb' => '000000'],
-                ]
+                ],
             ],
             'fill' => [
                 'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
@@ -2188,27 +2182,34 @@ class AdminController extends Controller
 
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
 
-        return response()->streamDownload(function () use ($writer) {
-            $writer->save('php://output');
-        }, $fileName, [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
-            'Cache-Control' => 'cache, must-revalidate',
-            'Pragma' => 'public',
-        ]);
+        return response()->streamDownload(
+            function () use ($writer) {
+                $writer->save('php://output');
+            },
+            $fileName,
+            [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+                'Cache-Control' => 'cache, must-revalidate',
+                'Pragma' => 'public',
+            ],
+        );
     }
 
     public function import_guru(Request $request)
     {
         try {
-            $request->validate([
-                'file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
-            ], [
-                'file.required' => 'File Tidak Boleh Kosong',
-                'file.mimes' => 'File Harus Berformat XLSX, XLS, atau CSV',
-                'file.max' => 'Ukuran File Maksimal 2MB',
-            ]);
+            $request->validate(
+                [
+                    'file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
+                ],
+                [
+                    'file.required' => 'File Tidak Boleh Kosong',
+                    'file.mimes' => 'File Harus Berformat XLSX, XLS, atau CSV',
+                    'file.max' => 'Ukuran File Maksimal 2MB',
+                ],
+            );
 
             $file = $request->file('file');
 
@@ -2232,7 +2233,7 @@ class AdminController extends Controller
                 if (!$found) {
                     return response()->json([
                         'success' => false,
-                        'message' => "Kolom '{$required}' tidak ditemukan di file."
+                        'message' => "Kolom '{$required}' tidak ditemukan di file.",
                     ]);
                 }
             }
@@ -2247,7 +2248,6 @@ class AdminController extends Controller
                 $rowNumber = $rowIndex + 2;
 
                 try {
-
                     if (empty(array_filter($row))) {
                         continue;
                     }
@@ -2268,13 +2268,16 @@ class AdminController extends Controller
                         continue;
                     }
 
-                    // Validasi NIS harus angka
+                    if (Guru::where('email', $email)->exists()) {
+                        $errorRows[] = "Baris {$rowNumber}: Email '{$email}' sudah terdaftar.";
+                        continue;
+                    }
+
                     if (!is_numeric($nip)) {
                         $errorRows[] = "Baris {$rowNumber}: NIP harus berupa angka";
                         continue;
                     }
 
-                    // Validasi nomor HP
                     if (!preg_match('/^[0-9+\-\s]+$/', $noHp)) {
                         $errorRows[] = "Baris {$rowNumber}: Format nomor HP tidak valid";
                         continue;
@@ -2309,6 +2312,13 @@ class AdminController extends Controller
                         'email' => $email,
                     ]);
 
+                    try {
+                        Mail::to($email)->send(new \App\Mail\InfoAkunGuruMail($nama, $username, $password));
+                    } catch (\Exception $e) {
+                        Log::error("Gagal kirim email ke {$email}: " . $e->getMessage());
+                        $errorRows[] = "Baris {$rowNumber}: Gagal mengirim email ke {$email} - " . $e->getMessage();
+                    }
+
                     $successCount++;
                 } catch (\Exception $e) {
                     $errorRows[] = "Baris {$rowNumber}: Terjadi kesalahan saat menyimpan data - " . $e->getMessage();
@@ -2333,7 +2343,7 @@ class AdminController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Tidak ada data yang berhasil diimpor.',
-                    'errors' => array_merge($errorRows,  $duplicateNIP),
+                    'errors' => array_merge($errorRows, $duplicateNIP),
                 ]);
             }
         } catch (\Exception $e) {
@@ -2349,7 +2359,9 @@ class AdminController extends Controller
     public function export_guru_pdf()
     {
         try {
-            $guru = Guru::with(['user'])->orderBy('nama', 'asc')->get();
+            $guru = Guru::with(['user'])
+                ->orderBy('nama', 'asc')
+                ->get();
 
             $data = [
                 'title' => 'Data Guru SMKN 1 Subang',
@@ -2366,7 +2378,9 @@ class AdminController extends Controller
 
             return $pdf->download($filename);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengekspor data ke pdf: ' . $e->getMessage());
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal mengekspor data ke pdf: ' . $e->getMessage());
         }
     }
 
@@ -2375,9 +2389,11 @@ class AdminController extends Controller
         try {
             $filename = 'data_guru_' . date('Y-m-d_H-i-s') . '.xlsx';
 
-            return Excel::download(new GuruExport, $filename);
+            return Excel::download(new GuruExport(), $filename);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengekspor data ke excel: ' . $e->getMessage());
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal mengekspor data ke excel: ' . $e->getMessage());
         }
     }
 
@@ -2401,27 +2417,25 @@ class AdminController extends Controller
     {
         $kelasId = $request->kelas;
 
-        $query = Jadwal::with(['mapelKelas.mataPelajaran', 'mapelKelas.kelas'])
-            ->when($kelasId, function ($q) use ($kelasId) {
-                $q->whereHas('mapelKelas', function ($q2) use ($kelasId) {
-                    $q2->where('kelas_id', $kelasId);
-                });
+        $query = Jadwal::with(['mapelKelas.mataPelajaran', 'mapelKelas.kelas'])->when($kelasId, function ($q) use ($kelasId) {
+            $q->whereHas('mapelKelas', function ($q2) use ($kelasId) {
+                $q2->where('kelas_id', $kelasId);
             });
+        });
 
         $jadwals = $query->get();
 
         $kelasFilter = Kelas::with('jurusan')->orderBy('tingkat')->orderBy('jurusan_id')->orderBy('no_kelas')->get();
 
-        $data = array(
+        $data = [
             'title' => 'Jadwal Pelajaran',
             'menuAdmin' => 'active',
             'jadwals' => $jadwals,
             'kelasFilter' => $kelasFilter,
             'kelasList' => Kelas::with('jurusan')->get(),
-        );
+        ];
 
         if ($request->ajax()) {
-
             if ($kelasId) {
                 $selectedKelas = Kelas::with('jurusan')->find($kelasId);
             }
@@ -2438,7 +2452,6 @@ class AdminController extends Controller
     public function update_jadwal_pelajaran(Request $request, $id)
     {
         try {
-
             $request->merge([
                 'jam_mulai' => \Carbon\Carbon::parse($request->jam_mulai)->format('H:i'),
                 'jam_selesai' => \Carbon\Carbon::parse($request->jam_selesai)->format('H:i'),
@@ -2493,9 +2506,10 @@ class AdminController extends Controller
             }
 
             foreach ($jadwalsToUpdate as $item) {
-                $newDate = collect($tanggalListBaru)->first(function ($tgl) use ($item) {
-                    return $tgl->format('Y-m-d') > $item->tanggal;
-                }) ?? $item->tanggal;
+                $newDate =
+                    collect($tanggalListBaru)->first(function ($tgl) use ($item) {
+                        return $tgl->format('Y-m-d') > $item->tanggal;
+                    }) ?? $item->tanggal;
 
                 $item->update([
                     'tanggal' => is_string($newDate) ? $newDate : $newDate->format('Y-m-d'),
@@ -2510,12 +2524,15 @@ class AdminController extends Controller
                 'message' => 'Jadwal berhasil diperbarui!',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'type' => 'error',
-                'message' => 'Validasi gagal',
-                'errors' => $e->errors(),
-            ], 422);
+            return response()->json(
+                [
+                    'success' => false,
+                    'type' => 'error',
+                    'message' => 'Validasi gagal',
+                    'errors' => $e->errors(),
+                ],
+                422,
+            );
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -2564,13 +2581,15 @@ class AdminController extends Controller
                 'message' => "Berhasil menghapus $jumlah jadwal!",
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
-            ], 500);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                ],
+                500,
+            );
         }
     }
-
 
     public function download_template_jadwal_pelajaran()
     {
@@ -2579,10 +2598,7 @@ class AdminController extends Controller
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        $spreadsheet->getProperties()
-            ->setCreator('SMKN 1 Subang')
-            ->setTitle('Template Import Jadwal')
-            ->setDescription('Template untuk mengimpor jadwal ke dalam sistem.');
+        $spreadsheet->getProperties()->setCreator('SMKN 1 Subang')->setTitle('Template Import Jadwal')->setDescription('Template untuk mengimpor jadwal ke dalam sistem.');
 
         $headersStyle = [
             'font' => [
@@ -2605,15 +2621,9 @@ class AdminController extends Controller
             ],
         ];
 
-        $headers = [
-            'Hari',
-            'Jam Mulai',
-            'Jam Selesai',
-            'Mata Pelajaran',
-            'Guru',
-        ];
+        $headers = ['Hari', 'Jam Mulai', 'Jam Selesai', 'Mata Pelajaran', 'Guru'];
 
-        $sheet->fromArray(($headers), null, 'A1');
+        $sheet->fromArray($headers, null, 'A1');
         $sheet->getStyle('A1:E1')->applyFromArray($headersStyle);
 
         $sheet->getColumnDimension('A')->setWidth(15);
@@ -2622,10 +2632,7 @@ class AdminController extends Controller
         $sheet->getColumnDimension('D')->setWidth(30);
         $sheet->getColumnDimension('E')->setWidth(30);
 
-        $exampleData = [
-            ['Senin', '08:00', '09:20', 'Bahasa Indonesia', 'Dedi Purnama'],
-            ['Senin', '09:20', '10:40', 'Bahasa Inggris', 'Siti'],
-        ];
+        $exampleData = [['Senin', '08:00', '09:20', 'Bahasa Indonesia', 'Dedi Purnama'], ['Senin', '09:20', '10:40', 'Bahasa Inggris', 'Siti']];
 
         $sheet->fromArray($exampleData, null, 'A2');
         $sheet->getStyle('A2:E3')->applyFromArray([
@@ -2633,7 +2640,7 @@ class AdminController extends Controller
                 'allBorders' => [
                     'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
                     'color' => ['rgb' => '0000000'],
-                ]
+                ],
             ],
             'fill' => [
                 'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
@@ -2656,15 +2663,19 @@ class AdminController extends Controller
 
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
 
-        return response()->streamDownload(function () use ($writer) {
-            $writer->save('php://output');
-        }, $fileName, [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
-            'Cache-Control' => 'cache, must-revalidate',
-            'Pragma' => 'public',
-        ]);
+        return response()->streamDownload(
+            function () use ($writer) {
+                $writer->save('php://output');
+            },
+            $fileName,
+            [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+                'Cache-Control' => 'cache, must-revalidate',
+                'Pragma' => 'public',
+            ],
+        );
     }
 
     public function import_jadwal_pelajaran(Request $request)
@@ -2697,7 +2708,7 @@ class AdminController extends Controller
                 if (!$found) {
                     return response()->json([
                         'success' => false,
-                        'message' => "Kolom '{$required}' tidak ditemukan di file."
+                        'message' => "Kolom '{$required}' tidak ditemukan di file.",
                     ]);
                 }
             }
@@ -2722,7 +2733,6 @@ class AdminController extends Controller
                 $rowNumber = $rowIndex + 2;
 
                 try {
-                    
                     if (empty(array_filter($row))) {
                         continue;
                     }
@@ -2748,14 +2758,11 @@ class AdminController extends Controller
                         continue;
                     }
 
-                    $mapelKelas = MapelKelas::where('kelas_id', $kelas_id)
-                        ->whereHas('mataPelajaran', fn($q) => $q->where('nama_mapel', $namaMapel))
-                        ->whereHas('guru', fn($q) => $q->where('nama', 'LIKE', "%$namaGuru%"))
-                        ->first();
+                    $mapelKelas = MapelKelas::where('kelas_id', $kelas_id)->whereHas('mataPelajaran', fn($q) => $q->where('nama_mapel', $namaMapel))->whereHas('guru', fn($q) => $q->where('nama', 'LIKE', "%$namaGuru%"))->first();
 
                     if (!$mapelKelas) {
                         $kelas = Kelas::find($kelas_id);
-                        $kelasNama = $kelas ? ($kelas->tingkat . ' ' . ($kelas->jurusan->kode_jurusan ?? '') . ' ' . $kelas->no_kelas) : $kelas_id;
+                        $kelasNama = $kelas ? $kelas->tingkat . ' ' . ($kelas->jurusan->kode_jurusan ?? '') . ' ' . $kelas->no_kelas : $kelas_id;
                         $errorRows[] = "Baris {$rowNumber}: Kombinasi mapel '{$namaMapel}', guru '{$namaGuru}', kelas '{$kelasNama}' tidak ditemukan.";
                         continue;
                     }
@@ -2835,8 +2842,7 @@ class AdminController extends Controller
             $searchTerm = strtolower(trim($search));
 
             $query->where(function ($q) use ($searchTerm) {
-                $q->whereRaw('LOWER(REPLACE(nama_jurusan, " ", "")) LIKE ?', ['%' . $searchTerm . '%'])
-                    ->orWhereRaw('LOWER(REPLACE(kode_jurusan, " ", "")) LIKE ?', ['%' . $searchTerm . '%']);
+                $q->whereRaw('LOWER(REPLACE(nama_jurusan, " ", "")) LIKE ?', ['%' . $searchTerm . '%'])->orWhereRaw('LOWER(REPLACE(kode_jurusan, " ", "")) LIKE ?', ['%' . $searchTerm . '%']);
             });
         }
 
@@ -2876,27 +2882,30 @@ class AdminController extends Controller
 
     public function create_jurusan()
     {
-        $data = array(
+        $data = [
             'title' => 'Tambah Jurusan',
             'menuAdmin' => 'active',
             // 'menu_admin_index_jurusan' => 'active',
-        );
+        ];
         return view('admin.jurusan.create', $data);
     }
 
     public function store_jurusan(Request $request)
     {
         // dd($request->all());
-        $request->validate([
-            'nama_jurusan' => 'required|string|max:255|unique:jurusan,nama_jurusan',
-            'kode_jurusan' => 'required|string|max:255|unique:jurusan,kode_jurusan',
-        ], [
-            'nama_jurusan.required' => 'Nama Jurusan Tidak Boleh Kosong',
-            'nama_jurusan.unique' => 'Nama Jurusan Sudah Ada',
+        $request->validate(
+            [
+                'nama_jurusan' => 'required|string|max:255|unique:jurusan,nama_jurusan',
+                'kode_jurusan' => 'required|string|max:255|unique:jurusan,kode_jurusan',
+            ],
+            [
+                'nama_jurusan.required' => 'Nama Jurusan Tidak Boleh Kosong',
+                'nama_jurusan.unique' => 'Nama Jurusan Sudah Ada',
 
-            'kode_jurusan.required' => 'Kode Jurusan Tidak Boleh Kosong',
-            'kode_jurusan.unique' => 'Kode Jurusan Sudah Ada',
-        ]);
+                'kode_jurusan.required' => 'Kode Jurusan Tidak Boleh Kosong',
+                'kode_jurusan.unique' => 'Kode Jurusan Sudah Ada',
+            ],
+        );
 
         try {
             Jurusan::create([
@@ -2906,18 +2915,20 @@ class AdminController extends Controller
 
             return redirect()->route('admin_jurusan.index')->with('success', 'Jurusan Berhasil Ditambahkan');
         } catch (\Exception $e) {
-            return back()->withErrors(['general' => 'Terjadi kesalahan, coba lagi.'])->withInput();
+            return back()
+                ->withErrors(['general' => 'Terjadi kesalahan, coba lagi.'])
+                ->withInput();
         }
     }
 
     public function edit_jurusan($id)
     {
-        $data = array(
+        $data = [
             'title' => 'Edit Jurusan',
             'menuAdmin' => 'active',
             // 'menu_admin_index_jurusan' => 'active',
             'jurusan' => Jurusan::findOrFail($id),
-        );
+        ];
         return view('admin.jurusan.edit', $data);
     }
 
@@ -2925,18 +2936,23 @@ class AdminController extends Controller
     {
         $jurusan = Jurusan::findorfail($id);
 
-        $request->validate([
-            'nama_jurusan' => 'required|string',
-            'kode_jurusan' => 'required|string',
-        ], [
-            'nama_jurusan.required' => 'Nama Jurusan Tidak Boleh Kosong',
-            'kode_jurusan.required' => 'Kode Jurusan Tidak Boleh Kosong',
-        ]);
+        $request->validate(
+            [
+                'nama_jurusan' => 'required|string',
+                'kode_jurusan' => 'required|string',
+            ],
+            [
+                'nama_jurusan.required' => 'Nama Jurusan Tidak Boleh Kosong',
+                'kode_jurusan.required' => 'Kode Jurusan Tidak Boleh Kosong',
+            ],
+        );
 
-        $jurusan->update(array_filter([
-            'nama_jurusan' => $request->nama_jurusan,
-            'kode_jurusan' => $request->kode_jurusan,
-        ]));
+        $jurusan->update(
+            array_filter([
+                'nama_jurusan' => $request->nama_jurusan,
+                'kode_jurusan' => $request->kode_jurusan,
+            ]),
+        );
 
         return redirect()->route('admin_jurusan.index')->with('success', 'Jurusan Berhasil Diedit');
 
@@ -2966,7 +2982,7 @@ class AdminController extends Controller
         if (!$ids || !is_array($ids)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tidak ada data yang dipilih!'
+                'message' => 'Tidak ada data yang dipilih!',
             ]);
         }
 
@@ -2984,12 +3000,12 @@ class AdminController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "Berhasil menghapus {$deletedCount} data Jurusan."
+                'message' => "Berhasil menghapus {$deletedCount} data Jurusan.",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage(),
             ]);
         }
     }
@@ -3001,10 +3017,7 @@ class AdminController extends Controller
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        $spreadsheet->getProperties()
-            ->setCreator('SMKN 1 Subang')
-            ->setTitle('Template Import Jurusan')
-            ->setDescription('Template untuk mengimpor data jurusan ke dalam sistem.');
+        $spreadsheet->getProperties()->setCreator('SMKN 1 Subang')->setTitle('Template Import Jurusan')->setDescription('Template untuk mengimpor data jurusan ke dalam sistem.');
 
         $headersStyle = [
             'font' => [
@@ -3027,21 +3040,15 @@ class AdminController extends Controller
             ],
         ];
 
-        $headers = [
-            'Nama Jurusan',
-            'Kode Jurusan',
-        ];
+        $headers = ['Nama Jurusan', 'Kode Jurusan'];
 
-        $sheet->fromArray(($headers), null, 'A1');
+        $sheet->fromArray($headers, null, 'A1');
         $sheet->getStyle('A1:B1')->applyFromArray($headersStyle);
 
         $sheet->getColumnDimension('A')->setWidth(25);
         $sheet->getColumnDimension('B')->setWidth(15);
 
-        $exampleData = [
-            ['Teknik Komputer Jaringan', 'TKJ'],
-            ['Rekayasa Perangkat Lunak', 'RPL'],
-        ];
+        $exampleData = [['Teknik Komputer Jaringan', 'TKJ'], ['Rekayasa Perangkat Lunak', 'RPL']];
 
         $sheet->fromArray($exampleData, null, 'A2');
         $sheet->getStyle('A2:B3')->applyFromArray([
@@ -3049,7 +3056,7 @@ class AdminController extends Controller
                 'allBorders' => [
                     'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
                     'color' => ['rgb' => '0000000'],
-                ]
+                ],
             ],
             'fill' => [
                 'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
@@ -3070,29 +3077,36 @@ class AdminController extends Controller
 
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
 
-        return response()->streamDownload(function () use ($writer) {
-            $writer->save('php://output');
-        }, $fileName, [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
-            'Cache-Control' => 'cache, must-revalidate',
-            'Pragma' => 'public',
-        ]);
+        return response()->streamDownload(
+            function () use ($writer) {
+                $writer->save('php://output');
+            },
+            $fileName,
+            [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+                'Cache-Control' => 'cache, must-revalidate',
+                'Pragma' => 'public',
+            ],
+        );
     }
 
     public function import_jurusan(Request $request)
     {
         try {
             // dd($request->all());
-            $request->validate([
-                'file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
-            ], [
-                'file.required' => 'File Tidak Boleh Kosong',
-                'file.file' => 'File Harus Berupa File',
-                'file.mimes' => 'File Harus Berformat XLSX, XLS, atau CSV',
-                'file.max' => 'Ukuran File Maksimal 2MB',
-            ]);
+            $request->validate(
+                [
+                    'file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
+                ],
+                [
+                    'file.required' => 'File Tidak Boleh Kosong',
+                    'file.file' => 'File Harus Berupa File',
+                    'file.mimes' => 'File Harus Berformat XLSX, XLS, atau CSV',
+                    'file.max' => 'Ukuran File Maksimal 2MB',
+                ],
+            );
 
             $file = $request->file('file');
 
@@ -3101,17 +3115,14 @@ class AdminController extends Controller
             $rows = $worksheet->toArray();
             $headers = array_shift($rows);
 
-            $requiredHeaders = [
-                'Nama Jurusan',
-                'Kode Jurusan',
-            ];
+            $requiredHeaders = ['Nama Jurusan', 'Kode Jurusan'];
 
             $headerMap = [];
 
             foreach ($requiredHeaders as $required) {
                 $found = false;
                 foreach ($headers as $index => $header) {
-                    if (trim(strtoupper($header)) === strtoupper(($required))) {
+                    if (trim(strtoupper($header)) === strtoupper($required)) {
                         $headerMap[$required] = $index;
                         $found = true;
                         break;
@@ -3121,7 +3132,7 @@ class AdminController extends Controller
                 if (!$found) {
                     return response()->json([
                         'success' => false,
-                        'message' => "Kolom {$required} tidak ditemukan dalam file."
+                        'message' => "Kolom {$required} tidak ditemukan dalam file.",
                     ]);
                 }
             }
@@ -3135,7 +3146,6 @@ class AdminController extends Controller
                 $rowNumber = $rowIndex + 2;
 
                 try {
-
                     if (empty(array_filter($row))) {
                         continue;
                     }
@@ -3145,15 +3155,17 @@ class AdminController extends Controller
 
                     if (!$namaJurusan || !$kodeJurusan) {
                         $missing = [];
-                        if (!$namaJurusan) $missing[] = "Nama Jurusan";
-                        if (!$kodeJurusan) $missing[] = "Kode Jurusan";
-                        $errorRows[] = "Baris {$rowNumber}: Kolom " . implode(', ', $missing) . " tidak boleh kosong.";
+                        if (!$namaJurusan) {
+                            $missing[] = 'Nama Jurusan';
+                        }
+                        if (!$kodeJurusan) {
+                            $missing[] = 'Kode Jurusan';
+                        }
+                        $errorRows[] = "Baris {$rowNumber}: Kolom " . implode(', ', $missing) . ' tidak boleh kosong.';
                         continue;
                     }
 
-                    $jurusan = Jurusan::where('nama_jurusan', $namaJurusan)
-                        ->orWhere('kode_jurusan', $kodeJurusan)
-                        ->first();
+                    $jurusan = Jurusan::where('nama_jurusan', $namaJurusan)->orWhere('kode_jurusan', $kodeJurusan)->first();
 
                     if ($jurusan && $jurusan->nama_jurusan !== $namaJurusan) {
                         $errorRows[] = "Baris {$rowNumber}: Jurusan dengan nama '{$namaJurusan}' sudah ada dengan kode '{$jurusan->kode_jurusan}'.";
@@ -3224,7 +3236,9 @@ class AdminController extends Controller
 
             return $pdf->download($fileName);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengekspor data ke pdf: ' . $e->getMessage());
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal mengekspor data ke pdf: ' . $e->getMessage());
         }
     }
 
@@ -3235,7 +3249,9 @@ class AdminController extends Controller
 
             return Excel::download(new JurusanExport(), $fileName);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengekspor data ke Excel: ' . $e->getMessage());
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal mengekspor data ke Excel: ' . $e->getMessage());
         }
     }
 
@@ -3253,8 +3269,7 @@ class AdminController extends Controller
             $searchTerm = strtolower(trim($search));
 
             $query->where(function ($q) use ($searchTerm) {
-                $q->whereRaw('LOWER(REPLACE(nama_mapel, " ", "")) LIKE ?', ['%' . $searchTerm . '%'])
-                    ->orWhereRaw('LOWER(REPLACE(kode_mapel, " ", "")) LIKE ?', ['%' . $searchTerm . '%']);
+                $q->whereRaw('LOWER(REPLACE(nama_mapel, " ", "")) LIKE ?', ['%' . $searchTerm . '%'])->orWhereRaw('LOWER(REPLACE(kode_mapel, " ", "")) LIKE ?', ['%' . $searchTerm . '%']);
             });
         }
 
@@ -3294,26 +3309,29 @@ class AdminController extends Controller
 
     public function create_mapel()
     {
-        $data = array(
+        $data = [
             'title' => 'Tambah Mapel',
             'menuAdmin' => 'active',
             // 'menu_admin_index_mapel' => 'active',
-        );
+        ];
         return view('admin.mapel.create', $data);
     }
 
     public function store_mapel(Request $request)
     {
-        $request->validate([
-            'nama_mapel' => 'required|string|unique:mata_pelajaran,nama_mapel',
-            'kode_mapel' => 'required|string|unique:mata_pelajaran,kode_mapel',
-        ], [
-            'nama_mapel.required' => 'Nama Mapel Tidak Boleh Kosong',
-            'nama_mapel.unique' => 'Nama Mapel Sudah Ada',
+        $request->validate(
+            [
+                'nama_mapel' => 'required|string|unique:mata_pelajaran,nama_mapel',
+                'kode_mapel' => 'required|string|unique:mata_pelajaran,kode_mapel',
+            ],
+            [
+                'nama_mapel.required' => 'Nama Mapel Tidak Boleh Kosong',
+                'nama_mapel.unique' => 'Nama Mapel Sudah Ada',
 
-            'kode_mapel.required' => 'Kode Mapel Tidak Boleh Kosong',
-            'kode_mapel.unique' => 'Kode Mapel Sudah Ada',
-        ]);
+                'kode_mapel.required' => 'Kode Mapel Tidak Boleh Kosong',
+                'kode_mapel.unique' => 'Kode Mapel Sudah Ada',
+            ],
+        );
 
         try {
             MataPelajaran::create([
@@ -3323,19 +3341,21 @@ class AdminController extends Controller
 
             return redirect()->route('admin_mapel.index')->with('success', 'Mata Pelajaran berhasil ditambahkan!');
         } catch (\Exception $e) {
-            return back()->withErrors(['general' => 'Terjadi kesalahan, coba lagi.'])->withInput();
+            return back()
+                ->withErrors(['general' => 'Terjadi kesalahan, coba lagi.'])
+                ->withInput();
         }
     }
 
     public function edit_mapel($id)
     {
-        $data = array(
+        $data = [
             'title' => 'Daftar Mapel',
             'menuAdmin' => 'active',
             'mapel' => MataPelajaran::findorfail($id),
             // 'mapel' => $mapel,
             // 'menu_admin_index_mapel' => 'active',
-        );
+        ];
         return view('admin.mapel.edit', $data);
     }
 
@@ -3343,18 +3363,23 @@ class AdminController extends Controller
     {
         $mapel = MataPelajaran::findorfail($id);
 
-        $request->validate([
-            'nama_mapel' => 'required|string',
-            'kode_mapel' => 'required|string',
-        ], [
-            'nama_mapel.required' => 'Nama Mapel Tidak Boleh Kosong',
-            'kode_mapel.required' => 'Kode Mapel Tidak Boleh Kosong',
-        ]);
+        $request->validate(
+            [
+                'nama_mapel' => 'required|string',
+                'kode_mapel' => 'required|string',
+            ],
+            [
+                'nama_mapel.required' => 'Nama Mapel Tidak Boleh Kosong',
+                'kode_mapel.required' => 'Kode Mapel Tidak Boleh Kosong',
+            ],
+        );
 
-        $mapel->update(array_filter([
-            'nama_mapel' => $request->nama_mapel,
-            'kode_mapel' => $request->kode_mapel,
-        ]));
+        $mapel->update(
+            array_filter([
+                'nama_mapel' => $request->nama_mapel,
+                'kode_mapel' => $request->kode_mapel,
+            ]),
+        );
 
         return redirect()->route('admin_mapel.index')->with('success', 'Mapel Berhasil Diedit');
     }
@@ -3375,7 +3400,7 @@ class AdminController extends Controller
         if (!$ids || !is_array($ids)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tidak ada data yang dipilih!'
+                'message' => 'Tidak ada data yang dipilih!',
             ]);
         }
 
@@ -3393,12 +3418,12 @@ class AdminController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "Berhasil menghapus {$deletedCount} data Mapel."
+                'message' => "Berhasil menghapus {$deletedCount} data Mapel.",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage(),
             ]);
         }
     }
@@ -3410,10 +3435,7 @@ class AdminController extends Controller
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        $spreadsheet->getProperties()
-            ->setCreator('SMKN 1 Subang')
-            ->setTitle('Template Import Mapel')
-            ->setDescription('Template untuk mengimpor data mapel ke dalam sistem.');
+        $spreadsheet->getProperties()->setCreator('SMKN 1 Subang')->setTitle('Template Import Mapel')->setDescription('Template untuk mengimpor data mapel ke dalam sistem.');
 
         $headersStyle = [
             'font' => [
@@ -3436,21 +3458,15 @@ class AdminController extends Controller
             ],
         ];
 
-        $headers = [
-            'Nama Mapel',
-            'Kode Mapel',
-        ];
+        $headers = ['Nama Mapel', 'Kode Mapel'];
 
-        $sheet->fromArray(($headers), null, 'A1');
+        $sheet->fromArray($headers, null, 'A1');
         $sheet->getStyle('A1:B1')->applyFromArray($headersStyle);
 
         $sheet->getColumnDimension('A')->setWidth(25);
         $sheet->getColumnDimension('B')->setWidth(15);
 
-        $exampleData = [
-            ['Bahasa Indonesia', 'B. Indonesia'],
-            ['Projek Penguatan Profil Pelajar Pancasila', 'P5'],
-        ];
+        $exampleData = [['Bahasa Indonesia', 'B. Indonesia'], ['Projek Penguatan Profil Pelajar Pancasila', 'P5']];
 
         $sheet->fromArray($exampleData, null, 'A2');
         $sheet->getStyle('A2:B3')->applyFromArray([
@@ -3458,7 +3474,7 @@ class AdminController extends Controller
                 'allBorders' => [
                     'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
                     'color' => ['rgb' => '0000000'],
-                ]
+                ],
             ],
             'fill' => [
                 'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
@@ -3479,29 +3495,36 @@ class AdminController extends Controller
 
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
 
-        return response()->streamDownload(function () use ($writer) {
-            $writer->save('php://output');
-        }, $fileName, [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
-            'Cache-Control' => 'cache, must-revalidate',
-            'Pragma' => 'public',
-        ]);
+        return response()->streamDownload(
+            function () use ($writer) {
+                $writer->save('php://output');
+            },
+            $fileName,
+            [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+                'Cache-Control' => 'cache, must-revalidate',
+                'Pragma' => 'public',
+            ],
+        );
     }
 
     public function import_mapel(Request $request)
     {
         try {
             // dd($request->all());
-            $request->validate([
-                'file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
-            ], [
-                'file.required' => 'File Tidak Boleh Kosong',
-                'file.file' => 'File Harus Berupa File',
-                'file.mimes' => 'File Harus Berformat XLSX, XLS, atau CSV',
-                'file.max' => 'Ukuran File Maksimal 2MB',
-            ]);
+            $request->validate(
+                [
+                    'file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
+                ],
+                [
+                    'file.required' => 'File Tidak Boleh Kosong',
+                    'file.file' => 'File Harus Berupa File',
+                    'file.mimes' => 'File Harus Berformat XLSX, XLS, atau CSV',
+                    'file.max' => 'Ukuran File Maksimal 2MB',
+                ],
+            );
 
             $file = $request->file('file');
 
@@ -3510,17 +3533,14 @@ class AdminController extends Controller
             $rows = $worksheet->toArray();
             $headers = array_shift($rows);
 
-            $requiredHeaders = [
-                'Nama Mapel',
-                'Kode Mapel',
-            ];
+            $requiredHeaders = ['Nama Mapel', 'Kode Mapel'];
 
             $headerMap = [];
 
             foreach ($requiredHeaders as $required) {
                 $found = false;
                 foreach ($headers as $index => $header) {
-                    if (trim(strtoupper($header)) === strtoupper(($required))) {
+                    if (trim(strtoupper($header)) === strtoupper($required)) {
                         $headerMap[$required] = $index;
                         $found = true;
                         break;
@@ -3530,7 +3550,7 @@ class AdminController extends Controller
                 if (!$found) {
                     return response()->json([
                         'success' => false,
-                        'message' => "Kolom {$required} tidak ditemukan dalam file."
+                        'message' => "Kolom {$required} tidak ditemukan dalam file.",
                     ]);
                 }
             }
@@ -3544,7 +3564,6 @@ class AdminController extends Controller
                 $rowNumber = $rowIndex + 2;
 
                 try {
-
                     if (empty(array_filter($row))) {
                         continue;
                     }
@@ -3554,15 +3573,17 @@ class AdminController extends Controller
 
                     if (!$namaMapel || !$kodeMapel) {
                         $missing = [];
-                        if (!$namaMapel) $missing[] = "Nama Mapel";
-                        if (!$kodeMapel) $missing[] = "Kode Mapel";
-                        $errorRows[] = "Baris {$rowNumber}: Kolom " . implode(', ', $missing) . " tidak boleh kosong.";
+                        if (!$namaMapel) {
+                            $missing[] = 'Nama Mapel';
+                        }
+                        if (!$kodeMapel) {
+                            $missing[] = 'Kode Mapel';
+                        }
+                        $errorRows[] = "Baris {$rowNumber}: Kolom " . implode(', ', $missing) . ' tidak boleh kosong.';
                         continue;
                     }
 
-                    $mapel = MataPelajaran::where('nama_mapel', $namaMapel)
-                        ->orWhere('kode_mapel', $kodeMapel)
-                        ->first();
+                    $mapel = MataPelajaran::where('nama_mapel', $namaMapel)->orWhere('kode_mapel', $kodeMapel)->first();
 
                     if ($mapel && $mapel->nama_mapel !== $namaMapel) {
                         $errorRows[] = "Baris {$rowNumber}: Mapel dengan nama '{$namaMapel}' sudah ada dengan kode '{$mapel->kode_mapel}'.";
@@ -3633,7 +3654,9 @@ class AdminController extends Controller
 
             return $pdf->download($fileName);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengekspor data ke pdf: ' . $e->getMessage());
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal mengekspor data ke pdf: ' . $e->getMessage());
         }
     }
 
@@ -3644,7 +3667,9 @@ class AdminController extends Controller
 
             return Excel::download(new MataPelajaranExport(), $fileName);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengekspor data ke Excel: ' . $e->getMessage());
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal mengekspor data ke Excel: ' . $e->getMessage());
         }
     }
 
@@ -3703,85 +3728,71 @@ class AdminController extends Controller
         $lihatBerdasarkan = $request->input('lihatBerdasarkan', 'kelas');
 
         if ($lihatBerdasarkan === 'tanggal') {
-            $presensi_grouped = $presensi_raw->getCollection()->groupBy('tanggal')->map(function ($group, $tanggal) {
-                // $kelasIds = $group->pluck('siswa.kelas.id')->unique();
-                $siswaIds = Siswa::pluck('id');
+            $presensi_grouped = $presensi_raw
+                ->getCollection()
+                ->groupBy('tanggal')
+                ->map(function ($group, $tanggal) {
+                    // $kelasIds = $group->pluck('siswa.kelas.id')->unique();
+                    $siswaIds = Siswa::pluck('id');
 
-                $totalSiswa = count($siswaIds);
+                    $totalSiswa = count($siswaIds);
 
-                $izinCount = izinSiswa::whereDate('tanggal', $tanggal)
-                    ->whereIn('siswa_id', $siswaIds)
-                    ->where('jenis_izin', '!=', 'Sakit')
-                    ->count();
+                    $izinCount = izinSiswa::whereDate('tanggal', $tanggal)->whereIn('siswa_id', $siswaIds)->where('jenis_izin', '!=', 'Sakit')->count();
 
-                $sakitCount = izinSiswa::whereDate('tanggal', $tanggal)
-                    ->whereIn('siswa_id', $siswaIds)
-                    ->where('jenis_izin', 'Sakit')
-                    ->count();
+                    $sakitCount = izinSiswa::whereDate('tanggal', $tanggal)->whereIn('siswa_id', $siswaIds)->where('jenis_izin', 'Sakit')->count();
 
-                $alpaCount = presensiSiswa::whereDate('tanggal', $tanggal)
-                    ->whereIn('siswa_id', $siswaIds)
-                    ->where('status_kehadiran', 'alpa')
-                    ->count();
+                    $alpaCount = presensiSiswa::whereDate('tanggal', $tanggal)->whereIn('siswa_id', $siswaIds)->where('status_kehadiran', 'alpa')->count();
 
-                $hadirCount = $group->where('status_kehadiran', 'hadir')->count();
+                    $hadirCount = $group->where('status_kehadiran', 'hadir')->count();
 
-                return [
-                    'tanggal' => $tanggal,
-                    'total_siswa' => $totalSiswa,
-                    'hadir' => $hadirCount,
-                    'izin' => $izinCount,
-                    'sakit' => $sakitCount,
-                    'alpa' => $alpaCount,
-                ];
-            })->values();
+                    return [
+                        'tanggal' => $tanggal,
+                        'total_siswa' => $totalSiswa,
+                        'hadir' => $hadirCount,
+                        'izin' => $izinCount,
+                        'sakit' => $sakitCount,
+                        'alpa' => $alpaCount,
+                    ];
+                })
+                ->values();
         } else {
-            $presensi_grouped = $presensi_raw->getCollection()->groupBy(function ($item) {
-                $kelas = optional($item->siswa->kelas);
-                $jurusan = optional($kelas->jurusan);
-                return $kelas ? $kelas->tingkat . ' ' . $jurusan->kode_jurusan . ' ' . $kelas->no_kelas : '-';
-            })->map(function ($group, $kelasNama) {
-                $kelasId = optional(optional($group->first()->siswa)->kelas)->id;
-                $tanggal = optional($group->first())->tanggal;
+            $presensi_grouped = $presensi_raw
+                ->getCollection()
+                ->groupBy(function ($item) {
+                    $kelas = optional($item->siswa->kelas);
+                    $jurusan = optional($kelas->jurusan);
+                    return $kelas ? $kelas->tingkat . ' ' . $jurusan->kode_jurusan . ' ' . $kelas->no_kelas : '-';
+                })
+                ->map(function ($group, $kelasNama) {
+                    $kelasId = optional(optional($group->first()->siswa)->kelas)->id;
+                    $tanggal = optional($group->first())->tanggal;
 
-                $totalSiswa = Siswa::where('kelas_id', $kelasId)->count();
+                    $totalSiswa = Siswa::where('kelas_id', $kelasId)->count();
 
-                $siswaIds = $group->pluck('siswa_id')->unique();
+                    $siswaIds = $group->pluck('siswa_id')->unique();
 
-                $izinCount = izinSiswa::whereIn('siswa_id', $siswaIds)
-                    ->where('jenis_izin', '!=', 'Sakit')
-                    ->count();
+                    $izinCount = izinSiswa::whereIn('siswa_id', $siswaIds)->where('jenis_izin', '!=', 'Sakit')->count();
 
-                $sakitCount = izinSiswa::whereIn('siswa_id', $siswaIds)
-                    ->where('jenis_izin', 'Sakit')
-                    ->count();
+                    $sakitCount = izinSiswa::whereIn('siswa_id', $siswaIds)->where('jenis_izin', 'Sakit')->count();
 
-                $alpaCount = presensiSiswa::whereDate('tanggal', $tanggal)
-                    ->whereIn('siswa_id', $siswaIds)
-                    ->where('status_kehadiran', 'alpa')
-                    ->count();
+                    $alpaCount = presensiSiswa::whereDate('tanggal', $tanggal)->whereIn('siswa_id', $siswaIds)->where('status_kehadiran', 'alpa')->count();
 
-                $hadirCount = $group->where('status_kehadiran', 'hadir')->count();
+                    $hadirCount = $group->where('status_kehadiran', 'hadir')->count();
 
-                return [
-                    'kelas' => $kelasNama,
-                    'total_siswa' => $totalSiswa,
-                    'hadir' => $hadirCount,
-                    'izin' => $izinCount,
-                    'sakit' => $sakitCount,
-                    'alpa' => $alpaCount,
-                    'ids' => $group->pluck('id')->toArray(),
-                ];
-            })->values();
+                    return [
+                        'kelas' => $kelasNama,
+                        'total_siswa' => $totalSiswa,
+                        'hadir' => $hadirCount,
+                        'izin' => $izinCount,
+                        'sakit' => $sakitCount,
+                        'alpa' => $alpaCount,
+                        'ids' => $group->pluck('id')->toArray(),
+                    ];
+                })
+                ->values();
         }
 
-        $presensi_siswa = new LengthAwarePaginator(
-            $presensi_grouped,
-            $presensi_raw->total(),
-            $presensi_raw->perPage(),
-            $presensi_raw->currentPage(),
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
+        $presensi_siswa = new LengthAwarePaginator($presensi_grouped, $presensi_raw->total(), $presensi_raw->perPage(), $presensi_raw->currentPage(), ['path' => request()->url(), 'query' => request()->query()]);
 
         $kelasFilter = Kelas::with('jurusan')->orderBy('tingkat')->orderBy('jurusan_id')->orderBy('no_kelas')->get();
         $tanggalFilter = presensiSiswa::select('tanggal')->distinct()->orderBy('tanggal', 'desc')->pluck('tanggal');
@@ -3841,50 +3852,37 @@ class AdminController extends Controller
         $presensi_raw = $query->paginate($perPage)->withQueryString();
 
         // Map data
-        $presensi_guru = $presensi_raw->getCollection()->groupBy('tanggal')->map(function ($group, $tanggal) {
+        $presensi_guru = $presensi_raw
+            ->getCollection()
+            ->groupBy('tanggal')
+            ->map(function ($group, $tanggal) {
+                $guruIds = Guru::pluck('id');
 
-            $guruIds = Guru::pluck('id');
+                $totalGuru = count($guruIds);
 
-            $totalGuru = count($guruIds);
+                $izinCount = izinGuru::whereDate('tanggal', $tanggal)->whereIn('guru_id', $guruIds)->where('jenis_izin', '!=', 'Sakit')->count();
 
-            $izinCount = izinGuru::whereDate('tanggal', $tanggal)
-                ->whereIn('guru_id', $guruIds)
-                ->where('jenis_izin', '!=', 'Sakit')
-                ->count();
+                $sakitCount = izinGuru::whereDate('tanggal', $tanggal)->whereIn('guru_id', $guruIds)->where('jenis_izin', 'Sakit')->count();
 
-            $sakitCount = izinGuru::whereDate('tanggal', $tanggal)
-                ->whereIn('guru_id', $guruIds)
-                ->where('jenis_izin', 'Sakit')
-                ->count();
+                $alpaCount = presensiGuru::whereDate('tanggal', $tanggal)->whereIn('guru_id', $guruIds)->where('status_kehadiran', 'alpa')->count();
 
-            $alpaCount = presensiGuru::whereDate('tanggal', $tanggal)
-                ->whereIn('guru_id', $guruIds)
-                ->where('status_kehadiran', 'alpa')
-                ->count();
+                $hadirCount = $group->where('status_kehadiran', 'hadir')->count();
 
-            $hadirCount = $group->where('status_kehadiran', 'hadir')->count();
-
-            return [
-                'tanggal' => $tanggal,
-                'total_guru' => $totalGuru,
-                'hadir' => $hadirCount,
-                'izin' => $izinCount,
-                'sakit' => $sakitCount,
-                'alpa' => $alpaCount,
-            ];
-        })->values();
+                return [
+                    'tanggal' => $tanggal,
+                    'total_guru' => $totalGuru,
+                    'hadir' => $hadirCount,
+                    'izin' => $izinCount,
+                    'sakit' => $sakitCount,
+                    'alpa' => $alpaCount,
+                ];
+            })
+            ->values();
         if ($sortBy) {
             $presensi_guru = $presensi_guru->sortBy($sortBy, SORT_REGULAR, $sortDirection === 'desc')->values();
         }
 
-
-        $presensi_guru = new \Illuminate\Pagination\LengthAwarePaginator(
-            $presensi_guru,
-            $presensi_raw->total(),
-            $presensi_raw->perPage(),
-            $presensi_raw->currentPage(),
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
+        $presensi_guru = new \Illuminate\Pagination\LengthAwarePaginator($presensi_guru, $presensi_raw->total(), $presensi_raw->perPage(), $presensi_raw->currentPage(), ['path' => request()->url(), 'query' => request()->query()]);
 
         $tanggalFilter = presensiGuru::select('tanggal')->distinct()->orderBy('tanggal', 'desc')->pluck('tanggal');
 
@@ -3909,11 +3907,9 @@ class AdminController extends Controller
     {
         $data = [
             'title' => 'Presensi Per-Mapel',
-
         ];
         return view('admin.presensi.per_mapel.index', $data);
     }
-
 
     // izin siswa
     public function index_izin_siswa(Request $request)
@@ -3949,30 +3945,21 @@ class AdminController extends Controller
             $query->where(function ($q) use ($searchTerm) {
                 // Search by siswa.nama
                 $q->whereHas('siswa', function ($q2) use ($searchTerm) {
-                    $q2->whereRaw('LOWER(REPLACE(nama, " ", "")) LIKE ?', ['%' . $searchTerm . '%'])
-                        ->orWhereHas('kelas', function ($q3) use ($searchTerm) {
-                            $q3->whereRaw('LOWER(tingkat) LIKE ?', ["%{$searchTerm}%"])
-                                ->orWhereRaw('LOWER(no_kelas) LIKE ?', ["%{$searchTerm}%"])
-                                ->orWhereHas('jurusan', function ($q4) use ($searchTerm) {
-                                    $q4->whereRaw('LOWER(kode_jurusan) LIKE ?', ["%{$searchTerm}%"]);
-                                });
-                        });
+                    $q2->whereRaw('LOWER(REPLACE(nama, " ", "")) LIKE ?', ['%' . $searchTerm . '%'])->orWhereHas('kelas', function ($q3) use ($searchTerm) {
+                        $q3->whereRaw('LOWER(tingkat) LIKE ?', ["%{$searchTerm}%"])
+                            ->orWhereRaw('LOWER(no_kelas) LIKE ?', ["%{$searchTerm}%"])
+                            ->orWhereHas('jurusan', function ($q4) use ($searchTerm) {
+                                $q4->whereRaw('LOWER(kode_jurusan) LIKE ?', ["%{$searchTerm}%"]);
+                            });
+                    });
                 });
             });
         }
 
         if ($sortBy === 'kelas') {
-            $query->join('siswa', 'izin_siswa.siswa_id', '=', 'siswa.id')
-                ->join('kelas', 'siswa.kelas_id', '=', 'kelas.id')
-                ->join('jurusan', 'kelas.jurusan_id', '=', 'jurusan.id')
-                ->orderBy('kelas.tingkat', $sortDirection)
-                ->orderBy('jurusan.kode_jurusan', $sortDirection)
-                ->orderBy('kelas.no_kelas', $sortDirection)
-                ->select('izin_siswa.*');
+            $query->join('siswa', 'izin_siswa.siswa_id', '=', 'siswa.id')->join('kelas', 'siswa.kelas_id', '=', 'kelas.id')->join('jurusan', 'kelas.jurusan_id', '=', 'jurusan.id')->orderBy('kelas.tingkat', $sortDirection)->orderBy('jurusan.kode_jurusan', $sortDirection)->orderBy('kelas.no_kelas', $sortDirection)->select('izin_siswa.*');
         } elseif ($sortBy === 'siswa') {
-            $query->join('siswa', 'izin_siswa.siswa_id', '=', 'siswa.id')
-                ->orderBy('siswa.nama', $sortDirection)
-                ->select('izin_siswa.*');
+            $query->join('siswa', 'izin_siswa.siswa_id', '=', 'siswa.id')->orderBy('siswa.nama', $sortDirection)->select('izin_siswa.*');
         } elseif ($sortBy === 'tanggal') {
             $query->orderBy('tanggal', $sortDirection);
         } else {
@@ -4027,7 +4014,7 @@ class AdminController extends Controller
         $file = File::get($path);
         $type = File::mimeType($path);
 
-        return Response($file, 200)->header("Content-Type", $type);
+        return Response($file, 200)->header('Content-Type', $type);
     }
 
     public function export_izin_siswa_pdf(Request $request)
@@ -4121,15 +4108,12 @@ class AdminController extends Controller
         ];
 
         if ($sortBy === 'guru') {
-            $query->join('guru', 'izin_guru.guru_id', '=', 'guru.id')
-                ->orderBy('guru.nama', $sortDirection)
-                ->select('izin_guru.*'); // penting biar pagination gak rusak
+            $query->join('guru', 'izin_guru.guru_id', '=', 'guru.id')->orderBy('guru.nama', $sortDirection)->select('izin_guru.*'); // penting biar pagination gak rusak
         } elseif (isset($columnMap[$sortBy])) {
             $query->orderBy($columnMap[$sortBy], $sortDirection);
         } else {
             $query->orderBy('tanggal', 'asc');
         }
-
 
         $izin_guru = $query->paginate($perPage)->withQueryString();
 
@@ -4161,7 +4145,7 @@ class AdminController extends Controller
         $file = File::get($path);
         $type = File::mimeType($path);
 
-        return Response($file, 200)->header("Content-Type", $type);
+        return Response($file, 200)->header('Content-Type', $type);
     }
 
     public function export_izin_guru_pdf(Request $request)

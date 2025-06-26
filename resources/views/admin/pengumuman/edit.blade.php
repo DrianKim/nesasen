@@ -29,6 +29,12 @@
                     <option value="3">3 Hari</option>
                     <option value="7">1 Minggu</option>
                 </select>
+                <label for="edit_target" style="margin-top: 11px; display: block;"><b>Ditujukan Untuk</b></label>
+                <select id="edit_target" name="ditujukan_untuk" class="form-input">
+                    <option value="semua">Semua</option>
+                    <option value="guru">Guru</option>
+                    <option value="siswa">Siswa</option>
+                </select>
             </form>
         </div>
 

@@ -113,7 +113,7 @@
                         </div>
 
                         <div class="form-group half">
-                            <label for="email">Email</label>
+                            <label for="email">Email <small class="text-muted">(Pastikan Email yang diinput valid dan aktif)</small></label>
                             <input type="email" id="email" name="create_email" placeholder="xxx@gmail.com"
                                 class="@error('create_email') is-invalid @enderror" value="{{ old('create_email') }}">
                             <small>

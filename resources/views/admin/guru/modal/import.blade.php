@@ -26,7 +26,7 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>NIS</th>
+                                    <th>NIP</th>
                                     <th>Nama Guru</th>
                                     <th>Tgl. Lahir</th>
                                     <th>No. HP</th>
@@ -35,7 +35,7 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>1234567</td>
+                                    <td>987654321</td>
                                     <td>Gyatrox</td>
                                     <td>22/09/2000</td>
                                     <td>08123456789</td>

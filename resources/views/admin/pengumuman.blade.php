@@ -3,6 +3,7 @@
     $nama = explode(' ', Auth::user()->name_admin);
     $namaPendek = implode(' ', array_slice($nama, 0, 1));
 @endphp
+
 <body class="with-right-section">
     <div class="container">
         <!-- Sidebar Section -->
@@ -187,6 +188,7 @@
                     document.getElementById("edit_judul").value = data.judul;
                     document.getElementById("edit_isi").value = data.isi;
                     document.getElementById("edit_durasi").value = data.durasi;
+                    document.getElementById("edit_target").value = data.ditujukan_untuk;
 
                     const form = document.getElementById("formEditPengumuman");
                     form.action = `/admin/pengumuman/${id}`;
@@ -204,6 +206,7 @@
             document.getElementById("modalEditPengumuman").style.display = "none";
         }
     </script>
+
 
     <script>
         function hapusPengumuman(id) {
