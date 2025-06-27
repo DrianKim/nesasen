@@ -303,6 +303,8 @@ Route::middleware(['isLogin'])->group(function () {
         Route::post('admin/presensi/siswa/update/{id}', [AdminController::class, 'update_presensi_siswa'])->name('admin_presensi_siswa.update');
         Route::delete('admin/presensi/siswa/destroy/{id}', [AdminController::class, 'destroy_presensi_siswa'])->name('admin_presensi_siswa.destroy');
         Route::delete('admin/presensi/siswa/bulk_action', [AdminController::class, 'bulkAction_presensi_siswa'])->name('admin_presensi_siswa.bulk_action');
+        Route::get('admin/presensi_siswa/export/pdf', [AdminController::class, 'export_presensi_siswa_pdf'])->name('admin_presensi_siswa.export.pdf');
+        Route::get('admin/presensi_siswa/export/xlsx', [AdminController::class, 'export_presensi_siswa_xlsx'])->name('admin_presensi_siswa.export.xlsx');
 
         // presensi guru
         Route::get('admin/presensi/guru', [AdminController::class, 'index_presensi_guru'])->name('admin_presensi_guru.index');
@@ -313,6 +315,8 @@ Route::middleware(['isLogin'])->group(function () {
         Route::post('admin/presensi/guru/update/{id}', [AdminController::class, 'update_presensi_guru'])->name('admin_presensi_guru.update');
         Route::delete('admin/presensi/guru/destroy/{id}', [AdminController::class, 'destroy_presensi_guru'])->name('admin_presensi_guru.destroy');
         Route::delete('admin/presensi/guru/bulk_action', [AdminController::class, 'bulkAction_presensi_guru'])->name('admin_presensi_guru.bulk_action');
+                Route::get('admin/presensi_guru/export/pdf', [AdminController::class, 'export_presensi_guru_pdf'])->name('admin_presensi_guru.export.pdf');
+        Route::get('admin/presensi_guru/export/xlsx', [AdminController::class, 'export_presensi_guru_xlsx'])->name('admin_presensi_guru.export.xlsx');
 
         // presensi per mapel
         Route::get('admin/presensi/per_mapel', [AdminController::class, 'index_presensi_per_mapel'])->name('admin_presensi_per_mapel.index');

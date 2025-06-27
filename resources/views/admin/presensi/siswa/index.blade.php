@@ -46,18 +46,6 @@
                                     </option>
                                 </select>
                             </div>
-
-                            {{-- <div class="search-group">
-                                <label for="search" style="margin-right: 1.3rem;">Refresh:</label>
-                                <div class="search-wrapper">
-                                    <input type="text" class="form-control" name="search" id="searchInput"
-                                        placeholder="Cari nama siswa..." value="{{ request('search') }}">
-                                    <button class="resetFilter btn-refresh"
-                                        style="height: 35px; border-radius: 7px 7px 7px 7px;">
-                                        <span class="material-icons-sharp">refresh</span>
-                                    </button>
-                                </div>
-                            </div> --}}
                         </div>
                         <input type="hidden" name="sort_by" id="sort_by" value="{{ request('sort_by') }}">
                         <input type="hidden" name="sort_direction" id="sort_direction"
@@ -66,8 +54,8 @@
 
                         <div class="right-actions">
                             {{-- @include('admin.siswa.modal.create')
-                            @include('admin.siswa.modal.import')
-                            @include('admin.siswa.modal.export') --}}
+                            @include('admin.siswa.modal.import') --}}
+                            @include('admin.presensi.siswa.modal.export')
                             {{-- <button class="btn-hapus">
                                 <span class="material-icons-sharp">delete</span> Hapus
                             </button>
@@ -77,7 +65,7 @@
                             <button class="btn-import" onclick="openModalImport('modalSiswaImport')">
                                 <span class="material-icons-sharp">file_present</span>
                             </button> --}}
-                            <button class="btn-export-1" onclick="openModalExport('modalSiswaExport')">
+                            <button class="btn-export-1" onclick="openModalExport('modalPresensiSiswaExport')">
                                 <span class="material-icons-sharp">upload_file</span>
                             </button>
                         </div>
@@ -126,6 +114,28 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function openModalExport() {
+            const modal = document.getElementById("modalPresensiSiswaExport");
+            if (modal) {
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    modal.classList.add('show')
+                }, 10);
+            }
+        }
+
+        function closeModalExport() {
+            const modal = document.getElementById("modalPresensiSiswaExport");
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
+        }
+    </script>
 
     <script>
         function fetchData(page = 1) {

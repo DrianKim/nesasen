@@ -46,8 +46,8 @@
 
                         <div class="right-actions">
                             {{-- @include('admin.guru.modal.create')
-                            @include('admin.guru.modal.import')
-                            @include('admin.guru.modal.export') --}}
+                            @include('admin.guru.modal.import') --}}
+                            @include('admin.presensi.guru.modal.export')
                             {{-- <button class="btn-hapus">
                                 <span class="material-icons-sharp">delete</span> Hapus
                             </button>
@@ -57,7 +57,7 @@
                             <button class="btn-import" onclick="openModalImport('modalSiswaImport')">
                                 <span class="material-icons-sharp">file_present</span>
                             </button> --}}
-                            <button class="btn-export-1" onclick="openModalExport('modalSiswaExport')">
+                            <button class="btn-export-1" onclick="openModalExport('modalPresensiGuruExport')">
                                 <span class="material-icons-sharp">upload_file</span>
                             </button>
                         </div>
@@ -106,6 +106,28 @@
             </div>
         </div>
     </div>
+
+        <script>
+        function openModalExport() {
+            const modal = document.getElementById("modalPresensiGuruExport");
+            if (modal) {
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    modal.classList.add('show')
+                }, 10);
+            }
+        }
+
+        function closeModalExport() {
+            const modal = document.getElementById("modalPresensiGuruExport");
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
+        }
+    </script>
 
     <script>
         function fetchData(page = 1) {
@@ -306,24 +328,32 @@
             // Function to bind sorting events
             function bindSortingEvents() {
                 const sortableHeaders = document.querySelectorAll('.sortable');
+                console.log('Found sortable headers:', sortableHeaders.length); // Debug
+
                 sortableHeaders.forEach(header => {
                     header.addEventListener('click', function() {
+                        console.log('Sorting clicked:', this.getAttribute('data-column')); // Debug
+
                         const column = this.getAttribute('data-column');
                         const sortBy = document.getElementById('sort_by');
                         const sortDirection = document.getElementById('sort_direction');
 
+                        if (!sortBy || !sortDirection) {
+                            console.error('Sort inputs not found!'); // Debug
+                            return;
+                        }
+
                         // Toggle sort direction if clicking the same column
                         if (sortByInput.value === column) {
-                            sortDirectionInput.value = sortDirectionInput.value ===
-                                'asc' ? 'desc' :
+                            sortDirectionInput.value = sortDirectionInput.value === 'asc' ? 'desc' :
                                 'asc';
                         } else {
-                            // Default to ascending for new column
                             sortByInput.value = column;
                             sortDirectionInput.value = 'asc';
                         }
 
-                        // Load data with new sorting
+                        console.log('Sort by:', sortByInput.value, 'Direction:', sortDirectionInput
+                            .value); // Debug
                         loadData();
                     });
                 });

@@ -13,7 +13,7 @@ use App\Models\Jadwal;
 use App\Models\Jurusan;
 use App\Models\kelasKu;
 use App\Models\izinGuru;
-use Barryvdh\DomPDF\PDF;
+use Carbon\CarbonPeriod;
 use App\Models\izinSiswa;
 use App\Models\MapelKelas;
 use App\Exports\GuruExport;
@@ -27,17 +27,20 @@ use App\Models\MataPelajaran;
 use App\Models\presensiSiswa;
 use App\Exports\JurusanExport;
 use App\Exports\KelasKuExport;
+use App\Mail\InfoAkunGuruMail;
 use App\Exports\izinGuruExport;
+use App\Mail\InfoAkunSiswaMail;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\izinSiswaExport;
 use Database\Seeders\GuruSeeder;
 use Illuminate\Support\Facades\DB;
-use App\Mail\InfoAkunSiswaMail;
-use App\Mail\InfoAkunGuruMail;
-use Illuminate\Support\Facades\Mail;
+use App\Exports\PresensiGuruExport;
 use Illuminate\Support\Facades\Log;
 use App\Exports\MataPelajaranExport;
+use App\Exports\PresensiSiswaExport;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -3680,119 +3683,128 @@ class AdminController extends Controller
         $sortBy = $request->input('sort_by');
         $filterBy = $request->input('filter_by');
         $sortDirection = $request->input('sort_direction', 'asc');
+        $lihatBerdasarkan = $request->input('lihatBerdasarkan', 'kelas');
 
         $query = presensiSiswa::with('siswa.kelas.jurusan');
-
-        // Filter
-        // if ($request->filled('kelas')) {
-        //     $query->whereHas('siswa', function ($q) use ($request) {
-        //         $q->where('kelas_id', $request->input('kelas'));
-        //     });
-        // }
 
         if ($filterBy === 'kelas' && $request->filled('tanggal')) {
             $query->whereDate('tanggal', $request->input('tanggal'));
         }
 
-        // if ($filterBy === 'tanggal' && $request->filled('range_tanggal')) {
-        //     [$start, $end] = explode(' - ', $request->range_tanggal);
-        //     $query->whereBetween('tanggal', [$start, $end]);
-        // }
-
         if ($request->filled('range_tanggal')) {
             [$start, $end] = explode(' - ', $request->range_tanggal);
-            $start = trim($start);
-            $end = trim($end);
-            $query->whereBetween('tanggal', [$start, $end]);
+            $query->whereBetween('tanggal', [trim($start), trim($end)]);
         }
 
-        // Sorting manual tanpa join dulu
         $columnMap = [
-            'Tanggal' => 'tanggal',
-            'Kelas' => 'kelas',
-            'Total Siswa' => 'total_siswa',
-            'Hadir' => 'hadir',
-            'Izin' => 'izin',
-            'Sakit' => 'sakit',
-            'Alpa' => 'alpa',
+            'tanggal' => 'tanggal',
+            'kelas' => 'kelas',
+            'total_siswa' => 'total_siswa',
+            'hadir' => 'hadir',
+            'izin' => 'izin',
+            'sakit' => 'sakit',
+            'alpa' => 'alpa',
         ];
 
-        if (isset($columnMap[$sortBy])) {
-            $query->orderBy($columnMap[$sortBy], $sortDirection);
+        if ($sortBy && isset($columnMap[$sortBy]) && $columnMap[$sortBy] === 'tanggal') {
+            $query->orderBy('tanggal', $sortDirection);
         } else {
             $query->orderBy('tanggal', 'asc');
         }
 
         $presensi_raw = $query->paginate($perPage)->withQueryString();
 
-        $lihatBerdasarkan = $request->input('lihatBerdasarkan', 'kelas');
-
         if ($lihatBerdasarkan === 'tanggal') {
-            $presensi_grouped = $presensi_raw
-                ->getCollection()
-                ->groupBy('tanggal')
-                ->map(function ($group, $tanggal) {
-                    // $kelasIds = $group->pluck('siswa.kelas.id')->unique();
-                    $siswaIds = Siswa::pluck('id');
+            $allSiswaIds = Siswa::pluck('id');
 
-                    $totalSiswa = count($siswaIds);
+            $presensi_grouped = $presensi_raw->getCollection()->groupBy('tanggal')->map(function ($group, $tanggal) use ($allSiswaIds) {
+                $izinCount = izinSiswa::whereDate('tanggal', $tanggal)
+                    ->whereIn('siswa_id', $allSiswaIds)
+                    ->where('jenis_izin', '!=', 'Sakit')
+                    ->count();
 
-                    $izinCount = izinSiswa::whereDate('tanggal', $tanggal)->whereIn('siswa_id', $siswaIds)->where('jenis_izin', '!=', 'Sakit')->count();
+                $sakitCount = izinSiswa::whereDate('tanggal', $tanggal)
+                    ->whereIn('siswa_id', $allSiswaIds)
+                    ->where('jenis_izin', 'Sakit')
+                    ->count();
 
-                    $sakitCount = izinSiswa::whereDate('tanggal', $tanggal)->whereIn('siswa_id', $siswaIds)->where('jenis_izin', 'Sakit')->count();
+                $alpaCount = presensiSiswa::whereDate('tanggal', $tanggal)
+                    ->whereIn('siswa_id', $allSiswaIds)
+                    ->where('status_kehadiran', 'alpa')
+                    ->count();
 
-                    $alpaCount = presensiSiswa::whereDate('tanggal', $tanggal)->whereIn('siswa_id', $siswaIds)->where('status_kehadiran', 'alpa')->count();
+                $hadirCount = $group->filter(function ($item) {
+                    return in_array($item->status_kehadiran, ['hadir', 'terlambat']);
+                })->count();
 
-                    $hadirCount = $group->where('status_kehadiran', 'hadir')->count();
-
-                    return [
-                        'tanggal' => $tanggal,
-                        'total_siswa' => $totalSiswa,
-                        'hadir' => $hadirCount,
-                        'izin' => $izinCount,
-                        'sakit' => $sakitCount,
-                        'alpa' => $alpaCount,
-                    ];
-                })
-                ->values();
+                return [
+                    'tanggal' => \Carbon\Carbon::parse($tanggal)->format('d-m-Y'),
+                    'total_siswa' => $allSiswaIds->count(),
+                    'hadir' => $hadirCount,
+                    'izin' => $izinCount,
+                    'sakit' => $sakitCount,
+                    'alpa' => $alpaCount,
+                ];
+            })->values();
         } else {
-            $presensi_grouped = $presensi_raw
-                ->getCollection()
-                ->groupBy(function ($item) {
-                    $kelas = optional($item->siswa->kelas);
-                    $jurusan = optional($kelas->jurusan);
-                    return $kelas ? $kelas->tingkat . ' ' . $jurusan->kode_jurusan . ' ' . $kelas->no_kelas : '-';
-                })
-                ->map(function ($group, $kelasNama) {
-                    $kelasId = optional(optional($group->first()->siswa)->kelas)->id;
-                    $tanggal = optional($group->first())->tanggal;
+            $presensi_grouped = $presensi_raw->getCollection()->groupBy(function ($item) {
+                $kelas = optional($item->siswa->kelas);
+                $jurusan = optional($kelas->jurusan);
+                return $kelas ? "{$kelas->tingkat} {$jurusan->kode_jurusan} {$kelas->no_kelas}" : '-';
+            })->map(function ($group, $kelasNama) {
+                $kelasId = optional(optional($group->first()->siswa)->kelas)->id;
+                $tanggal = optional($group->first())->tanggal;
+                $siswaIds = Siswa::where('kelas_id', $kelasId)->pluck('id');
+                $totalSiswa = $siswaIds->count();
 
-                    $totalSiswa = Siswa::where('kelas_id', $kelasId)->count();
+                $izinCount = izinSiswa::whereDate('tanggal', $tanggal)
+                    ->whereIn('siswa_id', $siswaIds)
+                    ->where('jenis_izin', '!=', 'Sakit')
+                    ->count();
 
-                    $siswaIds = $group->pluck('siswa_id')->unique();
+                $sakitCount = izinSiswa::whereDate('tanggal', $tanggal)
+                    ->whereIn('siswa_id', $siswaIds)
+                    ->where('jenis_izin', 'Sakit')
+                    ->count();
 
-                    $izinCount = izinSiswa::whereIn('siswa_id', $siswaIds)->where('jenis_izin', '!=', 'Sakit')->count();
+                $alpaCount = presensiSiswa::whereDate('tanggal', $tanggal)
+                    ->whereIn('siswa_id', $siswaIds)
+                    ->where('status_kehadiran', 'alpa')
+                    ->count();
 
-                    $sakitCount = izinSiswa::whereIn('siswa_id', $siswaIds)->where('jenis_izin', 'Sakit')->count();
+                $hadirCount = $group->filter(function ($item) {
+                    return in_array($item->status_kehadiran, ['hadir', 'terlambat']);
+                })->count();
 
-                    $alpaCount = presensiSiswa::whereDate('tanggal', $tanggal)->whereIn('siswa_id', $siswaIds)->where('status_kehadiran', 'alpa')->count();
-
-                    $hadirCount = $group->where('status_kehadiran', 'hadir')->count();
-
-                    return [
-                        'kelas' => $kelasNama,
-                        'total_siswa' => $totalSiswa,
-                        'hadir' => $hadirCount,
-                        'izin' => $izinCount,
-                        'sakit' => $sakitCount,
-                        'alpa' => $alpaCount,
-                        'ids' => $group->pluck('id')->toArray(),
-                    ];
-                })
-                ->values();
+                return [
+                    'kelas' => $kelasNama,
+                    'total_siswa' => $totalSiswa,
+                    'hadir' => $hadirCount,
+                    'izin' => $izinCount,
+                    'sakit' => $sakitCount,
+                    'alpa' => $alpaCount,
+                    'ids' => $group->pluck('id')->toArray(),
+                ];
+            })->values();
         }
 
-        $presensi_siswa = new LengthAwarePaginator($presensi_grouped, $presensi_raw->total(), $presensi_raw->perPage(), $presensi_raw->currentPage(), ['path' => request()->url(), 'query' => request()->query()]);
+        if ($sortBy && in_array($sortBy, ['hadir', 'izin', 'sakit', 'alpa', 'total_siswa', 'kelas'])) {
+            if ($sortBy === 'kelas') {
+                if ($lihatBerdasarkan !== 'tanggal') {
+                    $presensi_grouped = $presensi_grouped->sortBy('kelas', SORT_REGULAR, $sortDirection === 'desc')->values();
+                }
+            } else {
+                $presensi_grouped = $presensi_grouped->sortBy($sortBy, SORT_REGULAR, $sortDirection === 'desc')->values();
+            }
+        }
+
+        $presensi_siswa = new LengthAwarePaginator(
+            $presensi_grouped,
+            $presensi_raw->total(),
+            $presensi_raw->perPage(),
+            $presensi_raw->currentPage(),
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         $kelasFilter = Kelas::with('jurusan')->orderBy('tingkat')->orderBy('jurusan_id')->orderBy('no_kelas')->get();
         $tanggalFilter = presensiSiswa::select('tanggal')->distinct()->orderBy('tanggal', 'desc')->pluck('tanggal');
@@ -3814,6 +3826,108 @@ class AdminController extends Controller
         return view('admin.presensi.siswa.index', $data);
     }
 
+    public function export_presensi_siswa_xlsx(Request $request)
+    {
+        $filters = $request->only(['filter_by', 'range_tanggal', 'kelas', 'tanggal']);
+        $filters['lihatBerdasarkan'] = $filters['filter_by'] ?? 'kelas';
+
+        // dd($filters);
+
+        return Excel::download(new PresensiSiswaExport($filters), 'rekap_presensi_siswa_' . now()->format('Y-m-d_H-i-s') . '.xlsx');
+    }
+
+    public function export_presensi_siswa_pdf(Request $request)
+    {
+        $filters = $request->all();
+        $lihat = $filters['lihatBerdasarkan'] ?? 'kelas';
+
+        $data = [];
+
+        if ($lihat === 'kelas') {
+            $query = presensiSiswa::with('siswa.kelas.jurusan')
+                ->join('siswa', 'presensi_siswa.siswa_id', '=', 'siswa.id')
+                ->join('kelas', 'siswa.kelas_id', '=', 'kelas.id')
+                ->join('jurusan', 'kelas.jurusan_id', '=', 'jurusan.id')
+                ->select('presensi_siswa.*');
+
+            if (!empty($filters['tanggal'])) {
+                $query->whereDate('presensi_siswa.tanggal', $filters['tanggal']);
+            }
+
+            if (!empty($filters['kelas'])) {
+                $kelasIds = is_array($filters['kelas']) ? $filters['kelas'] : [$filters['kelas']];
+                $query->whereIn('siswa.kelas_id', $kelasIds);
+            }
+
+            $presensi = $query
+                ->orderBy('kelas.tingkat')
+                ->orderBy('jurusan.kode_jurusan')
+                ->orderBy('kelas.no_kelas')
+                ->orderByRaw('LOWER(siswa.nama)')
+                ->get();
+
+            $data = $presensi->map(function ($item) {
+                $kelas = optional($item->siswa->kelas);
+                $jurusan = optional($kelas->jurusan);
+                $kelasLabel = $kelas ? "{$kelas->tingkat} {$jurusan->kode_jurusan} {$kelas->no_kelas}" : '-';
+
+                return [
+                    'nama' => $item->siswa->nama ?? '-',
+                    'kelas' => $kelasLabel,
+                    'status' => ucfirst($item->status_kehadiran),
+                    'tanggal' => \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y'),
+                ];
+            });
+        } else {
+            if (!empty($filters['range_tanggal'])) {
+                [$start, $end] = explode(' - ', $filters['range_tanggal']);
+                $start = trim($start);
+                $end = trim($end);
+            } else {
+                $start = $end = now()->format('Y-m-d');
+            }
+
+            $siswaIds = Siswa::pluck('id');
+            $dataPresensi = presensiSiswa::whereBetween('tanggal', [$start, $end])->get();
+
+            $grouped = collect();
+            foreach (CarbonPeriod::create($start, $end) as $date) {
+                $tanggal = $date->format('Y-m-d');
+
+                // ⬇️ Fix filter tanggal presensi
+                $presensiGroup = $dataPresensi->filter(function ($item) use ($tanggal) {
+                    return Carbon::parse($item->tanggal)->format('Y-m-d') === $tanggal;
+                });
+
+                $grouped->push([
+                    'tanggal' => Carbon::parse($tanggal)->format('d-m-Y'),
+                    'total_siswa' => $siswaIds->count(),
+                    'hadir' => $presensiGroup->whereIn('status_kehadiran', ['hadir', 'terlambat'])->count(),
+                    'izin' => izinSiswa::whereDate('tanggal', $tanggal)
+                        ->whereIn('siswa_id', $siswaIds)
+                        ->where('jenis_izin', '!=', 'Sakit')->count(),
+                    'sakit' => izinSiswa::whereDate('tanggal', $tanggal)
+                        ->whereIn('siswa_id', $siswaIds)
+                        ->where('jenis_izin', 'Sakit')->count(),
+                    'alpa' => $presensiGroup->where('status_kehadiran', 'alpa')->count(),
+                ]);
+            }
+
+            $data = $grouped;
+        }
+
+        $pdf = Pdf::loadView('admin.presensi.siswa.export.pdf', [
+            'data' => $data,
+            'exported_at' => now()->format('d-m-Y'),
+            'exported_at_time' => now()->format('d-m-Y H:i:s'),
+            'lihat' => $lihat,
+            'title' => 'Laporan Presensi Siswa',
+        ]);
+
+        $filename = 'presensi_siswa_' . now()->format('Y-m-d_H-i-s') . '.pdf';
+        return $pdf->download($filename);
+    }
+
     // presensi guru
     public function index_presensi_guru(Request $request)
     {
@@ -3821,73 +3935,73 @@ class AdminController extends Controller
         $sortBy = $request->input('sort_by');
         $sortDirection = $request->input('sort_direction', 'asc');
 
-        $query = presensiGuru::with('guru');
+        // Ambil semua tanggal yang ada di data presensi
+        $query = presensiGuru::query();
 
-        // Filter
         if ($request->filled('tanggal')) {
-            $query->where('tanggal', $request->input('tanggal'));
+            $query->whereDate('tanggal', $request->input('tanggal'));
         }
 
         if ($request->filled('range_tanggal')) {
             [$start, $end] = explode(' - ', $request->range_tanggal);
-            $start = trim($start);
-            $end = trim($end);
-            $query->whereBetween('tanggal', [$start, $end]);
+            $query->whereBetween('tanggal', [trim($start), trim($end)]);
         }
 
-        // Sorting manual tanpa join dulu
-        $columnMap = [
-            'tanggal' => 'tanggal',
-            'Hadir' => 'hadir',
-            'Izin' => 'izin',
-            'Sakit' => 'sakit',
-        ];
+        $presensi_raw = $query->orderBy('tanggal', 'desc')->paginate($perPage)->withQueryString();
 
-        if (isset($columnMap[$sortBy])) {
-            $query->orderBy($columnMap[$sortBy], $sortDirection);
-        } else {
-            $query->orderBy('tanggal', 'asc');
+        $tanggalList = $presensi_raw->getCollection()->pluck('tanggal')->unique();
+
+        $guruIds = Guru::pluck('id'); // Semua guru aktif
+
+        $presensi_grouped = $tanggalList->map(function ($tanggal) use ($guruIds) {
+            $hadirCount = presensiGuru::whereDate('tanggal', $tanggal)
+                ->whereIn('guru_id', $guruIds)
+                ->whereIn('status_kehadiran', ['hadir', 'terlambat'])
+                ->count();
+
+            $izinCount = izinGuru::whereDate('tanggal', $tanggal)
+                ->whereIn('guru_id', $guruIds)
+                ->where('jenis_izin', '!=', 'Sakit')
+                ->count();
+
+            $sakitCount = izinGuru::whereDate('tanggal', $tanggal)
+                ->whereIn('guru_id', $guruIds)
+                ->where('jenis_izin', 'Sakit')
+                ->count();
+
+            $alpaCount = presensiGuru::whereDate('tanggal', $tanggal)
+                ->whereIn('guru_id', $guruIds)
+                ->where('status_kehadiran', 'alpa')
+                ->count();
+
+            return [
+                'tanggal' => $tanggal,
+                'total_guru' => $guruIds->count(),
+                'hadir' => $hadirCount,
+                'izin' => $izinCount,
+                'sakit' => $sakitCount,
+                'alpa' => $alpaCount,
+            ];
+        });
+
+        // Manual sorting kalau pakai field custom
+        if ($sortBy && in_array($sortBy, ['hadir', 'izin', 'sakit', 'alpa', 'tanggal'])) {
+            $presensi_grouped = collect($presensi_grouped)->sortBy($sortBy, SORT_REGULAR, $sortDirection === 'desc')->values();
         }
 
-        $presensi_raw = $query->paginate($perPage)->withQueryString();
-
-        // Map data
-        $presensi_guru = $presensi_raw
-            ->getCollection()
-            ->groupBy('tanggal')
-            ->map(function ($group, $tanggal) {
-                $guruIds = Guru::pluck('id');
-
-                $totalGuru = count($guruIds);
-
-                $izinCount = izinGuru::whereDate('tanggal', $tanggal)->whereIn('guru_id', $guruIds)->where('jenis_izin', '!=', 'Sakit')->count();
-
-                $sakitCount = izinGuru::whereDate('tanggal', $tanggal)->whereIn('guru_id', $guruIds)->where('jenis_izin', 'Sakit')->count();
-
-                $alpaCount = presensiGuru::whereDate('tanggal', $tanggal)->whereIn('guru_id', $guruIds)->where('status_kehadiran', 'alpa')->count();
-
-                $hadirCount = $group->where('status_kehadiran', 'hadir')->count();
-
-                return [
-                    'tanggal' => $tanggal,
-                    'total_guru' => $totalGuru,
-                    'hadir' => $hadirCount,
-                    'izin' => $izinCount,
-                    'sakit' => $sakitCount,
-                    'alpa' => $alpaCount,
-                ];
-            })
-            ->values();
-        if ($sortBy) {
-            $presensi_guru = $presensi_guru->sortBy($sortBy, SORT_REGULAR, $sortDirection === 'desc')->values();
-        }
-
-        $presensi_guru = new \Illuminate\Pagination\LengthAwarePaginator($presensi_guru, $presensi_raw->total(), $presensi_raw->perPage(), $presensi_raw->currentPage(), ['path' => request()->url(), 'query' => request()->query()]);
+        // Rebuild paginator
+        $presensi_guru = new \Illuminate\Pagination\LengthAwarePaginator(
+            $presensi_grouped,
+            $presensi_raw->total(),
+            $presensi_raw->perPage(),
+            $presensi_raw->currentPage(),
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         $tanggalFilter = presensiGuru::select('tanggal')->distinct()->orderBy('tanggal', 'desc')->pluck('tanggal');
 
         $data = [
-            'title' => 'Presensi Siswa',
+            'title' => 'Presensi Guru',
             'presensi_guru' => $presensi_guru,
             'tanggalFilter' => $tanggalFilter,
         ];
@@ -3900,6 +4014,71 @@ class AdminController extends Controller
         }
 
         return view('admin.presensi.guru.index', $data);
+    }
+
+    public function export_presensi_guru_xlsx(Request $request)
+    {
+        $filters = $request->only(['range_tanggal']);
+
+        return Excel::download(
+            new PresensiGuruExport($filters),
+            'rekap_presensi_guru_' . now()->format('Y-m-d_H-i-s') . '.xlsx'
+        );
+    }
+
+    public function export_presensi_guru_pdf(Request $request)
+    {
+        $filters = $request->only(['range_tanggal']);
+
+        if (!empty($filters['range_tanggal'])) {
+            [$start, $end] = explode(' - ', $filters['range_tanggal']);
+        } else {
+            $start = $end = now()->format('Y-m-d');
+        }
+
+        $guruIds = Guru::pluck('id');
+        $dates = [];
+        $currentDate = \Carbon\Carbon::parse($start);
+        $endDate = \Carbon\Carbon::parse($end);
+
+        while ($currentDate->lte($endDate)) {
+            $dates[] = $currentDate->format('Y-m-d');
+            $currentDate->addDay();
+        }
+
+        $rekap = collect();
+
+        foreach ($dates as $tanggal) {
+            $rekap->push([
+                'tanggal' => \Carbon\Carbon::parse($tanggal)->format('d-m-Y'),
+                'total_guru' => $guruIds->count(),
+                'hadir' => PresensiGuru::whereDate('tanggal', $tanggal)
+                    ->whereIn('guru_id', $guruIds)
+                    ->whereIn('status_kehadiran', ['hadir', 'terlambat'])
+                    ->count(),
+                'izin' => IzinGuru::whereDate('tanggal', $tanggal)
+                    ->whereIn('guru_id', $guruIds)
+                    ->where('jenis_izin', '!=', 'Sakit')
+                    ->count(),
+                'sakit' => IzinGuru::whereDate('tanggal', $tanggal)
+                    ->whereIn('guru_id', $guruIds)
+                    ->where('jenis_izin', 'Sakit')
+                    ->count(),
+                'alpa' => PresensiGuru::whereDate('tanggal', $tanggal)
+                    ->whereIn('guru_id', $guruIds)
+                    ->where('status_kehadiran', 'alpa')
+                    ->count(),
+            ]);
+        }
+
+        $pdf = Pdf::loadView('admin.presensi.guru.export.pdf', [
+            'data' => $rekap,
+            'title' => 'Laporan Presensi Guru',
+            'exported_at' => now()->format('d-m-Y'),
+            'exported_at_time' => now()->format('d-m-Y H:i:s'),
+        ]);
+
+        return $pdf->download('presensi_guru_' . now()->format('Y-m-d_H-i-s') . '.pdf');
     }
 
     // presensi per mapel
@@ -4005,7 +4184,7 @@ class AdminController extends Controller
 
     public function download_lampiran_siswa($filename)
     {
-        $path = storage_path('app/public/lampiran_izin/' . $filename); // Atau storage_path kalau file di storage
+        $path = storage_path('app/public/lampiran_izin/' . $filename);
 
         if (!File::exists($path)) {
             abort(404);
