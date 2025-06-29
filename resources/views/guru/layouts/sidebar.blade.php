@@ -37,11 +37,11 @@
             <span class="material-icons-sharp"> today </span>
             <h3>Jadwal</h3>
         </a>
-        <a href="#">
+        {{-- <a href="#">
             <span class="material-icons-sharp"> notifications </span>
             <h3>Notifikasi</h3>
-            {{-- <span class="message-count">27</span> --}}
-        </a>
+            <span class="message-count">27</span>
+        </a> --}}
 
         <a href="#" class="btn-logout" id="logout-btn-guru">
             <span class="material-icons-sharp"> logout </span>
