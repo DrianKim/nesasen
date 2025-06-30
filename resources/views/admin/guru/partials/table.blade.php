@@ -39,12 +39,6 @@
                     <div class="empty-state">
                         <img src="{{ asset('assets\img\not-found.png') }}" alt="No Data" width="120">
                         <p>Tidak ada data guru yang ditemukan</p>
-                        {{-- @include('admin.guru.modal-create') --}}
-                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
-                            data-target="#modalGuruCreate">
-                            <i class="mr-1 fas fa-plus"></i>
-                            <span class="button-label">Tambah Guru</span>
-                        </button>
                     </div>
                 </td>
             </tr>

@@ -3,6 +3,7 @@
     $nama = explode(' ', Auth::user()->name_admin);
     $namaPendek = implode(' ', array_slice($nama, 0, 1));
 @endphp
+
 <body class="with-right-section">
     <div class="container">
         <!-- Sidebar Section -->

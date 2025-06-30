@@ -30,7 +30,6 @@
                             <span class="material-icons-sharp">delete</span>
                         </button>
                     </div>
-                    {{-- @include('admin.jurusan.modal') --}}
                 </td>
             </tr>
         @empty
@@ -39,12 +38,6 @@
                     <div class="empty-state">
                         <img src="{{ asset('assets\img\not-found.png') }}" alt="No Data" width="120">
                         <p>Tidak ada data jurusan yang ditemukan</p>
-                        {{-- @include('admin.jurusan.modal-create') --}}
-                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
-                            data-target="#modalJurusanCreate">
-                            <i class="mr-1 fas fa-plus"></i>
-                            <span class="button-label">Tambah Jurusan</span>
-                        </button>
                     </div>
                 </td>
             </tr>

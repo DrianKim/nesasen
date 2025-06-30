@@ -42,12 +42,6 @@
                     <div class="empty-state">
                         <img src="{{ asset('assets\img\not-found.png') }}" alt="No Data" width="120">
                         <p>Tidak ada data kelasKu yang ditemukan</p>
-                        @include('admin.kelasKu.modal-create')
-                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
-                            data-target="#modalKelasKuCreate">
-                            <i class="mr-1 fas fa-plus"></i>
-                            <span class="button-label">Tambah KelasKu</span>
-                        </button>
                     </div>
                 </td>
             </tr>
