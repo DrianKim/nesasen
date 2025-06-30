@@ -83,7 +83,7 @@
                             </div>
 
                             <!-- Tahun Ajaran -->
-                            <div class="form-group half">
+                            {{-- <div class="form-group half">
                                 <label for="import_tahun_ajaran">Tahun Ajaran:</label>
                                 <select name="tahun_ajaran" id="import_tahun_ajaran">
                                     @foreach ($tahunAjaranFilter as $tahun)
@@ -93,7 +93,7 @@
                                         </option>
                                     @endforeach
                                 </select>
-                            </div>
+                            </div> --}}
                         </div>
 
                         <!-- Upload file -->

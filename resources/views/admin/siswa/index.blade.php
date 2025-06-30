@@ -10,13 +10,13 @@
                 <div class="filter-wrapper">
                     <div class="filter-top">
                         <div class="filter-bar">
-                            <div class="filter-group">
+                            {{-- <div class="filter-group">
                                 <label for="tahun-ajaran">Tahun Ajaran:</label>
                                 <select id="tahun-ajaran">
                                     <option value="">-</option>
                                     <option value="2024/2025">2024/2025</option>
                                 </select>
-                            </div>
+                            </div> --}}
 
                             <form action="{{ route('admin_siswa.index') }}" method="GET">
                                 <div class="filter-group">

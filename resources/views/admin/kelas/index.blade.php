@@ -11,13 +11,13 @@
                 <div class="filter-wrapper">
                     <div class="filter-top">
                         <div class="filter-bar">
-                            <div class="filter-group">
+                            {{-- <div class="filter-group">
                                 <label for="tahun-ajaran">Tahun Ajaran:</label>
                                 <select id="tahun-ajaran">
                                     <option value="">-</option>
                                     <option value="2024/2025">2024/2025</option>
                                 </select>
-                            </div>
+                            </div> --}}
 
                             <div class="filter-group">
                                 <label for="perPage">Tampilkan:</label>
