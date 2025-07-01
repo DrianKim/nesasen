@@ -14,7 +14,6 @@
 </head>
 
 <body>
-    <!-- Header dengan Logo dan Panah Kembali -->
     <header>
         <a href="#" class="back-btn" id="backBtn">
             <i class="fas fa-arrow-left"></i>
