@@ -121,8 +121,6 @@ Route::middleware(['isLogin'])->group(function () {
     //profil
     Route::get('siswa/profil', [SiswaController::class, 'profil_index'])->name('siswa.profil');
     Route::post('siswa/profil/update', [SiswaController::class, 'profil_update'])->name('siswa.profil.update');
-
-    Route::get('/profil', [SiswaController::class, 'profil_index'])->name('siswa.profil');
     Route::post('/pilih-kelas', [SiswaController::class, 'siswa_pilih_kelas'])->name('siswa.pilihKelas');
 
     // presensi
