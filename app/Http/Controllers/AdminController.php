@@ -1228,11 +1228,11 @@ class AdminController extends Controller
             $query->where('kelas_id', $kelasId);
         }
 
-        if ($tahunAjaran) {
-            $query->whereHas('kelas', function ($q) use ($tahunAjaran) {
-                $q->where('tahun_ajaran', $tahunAjaran);
-            });
-        }
+        // if ($tahunAjaran) {
+        //     $query->whereHas('kelas', function ($q) use ($tahunAjaran) {
+        //         $q->where('tahun_ajaran', $tahunAjaran);
+        //     });
+        // }
 
         if ($search) {
             $searchTerm = strtolower(trim($search));
@@ -1279,21 +1279,6 @@ class AdminController extends Controller
                     break;
             }
         }
-        // if ($sortBy) {
-        //     $columnMap = [
-        //         // 'NISN' => 'nisn',
-        //         'NIS' => 'nis',
-        //         'Nama Siswa' => 'nama',
-        //         'No. HP' => 'no_hp',
-        //         'Kelas' => 'kelas_id'
-        //     ];
-
-        //     if (isset($columnMap[$sortBy])) {
-        //         $query->orderBy($columnMap[$sortBy], $sortDirection);
-        //     } else {
-        //         $query->orderBy('kelas_id', 'asc')->orderBy('nama', 'asc');
-        //     }
-        // }
 
         $siswa = $query->paginate($perPage)->withQueryString();
 

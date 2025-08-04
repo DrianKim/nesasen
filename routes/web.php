@@ -16,11 +16,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ForgotPasswordController;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
-//coba
-// Route::get('/coba', function () {
-//     return view('coba/coba');
-// })->name('coba');
-
 // Landing Page
 Route::get('/', function () {
     return view('welcome');
@@ -120,7 +115,7 @@ Route::middleware(['isLogin'])->group(function () {
 
     //profil
     Route::get('siswa/profil', [SiswaController::class, 'profil_index'])->name('siswa.profil');
-    Route::post('siswa/profil/update', [SiswaController::class, 'profil_update'])->name('siswa.profil.update'); 
+    Route::post('siswa/profil/update', [SiswaController::class, 'profil_update'])->name('siswa.profil.update');
     Route::post('/pilih-kelas', [SiswaController::class, 'siswa_pilih_kelas'])->name('siswa.pilihKelas');
 
     // presensi

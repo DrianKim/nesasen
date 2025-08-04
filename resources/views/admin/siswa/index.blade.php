@@ -378,7 +378,7 @@
             function getFilterData() {
                 const data = new URLSearchParams();
 
-                if (tahunAjaranSelect.value) data.append('tahun_ajaran', tahunAjaranSelect.value);
+                // if (tahunAjaranSelect.value) data.append('tahun_ajaran', tahunAjaranSelect.value);
                 if (kelasListSelect) data.append('kelas', kelasListSelect.value);
                 if (perPageSelect.value) data.append('perPage', perPageSelect.value);
                 if (searchInput.value) data.append('search', searchInput.value);
